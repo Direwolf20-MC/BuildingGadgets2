@@ -37,7 +37,7 @@ public class GadgetUtils {
 
     public static BlockState cleanBlockState(BlockState sourceState) {
         BlockState placeState = sourceState.getBlock().defaultBlockState();
-        for (Property<?> prop : placeState.getProperties()) {
+        for (Property<?> prop : sourceState.getProperties()) {
             if (ALLOWED_PROPERTIES.contains(prop)) {
                 placeState = applyProperty(placeState, sourceState, prop);
             }

@@ -1,6 +1,5 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
-import com.direwolf20.buildinggadgets2.setup.ModSetup;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -19,10 +18,9 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
 
-public class Gadget_Building extends Item {
+public class Gadget_Building extends Base_Gadget {
     public Gadget_Building() {
-        super(new Item.Properties().tab(ModSetup.ITEM_GROUP)
-                .stacksTo(1));
+        super(new Item.Properties());
     }
 
     @Override

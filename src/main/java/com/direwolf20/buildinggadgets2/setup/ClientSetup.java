@@ -1,9 +1,11 @@
 package com.direwolf20.buildinggadgets2.setup;
 
+import com.direwolf20.buildinggadgets2.client.events.RenderLevelLast;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -18,7 +20,7 @@ public class ClientSetup {
         //MinecraftForgeClient.registerTooltipComponentFactory(EventTooltip.CopyPasteTooltipComponent.Data.class, EventTooltip.CopyPasteTooltipComponent::new);
 
         //Register our Render Events Class
-        //MinecraftForge.EVENT_BUS.register(ClientEvents.class);
+        MinecraftForge.EVENT_BUS.register(RenderLevelLast.class);
         //MinecraftForge.EVENT_BUS.register(EventTooltip.class);
 
         //Screens
