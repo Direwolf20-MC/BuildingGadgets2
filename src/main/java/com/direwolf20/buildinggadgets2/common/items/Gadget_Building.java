@@ -5,7 +5,7 @@ import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.modes.BuildToMe;
-import net.minecraft.core.BlockPos;
+import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Gadget_Building extends Base_Gadget {
     public Gadget_Building() {
@@ -42,9 +42,9 @@ public class Gadget_Building extends Base_Gadget {
         if (setState.isAir()) return InteractionResultHolder.pass(gadget);
 
         BuildToMe buildToMe = new BuildToMe();
-        List<BlockPos> buildList = buildToMe.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos());
+        ArrayList<StatePos> buildList = buildToMe.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), setState);
 
-        BuildingUtils.build(level, buildList, setState);
+        BuildingUtils.build(level, buildList, setState, lookingAt.getBlockPos());
 
         return InteractionResultHolder.success(gadget);
     }

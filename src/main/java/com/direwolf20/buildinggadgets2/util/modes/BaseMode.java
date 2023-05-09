@@ -3,8 +3,9 @@ package com.direwolf20.buildinggadgets2.util.modes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public abstract class BaseMode {
     private boolean isExchanging;
@@ -13,6 +14,6 @@ public abstract class BaseMode {
         this.isExchanging = isExchanging;
     }
 
-    abstract List<BlockPos> collect(Direction hitSide, Player player, BlockPos start);
+    abstract ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state);
 
 }
