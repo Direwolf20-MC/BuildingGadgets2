@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
+import com.direwolf20.buildinggadgets2.client.blockentityrenders.RenderBlockBER;
 import com.direwolf20.buildinggadgets2.client.events.RenderLevelLast;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,7 +45,7 @@ public class ClientSetup {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         //Register Block Entity Renders
-        //event.registerBlockEntityRenderer(Registration.LaserConnector_BE.get(), LaserConnectorBERender::new);
+        event.registerBlockEntityRenderer(Registration.RenderBlock_BE.get(), RenderBlockBER::new);
     }
 
     @SubscribeEvent
