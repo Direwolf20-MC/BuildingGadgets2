@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -13,7 +14,7 @@ public class BG2ItemModels extends ItemModelProvider {
     @Override
     protected void registerModels() {
         //Block Items
-        //withExistingParent(Registration.LaserConnector_ITEM.getId().getPath(), modLoc("block/laser_connector"));
+        withExistingParent(Registration.RenderBlock_ITEM.getId().getPath(), modLoc("block/render_block"));
         //withExistingParent(Registration.LaserNode_ITEM.getId().getPath(), modLoc("block/laser_node"));
 
         //Item items
