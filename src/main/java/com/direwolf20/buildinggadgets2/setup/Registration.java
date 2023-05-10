@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
-import com.direwolf20.buildinggadgets2.common.items.Gadget_Building;
+import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -45,7 +45,7 @@ public class Registration {
     //public static final RegistryObject<BlockEntityType<LaserConnectorBE>> LaserConnector_BE = BLOCK_ENTITIES.register("laserconnector", () -> BlockEntityType.Builder.of(LaserConnectorBE::new, LaserConnector.get()).build(null));
 
     //Items
-    public static final RegistryObject<Item> Building_Gadget = ITEMS.register("gadget_building", Gadget_Building::new);
+    public static final RegistryObject<Item> Building_Gadget = ITEMS.register("gadget_building", GadgetBuilding::new);
 
     //Containers
     //public static final RegistryObject<MenuType<LaserNodeContainer>> LaserNode_Container = CONTAINERS.register("lasernode",

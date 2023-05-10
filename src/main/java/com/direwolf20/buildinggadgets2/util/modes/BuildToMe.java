@@ -16,15 +16,13 @@ public class BuildToMe extends BaseMode {
     public ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
 
-        XYZ facingXYZ = XYZ.fromFacing(hitSide);
-
-        int startCoord = XYZ.posToXYZ(start, facingXYZ);
-        int playerCoord = XYZ.posToXYZ(player.blockPosition(), facingXYZ);
+        int startCoord = hitSide.getAxis().choose(start.getX(), start.getY(), start.getZ());
+        int playerCoord = hitSide.getAxis().choose(player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ());
 
         // Clamp the value to the max range of the gadgets raytrace
         double difference = Math.max(0, Math.min(32, Math.abs(startCoord - playerCoord))); //TODO Config
-        for (int i = 0; i < difference; i++)
-            coordinates.add(new StatePos(state, XYZ.extendPosSingle(i, BlockPos.ZERO, hitSide, facingXYZ)));
+        for (int i = 1; i < difference; i++)
+            coordinates.add(new StatePos(state, BlockPos.ZERO.relative(hitSide, i)));
 
         return coordinates;
     }

@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.events;
 
-import com.direwolf20.buildinggadgets2.common.items.Base_Gadget;
+import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +17,7 @@ public class RenderLevelLast {
         if (player == null)
             return;
 
-        ItemStack heldItem = Base_Gadget.getGadget(player);
+        ItemStack heldItem = BaseGadget.getGadget(player);
         if (heldItem.isEmpty())
             return;
 

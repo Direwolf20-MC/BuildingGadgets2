@@ -18,8 +18,8 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 
-public class Gadget_Building extends Base_Gadget {
-    public Gadget_Building() {
+public class GadgetBuilding extends BaseGadget {
+    public GadgetBuilding() {
         super(new Item.Properties());
     }
 

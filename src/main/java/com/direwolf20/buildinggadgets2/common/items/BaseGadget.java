@@ -5,8 +5,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public class Base_Gadget extends Item {
-    public Base_Gadget(Properties builder) {
+public class BaseGadget extends Item {
+    public BaseGadget(Properties builder) {
         super(builder.tab(ModSetup.ITEM_GROUP)
                 .stacksTo(1)
                 .setNoRepair());
@@ -14,9 +14,9 @@ public class Base_Gadget extends Item {
 
     public static ItemStack getGadget(Player player) {
         ItemStack heldItem = player.getMainHandItem();
-        if (!(heldItem.getItem() instanceof Base_Gadget)) {
+        if (!(heldItem.getItem() instanceof BaseGadget)) {
             heldItem = player.getOffhandItem();
-            if (!(heldItem.getItem() instanceof Base_Gadget)) {
+            if (!(heldItem.getItem() instanceof BaseGadget)) {
                 return ItemStack.EMPTY;
             }
         }
