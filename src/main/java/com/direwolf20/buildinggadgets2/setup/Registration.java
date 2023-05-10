@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -37,8 +38,8 @@ public class Registration {
     public static final Item.Properties ITEM_PROPERTIES = new Item.Properties().tab(ModSetup.ITEM_GROUP);
 
     //Blocks
-    //public static final RegistryObject<Block> LaserConnector = BLOCKS.register("laser_connector", LaserConnector::new);
-    //public static final RegistryObject<Item> LaserConnector_ITEM = fromBlock(LaserConnector);
+    public static final RegistryObject<Block> RenderBlock = BLOCKS.register("render_block", RenderBlock::new);
+    public static final RegistryObject<Item> RenderBlock_ITEM = fromBlock(RenderBlock); //Temporary
 
     //BlockEntities (Not TileEntities - Honest)
     //public static final RegistryObject<BlockEntityType<LaserNodeBE>> LaserNode_BE = BLOCK_ENTITIES.register("lasernode", () -> BlockEntityType.Builder.of(LaserNodeBE::new, LaserNode.get()).build(null));

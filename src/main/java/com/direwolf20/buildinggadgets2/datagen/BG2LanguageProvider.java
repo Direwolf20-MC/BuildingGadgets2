@@ -16,7 +16,7 @@ public class BG2LanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         add("itemGroup." + TAB_NAME, "BuildingGadgets2");
         //Blocks
-        //add(Registration.LaserConnector.get(), "Laser Connector");
+        add(Registration.RenderBlock.get(), "Render Block (DO NOT USE)");
 
         //Items
         add(Registration.Building_Gadget.get(), "Building Gadget");
