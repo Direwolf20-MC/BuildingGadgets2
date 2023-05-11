@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.common.blockentities;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,30 +13,52 @@ import net.minecraft.world.phys.AABB;
 import javax.annotation.Nonnull;
 
 public class RenderBlockBE extends BlockEntity {
+    public byte drawSize;
+    public BlockState renderBlock;
 
     public RenderBlockBE(BlockPos pos, BlockState state) {
         super(Registration.RenderBlock_BE.get(), pos, state);
     }
 
     public void tickClient() {
+        increaseDrawSize();
+        if (drawSize >= 40)
+            drawSize = 40;
         //System.out.println("I'm here!");
     }
 
     public void tickServer() {
-        //System.out.println("I'm here!");
+        increaseDrawSize();
+        //markDirtyClient();
+        if (drawSize >= 40)
+            level.setBlockAndUpdate(this.getBlockPos(), renderBlock);
+    }
+
+    public void increaseDrawSize() {
+        drawSize++;
+    }
+
+    public void setRenderBlock(BlockState state) {
+        renderBlock = state;
+        drawSize = 0;
+        markDirtyClient();
     }
 
     /** Misc Methods for TE's */
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        //stuff
+        this.renderBlock = NbtUtils.readBlockState(tag.getCompound("renderBlock"));
+        this.drawSize = tag.getByte("drawSize");
     }
 
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        //stuff
+        if (this.renderBlock != null) {
+            tag.put("renderBlock", NbtUtils.writeBlockState(this.renderBlock));
+        }
+        tag.putByte("drawSize", this.drawSize);
     }
 
     @Nonnull
@@ -83,8 +106,6 @@ public class RenderBlockBE extends BlockEntity {
 
     @Override
     public void clearRemoved() {
-        //if (!level.isClientSide)
-        //    validateConnections();
         super.clearRemoved();
     }
 }
