@@ -1,5 +1,6 @@
 {
   "block.buildinggadgets2.render_block": "Render Block (DO NOT USE)",
+  "buildinggadgets2.keymapping.mode-switch": "Switch Modes",
   "item.buildinggadgets2.gadget_building": "Building Gadget",
   "itemGroup.buildinggadgets2": "BuildingGadgets2"
 }

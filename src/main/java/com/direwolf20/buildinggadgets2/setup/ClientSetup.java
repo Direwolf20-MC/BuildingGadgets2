@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
+import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.blockentityrenders.RenderBlockBER;
 import com.direwolf20.buildinggadgets2.client.events.RenderLevelLast;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
@@ -7,13 +8,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod.EventBusSubscriber(modid = BuildingGadgets2.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientSetup {
     public static void init(final FMLClientSetupEvent event) {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        MinecraftForge.EVENT_BUS.addListener(KeyBindings::onClientInput);
 
         //Register Custom Tooltips
         //MinecraftForgeClient.registerTooltipComponentFactory(EventTooltip.CopyPasteTooltipComponent.Data.class, EventTooltip.CopyPasteTooltipComponent::new);

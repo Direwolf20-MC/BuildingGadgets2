@@ -42,9 +42,10 @@ public class VBORenderer {
         */
         BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
         if (renderBlockState.isAir()) return;
-        BuildToMe buildToMe = new BuildToMe();
+
+        var mode = GadgetNBT.getMode(heldItem);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
-        ArrayList<StatePos> buildList = buildToMe.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
+        ArrayList<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
 
         if (buildList.equals(statePosCache))
             return;
@@ -91,9 +92,11 @@ public class VBORenderer {
         }
         BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
         if (renderBlockState.isAir()) return;
-        BuildToMe buildToMe = new BuildToMe();
+
+        // TODO: This might need caching (and invalidating when the mode changes)
+        var mode = GadgetNBT.getMode(heldItem);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
-        List<StatePos> buildList = buildToMe.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
+        List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
         if (buildList.isEmpty()) return;
         Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         PoseStack matrix = evt.getPoseStack();

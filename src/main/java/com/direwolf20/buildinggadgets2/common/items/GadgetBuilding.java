@@ -1,9 +1,11 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
+import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
+import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.modes.BuildToMe;
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import net.minecraft.world.InteractionHand;
@@ -23,29 +25,44 @@ public class GadgetBuilding extends BaseGadget {
         super(new Item.Properties());
     }
 
+    /**
+     * TODO: it's very possible this method could be common on all gadgets
+     */
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack gadget = player.getItemInHand(hand);
-        if (level.isClientSide()) //No client
-            return InteractionResultHolder.success(gadget);
-
-        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, ClipContext.Fluid.NONE);
-
-        if (player.isShiftKeyDown()) {
-            BlockState blockState = level.getBlockState(lookingAt.getBlockPos());
-            if (GadgetUtils.setBlockState(gadget, blockState))
-                return InteractionResultHolder.success(gadget);
-            return InteractionResultHolder.pass(gadget);
-        }
+    InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
+        var gadget = context.stack();
 
         BlockState setState = GadgetNBT.getGadgetBlockState(gadget);
         if (setState.isAir()) return InteractionResultHolder.pass(gadget);
 
-        BuildToMe buildToMe = new BuildToMe();
-        ArrayList<StatePos> buildList = buildToMe.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), setState);
+        var mode = GadgetNBT.getMode(gadget);
+        ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), context.pos(), setState);
 
-        BuildingUtils.build(level, buildList, setState, lookingAt.getBlockPos());
+        // This should go through some translation based process
+        // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
+        BuildingUtils.build(context.level(), buildList, setState, context.pos());
 
         return InteractionResultHolder.success(gadget);
+    }
+
+    /**
+     * Selects the block assuming you're actually looking at one
+     */
+    @Override
+    InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
+        BlockState blockState = context.level().getBlockState(context.pos());
+
+        if (GadgetUtils.setBlockState(context.stack(), blockState))
+            return InteractionResultHolder.success(context.stack());
+
+        return super.onShiftAction(context);
+    }
+
+    /**
+     * Used to retrieve the correct building modes in various places
+     */
+    @Override
+    public GadgetTarget gadgetTarget() {
+        return GadgetTarget.BUILDING;
     }
 }

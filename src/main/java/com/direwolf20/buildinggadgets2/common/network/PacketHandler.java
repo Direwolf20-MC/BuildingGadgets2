@@ -27,9 +27,9 @@ public class PacketHandler {
         int id = 0;
 
         // Server side
-        //HANDLER.registerMessage(id++, PacketUpdateCard.class, PacketUpdateCard::encode, PacketUpdateCard::decode, PacketUpdateCard.Handler::handle);
 
         //Client Side
+        HANDLER.registerMessage(id++, GadgetModeSwitchPacket.class, GadgetModeSwitchPacket::encode, GadgetModeSwitchPacket::decode, GadgetModeSwitchPacket::handle);
         //HANDLER.registerMessage(id++, PacketNodeParticles.class, PacketNodeParticles::encode, PacketNodeParticles::decode, PacketNodeParticles.Handler::handle);
 
     }

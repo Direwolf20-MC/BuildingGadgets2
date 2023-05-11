@@ -15,12 +15,14 @@ public class BG2LanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         add("itemGroup." + TAB_NAME, "BuildingGadgets2");
+
         //Blocks
         add(Registration.RenderBlock.get(), "Render Block (DO NOT USE)");
 
         //Items
         add(Registration.Building_Gadget.get(), "Building Gadget");
 
+        add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
 
         //add("screen.laserio.extractamt", "Transfer Amount");
 
