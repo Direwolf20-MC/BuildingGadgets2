@@ -62,7 +62,13 @@ public class RenderBlock extends Block implements EntityBlock {
     @Override
     public float getShadeBrightness(BlockState p_48731_, BlockGetter p_48732_, BlockPos p_48733_) {
         if (p_48732_.getBlockEntity(p_48733_) instanceof RenderBlockBE renderBlockBE && renderBlockBE.renderBlock != null) {
-            return renderBlockBE.renderBlock.getBlock().getShadeBrightness(p_48731_, p_48732_, p_48733_);
+            //I'll come back to this if i can find a way to prevent MC from caching it for this block
+            //int drawSize = renderBlockBE.drawSize;
+            //float nowScale = (float) (drawSize) / (float) 40;
+            float blockShade = renderBlockBE.renderBlock.getBlock().getShadeBrightness(p_48731_, p_48732_, p_48733_);
+            //float scale = (Mth.lerp(nowScale, blockShade, 1f));
+            //System.out.println(drawSize + ":" + nowScale + ":" + scale);
+            return blockShade;
         }
         return 1.0F;
     }

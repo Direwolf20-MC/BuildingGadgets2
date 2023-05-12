@@ -13,6 +13,7 @@ public abstract class BaseMode {
     /**
      * @deprecated all the modes should be possible without knowing the type of gadget... I'd hope
      */
+    @Deprecated
     private boolean isExchanging;
 
     public BaseMode(boolean isExchanging) {
