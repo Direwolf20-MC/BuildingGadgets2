@@ -4,7 +4,8 @@ import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.direwolf20.buildinggadgets2.util.modes.BuildToMe;
 import com.google.common.collect.ImmutableSortedSet;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 public enum GadgetModes {
     INSTANCE;
@@ -41,7 +42,7 @@ public enum GadgetModes {
      * Register a given mode to a given gadget
      *
      * @param target the target gadget
-     * @param mode the mode you want to register
+     * @param mode   the mode you want to register
      */
     public boolean registerMode(GadgetTarget target, BaseMode mode) {
         return this.gadgetModes

@@ -17,4 +17,5 @@ public record ItemActionContext(
         Level level,
         InteractionHand hand,
         ItemStack stack
-) {}
+) {
+}

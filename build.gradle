@@ -52,7 +52,8 @@ minecraft {
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', 'buildinggadgets2'
-
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 examplemod {
                     source sourceSets.main
@@ -68,7 +69,8 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             property 'forge.enabledGameTestNamespaces', 'buildinggadgets2'
-
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 examplemod {
                     source sourceSets.main
@@ -169,6 +171,8 @@ dependencies {
     //Other mods for dev environment
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
     runtimeOnly fg.deobf("curse.maven:charging-gadgets-399757:3955867")
+    runtimeOnly fg.deobf("curse.maven:create-328085:4371809")
+    runtimeOnly fg.deobf("curse.maven:flywheel-486392:4341471")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

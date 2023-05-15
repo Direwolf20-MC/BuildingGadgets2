@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
@@ -45,24 +46,41 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
 
         BlockRenderDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRenderer();
         BakedModel ibakedmodel = blockrendererdispatcher.getBlockModel(renderState);
+        boolean isNormalRender = false;
+        for (Direction direction : Direction.values()) {
+            if (!ibakedmodel.getQuads(renderState, direction, RandomSource.create(), ModelData.EMPTY, null).isEmpty()) {
+                isNormalRender = true;
+                break;
+            }
+            if (!ibakedmodel.getQuads(renderState, null, RandomSource.create(), ModelData.EMPTY, null).isEmpty()) {
+                isNormalRender = true;
+            }
+        }
         BlockColors blockColors = Minecraft.getInstance().getBlockColors();
 
-        VertexConsumer builder = bufferIn.getBuffer(RenderType.translucent());
-        matrixStackIn.pushPose();
-        //if (breakType == MiningProperties.BreakTypes.SHRINK) {
+        VertexConsumer builder = bufferIn.getBuffer(RenderType.cutout());
 
+        matrixStackIn.pushPose();
+
+        //if (breakType == MiningProperties.BreakTypes.SHRINK) {
         ModelBlockRenderer modelBlockRenderer = new ModelBlockRenderer(blockColors);
         matrixStackIn.translate((1 - scale) / 2, (1 - scale) / 2, (1 - scale) / 2);
         matrixStackIn.scale(scale, scale, scale);
-        modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos, matrixStackIn, builder, true, RandomSource.create(), renderState.getSeed(pos), combinedOverlayIn, ModelData.EMPTY, null);
+
+        if (isNormalRender)
+            modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos, matrixStackIn, builder, true, RandomSource.create(), renderState.getSeed(pos), combinedOverlayIn, ModelData.EMPTY, null);
+        else
+            blockrendererdispatcher.renderSingleBlock(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, ModelData.EMPTY, null);
+
 
         //} else if (breakType == MiningProperties.BreakTypes.FADE) {
-
-/*
-        DireModelBlockRenderer modelBlockRenderer = new DireModelBlockRenderer(blockColors);
+        /*DireModelBlockRenderer modelBlockRenderer = new DireModelBlockRenderer(blockColors);
         scale = Mth.lerp(scale, 0.0f, 1f);
         modelBlockRenderer.setAlpha(scale);
-        modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos, matrixStackIn, builder, true, RandomSource.create(), renderState.getSeed(pos), combinedOverlayIn, ModelData.EMPTY, null);
+        if (isNormalRender)
+            modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos, matrixStackIn, builder, true, RandomSource.create(), renderState.getSeed(pos), combinedOverlayIn, ModelData.EMPTY, null);
+        else
+            MyRenderMethods.renderBETransparent(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
 */
         matrixStackIn.popPose();
     }
