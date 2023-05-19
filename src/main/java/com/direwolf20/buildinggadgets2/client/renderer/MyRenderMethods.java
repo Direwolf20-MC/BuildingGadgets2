@@ -109,6 +109,92 @@ public class MyRenderMethods {
         }
     }
 
+    /*public static class MultiplyAlphaRenderTypeBuffer2 extends MultiBufferSource.BufferSource {
+        private static final ChunkBufferBuilderPack fixedBufferPack = new ChunkBufferBuilderPack();
+        private static final SortedMap<RenderType, BufferBuilder> fixedBuffers = Util.make(new Object2ObjectLinkedOpenHashMap<>(), (p_110100_) -> {
+            p_110100_.put(Sheets.solidBlockSheet(), fixedBufferPack.builder(RenderType.solid()));
+            p_110100_.put(Sheets.cutoutBlockSheet(), fixedBufferPack.builder(RenderType.cutout()));
+            p_110100_.put(Sheets.bannerSheet(), fixedBufferPack.builder(RenderType.cutoutMipped()));
+            p_110100_.put(Sheets.translucentCullBlockSheet(), fixedBufferPack.builder(RenderType.translucent()));
+            put(p_110100_, Sheets.shieldSheet());
+            put(p_110100_, Sheets.bedSheet());
+            put(p_110100_, Sheets.shulkerBoxSheet());
+            put(p_110100_, Sheets.signSheet());
+            put(p_110100_, Sheets.chestSheet());
+            put(p_110100_, RenderType.translucentNoCrumbling());
+            put(p_110100_, RenderType.armorGlint());
+            put(p_110100_, RenderType.armorEntityGlint());
+            put(p_110100_, RenderType.glint());
+            put(p_110100_, RenderType.glintDirect());
+            put(p_110100_, RenderType.glintTranslucent());
+            put(p_110100_, RenderType.entityGlint());
+            put(p_110100_, RenderType.entityGlintDirect());
+            put(p_110100_, RenderType.waterMask());
+            ModelBakery.DESTROY_TYPES.forEach((p_173062_) -> {
+                put(p_110100_, p_173062_);
+            });
+        });
+
+        private final float constantAlpha;
+        private VertexBuffer vertexBuffer;
+
+        public MultiplyAlphaRenderTypeBuffer2(BufferBuilder bufferBuilder, float constantAlpha, VertexBuffer vertexBuffer) {
+            super(bufferBuilder, fixedBuffers);
+            this.constantAlpha = constantAlpha;
+            this.vertexBuffer = vertexBuffer;
+        }
+
+        private static void put(Object2ObjectLinkedOpenHashMap<RenderType, BufferBuilder> pMapBuilders, RenderType pRenderType) {
+            pMapBuilders.put(pRenderType, new BufferBuilder(pRenderType.bufferSize()));
+        }
+        private BufferBuilder getBuilderRaw(RenderType pRenderType) {
+            return fixedBuffers.getOrDefault(pRenderType, this.builder);
+        }
+
+        @Override
+        public VertexConsumer getBuffer(RenderType pRenderType) {
+            return super.getBuffer(pRenderType);
+        }
+
+        @Override
+        public void endLastBatch() {
+            super.endLastBatch();
+
+        }
+        @Override
+        public void endBatch() {
+            super.endBatch();
+        }
+        @Override
+        public void endBatch(RenderType pRenderType) {
+            BufferBuilder bufferbuilder = this.getBuilderRaw(pRenderType);
+            boolean flag = Objects.equals(this.lastState, pRenderType.asOptional());
+            if (flag || bufferbuilder != this.builder) {
+                if (this.startedBuffers.remove(bufferbuilder)) {
+                    this.end(pRenderType, bufferbuilder, 0, 0, 0);
+                    if (flag) {
+                        this.lastState = Optional.empty();
+                    }
+
+                }
+            }
+        }
+        public void end(RenderType pRenderType, BufferBuilder pBuffer, int pCameraX, int pCameraY, int pCameraZ) {
+            if (pBuffer.building()) {
+                if (pRenderType.sortOnUpload) {
+                    pBuffer.setQuadSortOrigin((float)pCameraX, (float)pCameraY, (float)pCameraZ);
+                }
+
+                BufferBuilder.RenderedBuffer bufferbuilder$renderedbuffer = pBuffer.end();
+                pRenderType.setupRenderState();
+                vertexBuffer.bind();
+                vertexBuffer.upload(bufferbuilder$renderedbuffer);
+                VertexBuffer.unbind();
+                pRenderType.clearRenderState();
+            }
+        }
+    }*/
+
     /*public static class MultiplyAlphaRenderTypeBuffer extends MultiBufferSource.BufferSource {
         private static final ChunkBufferBuilderPack fixedBufferPack = new ChunkBufferBuilderPack();
         private static final SortedMap<RenderType, BufferBuilder> fixedBuffers = Util.make(new Object2ObjectLinkedOpenHashMap<>(), (p_110100_) -> {

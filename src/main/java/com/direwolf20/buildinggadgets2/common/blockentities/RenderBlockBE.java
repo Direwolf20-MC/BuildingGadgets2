@@ -35,6 +35,7 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     public void increaseDrawSize() {
+        //if (drawSize == 20) return;
         drawSize++;
     }
 
