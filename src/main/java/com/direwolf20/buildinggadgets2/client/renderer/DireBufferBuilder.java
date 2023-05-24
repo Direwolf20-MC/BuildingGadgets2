@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.ints.IntConsumer;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class DireBufferBuilder extends BufferBuilder {
+    //This class exists because sorting in vanilla minecraft is the opposite of how we want to do it
+    //So override the sort method (Which needs lots of ATs) and add a reversal line
     public DireBufferBuilder(int pCapacity) {
         super(pCapacity);
     }
@@ -29,7 +31,7 @@ public class DireBufferBuilder extends BufferBuilder {
         });
         IntConsumer intconsumer = this.intConsumer(this.nextElementByte, pIndexType);
 
-        // Reverse the order of the sorted indices.
+        // Reverse the order of the sorted indices. The whole reason this class exists is this one line!
         ArrayUtils.reverse(aint);
 
         for (int j : aint) {
