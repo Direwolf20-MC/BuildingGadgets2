@@ -16,8 +16,8 @@ public class OurRenderTypes extends RenderType {
                     .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                     .setDepthTestState(LEQUAL_DEPTH_TEST)
-                    .setCullState(NO_CULL)
-                    .setWriteMaskState(COLOR_DEPTH_WRITE)
+                    .setCullState(CULL)
+                    .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(false));
 
     public static void updateRenders() {
@@ -31,8 +31,8 @@ public class OurRenderTypes extends RenderType {
                         .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setDepthTestState(LEQUAL_DEPTH_TEST)
-                        .setCullState(NO_CULL)
-                        .setWriteMaskState(COLOR_DEPTH_WRITE)
+                        .setCullState(CULL)
+                        .setWriteMaskState(COLOR_WRITE)
                         .createCompositeState(false));
     }
 
