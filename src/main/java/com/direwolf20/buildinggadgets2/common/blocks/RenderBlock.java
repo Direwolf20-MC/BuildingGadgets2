@@ -22,7 +22,7 @@ public class RenderBlock extends Block implements EntityBlock {
     public RenderBlock() {
         super(Block.Properties.of(EFFECT_BLOCK_MATERIAL)
                 .strength(20f)
-                //.dynamicShape()
+                .dynamicShape()
                 .noOcclusion());
     }
 
@@ -54,7 +54,7 @@ public class RenderBlock extends Block implements EntityBlock {
     @Override
     public boolean propagatesSkylightDown(BlockState p_48740_, BlockGetter p_48741_, BlockPos p_48742_) {
         if (p_48741_.getBlockEntity(p_48742_) instanceof RenderBlockBE renderBlockBE && renderBlockBE.renderBlock != null) {
-            return renderBlockBE.renderBlock.getBlock().propagatesSkylightDown(renderBlockBE.getBlockState(), p_48741_, p_48742_);
+            return renderBlockBE.renderBlock.propagatesSkylightDown(p_48741_, p_48742_);
         }
         return true;
     }
@@ -62,7 +62,7 @@ public class RenderBlock extends Block implements EntityBlock {
     @Override
     public float getShadeBrightness(BlockState p_48731_, BlockGetter p_48732_, BlockPos p_48733_) {
         if (p_48732_.getBlockEntity(p_48733_) instanceof RenderBlockBE renderBlockBE && renderBlockBE.renderBlock != null) {
-            float blockShade = renderBlockBE.renderBlock.getBlock().getShadeBrightness(p_48731_, p_48732_, p_48733_);
+            float blockShade = renderBlockBE.renderBlock.getShadeBrightness(p_48732_, p_48733_);
             return blockShade;
         }
         return 1.0F;
@@ -71,7 +71,7 @@ public class RenderBlock extends Block implements EntityBlock {
     @Override
     public VoxelShape getOcclusionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
         if (pLevel.getBlockEntity(pPos) instanceof RenderBlockBE renderBlockBE && renderBlockBE.renderBlock != null) {
-            return renderBlockBE.renderBlock.getBlock().getOcclusionShape(pState, pLevel, pPos);
+            return renderBlockBE.renderBlock.getOcclusionShape(pLevel, pPos);
         }
         return super.getOcclusionShape(pState, pLevel, pPos);
     }

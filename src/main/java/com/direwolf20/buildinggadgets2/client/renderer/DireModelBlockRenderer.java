@@ -13,6 +13,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.BitSet;
 import java.util.List;
@@ -41,7 +42,9 @@ public class DireModelBlockRenderer extends ModelBlockRenderer {
         BlockPos.MutableBlockPos blockpos$mutableblockpos = pos.mutable();
 
         for (Direction direction : DIRECTIONS) {
-            if (level.getBlockState(pos.relative(direction)).getBlock() instanceof RenderBlock) continue;
+            BlockState adjBloc = level.getBlockState(pos.relative(direction));
+            if (adjBloc.getBlock() instanceof RenderBlock && adjBloc.getBlock().getOcclusionShape(adjBloc, level, pos.relative(direction)).equals(Shapes.block()))
+                continue;
             randomSource.setSeed(seed);
             List<BakedQuad> list = model.getQuads(blockState, direction, randomSource, modelData, renderType);
             if (!list.isEmpty()) {
