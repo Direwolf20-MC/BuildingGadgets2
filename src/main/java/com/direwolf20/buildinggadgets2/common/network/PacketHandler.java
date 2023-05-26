@@ -1,6 +1,8 @@
 package com.direwolf20.buildinggadgets2.common.network;
 
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.common.network.packets.GadgetModeSwitchPacket;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,6 +32,7 @@ public class PacketHandler {
 
         //Client Side
         HANDLER.registerMessage(id++, GadgetModeSwitchPacket.class, GadgetModeSwitchPacket::encode, GadgetModeSwitchPacket::decode, GadgetModeSwitchPacket::handle);
+        HANDLER.registerMessage(id++, PacketRangeChange.class, PacketRangeChange::encode, PacketRangeChange::decode, PacketRangeChange::handle);
         //HANDLER.registerMessage(id++, PacketNodeParticles.class, PacketNodeParticles::encode, PacketNodeParticles::decode, PacketNodeParticles.Handler::handle);
 
     }

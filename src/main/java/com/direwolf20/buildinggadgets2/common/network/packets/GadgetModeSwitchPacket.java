@@ -1,4 +1,4 @@
-package com.direwolf20.buildinggadgets2.common.network;
+package com.direwolf20.buildinggadgets2.common.network.packets;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
@@ -25,16 +25,16 @@ public class GadgetModeSwitchPacket {
         this.modeId = modeId;
     }
 
-    static GadgetModeSwitchPacket decode(FriendlyByteBuf buf) {
+    public static GadgetModeSwitchPacket decode(FriendlyByteBuf buf) {
         return new GadgetModeSwitchPacket(buf.readResourceLocation(), buf.readBoolean());
     }
 
-    static void encode(GadgetModeSwitchPacket message, FriendlyByteBuf buf) {
+    public static void encode(GadgetModeSwitchPacket message, FriendlyByteBuf buf) {
         buf.writeResourceLocation(message.modeId);
         buf.writeBoolean(message.rotate);
     }
 
-    static void handle(GadgetModeSwitchPacket message, Supplier<NetworkEvent.Context> context) {
+    public static void handle(GadgetModeSwitchPacket message, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             ServerPlayer sender = context.get().getSender();
             if (sender == null) {

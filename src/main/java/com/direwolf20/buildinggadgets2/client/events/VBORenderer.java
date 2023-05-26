@@ -6,6 +6,7 @@ import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
+import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -63,7 +64,7 @@ public class VBORenderer {
         BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
         if (renderBlockState.isAir()) return;
 
-        var mode = GadgetNBT.getMode(heldItem);
+        BaseMode mode = GadgetNBT.getMode(heldItem);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
         ArrayList<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
 

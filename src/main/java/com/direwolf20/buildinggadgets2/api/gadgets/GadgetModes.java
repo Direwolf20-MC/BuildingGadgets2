@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.api.gadgets;
 
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.direwolf20.buildinggadgets2.util.modes.BuildToMe;
+import com.direwolf20.buildinggadgets2.util.modes.VerticalWall;
 import com.google.common.collect.ImmutableSortedSet;
 
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public enum GadgetModes {
         // Building Gadget
         modes.put(GadgetTarget.BUILDING, new LinkedHashSet<>() {{
             add(new BuildToMe());
+            add(new VerticalWall());
         }});
 
         // Exchanging Gadget

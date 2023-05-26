@@ -9,11 +9,14 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
+import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.items.*;
-import com.direwolf20.buildinggadgets2.common.network.GadgetModeSwitchPacket;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
+import com.direwolf20.buildinggadgets2.common.network.packets.GadgetModeSwitchPacket;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import com.direwolf20.buildinggadgets2.util.lang.GuiTranslation;
 import com.direwolf20.buildinggadgets2.util.lang.MessageTranslation;
 import com.direwolf20.buildinggadgets2.util.lang.RadialTranslation;
 import com.direwolf20.buildinggadgets2.util.lang.Styles;
@@ -102,6 +105,12 @@ public class ModeRadialMenu extends Screen {
         ScreenPosition left = isDestruction
                 ? ScreenPosition.BOTTOM
                 : ScreenPosition.LEFT;
+
+        int widthSlider = 82;
+        IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, /*Config.GADGETS.maxRange.get()*/15, GuiTranslation.SINGLE_RANGE.componentTranslation().append(": "), GadgetNBT.getToolRange(tool), slider -> {
+            sendRangeUpdate(slider.getValueInt());
+        });
+        sliderRange.getComponents().forEach(this::addRenderableWidget);
 
 /*        if (isDestruction) {
             addRenderableWidget(new PositionedIconActionable(RadialTranslation.DESTRUCTION_OVERLAY, "destroy_overlay", right, send -> {
@@ -528,9 +537,9 @@ public class ModeRadialMenu extends Screen {
     }
 
     private void sendRangeUpdate(int valueNew) {
-        /*if (valueNew != GadgetUtils.getToolRange(this.getGadget())) {
-            PacketHandler.sendToServer(new PacketChangeRange(valueNew));
-        }*/
+        if (valueNew != GadgetNBT.getToolRange(this.getGadget())) {
+            PacketHandler.sendToServer(new PacketRangeChange(valueNew));
+        }
     }
 
     public enum ScreenPosition {
