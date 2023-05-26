@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.DirectionalPlaceContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
@@ -40,7 +41,8 @@ public class VerticalWall extends BaseMode {
                 start.getX() + (side == Direction.Axis.Z ? size : 0), endY, start.getZ() + (side == Direction.Axis.X ? size : 0)
         );
         BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
-            coordinates.add(new StatePos(state, pos.subtract(start)));
+            if (player.level.getBlockState(pos).canBeReplaced(new DirectionalPlaceContext(player.level, pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP)))
+                coordinates.add(new StatePos(state, pos.subtract(start)));
         });
         return coordinates;
     }
