@@ -35,6 +35,9 @@ public enum GadgetModes {
         modes.put(GadgetTarget.DESTRUCTION, new LinkedHashSet<>() {{
         }});
 
+        modes.put(GadgetTarget.COPYPASTE, new LinkedHashSet<>() {{
+        }});
+
         this.gadgetModes.putAll(modes);
     }
 

@@ -16,7 +16,7 @@ public class BuildToMe extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "build-to-me");
+        return new ResourceLocation(BuildingGadgets2.MODID, "build_to_me");
     }
 
     @Override

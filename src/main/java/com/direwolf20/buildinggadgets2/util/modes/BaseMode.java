@@ -38,6 +38,6 @@ public abstract class BaseMode {
      * Used when displaying the mode selection wheel
      */
     public ResourceLocation icon() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "icons/" + getId().getPath());
+        return new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
     }
 }

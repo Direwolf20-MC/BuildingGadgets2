@@ -20,6 +20,16 @@ public class OurRenderTypes extends RenderType {
                     .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(false));
 
+    public static final RenderType TRIANGLE_STRIP =
+            create("triangle_strip", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP, 256, false, false,
+                    RenderType.CompositeState.builder()
+                            .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+                            .setTextureState(NO_TEXTURE)
+                            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                            .setCullState(NO_CULL)
+                            .setLightmapState(NO_LIGHTMAP)
+                            .createCompositeState(false));
+
     /*public static void updateRenders() {
         RenderBlock = create("GadgetRenderBlock",
                 DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
