@@ -40,7 +40,7 @@ public class VerticalWall extends BaseMode {
                 start.getX() + (side == Direction.Axis.Z ? size : 0), endY, start.getZ() + (side == Direction.Axis.X ? size : 0)
         );
         BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
-            coordinates.add(new StatePos(state, pos));
+            coordinates.add(new StatePos(state, pos.subtract(start)));
         });
         return coordinates;
     }
