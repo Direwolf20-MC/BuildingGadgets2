@@ -84,7 +84,7 @@ public class VBORenderer {
         if (buildList.equals(statePosCache))
             return;
 
-        //System.out.println("I'm Building!");
+        System.out.println("I'm Building!");
         //Long drawStart = System.nanoTime();
         Level level = player.level;
         //player.displayClientMessage(Component.literal("Rebuilding Render due to change." + level.getGameTime()), false);
@@ -203,7 +203,7 @@ public class VBORenderer {
         for (Map.Entry<RenderType, BufferBuilder.SortState> entry : sortStates.entrySet()) {
             RenderType renderType = entry.getKey();
             BufferBuilder.RenderedBuffer renderedBuffer = sort(lookingAt, renderType);
-            VertexBuffer vertexBuffer = new VertexBuffer();
+            VertexBuffer vertexBuffer = vertexBuffers.get(renderType);
             vertexBuffer.bind();
             vertexBuffer.upload(renderedBuffer);
             VertexBuffer.unbind();
