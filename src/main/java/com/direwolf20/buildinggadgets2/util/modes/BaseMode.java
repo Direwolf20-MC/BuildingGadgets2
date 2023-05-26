@@ -6,10 +6,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public abstract class BaseMode {
+public abstract class BaseMode implements Comparable<BaseMode> {
     /**
      * @deprecated all the modes should be possible without knowing the type of gadget... I'd hope
      */
@@ -39,5 +40,11 @@ public abstract class BaseMode {
      */
     public ResourceLocation icon() {
         return new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
+    }
+
+    // TODO: implement the correct comparator
+    @Override
+    public int compareTo(@NotNull BaseMode o) {
+        return this.getId().compareTo(o.getId());
     }
 }
