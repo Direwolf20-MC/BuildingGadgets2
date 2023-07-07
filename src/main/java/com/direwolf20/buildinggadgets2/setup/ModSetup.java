@@ -1,9 +1,16 @@
 package com.direwolf20.buildinggadgets2.setup;
 
+import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModSetup {
     public static void init(final FMLCommonSetupEvent event) {
@@ -12,10 +19,16 @@ public class ModSetup {
     }
 
     public static final String TAB_NAME = "buildinggadgets2";
-    public static final CreativeModeTab ITEM_GROUP = new CreativeModeTab(TAB_NAME) {
-        @Override
-        public ItemStack makeIcon() {
-            return new ItemStack(Registration.Building_Gadget.get());
-        }
-    };
+    public static DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, BuildingGadgets2.MODID);
+    public static RegistryObject<CreativeModeTab> TAB_LASERIO = TABS.register(TAB_NAME, () -> CreativeModeTab.builder()
+            .title(Component.literal("LaserIO"))
+            .icon(() -> new ItemStack(Registration.Building_Gadget.get()))
+            .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
+            .displayItems((featureFlags, output) -> {
+                Registration.ITEMS.getEntries().forEach(e -> {
+                    Item item = e.get();
+                    output.accept(item);
+                });
+            })
+            .build());
 }

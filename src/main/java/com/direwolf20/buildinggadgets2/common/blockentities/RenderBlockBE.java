@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.common.blockentities;
 
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
@@ -49,7 +50,7 @@ public class RenderBlockBE extends BlockEntity {
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        this.renderBlock = NbtUtils.readBlockState(tag.getCompound("renderBlock"));
+        this.renderBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("renderBlock"));
         this.drawSize = tag.getByte("drawSize");
     }
 

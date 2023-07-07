@@ -4,7 +4,7 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 
 public class GadgetDestruction extends BaseGadget {
     public GadgetDestruction() {
-        super(new Properties());
+        super();
     }
 
     /**

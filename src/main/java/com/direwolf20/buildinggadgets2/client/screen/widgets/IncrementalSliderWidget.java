@@ -1,9 +1,9 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.sounds.SoundManager;
@@ -31,22 +31,22 @@ public class IncrementalSliderWidget extends ForgeSlider {
     }
 
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        fill(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, BACKGROUND);
-        this.drawBorderedRect(poseStack, (this.x + (int) (this.value * (double) (this.width - 8)) + 4) - 4, this.y, 8, this.height);
-        this.renderText(poseStack);
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, BACKGROUND);
+        this.drawBorderedRect(guiGraphics, (this.getX() + (int) (this.value * (double) (this.width - 8)) + 4) - 4, this.getY(), 8, this.height);
+        this.renderText(guiGraphics);
     }
 
-    private void renderText(PoseStack matrices) {
+    private void renderText(GuiGraphics guiGraphics) {
         int color = !active ? 10526880 : (isHovered ? 16777120 : -1);
 
         Minecraft minecraft = Minecraft.getInstance();
-        drawCenteredString(matrices, minecraft.font, this.prefix.copy().append(this.getValueString()), x + getWidth() / 2, y + (getHeight() - 8) / 2, color);
+        guiGraphics.drawCenteredString(minecraft.font, this.prefix.copy().append(this.getValueString()), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, color);
     }
 
-    private void drawBorderedRect(PoseStack matrices, int x, int y, int width, int height) {
-        fill(matrices, x, y, x + width, y + height, SLIDER_BACKGROUND);
-        fill(matrices, ++x, ++y, x + width - 2, y + height - 2, SLIDER_COLOR);
+    private void drawBorderedRect(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+        guiGraphics.fill(x, y, x + width, y + height, SLIDER_BACKGROUND);
+        guiGraphics.fill(++x, ++y, x + width - 2, y + height - 2, SLIDER_COLOR);
     }
 
     @Override
@@ -82,11 +82,11 @@ public class IncrementalSliderWidget extends ForgeSlider {
     public Collection<AbstractWidget> getComponents() {
         return ImmutableSet.of(
                 this,
-                new GuiButtonIncrement(x - height, y, height, height, Component.literal("-"), b -> {
+                new GuiButtonIncrement(getX() - height, getY(), height, height, Component.literal("-"), b -> {
                     this.setValue(this.getValueInt() - 1);
                     IncrementalSliderWidget.this.applyValue();
                 }),
-                new GuiButtonIncrement(x + width, y, height, height, Component.literal("+"), b -> {
+                new GuiButtonIncrement(getX() + width, getY(), height, height, Component.literal("+"), b -> {
                     this.setValue(this.getValueInt() + 1);
                     IncrementalSliderWidget.this.applyValue();
                 })
@@ -100,21 +100,21 @@ public class IncrementalSliderWidget extends ForgeSlider {
                     .size(width, height));
              */
             super(x, y, 25, 25, message, (button) -> {
-            });
+            }, Button.DEFAULT_NARRATION);
         }
 
         @Override
-        public void render(PoseStack matrices, int mouseX, int mouseY, float partial) {
+        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
             if (!visible)
                 return;
 
             Minecraft minecraft = Minecraft.getInstance();
             Font font = minecraft.font;
 
-            this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-            fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, IncrementalSliderWidget.BACKGROUND);
-            IncrementalSliderWidget.this.drawBorderedRect(matrices, this.x, this.y, this.width, this.height);
-            drawCenteredString(matrices, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, getFGColor() | Mth.ceil(this.alpha * 255.0F) << 24);
+            this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
+            guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, IncrementalSliderWidget.BACKGROUND);
+            IncrementalSliderWidget.this.drawBorderedRect(guiGraphics, this.getX(), this.getY(), this.width, this.height);
+            guiGraphics.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, getFGColor() | Mth.ceil(this.alpha * 255.0F) << 24);
         }
 
         @Override

@@ -4,7 +4,7 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 
 public class GadgetCopyPaste extends BaseGadget {
     public GadgetCopyPaste() {
-        super(new Properties());
+        super();
     }
 
     /**

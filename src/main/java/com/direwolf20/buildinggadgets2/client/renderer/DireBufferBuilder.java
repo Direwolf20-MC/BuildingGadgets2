@@ -1,9 +1,7 @@
 package com.direwolf20.buildinggadgets2.client.renderer;
 
-import com.google.common.primitives.Floats;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntConsumer;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -16,10 +14,28 @@ public class DireBufferBuilder extends BufferBuilder {
 
     @Override
     public void putSortedQuadIndices(VertexFormat.IndexType pIndexType) {
-        float[] afloat = new float[this.sortingPoints.length];
+        if (this.sortingPoints != null && this.sorting != null) {
+            int[] aint = this.sorting.sort(this.sortingPoints);
+            IntConsumer intconsumer = this.intConsumer(this.nextElementByte, pIndexType);
+            // Reverse the order of the sorted indices. The whole reason this class exists is this one line!
+            ArrayUtils.reverse(aint);
+            for (int i : aint) {
+                intconsumer.accept(i * this.mode.primitiveStride + 0);
+                intconsumer.accept(i * this.mode.primitiveStride + 1);
+                intconsumer.accept(i * this.mode.primitiveStride + 2);
+                intconsumer.accept(i * this.mode.primitiveStride + 2);
+                intconsumer.accept(i * this.mode.primitiveStride + 3);
+                intconsumer.accept(i * this.mode.primitiveStride + 0);
+            }
+
+        } else {
+            throw new IllegalStateException("Sorting state uninitialized");
+        }
+        /*float[] afloat = new float[this.sortingPoints.length];
         int[] aint = new int[this.sortingPoints.length];
 
         for (int i = 0; i < this.sortingPoints.length; aint[i] = i++) {
+            //TODO Fix Sorting
             float f = this.sortingPoints[i].x() - this.sortX;
             float f1 = this.sortingPoints[i].y() - this.sortY;
             float f2 = this.sortingPoints[i].z() - this.sortZ;
@@ -41,7 +57,7 @@ public class DireBufferBuilder extends BufferBuilder {
             intconsumer.accept(j * this.mode.primitiveStride + 2);
             intconsumer.accept(j * this.mode.primitiveStride + 3);
             intconsumer.accept(j * this.mode.primitiveStride + 0);
-        }
+        }*/
 
     }
 }

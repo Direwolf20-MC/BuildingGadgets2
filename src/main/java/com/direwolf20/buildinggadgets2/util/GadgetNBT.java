@@ -6,6 +6,7 @@ import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +27,7 @@ public class GadgetNBT {
     public static BlockState getGadgetBlockState(ItemStack gadget) {
         CompoundTag tag = gadget.getTag();
         if (tag == null || !tag.contains("blockstate")) return Blocks.AIR.defaultBlockState();
-        return NbtUtils.readBlockState(tag.getCompound("blockstate"));
+        return NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("blockstate"));
     }
 
     public static boolean shouldRayTraceFluid(ItemStack stack) {

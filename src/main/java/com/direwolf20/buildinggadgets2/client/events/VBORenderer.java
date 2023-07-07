@@ -12,8 +12,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -32,6 +31,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.model.data.ModelData;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class VBORenderer {
     //A map of RenderType -> DireBufferBuilder, so we can draw the different render types in proper order later
     private static final Map<RenderType, DireBufferBuilder> builders = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new DireBufferBuilder(type.bufferSize())));
     //A map of RenderType -> Vertex Buffer to buffer the different render types.
-    private static final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer()));
+    private static final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
     //Get the buffer from the map, and ensure its building
     public static DireBufferBuilder getBuffer(RenderType renderType) {
@@ -86,7 +87,7 @@ public class VBORenderer {
 
         System.out.println("I'm Building!");
         //Long drawStart = System.nanoTime();
-        Level level = player.level;
+        Level level = player.level();
         //player.displayClientMessage(Component.literal("Rebuilding Render due to change." + level.getGameTime()), false);
         statePosCache = buildList;
         PoseStack matrix = new PoseStack(); //Create a new matrix stack for use in the buffer building process
@@ -105,7 +106,7 @@ public class VBORenderer {
                     renderType = RenderType.translucent();
                 DireVertexConsumer direVertexConsumer = new DireVertexConsumer(getBuffer(renderType), 0.5f);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
-                modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(lookingAt.getBlockPos()), matrix, direVertexConsumer, true, random, pos.state.getSeed(pos.pos.offset(lookingAt.getBlockPos())), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType, true);
+                modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(lookingAt.getBlockPos()), matrix, direVertexConsumer, true, random, pos.state.getSeed(pos.pos.offset(lookingAt.getBlockPos())), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
                 //dispatcher.renderBatched(pos.state, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
 
             }
@@ -113,13 +114,14 @@ public class VBORenderer {
         }
         //Sort all the builder's vertices and then upload them to the vertex buffers
         Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        Vector3f sortPos = new Vector3f(projectedView.subtract(lookingAt.getBlockPos().getX(), lookingAt.getBlockPos().getY(), lookingAt.getBlockPos().getZ()));
+        Vec3 subtracted = projectedView.subtract(lookingAt.getBlockPos().getX(), lookingAt.getBlockPos().getY(), lookingAt.getBlockPos().getZ());
+        Vector3f sortPos = new Vector3f((float) subtracted.x, (float) subtracted.y, (float) subtracted.z);
         for (Map.Entry<RenderType, DireBufferBuilder> entry : builders.entrySet()) {
             RenderType renderType = entry.getKey();
             DireBufferBuilder direBufferBuilder = getBuffer(renderType);
-            direBufferBuilder.setQuadSortOrigin(sortPos.x(), sortPos.y(), sortPos.z());
+            direBufferBuilder.setQuadSorting(VertexSorting.byDistance(sortPos));
             sortStates.put(renderType, direBufferBuilder.getSortState());
-            VertexBuffer vertexBuffer = new VertexBuffer();
+            VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
             vertexBuffer.bind();
             vertexBuffer.upload(direBufferBuilder.end());
             VertexBuffer.unbind();
@@ -213,11 +215,12 @@ public class VBORenderer {
     //Sort the render type we pass in - using DireBufferBuilder because we want to sort in the opposite direction from normal
     public static BufferBuilder.RenderedBuffer sort(BlockPos lookingAt, RenderType renderType) {
         Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        Vector3f sortPos = new Vector3f(projectedView.subtract(lookingAt.getX(), lookingAt.getY(), lookingAt.getZ()));
+        Vec3 subtracted = projectedView.subtract(lookingAt.getX(), lookingAt.getY(), lookingAt.getZ());
+        Vector3f sortPos = new Vector3f((float) subtracted.x, (float) subtracted.y, (float) subtracted.z);
         DireBufferBuilder bufferBuilder = getBuffer(renderType);
         BufferBuilder.SortState sortState = sortStates.get(renderType);
         bufferBuilder.restoreSortState(sortState);
-        bufferBuilder.setQuadSortOrigin(sortPos.x(), sortPos.y(), sortPos.z());
+        bufferBuilder.setQuadSorting(VertexSorting.byDistance(sortPos));
         sortStates.put(renderType, bufferBuilder.getSortState());
         return bufferBuilder.end();
     }

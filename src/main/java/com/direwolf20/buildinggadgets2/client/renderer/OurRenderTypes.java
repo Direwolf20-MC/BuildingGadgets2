@@ -10,7 +10,7 @@ public class OurRenderTypes extends RenderType {
             DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
             RenderType.CompositeState.builder()
 //                    .setShadeModelState(SMOOTH_SHADE)
-                    .setShaderState(RenderStateShard.BLOCK_SHADER)
+                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
                     .setLightmapState(LIGHTMAP)
                     .setTextureState(BLOCK_SHEET_MIPPED)
                     .setLayeringState(VIEW_OFFSET_Z_LAYERING)

@@ -7,7 +7,6 @@ import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 
 public class GadgetBuilding extends BaseGadget {
     public GadgetBuilding() {
-        super(new Item.Properties());
+        super();
     }
 
     /**

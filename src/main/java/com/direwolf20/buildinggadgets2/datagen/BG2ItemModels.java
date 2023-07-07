@@ -2,13 +2,13 @@ package com.direwolf20.buildinggadgets2.datagen;
 
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.setup.Registration;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class BG2ItemModels extends ItemModelProvider {
-    public BG2ItemModels(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-        super(generator, BuildingGadgets2.MODID, existingFileHelper);
+    public BG2ItemModels(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, BuildingGadgets2.MODID, existingFileHelper);
     }
 
     @Override

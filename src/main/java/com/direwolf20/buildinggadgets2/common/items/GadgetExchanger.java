@@ -4,7 +4,7 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 
 public class GadgetExchanger extends BaseGadget {
     public GadgetExchanger() {
-        super(new Properties());
+        super();
     }
 
     /**

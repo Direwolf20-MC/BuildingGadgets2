@@ -2,7 +2,6 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
-import com.direwolf20.buildinggadgets2.setup.ModSetup;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
@@ -21,10 +20,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.ArrayList;
 
 public abstract class BaseGadget extends Item {
-    public BaseGadget(Properties builder) {
-        super(builder.tab(ModSetup.ITEM_GROUP)
-                .stacksTo(1)
-                .setNoRepair());
+    public BaseGadget() {
+        super(new Properties()
+                .stacksTo(1));
     }
 
     /**

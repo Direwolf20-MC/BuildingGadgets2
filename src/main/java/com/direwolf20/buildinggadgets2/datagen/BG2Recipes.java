@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 
@@ -8,12 +8,12 @@ import java.util.function.Consumer;
 
 public class BG2Recipes extends RecipeProvider {
 
-    public BG2Recipes(DataGenerator generatorIn) {
-        super(generatorIn);
+    public BG2Recipes(PackOutput packOutput) {
+        super(packOutput);
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
         //Crafting Components
         /*ShapedRecipeBuilder.shaped(Registration.Logic_Chip_Raw.get(), 4)
                 .pattern("rgr")

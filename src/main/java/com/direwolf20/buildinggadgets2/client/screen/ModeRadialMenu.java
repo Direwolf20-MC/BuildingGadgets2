@@ -29,9 +29,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -42,6 +42,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -262,9 +263,9 @@ public class ModeRadialMenu extends Screen {
             button.setWidth(dim);
             button.setHeight(dim);
             if (isDestruction)
-                button.x = (height / 2 + (isRight ? 10 : -button.getHeight() - 10));
+                button.setX((height / 2 + (isRight ? 10 : -button.getHeight() - 10)));
             else
-                button.x = (width / 2 + offset);
+                button.setX((width / 2 + offset));
         }
         posRight = resetPos(tool, padding, posRight);
         posLeft = resetPos(tool, padding, posLeft);
@@ -281,9 +282,9 @@ public class ModeRadialMenu extends Screen {
                     ? posRight
                     : posLeft;
             if (isDestruction) {
-                button.x = (pos);
+                button.setX(pos);
             } else {
-                button.x = (pos);
+                button.setX(pos);
             }
 
             if (isRight) {
@@ -306,7 +307,7 @@ public class ModeRadialMenu extends Screen {
     }
 
     @Override
-    public void render(PoseStack matrices, int mx, int my, float partialTicks) {
+    public void render(GuiGraphics guiGraphics, int mx, int my, float partialTicks) {
         float stime = 5F;
         float fract = Math.min(stime, this.timeIn + partialTicks) / stime;
         int x = this.width / 2;
@@ -325,11 +326,12 @@ public class ModeRadialMenu extends Screen {
             }
         }
 
+        PoseStack matrices = guiGraphics.pose();
         // This triggers the animation on creation
         matrices.pushPose();
         matrices.translate((1 - fract) * x, (1 - fract) * y, 0);
         matrices.scale(fract, fract, fract);
-        super.render(matrices, mx, my, partialTicks);
+        super.render(guiGraphics, mx, my, partialTicks);
         matrices.popPose();
 
         if (this.segments == 0) {
@@ -436,7 +438,7 @@ public class ModeRadialMenu extends Screen {
 
             Color color = i == modeIndex ? Color.GREEN : Color.WHITE;
             if (data.isSelected())
-                font.drawShadow(matrices, name, xsp + (data.isCentralized() ? width / 2f - 4 : 0), ysp, color.getRGB());
+                guiGraphics.drawString(font, name, xsp + (data.isCentralized() ? width / 2f - 4 : 0), ysp, color.getRGB(), true);
 
             double mod = 0.7;
             int xdp = (int) ((xp - x) * mod + x);
@@ -445,7 +447,7 @@ public class ModeRadialMenu extends Screen {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1);
             RenderSystem.setShaderTexture(0, mode.icon());
-            blit(matrices, xdp - 8, ydp - 8, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(mode.icon(), xdp - 8, ydp - 8, 0, 0, 16, 16, 16, 16);
 
             matrices.popPose();
         }
@@ -456,7 +458,7 @@ public class ModeRadialMenu extends Screen {
         stack.scale(s, s, s);
         matrices.popPose();
         stack.translate(x / s - (tool.getItem() instanceof GadgetCopyPaste ? 8 : 8.5), y / s - 8, 0);
-        this.itemRenderer.renderAndDecorateItem(tool, 0, 0);
+        guiGraphics.renderItemDecorations(font, tool, 0, 0);
         stack.popPose();
     }
 

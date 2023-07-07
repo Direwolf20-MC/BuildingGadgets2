@@ -1,5 +1,5 @@
 package com.direwolf20.buildinggadgets2.datagen;
-
+/*
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
@@ -120,3 +120,4 @@ public abstract class BaseLootTableProvider extends LootTableProvider {
         return "BuildingGadgets2 LootTables";
     }
 }
+*/
