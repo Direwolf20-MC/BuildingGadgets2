@@ -106,7 +106,7 @@ public class VBORenderer {
                     renderType = RenderType.translucent();
                 DireVertexConsumer direVertexConsumer = new DireVertexConsumer(getBuffer(renderType), 0.5f);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
-                modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(lookingAt.getBlockPos()), matrix, direVertexConsumer, true, random, pos.state.getSeed(pos.pos.offset(lookingAt.getBlockPos())), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
+                modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(lookingAt.getBlockPos()), matrix, direVertexConsumer, false, random, pos.state.getSeed(pos.pos.offset(lookingAt.getBlockPos())), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
                 //dispatcher.renderBatched(pos.state, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
 
             }

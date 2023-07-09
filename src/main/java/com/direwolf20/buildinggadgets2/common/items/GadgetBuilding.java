@@ -1,6 +1,8 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -36,8 +38,9 @@ public class GadgetBuilding extends BaseGadget {
         // This should go through some translation based process
         // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
         ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), buildList, setState, context.pos());
-        if (!actuallyBuiltList.isEmpty())
-            GadgetUtils.addToUndoList(gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
+        if (!actuallyBuiltList.isEmpty()) {
+            GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
+        }
         return InteractionResultHolder.success(gadget);
     }
 
@@ -64,12 +67,13 @@ public class GadgetBuilding extends BaseGadget {
 
     @Override
     public void undo(Level level, Player player, ItemStack gadget) {
-        ArrayList<StatePos> undoList = GadgetUtils.getLastUndo(gadget);
+        BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
+        ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
 
         for (StatePos statePos : undoList) {
             BlockState currentState = level.getBlockState(statePos.pos);
-            if (currentState.equals(statePos.state)) {
+            if (currentState.equals(statePos.state) || currentState.getBlock() instanceof RenderBlock) {
                 level.setBlockAndUpdate(statePos.pos, Blocks.AIR.defaultBlockState()); //Todo Render Block
             }
         }

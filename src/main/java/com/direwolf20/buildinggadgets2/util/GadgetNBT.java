@@ -19,8 +19,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.LinkedHashSet;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.LinkedList;
+import java.util.UUID;
 
 public class GadgetNBT {
     final static int undoListSize = 10;
@@ -46,52 +46,44 @@ public class GadgetNBT {
         //player.displayClientMessage(MessageTranslation.RAYTRACE_FLUID.componentTranslation(shouldRayTraceFluid(stack)).setStyle(Styles.AQUA), true);
     }
 
-    public static LinkedHashSet<BlockState> getBlockMap(ItemStack gadget) {
-        LinkedHashSet<BlockState> blockMap = new LinkedHashSet<>();
-        CompoundTag tag = gadget.getOrCreateTag();
-        if (!tag.contains("blockmap")) return blockMap;
-        ListTag listTag = tag.getList("blockmap", Tag.TAG_COMPOUND);
-        for (int i = 0; i < listTag.size(); i++) {
-            BlockState blockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), listTag.getCompound(i));
-            blockMap.add(blockState);
-        }
-        return blockMap;
-    }
-
-    //Todo Cleanup Block Map? This could grow over time....
-    public static void setBlockMap(ItemStack gadget, LinkedHashSet<BlockState> blockMap) {
-        CompoundTag tag = gadget.getOrCreateTag();
-        ListTag listTag = new ListTag();
-        for (BlockState blockState : blockMap) {
-            CompoundTag comp = NbtUtils.writeBlockState(blockState);
-            listTag.add(comp);
-        }
-        tag.put("blockmap", listTag);
-    }
-
-    public static LinkedBlockingQueue<ListTag> getUndoList(ItemStack gadget) {
-        LinkedBlockingQueue<ListTag> undoList = new LinkedBlockingQueue<>(undoListSize);
+    public static LinkedList<UUID> getUndoList(ItemStack gadget) {
+        LinkedList<UUID> undoList = new LinkedList<>();
         CompoundTag tag = gadget.getOrCreateTag();
         if (!tag.contains("undolist")) return undoList;
-        ListTag undoListTag = tag.getList("undolist", Tag.TAG_LIST);
+        ListTag undoListTag = tag.getList("undolist", Tag.TAG_COMPOUND);
         for (int i = 0; i < undoListTag.size(); i++) {
-            ListTag listTag = undoListTag.getList(i);
-            undoList.offer(listTag);
+            UUID uuid = undoListTag.getCompound(i).getUUID("uuid");
+            undoList.offer(uuid);
         }
         return undoList;
     }
 
-    public static void addToUndoList(ItemStack gadget, ListTag listTag) {
-        LinkedBlockingQueue<ListTag> undoList = getUndoList(gadget);
-        boolean added = undoList.offer(listTag);
-        if (!added) {
-            undoList.poll();  // Remove the head of the queue.
-            undoList.offer(listTag);  // Try adding the element again.
-        }
+    public static void setUndoList(ItemStack gadget, LinkedList<UUID> undoList) {
         CompoundTag tag = gadget.getOrCreateTag();
         ListTag undoListTag = new ListTag();
-        undoListTag.addAll(undoList);
+        for (UUID id : undoList) {
+            CompoundTag temptag = new CompoundTag();
+            temptag.putUUID("uuid", id);
+            undoListTag.add(temptag);
+        }
         tag.put("undolist", undoListTag);
+    }
+
+    public static void addToUndoList(ItemStack gadget, UUID uuid) {
+        LinkedList<UUID> undoList = getUndoList(gadget);
+        if (undoList.size() >= undoListSize) {
+            undoList.removeFirst();
+        }
+        undoList.add(uuid);
+        setUndoList(gadget, undoList);
+    }
+
+    public static UUID popUndoList(ItemStack gadget) {
+        LinkedList<UUID> undoList = getUndoList(gadget);
+        if (undoList.isEmpty()) return null;
+        UUID uuid = undoList.removeLast();
+        setUndoList(gadget, undoList);
+        return uuid;
     }
 
     public static void setToolRange(ItemStack stack, int range) {
