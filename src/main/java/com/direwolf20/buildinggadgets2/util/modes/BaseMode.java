@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +41,12 @@ public abstract class BaseMode implements Comparable<BaseMode> {
      */
     public ResourceLocation icon() {
         return new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
+    }
+
+    public boolean isPosValid(Level level, BlockPos blockPos) {
+        if (!level.getBlockState(blockPos).canBeReplaced())
+            return false;
+        return true;
     }
 
     // TODO: implement the correct comparator

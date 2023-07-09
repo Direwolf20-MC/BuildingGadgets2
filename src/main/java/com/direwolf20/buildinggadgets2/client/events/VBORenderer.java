@@ -85,7 +85,7 @@ public class VBORenderer {
         if (buildList.equals(statePosCache))
             return;
 
-        System.out.println("I'm Building!");
+        //System.out.println("I'm Building!");
         //Long drawStart = System.nanoTime();
         Level level = player.level();
         //player.displayClientMessage(Component.literal("Rebuilding Render due to change." + level.getGameTime()), false);
