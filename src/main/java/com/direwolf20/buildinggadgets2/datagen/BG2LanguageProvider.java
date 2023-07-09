@@ -28,6 +28,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         //Modes
         add("buildinggadgets2.modes.vertical_wall", "Vertical Wall");
         add("buildinggadgets2.modes.build_to_me", "Build to Me");
+        add("buildinggadgets2.modes.vertical_column", "Vertical Column");
 
         //GUI
         add("buildinggadgets2.gui.range", "Range");
