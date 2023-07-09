@@ -4,6 +4,8 @@ import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.screen.ModeRadialMenu;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +38,9 @@ public class EventKeyInput {
         if (!(mc.screen instanceof ModeRadialMenu) && mode.consumeClick() && ((mode.getKeyModifier() == KeyModifier.NONE
                 && KeyModifier.getActiveModifier() == KeyModifier.NONE) || mode.getKeyModifier() != KeyModifier.NONE)) {
             mc.setScreen(new ModeRadialMenu(tool));
-        } /*else if (KeyBindings.range.consumeClick()) {
+        } else if (KeyBindings.undo.consumeClick()) {
+            PacketHandler.sendToServer(new PacketUndo());
+        }/*else if (KeyBindings.range.consumeClick()) {
             PacketHandler.sendToServer(new PacketChangeRange());
         } else if (KeyBindings.rotateMirror.consumeClick()) {
             PacketHandler.sendToServer(new PacketRotateMirror());

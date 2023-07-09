@@ -7,7 +7,10 @@ import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -32,8 +35,9 @@ public class GadgetBuilding extends BaseGadget {
 
         // This should go through some translation based process
         // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-        BuildingUtils.build(context.level(), buildList, setState, context.pos());
-
+        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), buildList, setState, context.pos());
+        if (!actuallyBuiltList.isEmpty())
+            GadgetUtils.addToUndoList(gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
         return InteractionResultHolder.success(gadget);
     }
 
@@ -56,5 +60,18 @@ public class GadgetBuilding extends BaseGadget {
     @Override
     public GadgetTarget gadgetTarget() {
         return GadgetTarget.BUILDING;
+    }
+
+    @Override
+    public void undo(Level level, Player player, ItemStack gadget) {
+        ArrayList<StatePos> undoList = GadgetUtils.getLastUndo(gadget);
+        if (undoList.isEmpty()) return;
+
+        for (StatePos statePos : undoList) {
+            BlockState currentState = level.getBlockState(statePos.pos);
+            if (currentState.equals(statePos.state)) {
+                level.setBlockAndUpdate(statePos.pos, Blocks.AIR.defaultBlockState()); //Todo Render Block
+            }
+        }
     }
 }

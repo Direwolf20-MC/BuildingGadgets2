@@ -89,4 +89,8 @@ public abstract class BaseGadget extends Item {
         }
         return heldItem;
     }
+
+    public void undo(Level level, Player player, ItemStack gadget) {
+
+    }
 }

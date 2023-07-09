@@ -29,6 +29,7 @@ public class KeyBindings {
     private static final List<KeyMapping> keyMappings = new ArrayList<>();
 
     public static KeyMapping menuSettings = createBinding("settings_menu", GLFW.GLFW_KEY_G);
+    public static KeyMapping undo = createBinding("undo", GLFW.GLFW_KEY_U);
 
     private static KeyMapping createBinding(String name, int key) {
         KeyMapping keyBinding = new KeyMapping(getKey(name), CONFLICT_CONTEXT_GADGET, InputConstants.Type.KEYSYM.getOrCreate(key), getKey("category"));

@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.ArrayList;
 
 public class BuildingUtils {
-    public static void build(Level level, ArrayList<StatePos> blockPosList, BlockState blockState, BlockPos lookingAt) {
+    public static ArrayList<StatePos> build(Level level, ArrayList<StatePos> blockPosList, BlockState blockState, BlockPos lookingAt) {
+        ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (level.getBlockState(blockPos).canBeReplaced()) {
@@ -19,10 +20,12 @@ public class BuildingUtils {
 
                 if (!placed || be == null) {
                     // this can happen when another mod rejects the set block state (fixes #120)
-                    return;
+                    continue;
                 }
+                actuallyBuiltList.add(new StatePos(blockState, blockPos));
                 be.setRenderBlock(blockState);
             }
         }
+        return actuallyBuiltList;
     }
 }

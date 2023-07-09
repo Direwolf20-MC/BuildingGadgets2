@@ -8,7 +8,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -17,7 +19,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.LinkedHashSet;
+import java.util.concurrent.LinkedBlockingQueue;
+
 public class GadgetNBT {
+    final static int undoListSize = 10;
+
     public static BlockState setGadgetBlockState(ItemStack gadget, BlockState blockState) {
         CompoundTag tag = gadget.getOrCreateTag();
         tag.put("blockstate", NbtUtils.writeBlockState(blockState));
@@ -37,6 +44,54 @@ public class GadgetNBT {
     public static void toggleRayTraceFluid(ServerPlayer player, ItemStack stack) {
         stack.getOrCreateTag().putBoolean("raytrace_fluid", !shouldRayTraceFluid(stack));
         //player.displayClientMessage(MessageTranslation.RAYTRACE_FLUID.componentTranslation(shouldRayTraceFluid(stack)).setStyle(Styles.AQUA), true);
+    }
+
+    public static LinkedHashSet<BlockState> getBlockMap(ItemStack gadget) {
+        LinkedHashSet<BlockState> blockMap = new LinkedHashSet<>();
+        CompoundTag tag = gadget.getOrCreateTag();
+        if (!tag.contains("blockmap")) return blockMap;
+        ListTag listTag = tag.getList("blockmap", Tag.TAG_COMPOUND);
+        for (int i = 0; i < listTag.size(); i++) {
+            BlockState blockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), listTag.getCompound(i));
+            blockMap.add(blockState);
+        }
+        return blockMap;
+    }
+
+    //Todo Cleanup Block Map? This could grow over time....
+    public static void setBlockMap(ItemStack gadget, LinkedHashSet<BlockState> blockMap) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        ListTag listTag = new ListTag();
+        for (BlockState blockState : blockMap) {
+            CompoundTag comp = NbtUtils.writeBlockState(blockState);
+            listTag.add(comp);
+        }
+        tag.put("blockmap", listTag);
+    }
+
+    public static LinkedBlockingQueue<ListTag> getUndoList(ItemStack gadget) {
+        LinkedBlockingQueue<ListTag> undoList = new LinkedBlockingQueue<>(undoListSize);
+        CompoundTag tag = gadget.getOrCreateTag();
+        if (!tag.contains("undolist")) return undoList;
+        ListTag undoListTag = tag.getList("undolist", Tag.TAG_LIST);
+        for (int i = 0; i < undoListTag.size(); i++) {
+            ListTag listTag = undoListTag.getList(i);
+            undoList.offer(listTag);
+        }
+        return undoList;
+    }
+
+    public static void addToUndoList(ItemStack gadget, ListTag listTag) {
+        LinkedBlockingQueue<ListTag> undoList = getUndoList(gadget);
+        boolean added = undoList.offer(listTag);
+        if (!added) {
+            undoList.poll();  // Remove the head of the queue.
+            undoList.offer(listTag);  // Try adding the element again.
+        }
+        CompoundTag tag = gadget.getOrCreateTag();
+        ListTag undoListTag = new ListTag();
+        undoListTag.addAll(undoList);
+        tag.put("undolist", undoListTag);
     }
 
     public static void setToolRange(ItemStack stack, int range) {

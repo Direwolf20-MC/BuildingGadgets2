@@ -5,9 +5,14 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
+
+import java.util.ArrayList;
 
 public class StatePos {
     public BlockState state;
@@ -18,6 +23,24 @@ public class StatePos {
         this.state = state;
         this.pos = pos;
         this.isModelRender = isModelRender(state);
+    }
+
+    public StatePos(CompoundTag compoundTag) {
+        if (!compoundTag.contains("blockstate") || !compoundTag.contains("blockpos")) {
+            this.state = null;
+            this.pos = null;
+        }
+        this.state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compoundTag.getCompound("blockstate"));
+        this.pos = NbtUtils.readBlockPos(compoundTag.getCompound("blockpos"));
+    }
+
+    public StatePos(CompoundTag compoundTag, ArrayList<BlockState> blockStates) {
+        if (!compoundTag.contains("blockstateshort") || !compoundTag.contains("blockpos")) {
+            this.state = null;
+            this.pos = null;
+        }
+        this.state = blockStates.get(compoundTag.getShort("blockstateshort"));
+        this.pos = NbtUtils.readBlockPos(compoundTag.getCompound("blockpos"));
     }
 
     public boolean isModelRender(BlockState state) {
@@ -32,6 +55,20 @@ public class StatePos {
             }
         }
         return false;
+    }
+
+    public CompoundTag getTag() {
+        CompoundTag compoundTag = new CompoundTag();
+        compoundTag.put("blockstate", NbtUtils.writeBlockState(state));
+        compoundTag.put("blockpos", NbtUtils.writeBlockPos(pos));
+        return compoundTag;
+    }
+
+    public CompoundTag getTag(ArrayList<BlockState> blockStates) {
+        CompoundTag compoundTag = new CompoundTag();
+        compoundTag.putShort("blockstateshort", (short) blockStates.indexOf(state));
+        compoundTag.put("blockpos", NbtUtils.writeBlockPos(pos));
+        return compoundTag;
     }
 
     @Override
