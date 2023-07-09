@@ -38,8 +38,6 @@ public class BG2Data extends SavedData {
                 uuidsToRemove.add(entry.getKey());
             }
         }
-        if (!uuidsToRemove.isEmpty())
-            System.out.println("Pruning Entries: " + uuidsToRemove);
         for (UUID uuid : uuidsToRemove) {
             undoList.remove(uuid);
             undoListTimers.remove(uuid);

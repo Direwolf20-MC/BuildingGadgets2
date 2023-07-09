@@ -35,9 +35,9 @@ public class GadgetUtils {
         if (!GadgetUtils.isValidBlockState(blockState)) return false;
         BlockState placeState = cleanBlockState(blockState);
         Item item = Item.byBlock(placeState.getBlock());
-        System.out.println(item);
+        //System.out.println(item);
         GadgetNBT.setGadgetBlockState(gadget, placeState);
-        System.out.println(placeState);
+        //System.out.println(placeState);
         return true;
     }
 
