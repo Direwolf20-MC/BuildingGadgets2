@@ -24,13 +24,13 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
 
-        //add("screen.laserio.extractamt", "Transfer Amount");
 
-        //add("message.laserio.wrenchrange", "Connection exceeds maximum range of %d");
+        //Modes
+        add("buildinggadgets2.modes.vertical_wall", "Vertical Wall");
+        add("buildinggadgets2.modes.build_to_me", "Build to Me");
 
-        //Tooltips
-        //add("laserio.tooltip.item.show_settings", "Hold shift to show settings");
-
+        //GUI
+        add("buildinggadgets2.gui.range", "Range");
         //add("", "");
     }
 }

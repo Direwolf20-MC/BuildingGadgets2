@@ -7,6 +7,7 @@ package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
+import com.direwolf20.buildinggadgets2.client.OurSounds;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
@@ -16,10 +17,7 @@ import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.GadgetModeSwitchPacket;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import com.direwolf20.buildinggadgets2.util.lang.GuiTranslation;
-import com.direwolf20.buildinggadgets2.util.lang.MessageTranslation;
 import com.direwolf20.buildinggadgets2.util.lang.RadialTranslation;
-import com.direwolf20.buildinggadgets2.util.lang.Styles;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.direwolf20.buildinggadgets2.util.modes.BuildToMe;
 import com.google.common.collect.ImmutableList;
@@ -42,6 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeI18n;
 import org.joml.Matrix4f;
 
 import java.awt.*;
@@ -108,7 +107,7 @@ public class ModeRadialMenu extends Screen {
                 : ScreenPosition.LEFT;
 
         int widthSlider = 82;
-        IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, /*Config.GADGETS.maxRange.get()*/15, GuiTranslation.SINGLE_RANGE.componentTranslation().append(": "), GadgetNBT.getToolRange(tool), slider -> {
+        IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, /*Config.GADGETS.maxRange.get()*/15, Component.translatable("buildinggadgets2.gui.range").append(": "), GadgetNBT.getToolRange(tool), slider -> {
             sendRangeUpdate(slider.getValueInt());
         });
         sliderRange.getComponents().forEach(this::addRenderableWidget);
@@ -308,6 +307,7 @@ public class ModeRadialMenu extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mx, int my, float partialTicks) {
+        PoseStack matrices = guiGraphics.pose();
         float stime = 5F;
         float fract = Math.min(stime, this.timeIn + partialTicks) / stime;
         int x = this.width / 2;
@@ -326,7 +326,7 @@ public class ModeRadialMenu extends Screen {
             }
         }
 
-        PoseStack matrices = guiGraphics.pose();
+
         // This triggers the animation on creation
         matrices.pushPose();
         matrices.translate((1 - fract) * x, (1 - fract) * y, 0);
@@ -417,9 +417,9 @@ public class ModeRadialMenu extends Screen {
 
             String name = mode.i18n();
 
-            /*if (tool.getItem() instanceof GadgetBuilding) {
-                name = ForgeI18n.getPattern(BuildingModes.values()[i].getTranslationKey());
-            } else if (tool.getItem() instanceof GadgetExchanger) {
+            if (tool.getItem() instanceof GadgetBuilding) {
+                name = ForgeI18n.getPattern(arrayOfModes.get(i).i18n());
+            } /*else if (tool.getItem() instanceof GadgetExchanger) {
                 name = ForgeI18n.getPattern(ExchangingModes.values()[i].getTranslationKey());
             } else {
                 name = GadgetCopyPaste.ToolMode.values()[i].getTranslation().format();
@@ -447,18 +447,19 @@ public class ModeRadialMenu extends Screen {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1);
             RenderSystem.setShaderTexture(0, mode.icon());
-            guiGraphics.blit(mode.icon(), xdp - 8, ydp - 8, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(arrayOfModes.get(i).icon(), xdp - 8, ydp - 8, 0, 0, 16, 16, 16, 16);
 
             matrices.popPose();
         }
-
+        Color color = Color.WHITE;
+        RenderSystem.setShaderColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1);
         float s = 1.8F * fract;
-        PoseStack stack = RenderSystem.getModelViewStack();
+        PoseStack stack = guiGraphics.pose();
         stack.pushPose();
         stack.scale(s, s, s);
         matrices.popPose();
-        stack.translate(x / s - (tool.getItem() instanceof GadgetCopyPaste ? 8 : 8.5), y / s - 8, 0);
-        guiGraphics.renderItemDecorations(font, tool, 0, 0);
+        stack.translate(x - (tool.getItem() instanceof GadgetCopyPaste ? 8 : 8.5), y - 8, 440);
+        guiGraphics.renderItem(tool, 0, 0);
         stack.popPose();
     }
 
@@ -482,10 +483,10 @@ public class ModeRadialMenu extends Screen {
             }*/
 
             assert getMinecraft().player != null;
-            getMinecraft().player.displayClientMessage(MessageTranslation.MODE_SET.componentTranslation(mode).setStyle(Styles.AQUA), true);
+            //getMinecraft().player.displayClientMessage(MessageTranslation.MODE_SET.componentTranslation(mode).setStyle(Styles.AQUA), true);
 
             PacketHandler.sendToServer(new GadgetModeSwitchPacket(arrayOfModes.get(this.slotSelected).getId(), false));
-            //OurSounds.playSound(OurSounds.BEEP.get());
+            OurSounds.playSound(OurSounds.BEEP.get());
         }
     }
 

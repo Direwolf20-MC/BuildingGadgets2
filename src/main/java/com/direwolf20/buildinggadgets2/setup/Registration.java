@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
+import com.direwolf20.buildinggadgets2.client.OurSounds;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
@@ -31,6 +32,7 @@ public class Registration {
         ITEMS.register(bus);
         BLOCK_ENTITIES.register(bus);
         CONTAINERS.register(bus);
+        OurSounds.REGISTRY.register(bus);
         //PARTICLE_TYPES.register(bus);
         //RECIPE_SERIALIZERS.register(bus);
     }

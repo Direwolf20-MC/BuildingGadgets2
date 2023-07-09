@@ -48,7 +48,7 @@ public class GadgetModeSwitchPacket {
 
             if (message.rotate) {
                 var mode = actualGadget.rotateModes(gadget);
-                sender.displayClientMessage(Component.literal("Mode changed to " + mode), true);
+                sender.displayClientMessage(Component.literal("Mode changed to ").append(Component.translatable("buildinggadgets2.modes." + mode.getPath())), true);
                 return;
             }
 
@@ -62,7 +62,7 @@ public class GadgetModeSwitchPacket {
                     .orElse(modesForGadget.first());
 
             GadgetNBT.setMode(gadget, modeToUse);
-            sender.displayClientMessage(Component.literal("Mode changed to " + modeToUse.getId()), true);
+            sender.displayClientMessage(Component.literal("Mode changed to: ").append(Component.translatable(modeToUse.i18n())), true);
         });
 
         context.get().setPacketHandled(true);

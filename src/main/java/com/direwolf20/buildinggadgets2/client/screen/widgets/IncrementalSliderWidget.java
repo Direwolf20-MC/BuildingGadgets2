@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
+import com.direwolf20.buildinggadgets2.client.OurSounds;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -68,7 +69,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
 
         // Prevents spam of sounds due to the ForgeSlider
         if (result) {
-            //OurSounds.playSound(OurSounds.BEEP.get());
+            OurSounds.playSound(OurSounds.BEEP.get());
         }
 
         return result;
@@ -82,11 +83,11 @@ public class IncrementalSliderWidget extends ForgeSlider {
     public Collection<AbstractWidget> getComponents() {
         return ImmutableSet.of(
                 this,
-                new GuiButtonIncrement(getX() - height, getY(), height, height, Component.literal("-"), b -> {
+                new GuiButtonIncrement(getX() - 30, getY(), height, height, Component.literal("-"), b -> {
                     this.setValue(this.getValueInt() - 1);
                     IncrementalSliderWidget.this.applyValue();
                 }),
-                new GuiButtonIncrement(getX() + width, getY(), height, height, Component.literal("+"), b -> {
+                new GuiButtonIncrement(getX() + width + 5, getY(), height, height, Component.literal("+"), b -> {
                     this.setValue(this.getValueInt() + 1);
                     IncrementalSliderWidget.this.applyValue();
                 })
@@ -95,12 +96,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
 
     private class GuiButtonIncrement extends Button {
         public GuiButtonIncrement(int x, int y, int width, int height, Component message, OnPress action) {
-            /*super(builder(buttonText, action)
-                    .pos(x, y)
-                    .size(width, height));
-             */
-            super(x, y, 25, 25, message, (button) -> {
-            }, Button.DEFAULT_NARRATION);
+            super(x, y, 25, 25, message, action, Button.DEFAULT_NARRATION);
         }
 
         @Override
@@ -123,7 +119,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
 
         @Override
         public void playDownSound(SoundManager soundManager) {
-            //OurSounds.playSound(OurSounds.BEEP.get());
+            OurSounds.playSound(OurSounds.BEEP.get());
         }
     }
 }

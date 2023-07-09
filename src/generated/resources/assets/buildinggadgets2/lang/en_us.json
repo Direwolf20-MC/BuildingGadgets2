@@ -1,6 +1,9 @@
 {
   "block.buildinggadgets2.render_block": "Render Block (DO NOT USE)",
+  "buildinggadgets2.gui.range": "Range",
   "buildinggadgets2.keymapping.mode-switch": "Switch Modes",
+  "buildinggadgets2.modes.build_to_me": "Build to Me",
+  "buildinggadgets2.modes.vertical_wall": "Vertical Wall",
   "item.buildinggadgets2.gadget_building": "Building Gadget",
   "itemGroup.buildinggadgets2": "BuildingGadgets2"
 }
