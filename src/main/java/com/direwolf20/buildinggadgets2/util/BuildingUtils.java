@@ -13,7 +13,7 @@ public class BuildingUtils {
     public static void build(Level level, ArrayList<StatePos> blockPosList, BlockState blockState, BlockPos lookingAt) {
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
-            if (level.getBlockState(blockPos).isAir()) {
+            if (level.getBlockState(blockPos).canBeReplaced()) {
                 boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
                 RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
