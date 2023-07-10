@@ -67,6 +67,8 @@ public class VBORenderer {
 
         BaseMode mode = GadgetNBT.getMode(heldItem);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
+        if (player.level().getBlockState(lookingAt.getBlockPos()).isAir())
+            return;
         ArrayList<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
 
         //Extra blocks for testing FPS - will remove eventually (Or not cause its me)
@@ -140,6 +142,8 @@ public class VBORenderer {
         // TODO: This might need caching (and invalidating when the mode changes)
         var mode = GadgetNBT.getMode(heldItem);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
+        if (player.level().getBlockState(lookingAt.getBlockPos()).isAir())
+            return;
         List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
         if (buildList.isEmpty()) return;
 

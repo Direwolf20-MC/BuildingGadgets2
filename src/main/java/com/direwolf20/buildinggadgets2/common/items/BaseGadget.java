@@ -36,6 +36,8 @@ public abstract class BaseGadget extends Item {
             return InteractionResultHolder.success(gadget);
 
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, ClipContext.Fluid.NONE);
+        if (level.getBlockState(lookingAt.getBlockPos()).isAir())
+            return InteractionResultHolder.success(gadget);
         ItemActionContext context = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, player, level, hand, gadget);
 
         if (player.isShiftKeyDown()) {
