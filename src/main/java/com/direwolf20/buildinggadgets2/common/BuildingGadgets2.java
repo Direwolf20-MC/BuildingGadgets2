@@ -22,6 +22,7 @@ public class BuildingGadgets2 {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         modEventBus.addListener(ModSetup::init);
+        ModSetup.TABS.register(modEventBus);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> modEventBus.addListener(ClientSetup::init));
 
     }

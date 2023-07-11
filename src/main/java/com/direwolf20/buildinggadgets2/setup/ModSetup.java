@@ -20,8 +20,8 @@ public class ModSetup {
 
     public static final String TAB_NAME = "buildinggadgets2";
     public static DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, BuildingGadgets2.MODID);
-    public static RegistryObject<CreativeModeTab> TAB_LASERIO = TABS.register(TAB_NAME, () -> CreativeModeTab.builder()
-            .title(Component.literal("LaserIO"))
+    public static RegistryObject<CreativeModeTab> TAB_BUILDINGGADGETS2 = TABS.register(TAB_NAME, () -> CreativeModeTab.builder()
+            .title(Component.literal("Building Gadgets 2"))
             .icon(() -> new ItemStack(Registration.Building_Gadget.get()))
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
             .displayItems((featureFlags, output) -> {
