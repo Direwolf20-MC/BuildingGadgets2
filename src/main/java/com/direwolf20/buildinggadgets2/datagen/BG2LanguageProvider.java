@@ -21,6 +21,7 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //Items
         add(Registration.Building_Gadget.get(), "Building Gadget");
+        add(Registration.Exchanging_Gadget.get(), "Exchanging Gadget");
 
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
 
@@ -29,6 +30,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.modes.vertical_wall", "Vertical Wall");
         add("buildinggadgets2.modes.build_to_me", "Build to Me");
         add("buildinggadgets2.modes.vertical_column", "Vertical Column");
+        add("buildinggadgets2.modes.surface", "Surface");
 
         //GUI
         add("buildinggadgets2.gui.range", "Range");

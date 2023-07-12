@@ -97,11 +97,13 @@ public class VBORenderer {
         ModelBlockRenderer modelBlockRenderer = dispatcher.getModelRenderer();
         final RandomSource random = RandomSource.create();
         for (StatePos pos : buildList.stream().filter(pos -> pos.isModelRender).toList()) {
-            //matrix.translate(-0.005f, -0.005f, -0.005f); //For Exchanger
-            //matrix.scale(1.01f, 1.01f, 1.01f); //For Exchanger
             BakedModel ibakedmodel = dispatcher.getBlockModel(pos.state);
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
+            if (mode.isExchanging) {
+                matrix.translate(-0.005f, -0.005f, -0.005f); //For Exchanger
+                matrix.scale(1.01f, 1.01f, 1.01f); //For Exchanger
+            }
             for (RenderType renderType : ibakedmodel.getRenderTypes(pos.state, random, ModelData.EMPTY)) {
                 //Flowers render weirdly so we use a custom renderer to make them look better. Glass and Flowers are both cutouts, so we only want this for non-cube blocks
                 if (renderType.equals(RenderType.cutout()) && pos.state.getShape(level, pos.pos.offset(lookingAt.getBlockPos())).equals(Shapes.block()))

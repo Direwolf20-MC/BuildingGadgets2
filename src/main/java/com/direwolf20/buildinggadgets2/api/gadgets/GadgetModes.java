@@ -1,9 +1,6 @@
 package com.direwolf20.buildinggadgets2.api.gadgets;
 
-import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
-import com.direwolf20.buildinggadgets2.util.modes.BuildToMe;
-import com.direwolf20.buildinggadgets2.util.modes.VerticalColumn;
-import com.direwolf20.buildinggadgets2.util.modes.VerticalWall;
+import com.direwolf20.buildinggadgets2.util.modes.*;
 import com.google.common.collect.ImmutableSortedSet;
 
 import java.util.HashMap;
@@ -30,10 +27,12 @@ public enum GadgetModes {
             add(new BuildToMe());
             add(new VerticalWall());
             add(new VerticalColumn());
+            add(new Surface(false));
         }});
 
         // Exchanging Gadget
         modes.put(GadgetTarget.EXCHANGING, new LinkedHashSet<>() {{
+            add(new Surface(true));
         }});
 
         modes.put(GadgetTarget.DESTRUCTION, new LinkedHashSet<>() {{

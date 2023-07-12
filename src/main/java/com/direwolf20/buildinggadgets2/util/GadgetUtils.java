@@ -3,6 +3,8 @@ package com.direwolf20.buildinggadgets2.util;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -11,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -60,5 +63,24 @@ public class GadgetUtils {
 
     private static <T extends Comparable<T>> BlockState applyProperty(BlockState state, BlockState from, Property<T> prop) {
         return state.setValue(prop, from.getValue(prop));
+    }
+
+    public static AABB getSquareArea(BlockPos pos, Direction face, int range) {
+        switch (face) {
+            case UP:
+            case DOWN:
+                // If you're looking up or down, the area will extend east-west and north-south
+                return new AABB(pos.getX() - range, pos.getY(), pos.getZ() - range, pos.getX() + range, pos.getY(), pos.getZ() + range);
+            case NORTH:
+            case SOUTH:
+                // If you're looking north or south, the area will extend up-down and east-west
+                return new AABB(pos.getX() - range, pos.getY() - range, pos.getZ(), pos.getX() + range, pos.getY() + range, pos.getZ());
+            case EAST:
+            case WEST:
+                // If you're looking east or west, the area will extend up-down and north-south
+                return new AABB(pos.getX(), pos.getY() - range, pos.getZ() - range, pos.getX(), pos.getY() + range, pos.getZ() + range);
+            default:
+                throw new IllegalStateException("Unexpected value: " + face);
+        }
     }
 }

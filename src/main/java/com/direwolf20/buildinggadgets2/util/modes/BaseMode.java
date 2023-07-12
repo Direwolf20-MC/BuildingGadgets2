@@ -16,7 +16,7 @@ public abstract class BaseMode implements Comparable<BaseMode> {
      * @deprecated all the modes should be possible without knowing the type of gadget... I'd hope
      */
     @Deprecated
-    private boolean isExchanging;
+    public boolean isExchanging;
 
     public BaseMode(boolean isExchanging) {
         this.isExchanging = isExchanging;
@@ -44,9 +44,16 @@ public abstract class BaseMode implements Comparable<BaseMode> {
     }
 
     public boolean isPosValid(Level level, BlockPos blockPos) {
-        if (!level.getBlockState(blockPos).canBeReplaced())
-            return false;
-        return true;
+        if (isExchanging) {
+            if (level.getBlockState(blockPos).getDestroySpeed(level, blockPos) < 0)
+                return false;
+            return true;
+        } else {
+            //Todo More validations like location, etc
+            if (!level.getBlockState(blockPos).canBeReplaced())
+                return false;
+            return true;
+        }
     }
 
     // TODO: implement the correct comparator

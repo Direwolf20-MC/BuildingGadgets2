@@ -4,6 +4,7 @@ import com.direwolf20.buildinggadgets2.client.OurSounds;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
+import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -50,6 +51,7 @@ public class Registration {
 
     //Items
     public static final RegistryObject<Item> Building_Gadget = ITEMS.register("gadget_building", GadgetBuilding::new);
+    public static final RegistryObject<Item> Exchanging_Gadget = ITEMS.register("gadget_exchanging", GadgetExchanger::new);
 
     //Containers
     //public static final RegistryObject<MenuType<LaserNodeContainer>> LaserNode_Container = CONTAINERS.register("lasernode",
