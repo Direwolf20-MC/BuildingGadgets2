@@ -36,23 +36,26 @@ public class Surface extends BaseMode {
         //Todo isFuzzy
 
         ArrayList<StatePos> coordinates = new ArrayList<>();
-        AABB box;
-        if (isExchanging) {
-            box = GadgetUtils.getSquareArea(start, hitSide, bound);
-            BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
-                if (isPosValid(level, pos) && !level.getBlockState(pos).isAir())
-                    coordinates.add(new StatePos(state, pos.subtract(start)));
-            });
-        } else {
-            box = GadgetUtils.getSquareArea(start.above(), hitSide, bound);
-            BlockState lookingAtState = level.getBlockState(start);
-            BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
-                if (isPosValid(level, pos) && level.getBlockState(pos.below()).equals(lookingAtState))
-                    coordinates.add(new StatePos(state, pos.subtract(start)));
-            });
-        }
+        BlockState lookingAtState = level.getBlockState(start);
+        BlockPos startAt = isExchanging ? start : start.above();
+        AABB box = GadgetUtils.getSquareArea(startAt, hitSide, bound);
+
+        BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
+            if (isPosValid(level, pos) && isPosValidCustom(level, pos, lookingAtState))
+                coordinates.add(new StatePos(state, pos.subtract(start)));
+        });
 
 
         return coordinates;
+    }
+
+    public boolean isPosValidCustom(Level level, BlockPos pos, BlockState compareState) {
+        //Todo Fuzzy and further tests
+        if (isExchanging) {
+            if (level.getBlockState(pos).isAir()) return false;
+        } else {
+            if (!level.getBlockState(pos.below()).equals(compareState)) return false;
+        }
+        return true;
     }
 }
