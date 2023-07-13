@@ -86,6 +86,17 @@ public class GadgetNBT {
         return uuid;
     }
 
+    public static boolean toggleSetting(ItemStack stack, String setting) {
+        CompoundTag tagCompound = stack.getOrCreateTag();
+        tagCompound.putBoolean(setting, !tagCompound.getBoolean(setting));
+        return tagCompound.getBoolean(setting);
+    }
+
+    public static boolean getSetting(ItemStack stack, String setting) {
+        CompoundTag tagCompound = stack.getOrCreateTag();
+        return tagCompound.getBoolean(setting);
+    }
+
     public static void setToolRange(ItemStack stack, int range) {
         //Store the tool's range in NBT as an Integer
         CompoundTag tagCompound = stack.getOrCreateTag();

@@ -34,6 +34,11 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //GUI
         add("buildinggadgets2.gui.range", "Range");
-        //add("", "");
+
+        //Radial Menu
+        add("buildinggadgets2.radialmenu.fuzzy", "Fuzzy");
+        add("buildinggadgets2.radialmenu.connected_area", "Connected Area");
+        add("buildinggadgets2.radialmenu.undo", "Undo");
+
     }
 }

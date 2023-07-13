@@ -6,6 +6,9 @@
   "buildinggadgets2.modes.surface": "Surface",
   "buildinggadgets2.modes.vertical_column": "Vertical Column",
   "buildinggadgets2.modes.vertical_wall": "Vertical Wall",
+  "buildinggadgets2.radialmenu.connected_area": "Connected Area",
+  "buildinggadgets2.radialmenu.fuzzy": "Fuzzy",
+  "buildinggadgets2.radialmenu.undo": "Undo",
   "item.buildinggadgets2.gadget_building": "Building Gadget",
   "item.buildinggadgets2.gadget_exchanging": "Exchanging Gadget",
   "itemGroup.buildinggadgets2": "BuildingGadgets2"

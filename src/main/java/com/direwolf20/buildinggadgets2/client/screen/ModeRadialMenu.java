@@ -12,14 +12,17 @@ import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
-import com.direwolf20.buildinggadgets2.common.items.*;
+import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.GadgetModeSwitchPacket;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketToggleSetting;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import com.direwolf20.buildinggadgets2.util.lang.RadialTranslation;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
-import com.direwolf20.buildinggadgets2.util.modes.BuildToMe;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
@@ -37,7 +40,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeI18n;
@@ -46,7 +48,6 @@ import org.joml.Matrix4f;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public class ModeRadialMenu extends Screen {
@@ -81,10 +82,6 @@ public class ModeRadialMenu extends Screen {
     public void setSocketable(ItemStack stack) {
         if (stack.getItem() instanceof BaseGadget actualGadget) {
             this.segments = GadgetModes.INSTANCE.getModesForGadget(actualGadget.gadgetTarget()).size();
-        /*} else if (stack.getItem() instanceof GadgetExchanger) {
-            this.segments = ExchangingModes.values().length;
-        } else if (stack.getItem() instanceof GadgetCopyPaste) {
-            this.segments = GadgetCopyPaste.ToolMode.values().length;*/
         }
     }
 
@@ -98,19 +95,41 @@ public class ModeRadialMenu extends Screen {
             return;
         }
         this.conditionalButtons.clear();
-        boolean isDestruction = tool.getItem() instanceof GadgetDestruction;
-        ScreenPosition right = isDestruction
-                ? ScreenPosition.TOP
-                : ScreenPosition.RIGHT;
-        ScreenPosition left = isDestruction
-                ? ScreenPosition.BOTTOM
-                : ScreenPosition.LEFT;
+
 
         int widthSlider = 82;
         IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, /*Config.GADGETS.maxRange.get()*/15, Component.translatable("buildinggadgets2.gui.range").append(": "), GadgetNBT.getToolRange(tool), slider -> {
             sendRangeUpdate(slider.getValueInt());
         });
         sliderRange.getComponents().forEach(this::addRenderableWidget);
+
+        Button fuzzy_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.fuzzy"), "fuzzy", ScreenPosition.RIGHT, send -> {
+            if (send) {
+                PacketHandler.sendToServer(new PacketToggleSetting("fuzzy"));
+            }
+
+            return GadgetNBT.getSetting(this.getGadget(), "fuzzy");
+        });
+        addRenderableWidget(fuzzy_button);
+        conditionalButtons.add(fuzzy_button);
+
+        Button connected_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.connected_area"), "connected_area", ScreenPosition.RIGHT, send -> {
+            if (send) {
+                PacketHandler.sendToServer(new PacketToggleSetting("connected_area"));
+            }
+
+            return GadgetNBT.getSetting(this.getGadget(), "connected_area");
+        });
+        addRenderableWidget(connected_button);
+        conditionalButtons.add(connected_button);
+
+        addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.undo"), "undo", ScreenPosition.LEFT, false, send -> {
+            if (send)
+                PacketHandler.sendToServer(new PacketUndo());
+
+            return false;
+        }));
+
 
 /*        if (isDestruction) {
             addRenderableWidget(new PositionedIconActionable(RadialTranslation.DESTRUCTION_OVERLAY, "destroy_overlay", right, send -> {
@@ -231,73 +250,38 @@ public class ModeRadialMenu extends Screen {
             }));
         }
 */
-        this.updateButtons(tool);
+        this.updateButtons();
     }
 
-    private void updateButtons(ItemStack tool) {
-        int posRight = 0;
-        int posLeft = 0;
-        int dim = 24;
-        int padding = 10;
-        boolean isDestruction = tool.getItem() instanceof GadgetDestruction;
-        ScreenPosition right = isDestruction ? ScreenPosition.BOTTOM : ScreenPosition.RIGHT;
+    private void updateButtons() {
+        int buttonSize = 24;
+        int paddingBetweenButtonsY = 10;
+        int yPosLeft = height / 4;
+        int yPosRight = height / 4;
+
         for (GuiEventListener widget : children()) {
-            if (!(widget instanceof PositionedIconActionable))
+            if (!(widget instanceof PositionedIconActionable button))
                 continue;
-
-            PositionedIconActionable button = (PositionedIconActionable) widget;
-
             if (!button.visible) {
                 continue;
             }
-            int offset;
-            boolean isRight = button.position == right;
-            if (isRight) {
-                posRight += dim + padding;
-                offset = 70;
-            } else {
-                posLeft += dim + padding;
-                offset = -70 - dim;
-            }
-            button.setWidth(dim);
-            button.setHeight(dim);
-            if (isDestruction)
-                button.setX((height / 2 + (isRight ? 10 : -button.getHeight() - 10)));
-            else
-                button.setX((width / 2 + offset));
-        }
-        posRight = resetPos(tool, padding, posRight);
-        posLeft = resetPos(tool, padding, posLeft);
-        for (GuiEventListener widget : children()) {
-            if (!(widget instanceof PositionedIconActionable))
-                continue;
 
-            PositionedIconActionable button = (PositionedIconActionable) widget;
-            if (!button.visible) {
-                continue;
-            }
-            boolean isRight = button.position == right;
-            int pos = isRight
-                    ? posRight
-                    : posLeft;
-            if (isDestruction) {
-                button.setX(pos);
-            } else {
-                button.setX(pos);
-            }
-
-            if (isRight) {
-                posRight += dim + padding;
-            } else {
-                posLeft += dim + padding;
+            if (button.position == ScreenPosition.RIGHT) {
+                int xPos = width / 2 + 70;
+                yPosRight = yPosRight + paddingBetweenButtonsY + buttonSize;
+                button.setWidth(buttonSize);
+                button.setHeight(buttonSize);
+                button.setX(xPos);
+                button.setY(yPosRight);
+            } else if (button.position == ScreenPosition.LEFT) {
+                int xPos = width / 2 - 70 - buttonSize;
+                yPosLeft = yPosLeft + paddingBetweenButtonsY + buttonSize;
+                button.setWidth(buttonSize);
+                button.setHeight(buttonSize);
+                button.setX(xPos);
+                button.setY(yPosLeft);
             }
         }
-    }
-
-    private int resetPos(ItemStack tool, int padding, int pos) {
-        return tool.getItem() instanceof GadgetDestruction
-                ? this.width / 2 - (pos - padding) / 2
-                : this.height / 2 - (pos - padding) / 2;
     }
 
     private ItemStack getGadget() {
@@ -308,8 +292,8 @@ public class ModeRadialMenu extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mx, int my, float partialTicks) {
         PoseStack matrices = guiGraphics.pose();
-        float stime = 5F;
-        float fract = Math.min(stime, this.timeIn + partialTicks) / stime;
+        float speedOfButtonGrowth = 7f; //How fast the buttons move during initial window opening
+        float fract = Math.min(speedOfButtonGrowth, this.timeIn + partialTicks) / speedOfButtonGrowth;
         int x = this.width / 2;
         int y = this.height / 2;
 
@@ -317,6 +301,7 @@ public class ModeRadialMenu extends Screen {
         int radiusMax = 60;
         double dist = new Vec3(x, y, 0).distanceTo(new Vec3(mx, my, 0));
         boolean inRange = false;
+        //Highlights Segments if mouse over
         if (this.segments != 0) {
             inRange = dist > radiusMin && dist < radiusMax;
             for (GuiEventListener button : children()) {
@@ -327,7 +312,7 @@ public class ModeRadialMenu extends Screen {
         }
 
 
-        // This triggers the animation on creation
+        // This triggers the animation on creation - only affects side buttons and slider(s)
         matrices.pushPose();
         matrices.translate((1 - fract) * x, (1 - fract) * y, 0);
         matrices.scale(fract, fract, fract);
@@ -371,8 +356,10 @@ public class ModeRadialMenu extends Screen {
         int indexTop = indexBottom + this.segments / 2;
         for (int seg = 0; seg < this.segments; seg++) {
             boolean mouseInSector = this.isCursorInSlice(angle, totalDeg, degPer, inRange);
-            float radius = Math.max(0F, Math.min((this.timeIn + partialTicks - seg * 6F / this.segments) * 40F, radiusMax));
-
+            //This makes the individual segments pop up one after another, a cool lil animation. Adjust the 6f to change it
+            float delayBetweenSegments = 1f;
+            float speedOfSegmentGrowth = 10f;
+            float radius = Math.max(0F, Math.min((this.timeIn + partialTicks - seg * delayBetweenSegments / this.segments) * speedOfSegmentGrowth, radiusMax));
             float gs = 0.25F;
             if (seg % 2 == 0) {
                 gs += 0.1F;
@@ -415,15 +402,7 @@ public class ModeRadialMenu extends Screen {
             int xp = data.getX();
             int yp = data.getY();
 
-            String name = mode.i18n();
-
-            if (tool.getItem() instanceof GadgetBuilding) {
-                name = ForgeI18n.getPattern(arrayOfModes.get(i).i18n());
-            } /*else if (tool.getItem() instanceof GadgetExchanger) {
-                name = ForgeI18n.getPattern(ExchangingModes.values()[i].getTranslationKey());
-            } else {
-                name = GadgetCopyPaste.ToolMode.values()[i].getTranslation().format();
-            }*/
+            String name = ForgeI18n.getPattern(arrayOfModes.get(i).i18n());
 
             int xsp = xp - 4;
             int ysp = yp;
@@ -469,22 +448,7 @@ public class ModeRadialMenu extends Screen {
 
     private void changeMode() {
         if (this.slotSelected >= 0) {
-            Item gadget = this.getGadget().getItem();
-
-            // This should logically never fail but implementing a way to ensure that would
-            // be a pretty solid idea for the next guy to touch this code.
-            String mode = arrayOfModes.get(this.slotSelected).i18n();
-            /*if (gadget instanceof GadgetBuilding) {
-                mode = ForgeI18n.getPattern(BuildingModes.values()[this.slotSelected].getTranslationKey());
-            } else if (gadget instanceof GadgetExchanger) {
-                mode = ForgeI18n.getPattern(ExchangingModes.values()[this.slotSelected].getTranslationKey());
-            } else {
-                mode = GadgetCopyPaste.ToolMode.values()[this.slotSelected].getTranslation().format();
-            }*/
-
             assert getMinecraft().player != null;
-            //getMinecraft().player.displayClientMessage(MessageTranslation.MODE_SET.componentTranslation(mode).setStyle(Styles.AQUA), true);
-
             PacketHandler.sendToServer(new GadgetModeSwitchPacket(arrayOfModes.get(this.slotSelected).getId(), false));
             OurSounds.playSound(OurSounds.BEEP.get());
         }
@@ -514,23 +478,20 @@ public class ModeRadialMenu extends Screen {
             return;
         }
 
-        boolean curent = false;
+        boolean showButton = true;
         boolean changed = false;
-        for (int i = 0; i < this.conditionalButtons.size(); i++) {
-            Button button = this.conditionalButtons.get(i);
+        for (Button button : this.conditionalButtons) {
             if (builder) {
-                curent = Objects.equals(GadgetNBT.getMode(tool), new BuildToMe());
-            } else {
-                //curent = i == 0 || GadgetExchanger.getToolMode(tool) == ExchangingModes.SURFACE;
+                showButton = GadgetNBT.getMode(tool).getId().getPath().equals("surface");
             }
 
-            if (button.visible != curent) {
-                button.visible = curent;
+            if (button.visible != showButton) {
+                button.visible = showButton;
                 changed = true;
             }
         }
         if (changed) {
-            this.updateButtons(tool);
+            this.updateButtons();
         }
     }
 
@@ -582,13 +543,13 @@ public class ModeRadialMenu extends Screen {
     private static class PositionedIconActionable extends GuiIconActionable {
         private ScreenPosition position;
 
-        PositionedIconActionable(RadialTranslation message, String icon, ScreenPosition position, boolean isSelectable, Predicate<Boolean> action) {
-            super(0, 0, icon, message.componentTranslation(), isSelectable, action);
+        PositionedIconActionable(Component message, String icon, ScreenPosition position, boolean isSelectable, Predicate<Boolean> action) {
+            super(0, 0, icon, message, isSelectable, action);
 
             this.position = position;
         }
 
-        PositionedIconActionable(RadialTranslation message, String icon, ScreenPosition position, Predicate<Boolean> action) {
+        PositionedIconActionable(Component message, String icon, ScreenPosition position, Predicate<Boolean> action) {
             this(message, icon, position, true, action);
         }
     }
