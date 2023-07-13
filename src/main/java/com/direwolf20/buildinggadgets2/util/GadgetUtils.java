@@ -83,4 +83,13 @@ public class GadgetUtils {
                 throw new IllegalStateException("Unexpected value: " + face);
         }
     }
+
+    //Because contains doesn't use <= just <
+    public static boolean direContains(AABB aabb, double x, double y, double z) {
+        return x >= aabb.minX && x <= aabb.maxX && y >= aabb.minY && y <= aabb.maxY && z >= aabb.minZ && z <= aabb.maxZ;
+    }
+
+    public static boolean direContains(AABB aabb, BlockPos pos) {
+        return direContains(aabb, pos.getX(), pos.getY(), pos.getZ());
+    }
 }

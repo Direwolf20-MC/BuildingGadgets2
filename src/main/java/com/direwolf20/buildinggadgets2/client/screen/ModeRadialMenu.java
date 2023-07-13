@@ -105,20 +105,20 @@ public class ModeRadialMenu extends Screen {
 
         Button fuzzy_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.fuzzy"), "fuzzy", ScreenPosition.RIGHT, send -> {
             if (send) {
-                PacketHandler.sendToServer(new PacketToggleSetting("fuzzy"));
+                PacketHandler.sendToServer(new PacketToggleSetting(GadgetNBT.NBTValues.FUZZY.value));
             }
 
-            return GadgetNBT.getSetting(this.getGadget(), "fuzzy");
+            return GadgetNBT.getSetting(this.getGadget(), GadgetNBT.NBTValues.FUZZY.value);
         });
         addRenderableWidget(fuzzy_button);
         conditionalButtons.add(fuzzy_button);
 
         Button connected_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.connected_area"), "connected_area", ScreenPosition.RIGHT, send -> {
             if (send) {
-                PacketHandler.sendToServer(new PacketToggleSetting("connected_area"));
+                PacketHandler.sendToServer(new PacketToggleSetting(GadgetNBT.NBTValues.CONNECTED_AREA.value));
             }
 
-            return GadgetNBT.getSetting(this.getGadget(), "connected_area");
+            return GadgetNBT.getSetting(this.getGadget(), GadgetNBT.NBTValues.CONNECTED_AREA.value);
         });
         addRenderableWidget(connected_button);
         conditionalButtons.add(connected_button);

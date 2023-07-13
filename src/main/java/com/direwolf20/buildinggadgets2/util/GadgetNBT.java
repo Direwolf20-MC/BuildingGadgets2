@@ -23,6 +23,17 @@ import java.util.LinkedList;
 import java.util.UUID;
 
 public class GadgetNBT {
+    public enum NBTValues {
+        FUZZY("fuzzy"),
+        CONNECTED_AREA("connected_area");
+
+        public final String value;
+
+        NBTValues(String value) {
+            this.value = value;
+        }
+    }
+
     final static int undoListSize = 10;
 
     public static BlockState setGadgetBlockState(ItemStack gadget, BlockState blockState) {
