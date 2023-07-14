@@ -97,11 +97,13 @@ public class ModeRadialMenu extends Screen {
         this.conditionalButtons.clear();
 
 
-        int widthSlider = 82;
-        IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, /*Config.GADGETS.maxRange.get()*/15, Component.translatable("buildinggadgets2.gui.range").append(": "), GadgetNBT.getToolRange(tool), slider -> {
-            sendRangeUpdate(slider.getValueInt());
-        });
-        sliderRange.getComponents().forEach(this::addRenderableWidget);
+        if (tool.getItem() instanceof GadgetBuilding || tool.getItem() instanceof GadgetExchanger) {
+            int widthSlider = 82;
+            IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, /*Config.GADGETS.maxRange.get()*/15, Component.translatable("buildinggadgets2.gui.range").append(": "), GadgetNBT.getToolRange(tool), slider -> {
+                sendRangeUpdate(slider.getValueInt());
+            });
+            sliderRange.getComponents().forEach(this::addRenderableWidget);
+        }
 
         Button fuzzy_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.fuzzy"), "fuzzy", ScreenPosition.RIGHT, send -> {
             if (send) {
@@ -473,16 +475,16 @@ public class ModeRadialMenu extends Screen {
 
         this.timeIn++;
         ItemStack tool = this.getGadget();
-        boolean builder = tool.getItem() instanceof GadgetBuilding;
-        if (!builder && !(tool.getItem() instanceof GadgetExchanger)) {
-            return;
-        }
 
         boolean showButton = true;
         boolean changed = false;
         for (Button button : this.conditionalButtons) {
-            if (builder) {
+            if (tool.getItem() instanceof GadgetBuilding) {
                 showButton = GadgetNBT.getMode(tool).getId().getPath().equals("surface");
+            } else if (tool.getItem() instanceof GadgetExchanger) {
+                showButton = true;
+            } else {
+                showButton = false;
             }
 
             if (button.visible != showButton) {

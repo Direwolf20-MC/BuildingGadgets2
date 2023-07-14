@@ -37,7 +37,7 @@ public class GadgetBuilding extends BaseGadget {
 
         // This should go through some translation based process
         // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), buildList, setState, context.pos());
+        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), buildList, context.pos());
         if (!actuallyBuiltList.isEmpty()) {
             GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
         }

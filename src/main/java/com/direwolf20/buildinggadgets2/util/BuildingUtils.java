@@ -5,12 +5,11 @@ import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 
 public class BuildingUtils {
-    public static ArrayList<StatePos> build(Level level, ArrayList<StatePos> blockPosList, BlockState blockState, BlockPos lookingAt) {
+    public static ArrayList<StatePos> build(Level level, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
@@ -22,14 +21,14 @@ public class BuildingUtils {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
                 }
-                actuallyBuiltList.add(new StatePos(blockState, blockPos));
-                be.setRenderBlock(blockState);
+                actuallyBuiltList.add(new StatePos(pos.state, blockPos));
+                be.setRenderBlock(pos.state);
             }
         }
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> exchange(Level level, ArrayList<StatePos> blockPosList, BlockState blockState, BlockPos lookingAt) {
+    public static ArrayList<StatePos> exchange(Level level, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
@@ -41,8 +40,8 @@ public class BuildingUtils {
                 // this can happen when another mod rejects the set block state (fixes #120)
                 continue;
             }
-            actuallyBuiltList.add(new StatePos(blockState, blockPos));
-            be.setRenderBlock(blockState);
+            actuallyBuiltList.add(new StatePos(pos.state, blockPos));
+            be.setRenderBlock(pos.state);
             //}
         }
         return actuallyBuiltList;

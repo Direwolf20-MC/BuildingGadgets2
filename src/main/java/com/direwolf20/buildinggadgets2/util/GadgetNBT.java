@@ -6,6 +6,7 @@ import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -14,7 +15,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +34,45 @@ public class GadgetNBT {
         }
     }
 
+    public final static BlockPos nullPos = new BlockPos(-999, -999, -999);
     final static int undoListSize = 10;
+
+    public static BlockPos setCopyStartPos(ItemStack gadget, BlockPos blockPos) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        tag.put("copystart", NbtUtils.writeBlockPos(blockPos));
+        return blockPos;
+    }
+
+    public static BlockPos getCopyStartPos(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("copystart")) return nullPos;
+        return NbtUtils.readBlockPos(tag.getCompound("copystart"));
+    }
+
+    public static BlockPos setCopyEndPos(ItemStack gadget, BlockPos blockPos) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        tag.put("copyend", NbtUtils.writeBlockPos(blockPos));
+        return blockPos;
+    }
+
+    public static BlockPos getCopyEndPos(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("copyend")) return nullPos;
+        return NbtUtils.readBlockPos(tag.getCompound("copyend"));
+    }
+
+    public static UUID setUUID(ItemStack gadget) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        UUID uuid = UUID.randomUUID();
+        tag.putUUID("uuid", uuid);
+        return uuid;
+    }
+
+    public static UUID getUUID(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("uuid")) return setUUID(gadget);
+        return tag.getUUID("uuid");
+    }
 
     public static BlockState setGadgetBlockState(ItemStack gadget, BlockState blockState) {
         CompoundTag tag = gadget.getOrCreateTag();
@@ -120,12 +158,7 @@ public class GadgetNBT {
     }
 
     public static boolean getFuzzy(ItemStack stack) {
-        return stack.getOrCreateTag().getBoolean("fuzzy");
-    }
-
-    public static void toggleFuzzy(Player player, ItemStack stack) {
-        stack.getOrCreateTag().putBoolean("fuzzy", !getFuzzy(stack));
-        //player.displayClientMessage(MessageTranslation.FUZZY_MODE.componentTranslation(getFuzzy(stack)).setStyle(Styles.AQUA), true);
+        return getSetting(stack, "fuzzy");
     }
 
     /**
