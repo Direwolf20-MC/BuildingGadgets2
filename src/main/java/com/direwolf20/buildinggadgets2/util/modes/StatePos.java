@@ -32,6 +32,7 @@ public class StatePos {
         }
         this.state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compoundTag.getCompound("blockstate"));
         this.pos = NbtUtils.readBlockPos(compoundTag.getCompound("blockpos"));
+        this.isModelRender = isModelRender(state);
     }
 
     public StatePos(CompoundTag compoundTag, ArrayList<BlockState> blockStates) {

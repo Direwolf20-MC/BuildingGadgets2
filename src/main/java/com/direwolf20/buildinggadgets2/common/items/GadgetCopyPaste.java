@@ -73,6 +73,7 @@ public class GadgetCopyPaste extends BaseGadget {
         ArrayList<StatePos> buildList = new Copy().collect(context.hitResult().getDirection(), context.player(), context.pos(), Blocks.AIR.defaultBlockState());
         if (buildList.isEmpty()) return;
         UUID uuid = GadgetNBT.getUUID(gadget);
+        GadgetNBT.setCopyUUID(gadget); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
         BG2Data bg2Data = BG2Data.get(context.player().level().getServer().overworld()); //TODO NPE?
         bg2Data.addToCopyPaste(uuid, buildList);
         context.player().displayClientMessage(Component.literal("Copied " + buildList.size() + " blocks."), true); //Todo temp

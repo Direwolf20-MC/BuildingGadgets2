@@ -74,6 +74,19 @@ public class GadgetNBT {
         return tag.getUUID("uuid");
     }
 
+    public static UUID setCopyUUID(ItemStack gadget) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        UUID uuid = UUID.randomUUID();
+        tag.putUUID("copyuuid", uuid);
+        return uuid;
+    }
+
+    public static UUID getCopyUUID(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("copyuuid")) return setCopyUUID(gadget);
+        return tag.getUUID("copyuuid");
+    }
+
     public static BlockState setGadgetBlockState(ItemStack gadget, BlockState blockState) {
         CompoundTag tag = gadget.getOrCreateTag();
         tag.put("blockstate", NbtUtils.writeBlockState(blockState));

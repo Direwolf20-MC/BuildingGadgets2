@@ -4,6 +4,12 @@ import com.direwolf20.buildinggadgets2.client.renderer.DireBufferBuilder;
 import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumer;
 import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
+import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
+import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestCopyData;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
@@ -34,15 +40,14 @@ import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class VBORenderer {
     private static ArrayList<StatePos> statePosCache;
     private static int sortCounter = 0;
+    public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
+    public static boolean awaitingUpdate = false;
 
     //Cached SortStates used for re-sorting every so often
     private static final Map<RenderType, BufferBuilder.SortState> sortStates = new HashMap<>();
@@ -62,17 +67,19 @@ public class VBORenderer {
 
     //Start rendering - this is the most expensive part, so we render it, then cache it, and draw it over and over (much cheaper)
     public static void buildRender(RenderLevelStageEvent evt, Player player, ItemStack heldItem) {
-        BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
-        if (renderBlockState.isAir()) return;
-
+        ArrayList<StatePos> buildList = new ArrayList<>();
         BaseMode mode = GadgetNBT.getMode(heldItem);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
-        if (player.level().getBlockState(lookingAt.getBlockPos()).isAir())
+        BlockPos renderPos = lookingAt.getBlockPos();
+        if (player.level().getBlockState(renderPos).isAir())
             return;
-        ArrayList<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
+        if (heldItem.getItem() instanceof GadgetBuilding || heldItem.getItem() instanceof GadgetExchanger) {
+            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
+            if (renderBlockState.isAir()) return;
+            buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
 
-        //Extra blocks for testing FPS - will remove eventually (Or not cause its me)
-        /*for (int k = -15; k < 15; k++) {
+            //Extra blocks for testing FPS - will remove eventually (Or not cause its me)
+            /*for (int k = -15; k < 15; k++) {
             for (int j = 1; j < 25; j++) {
                 for (int i = -1; i < 25; i++) {
                     buildList.add(new StatePos(Blocks.GLASS.defaultBlockState(), new BlockPos(k, i, -j)));
@@ -80,23 +87,53 @@ public class VBORenderer {
                     buildList.add(new StatePos(Blocks.COBBLESTONE.defaultBlockState(), new BlockPos(k, i, j)));
                 }
             }
-        }*/
-        //buildList.add(new StatePos(Blocks.GLASS.defaultBlockState(), new BlockPos(1,0,1)));
-        //buildList.add(new StatePos(Blocks.COBBLESTONE.defaultBlockState(), new BlockPos(1,0,-1)));
+            }*/
+            //buildList.add(new StatePos(Blocks.GLASS.defaultBlockState(), new BlockPos(1,0,1)));
+            //buildList.add(new StatePos(Blocks.COBBLESTONE.defaultBlockState(), new BlockPos(1,0,-1)));
 
-        if (buildList.equals(statePosCache))
+            if (buildList.equals(statePosCache))
+                return;
+
+            //System.out.println("I'm Building!");
+            //Long drawStart = System.nanoTime();
+
+            //player.displayClientMessage(Component.literal("Rebuilding Render due to change." + level.getGameTime()), false);
+            statePosCache = buildList;
+            copyPasteUUIDCache = UUID.randomUUID();
+        } else if (heldItem.getItem() instanceof GadgetCopyPaste) {
+            renderPos = renderPos.above();
+            if (mode.getId().getPath().equals("copy")) {
+                awaitingUpdate = false;
+                //TODO Copy Box Render
+                return;
+            } else {
+                UUID gadgetUUID = GadgetNBT.getUUID(heldItem);
+                UUID copyUUID = GadgetNBT.getCopyUUID(heldItem);
+                if (copyPasteUUIDCache.equals(copyUUID)) //If the Cache'd UUID of the copy/paste matches whats on the item, we don't need to rebuild the render
+                    return; //No need to rebuild cache because its up to date!
+                UUID dataClientUUID = BG2DataClient.getCopyUUID(gadgetUUID);
+                if (dataClientUUID != null && dataClientUUID.equals(copyUUID)) { //If whats stored in BG2DataClient for this gadget matches whats on the tool, its up to date and this class isn't
+                    copyPasteUUIDCache = dataClientUUID;
+                    statePosCache = BG2DataClient.getLookupFromUUID(gadgetUUID);
+                    awaitingUpdate = false;
+                    //Don't Return because we want to now draw the Copy/Paste
+                } else {
+                    if (awaitingUpdate) //If we already requested an update from the server, don't try again
+                        return; //TODO Maybe a retry delay?
+                    PacketHandler.sendToServer(new PacketRequestCopyData(GadgetNBT.getUUID(heldItem)));
+                    awaitingUpdate = true;
+                    return;
+                }
+            }
+        } else {
             return;
-
-        //System.out.println("I'm Building!");
-        //Long drawStart = System.nanoTime();
+        }
         Level level = player.level();
-        //player.displayClientMessage(Component.literal("Rebuilding Render due to change." + level.getGameTime()), false);
-        statePosCache = buildList;
         PoseStack matrix = new PoseStack(); //Create a new matrix stack for use in the buffer building process
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         ModelBlockRenderer modelBlockRenderer = dispatcher.getModelRenderer();
         final RandomSource random = RandomSource.create();
-        for (StatePos pos : buildList.stream().filter(pos -> pos.isModelRender).toList()) {
+        for (StatePos pos : statePosCache.stream().filter(pos -> pos.isModelRender).toList()) {
             BakedModel ibakedmodel = dispatcher.getBlockModel(pos.state);
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
@@ -106,11 +143,11 @@ public class VBORenderer {
             }
             for (RenderType renderType : ibakedmodel.getRenderTypes(pos.state, random, ModelData.EMPTY)) {
                 //Flowers render weirdly so we use a custom renderer to make them look better. Glass and Flowers are both cutouts, so we only want this for non-cube blocks
-                if (renderType.equals(RenderType.cutout()) && pos.state.getShape(level, pos.pos.offset(lookingAt.getBlockPos())).equals(Shapes.block()))
+                if (renderType.equals(RenderType.cutout()) && pos.state.getShape(level, pos.pos.offset(renderPos)).equals(Shapes.block()))
                     renderType = RenderType.translucent();
                 DireVertexConsumer direVertexConsumer = new DireVertexConsumer(getBuffer(renderType), 0.5f);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
-                modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(lookingAt.getBlockPos()), matrix, direVertexConsumer, false, random, pos.state.getSeed(pos.pos.offset(lookingAt.getBlockPos())), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
+                modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(renderPos), matrix, direVertexConsumer, false, random, pos.state.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
                 //dispatcher.renderBatched(pos.state, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
 
             }
@@ -118,7 +155,7 @@ public class VBORenderer {
         }
         //Sort all the builder's vertices and then upload them to the vertex buffers
         Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        Vec3 subtracted = projectedView.subtract(lookingAt.getBlockPos().getX(), lookingAt.getBlockPos().getY(), lookingAt.getBlockPos().getZ());
+        Vec3 subtracted = projectedView.subtract(renderPos.getX(), renderPos.getY(), renderPos.getZ());
         Vector3f sortPos = new Vector3f((float) subtracted.x, (float) subtracted.y, (float) subtracted.z);
         for (Map.Entry<RenderType, DireBufferBuilder> entry : builders.entrySet()) {
             RenderType renderType = entry.getKey();
@@ -138,22 +175,32 @@ public class VBORenderer {
         if (vertexBuffers == null) {
             return;
         }
-        BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
-        if (renderBlockState.isAir()) return;
-
-        // TODO: This might need caching (and invalidating when the mode changes)
-        var mode = GadgetNBT.getMode(heldItem);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
-        if (player.level().getBlockState(lookingAt.getBlockPos()).isAir())
-            return;
-        List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, lookingAt.getBlockPos(), renderBlockState);
-        if (buildList.isEmpty()) return;
+        BlockPos renderPos = lookingAt.getBlockPos();
+        var mode = GadgetNBT.getMode(heldItem);
+        if (!(heldItem.getItem() instanceof GadgetCopyPaste)) {
+            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
+            if (renderBlockState.isAir()) return;
 
+            // TODO: This might need caching (and invalidating when the mode changes)
+
+
+            if (player.level().getBlockState(renderPos).isAir())
+                return;
+            List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
+            if (buildList.isEmpty()) return;
+        } else {
+            if (mode.getId().getPath().equals("copy")) {
+                //TODO Copy Box Render
+                return;
+            }
+            renderPos = renderPos.above();
+        }
         //Sort every <X> Frames to prevent screendoor effect-- TODO Different sort times for different gadgets, scale with number of blocks? Or maybe when view rotation changes enough?
         if (sortCounter > 360) {
             //NumberFormat numberFormat = NumberFormat.getInstance();
             //long sortStart = System.nanoTime();
-            sortAll(lookingAt.getBlockPos());
+            sortAll(renderPos);
             //long sortEnd = System.nanoTime();
             //System.out.println("Sorting took: " + numberFormat.format(sortEnd - sortStart));
             sortCounter = 0;
@@ -165,7 +212,7 @@ public class VBORenderer {
         PoseStack matrix = evt.getPoseStack();
         matrix.pushPose();
         matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
-        matrix.translate(lookingAt.getBlockPos().getX(), lookingAt.getBlockPos().getY(), lookingAt.getBlockPos().getZ());
+        matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
         //Draw the renders in the specified order
         ArrayList<RenderType> drawSet = new ArrayList<>();
         drawSet.add(RenderType.solid());
@@ -196,12 +243,12 @@ public class VBORenderer {
 
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
         MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-        for (StatePos pos : buildList.stream().filter(pos -> !pos.isModelRender).toList()) {
+        for (StatePos pos : statePosCache.stream().filter(pos -> !pos.isModelRender).toList()) {
             matrix.pushPose();
             matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
-            matrix.translate(lookingAt.getBlockPos().getX(), lookingAt.getBlockPos().getY(), lookingAt.getBlockPos().getZ());
+            matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
-            MyRenderMethods.renderBETransparent(renderBlockState, matrix, buffersource, 15728640, 655360, 0.5f);
+            MyRenderMethods.renderBETransparent(pos.state, matrix, buffersource, 15728640, 655360, 0.5f);
             matrix.popPose();
         }
     }
