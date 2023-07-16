@@ -1,28 +1,21 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
 
 import java.util.ArrayList;
 
 public class StatePos {
     public BlockState state;
     public BlockPos pos;
-    public boolean isModelRender;
 
     public StatePos(BlockState state, BlockPos pos) {
         this.state = state;
         this.pos = pos;
-        this.isModelRender = isModelRender(state);
     }
 
     public StatePos(CompoundTag compoundTag) {
@@ -32,7 +25,6 @@ public class StatePos {
         }
         this.state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compoundTag.getCompound("blockstate"));
         this.pos = NbtUtils.readBlockPos(compoundTag.getCompound("blockpos"));
-        this.isModelRender = isModelRender(state);
     }
 
     public StatePos(CompoundTag compoundTag, ArrayList<BlockState> blockStates) {
@@ -41,21 +33,7 @@ public class StatePos {
             this.pos = null;
         }
         this.state = blockStates.get(compoundTag.getShort("blockstateshort"));
-        this.pos = NbtUtils.readBlockPos(compoundTag.getCompound("blockpos"));
-    }
-
-    public boolean isModelRender(BlockState state) {
-        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-        BakedModel ibakedmodel = dispatcher.getBlockModel(state);
-        for (Direction direction : Direction.values()) {
-            if (!ibakedmodel.getQuads(state, direction, RandomSource.create(), ModelData.EMPTY, null).isEmpty()) {
-                return true;
-            }
-            if (!ibakedmodel.getQuads(state, null, RandomSource.create(), ModelData.EMPTY, null).isEmpty()) {
-                return true;
-            }
-        }
-        return false;
+        this.pos = BlockPos.of(compoundTag.getLong("blockpos"));
     }
 
     public CompoundTag getTag() {
@@ -68,8 +46,34 @@ public class StatePos {
     public CompoundTag getTag(ArrayList<BlockState> blockStates) {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.putShort("blockstateshort", (short) blockStates.indexOf(state));
-        compoundTag.put("blockpos", NbtUtils.writeBlockPos(pos));
+        compoundTag.putLong("blockpos", pos.asLong());
         return compoundTag;
+    }
+
+    public static ArrayList<BlockState> getBlockStateMap(ArrayList<StatePos> list) {
+        ArrayList<BlockState> blockStateMap = new ArrayList<>();
+        for (StatePos statePos : list) {
+            if (!blockStateMap.contains(statePos.state))
+                blockStateMap.add(statePos.state);
+        }
+        return blockStateMap;
+    }
+
+    public static ListTag getBlockStateNBT(ArrayList<BlockState> blockStateMap) {
+        ListTag listTag = new ListTag();
+        for (BlockState blockState : blockStateMap) {
+            listTag.add(NbtUtils.writeBlockState(blockState));
+        }
+        return listTag;
+    }
+
+    public static ArrayList<BlockState> getBlockStateMapFromNBT(ListTag listTag) {
+        ArrayList<BlockState> blockStateMap = new ArrayList<>();
+        for (int i = 0; i < listTag.size(); i++) {
+            BlockState blockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), listTag.getCompound(i));
+            blockStateMap.add(blockState);
+        }
+        return blockStateMap;
     }
 
     @Override

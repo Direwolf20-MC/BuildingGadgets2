@@ -1,7 +1,7 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
-import com.direwolf20.buildinggadgets2.client.OurSounds;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -71,7 +71,7 @@ public class GuiIconActionable extends Button {
 
     @Override
     public void playDownSound(SoundManager soundHandler) {
-        soundHandler.play(SimpleSoundInstance.forUI(OurSounds.BEEP.get(), selected ? .6F : 1F));
+        soundHandler.play(SimpleSoundInstance.forUI(Registration.BEEP.get(), selected ? .6F : 1F));
     }
 
     @Override

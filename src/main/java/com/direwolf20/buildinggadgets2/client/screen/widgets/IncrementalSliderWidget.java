@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
 import com.direwolf20.buildinggadgets2.client.OurSounds;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -69,7 +70,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
 
         // Prevents spam of sounds due to the ForgeSlider
         if (result) {
-            OurSounds.playSound(OurSounds.BEEP.get());
+            OurSounds.playSound(Registration.BEEP.get());
         }
 
         return result;
@@ -119,7 +120,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
 
         @Override
         public void playDownSound(SoundManager soundManager) {
-            OurSounds.playSound(OurSounds.BEEP.get());
+            OurSounds.playSound(Registration.BEEP.get());
         }
     }
 }

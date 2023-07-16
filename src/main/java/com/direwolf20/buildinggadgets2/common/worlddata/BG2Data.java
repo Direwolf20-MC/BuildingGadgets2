@@ -6,6 +6,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 
 import java.util.ArrayList;
@@ -43,6 +44,10 @@ public class BG2Data extends SavedData {
 
     public ListTag getCopyPasteListAsNBT(UUID uuid) {
         return statePosListToNBT(copyPasteLookup.get(uuid));
+    }
+
+    public CompoundTag getCopyPasteListAsNBTMap(UUID uuid) {
+        return statePosListToNBTMap(copyPasteLookup.get(uuid));
     }
 
     public void cleanupList(Level level) {
@@ -111,6 +116,30 @@ public class BG2Data extends SavedData {
             list.add(new StatePos(tag.getCompound(j)));
         }
         return list;
+    }
+
+    public static CompoundTag statePosListToNBTMap(ArrayList<StatePos> list) {
+        CompoundTag tag = new CompoundTag();
+        ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMap(list);
+        ListTag blockStateMapList = StatePos.getBlockStateNBT(blockStateMap);
+        ListTag statePosList = new ListTag();
+        for (StatePos statePos : list) {
+            statePosList.add(statePos.getTag(blockStateMap));
+        }
+        tag.put("blockstatemap", blockStateMapList);
+        tag.put("stateposlist", statePosList);
+        return tag;
+    }
+
+    public static ArrayList<StatePos> statePosListFromNBTMap(CompoundTag tag) {
+        ArrayList<StatePos> statePosList = new ArrayList<>();
+        if (!tag.contains("blockstatemap") || !tag.contains("stateposlist")) return statePosList;
+        ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMapFromNBT(tag.getList("blockstatemap", Tag.TAG_COMPOUND));
+        ListTag statePosTagList = tag.getList("stateposlist", Tag.TAG_COMPOUND);
+        for (int i = 0; i < statePosTagList.size(); i++) {
+            statePosList.add(new StatePos(statePosTagList.getCompound(i), blockStateMap));
+        }
+        return statePosList;
     }
 
     public static BG2Data readNbt(CompoundTag nbt) {

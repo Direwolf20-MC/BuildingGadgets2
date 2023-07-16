@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -133,7 +134,7 @@ public class VBORenderer {
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         ModelBlockRenderer modelBlockRenderer = dispatcher.getModelRenderer();
         final RandomSource random = RandomSource.create();
-        for (StatePos pos : statePosCache.stream().filter(pos -> pos.isModelRender).toList()) {
+        for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state)).toList()) {
             BakedModel ibakedmodel = dispatcher.getBlockModel(pos.state);
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
@@ -170,9 +171,23 @@ public class VBORenderer {
         }
     }
 
+    public static boolean isModelRender(BlockState state) {
+        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        BakedModel ibakedmodel = dispatcher.getBlockModel(state);
+        for (Direction direction : Direction.values()) {
+            if (!ibakedmodel.getQuads(state, direction, RandomSource.create(), ModelData.EMPTY, null).isEmpty()) {
+                return true;
+            }
+            if (!ibakedmodel.getQuads(state, null, RandomSource.create(), ModelData.EMPTY, null).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     //Draw what we've cached
     public static void drawRender(RenderLevelStageEvent evt, Player player, ItemStack heldItem) {
-        if (vertexBuffers == null) {
+        if (vertexBuffers == null || statePosCache == null) {
             return;
         }
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
@@ -243,7 +258,7 @@ public class VBORenderer {
 
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
         MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-        for (StatePos pos : statePosCache.stream().filter(pos -> !pos.isModelRender).toList()) {
+        for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             matrix.pushPose();
             matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
             matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());

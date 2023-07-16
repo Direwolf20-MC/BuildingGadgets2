@@ -5,8 +5,8 @@ import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,14 +45,19 @@ public class PacketRequestCopyData {
                 return;
 
             BG2Data bg2Data = BG2Data.get(sender.level().getServer().overworld()); //TODO NPE?
+            /*CompoundTag tag = new CompoundTag();
             ListTag list = bg2Data.getCopyPasteListAsNBT(GadgetNBT.getUUID(gadget));
-            CompoundTag tag = new CompoundTag();
-            tag.put("stateposlist", list);
-            PacketSendCopyData packetSendCopyData = new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag);
+            tag.put("stateposlist", list);*/
+            CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(gadget));
+            FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+            PacketSendCopyData packet = new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag);
+            PacketSendCopyData.encode(packet, buffer);
+            int packetSize = buffer.writerIndex();
             if (tag.sizeInBytes() > 2000000) {
                 sender.displayClientMessage(Component.literal("Size too big for request! It was: " + tag.sizeInBytes()), false);
             } else {
-                PacketHandler.sendTo(packetSendCopyData, sender);
+                sender.displayClientMessage(Component.literal("NBT Tag Size is: " + tag.sizeInBytes() + ". Packet size is: " + packetSize), false);
+                PacketHandler.sendTo(new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag), sender);
                 sender.displayClientMessage(Component.literal("Received request to send copy data for " + message.gadgetUUID), false);
             }
         });

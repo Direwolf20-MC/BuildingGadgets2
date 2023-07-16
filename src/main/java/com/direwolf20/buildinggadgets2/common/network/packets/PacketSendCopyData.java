@@ -4,8 +4,6 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -46,11 +44,11 @@ public class PacketSendCopyData {
     public static void clientPacketHandler(PacketSendCopyData msg) {
         UUID gadgetUUID = msg.gadgetUUID;
         UUID copyUUID = msg.copyUUID;
-        ListTag listTag = msg.tag.getList("stateposlist", Tag.TAG_COMPOUND);
-
-        ArrayList<StatePos> statePosList = BG2Data.NBTToStatePosList(listTag);
+        //ListTag listTag = msg.tag.getList("stateposlist", Tag.TAG_COMPOUND);
+        //ArrayList<StatePos> statePosList = BG2Data.NBTToStatePosList(listTag);
+        ArrayList<StatePos> statePosList = BG2Data.statePosListFromNBTMap(msg.tag);
 
         BG2DataClient.updateLookupFromNBT(gadgetUUID, copyUUID, statePosList);
-        System.out.println("Got copy/paste message from server for copyUUID: " + copyUUID);
+        //System.out.println("Got copy/paste message from server for copyUUID: " + copyUUID);
     }
 }

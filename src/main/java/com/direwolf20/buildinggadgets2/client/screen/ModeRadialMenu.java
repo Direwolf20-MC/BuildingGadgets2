@@ -21,6 +21,7 @@ import com.direwolf20.buildinggadgets2.common.network.packets.GadgetModeSwitchPa
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketToggleSetting;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.collect.ImmutableList;
@@ -452,7 +453,7 @@ public class ModeRadialMenu extends Screen {
         if (this.slotSelected >= 0) {
             assert getMinecraft().player != null;
             PacketHandler.sendToServer(new GadgetModeSwitchPacket(arrayOfModes.get(this.slotSelected).getId(), false));
-            OurSounds.playSound(OurSounds.BEEP.get());
+            OurSounds.playSound(Registration.BEEP.get());
         }
     }
 
