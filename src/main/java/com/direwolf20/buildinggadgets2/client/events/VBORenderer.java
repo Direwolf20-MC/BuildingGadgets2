@@ -209,6 +209,8 @@ public class VBORenderer {
                 //TODO Copy Box Render
                 return;
             }
+            if (!copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(heldItem)))
+                return;
             renderPos = renderPos.above();
         }
         //Sort every <X> Frames to prevent screendoor effect-- TODO Different sort times for different gadgets, scale with number of blocks? Or maybe when view rotation changes enough?

@@ -44,11 +44,7 @@ public class PacketSendCopyData {
     public static void clientPacketHandler(PacketSendCopyData msg) {
         UUID gadgetUUID = msg.gadgetUUID;
         UUID copyUUID = msg.copyUUID;
-        //ListTag listTag = msg.tag.getList("stateposlist", Tag.TAG_COMPOUND);
-        //ArrayList<StatePos> statePosList = BG2Data.NBTToStatePosList(listTag);
-        ArrayList<StatePos> statePosList = BG2Data.statePosListFromNBTMap(msg.tag);
-
+        ArrayList<StatePos> statePosList = BG2Data.statePosListFromNBTMapArray(msg.tag);
         BG2DataClient.updateLookupFromNBT(gadgetUUID, copyUUID, statePosList);
-        //System.out.println("Got copy/paste message from server for copyUUID: " + copyUUID);
     }
 }

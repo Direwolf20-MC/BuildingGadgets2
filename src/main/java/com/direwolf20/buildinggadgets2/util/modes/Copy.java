@@ -40,7 +40,7 @@ public class Copy extends BaseMode {
         AABB area = new AABB(copyStart, copyEnd);
 
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            if (isPosValidCustom(level, pos, heldItem))
+            //if (isPosValidCustom(level, pos, heldItem))
                 coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));
         });
         return coordinates;

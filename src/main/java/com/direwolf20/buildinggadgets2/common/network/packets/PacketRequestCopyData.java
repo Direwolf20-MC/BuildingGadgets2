@@ -45,9 +45,6 @@ public class PacketRequestCopyData {
                 return;
 
             BG2Data bg2Data = BG2Data.get(sender.level().getServer().overworld()); //TODO NPE?
-            /*CompoundTag tag = new CompoundTag();
-            ListTag list = bg2Data.getCopyPasteListAsNBT(GadgetNBT.getUUID(gadget));
-            tag.put("stateposlist", list);*/
             CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(gadget));
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             PacketSendCopyData packet = new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag);
@@ -58,7 +55,7 @@ public class PacketRequestCopyData {
             } else {
                 sender.displayClientMessage(Component.literal("NBT Tag Size is: " + tag.sizeInBytes() + ". Packet size is: " + packetSize), false);
                 PacketHandler.sendTo(new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag), sender);
-                sender.displayClientMessage(Component.literal("Received request to send copy data for " + message.gadgetUUID), false);
+                //sender.displayClientMessage(Component.literal("Received request to send copy data for " + message.gadgetUUID), false);
             }
         });
 

@@ -1,13 +1,16 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,12 +45,8 @@ public class BG2Data extends SavedData {
         return copyPasteLookup.get(uuid);
     }
 
-    public ListTag getCopyPasteListAsNBT(UUID uuid) {
-        return statePosListToNBT(copyPasteLookup.get(uuid));
-    }
-
     public CompoundTag getCopyPasteListAsNBTMap(UUID uuid) {
-        return statePosListToNBTMap(copyPasteLookup.get(uuid));
+        return statePosListToNBTMapArray(copyPasteLookup.get(uuid));
     }
 
     public void cleanupList(Level level) {
@@ -71,13 +70,47 @@ public class BG2Data extends SavedData {
         return posList;
     }
 
+    public static CompoundTag statePosListToNBTMapArray(ArrayList<StatePos> list) {
+        CompoundTag tag = new CompoundTag();
+        ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMap(list);
+        ListTag blockStateMapList = StatePos.getBlockStateNBT(blockStateMap);
+        int[] blocklist = new int[list.size()];
+        int k = 0;
+        for (StatePos statePos : list) {
+            blocklist[k] = blockStateMap.indexOf(statePos.state);
+            k++;
+        }
+        tag.put("startpos", NbtUtils.writeBlockPos(list.get(0).pos));
+        tag.put("endpos", NbtUtils.writeBlockPos(list.get(list.size() - 1).pos));
+        tag.put("blockstatemap", blockStateMapList);
+        tag.putIntArray("statelist", blocklist); //Todo - Short Array?
+        return tag;
+    }
+
+    public static ArrayList<StatePos> statePosListFromNBTMapArray(CompoundTag tag) {
+        ArrayList<StatePos> statePosList = new ArrayList<>();
+        if (!tag.contains("blockstatemap") || !tag.contains("statelist")) return statePosList;
+        ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMapFromNBT(tag.getList("blockstatemap", Tag.TAG_COMPOUND));
+        BlockPos start = NbtUtils.readBlockPos(tag.getCompound("startpos"));
+        BlockPos end = NbtUtils.readBlockPos(tag.getCompound("endpos"));
+        AABB aabb = new AABB(start, end);
+        int[] blocklist = tag.getIntArray("statelist");
+        final int[] counter = {0};
+        BlockPos.betweenClosedStream(aabb).map(BlockPos::immutable).forEach(pos -> {
+            int blockStateLookup = blocklist[counter[0]++];
+            BlockState blockState = blockStateMap.get(blockStateLookup);
+            statePosList.add(new StatePos(blockState, pos));
+        });
+        return statePosList;
+    }
+
     @Override
     public CompoundTag save(CompoundTag nbt) {
         ListTag undoTagList = new ListTag();
         for (Map.Entry<UUID, ArrayList<StatePos>> entry : undoList.entrySet()) {
             CompoundTag tempTag = new CompoundTag();
             tempTag.putUUID("uuid", entry.getKey());
-            tempTag.put("stateposlist", statePosListToNBT(entry.getValue()));
+            tempTag.put("stateposlist", statePosListToNBTMapArray(entry.getValue()));
             undoTagList.add(tempTag);
         }
         nbt.put("undolist", undoTagList);
@@ -95,51 +128,11 @@ public class BG2Data extends SavedData {
         for (Map.Entry<UUID, ArrayList<StatePos>> entry : copyPasteLookup.entrySet()) {
             CompoundTag tempTag = new CompoundTag();
             tempTag.putUUID("uuid", entry.getKey());
-            tempTag.put("stateposlist", statePosListToNBT(entry.getValue()));
+            tempTag.put("stateposlist", statePosListToNBTMapArray(entry.getValue()));
             copyPasteTag.add(tempTag);
         }
         nbt.put("copypaste", copyPasteTag);
         return nbt;
-    }
-
-    public static ListTag statePosListToNBT(ArrayList<StatePos> list) {
-        ListTag statePosList = new ListTag();
-        for (StatePos statePos : list) {
-            statePosList.add(statePos.getTag());
-        }
-        return statePosList;
-    }
-
-    public static ArrayList<StatePos> NBTToStatePosList(ListTag tag) {
-        ArrayList<StatePos> list = new ArrayList<>();
-        for (int j = 0; j < tag.size(); j++) {
-            list.add(new StatePos(tag.getCompound(j)));
-        }
-        return list;
-    }
-
-    public static CompoundTag statePosListToNBTMap(ArrayList<StatePos> list) {
-        CompoundTag tag = new CompoundTag();
-        ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMap(list);
-        ListTag blockStateMapList = StatePos.getBlockStateNBT(blockStateMap);
-        ListTag statePosList = new ListTag();
-        for (StatePos statePos : list) {
-            statePosList.add(statePos.getTag(blockStateMap));
-        }
-        tag.put("blockstatemap", blockStateMapList);
-        tag.put("stateposlist", statePosList);
-        return tag;
-    }
-
-    public static ArrayList<StatePos> statePosListFromNBTMap(CompoundTag tag) {
-        ArrayList<StatePos> statePosList = new ArrayList<>();
-        if (!tag.contains("blockstatemap") || !tag.contains("stateposlist")) return statePosList;
-        ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMapFromNBT(tag.getList("blockstatemap", Tag.TAG_COMPOUND));
-        ListTag statePosTagList = tag.getList("stateposlist", Tag.TAG_COMPOUND);
-        for (int i = 0; i < statePosTagList.size(); i++) {
-            statePosList.add(new StatePos(statePosTagList.getCompound(i), blockStateMap));
-        }
-        return statePosList;
     }
 
     public static BG2Data readNbt(CompoundTag nbt) {
@@ -147,8 +140,8 @@ public class BG2Data extends SavedData {
         ListTag undoTagList = nbt.getList("undolist", Tag.TAG_COMPOUND);
         for (int i = 0; i < undoTagList.size(); i++) {
             UUID uuid = undoTagList.getCompound(i).getUUID("uuid");
-            ListTag statePosList = undoTagList.getCompound(i).getList("stateposlist", Tag.TAG_COMPOUND);
-            undoList.put(uuid, NBTToStatePosList(statePosList));
+            CompoundTag statePosList = undoTagList.getCompound(i).getCompound("stateposlist");
+            undoList.put(uuid, statePosListFromNBTMapArray(statePosList));
         }
 
         HashMap<UUID, Long> undoListTimer = new HashMap<>();
@@ -163,8 +156,8 @@ public class BG2Data extends SavedData {
         ListTag copyPasteList = nbt.getList("copypaste", Tag.TAG_COMPOUND);
         for (int i = 0; i < copyPasteList.size(); i++) {
             UUID uuid = copyPasteList.getCompound(i).getUUID("uuid");
-            ListTag statePosList = copyPasteList.getCompound(i).getList("stateposlist", Tag.TAG_COMPOUND);
-            copyPaste.put(uuid, NBTToStatePosList(statePosList));
+            CompoundTag statePosList = copyPasteList.getCompound(i).getCompound("stateposlist");
+            copyPaste.put(uuid, statePosListFromNBTMapArray(statePosList));
         }
 
         return new BG2Data(undoList, undoListTimer, copyPaste);
