@@ -209,6 +209,8 @@ public class VBORenderer {
                 //TODO Copy Box Render
                 return;
             }
+            if (player.level().getBlockState(renderPos).isAir())
+                return;
             if (!copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(heldItem)))
                 return;
             renderPos = renderPos.above();
