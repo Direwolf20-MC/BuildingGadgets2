@@ -2,10 +2,13 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
+import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -15,6 +18,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
@@ -93,6 +98,15 @@ public abstract class BaseGadget extends Item {
     }
 
     public void undo(Level level, Player player, ItemStack gadget) {
+        BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
+        ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
+        if (undoList.isEmpty()) return;
 
+        for (StatePos statePos : undoList) {
+            BlockState currentState = level.getBlockState(statePos.pos);
+            if (currentState.equals(statePos.state) || currentState.getBlock() instanceof RenderBlock) {
+                level.setBlockAndUpdate(statePos.pos, Blocks.AIR.defaultBlockState()); //Todo Render Block
+            }
+        }
     }
 }
