@@ -6,6 +6,7 @@ import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestCopyData;
@@ -101,9 +102,9 @@ public class VBORenderer {
             //player.displayClientMessage(Component.literal("Rebuilding Render due to change." + level.getGameTime()), false);
             statePosCache = buildList;
             copyPasteUUIDCache = UUID.randomUUID();
-        } else if (heldItem.getItem() instanceof GadgetCopyPaste) {
+        } else if (heldItem.getItem() instanceof GadgetCopyPaste || heldItem.getItem() instanceof GadgetCutPaste) {
             renderPos = renderPos.above();
-            if (mode.getId().getPath().equals("copy")) {
+            if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
                 awaitingUpdate = false;
                 //TODO Copy Box Render
                 return;
@@ -193,7 +194,7 @@ public class VBORenderer {
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
         BlockPos renderPos = lookingAt.getBlockPos();
         var mode = GadgetNBT.getMode(heldItem);
-        if (!(heldItem.getItem() instanceof GadgetCopyPaste)) {
+        if (!(heldItem.getItem() instanceof GadgetCopyPaste || heldItem.getItem() instanceof GadgetCutPaste)) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
             if (renderBlockState.isAir()) return;
 
@@ -205,7 +206,7 @@ public class VBORenderer {
             List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
             if (buildList.isEmpty()) return;
         } else {
-            if (mode.getId().getPath().equals("copy")) {
+            if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
                 //TODO Copy Box Render
                 return;
             }

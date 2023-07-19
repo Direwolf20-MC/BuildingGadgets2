@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.common.network.packets;
 
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -38,14 +39,14 @@ public class PacketRequestCopyData {
                 return;
             }
             ItemStack gadget = BaseGadget.getGadget(sender);
-            if (gadget.isEmpty() || !(gadget.getItem() instanceof GadgetCopyPaste actualGadget)) {
+            if (gadget.isEmpty() || !(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste)) {
                 return;
             }
             if (!GadgetNBT.getUUID(gadget).equals(message.gadgetUUID)) //This should almost never happen but lets confirm?
                 return;
 
             BG2Data bg2Data = BG2Data.get(sender.level().getServer().overworld()); //TODO NPE?
-            CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(gadget));
+            CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(gadget), false);
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             PacketSendCopyData packet = new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag);
             PacketSendCopyData.encode(packet, buffer);

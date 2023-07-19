@@ -4,5 +4,6 @@ public enum GadgetTarget {
     BUILDING,
     EXCHANGING,
     DESTRUCTION,
-    COPYPASTE
+    COPYPASTE,
+    CUTPASTE
 }

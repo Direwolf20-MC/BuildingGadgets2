@@ -23,6 +23,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(Registration.Building_Gadget.get(), "Building Gadget");
         add(Registration.Exchanging_Gadget.get(), "Exchanging Gadget");
         add(Registration.CopyPaste_Gadget.get(), "Copy Paste Gadget");
+        add(Registration.CutPaste_Gadget.get(), "Cut Paste Gadget");
 
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
 
@@ -40,6 +41,7 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //Radial Menu
         add("buildinggadgets2.radialmenu.fuzzy", "Fuzzy");
+        add("buildinggadgets2.radialmenu.cut", "Cut");
         add("buildinggadgets2.radialmenu.connected_area", "Connected Area");
         add("buildinggadgets2.radialmenu.undo", "Undo");
 

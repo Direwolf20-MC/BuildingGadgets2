@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 public class RenderBlockBE extends BlockEntity {
     public byte drawSize;
     public BlockState renderBlock;
+    public CompoundTag blockEntityData;
 
     public RenderBlockBE(BlockPos pos, BlockState state) {
         super(Registration.RenderBlock_BE.get(), pos, state);
@@ -31,8 +32,17 @@ public class RenderBlockBE extends BlockEntity {
     public void tickServer() {
         increaseDrawSize();
         //markDirtyClient();
-        if (drawSize >= 40)
+        if (drawSize >= 40) {
             level.setBlockAndUpdate(this.getBlockPos(), renderBlock);
+            if (blockEntityData != null) {
+                BlockEntity newBE = level.getBlockEntity(this.getBlockPos());
+                try {
+                    newBE.load(blockEntityData);
+                } catch (Exception e) {
+                    System.out.println("Failed to restore tile data for block at: " + this.getBlockPos() + " with NBT: " + blockEntityData + ". Consider adding it to the blacklist");
+                }
+            }
+        }
     }
 
     public void increaseDrawSize() {
@@ -46,12 +56,19 @@ public class RenderBlockBE extends BlockEntity {
         markDirtyClient();
     }
 
+    public void setBlockEntityData(CompoundTag tag) {
+        blockEntityData = tag;
+        markDirtyClient();
+    }
+
     /** Misc Methods for TE's */
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         this.renderBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("renderBlock"));
         this.drawSize = tag.getByte("drawSize");
+        if (tag.contains("blockEntityData"))
+            this.blockEntityData = tag.getCompound("blockEntityData");
     }
 
     @Override
@@ -61,6 +78,8 @@ public class RenderBlockBE extends BlockEntity {
             tag.put("renderBlock", NbtUtils.writeBlockState(this.renderBlock));
         }
         tag.putByte("drawSize", this.drawSize);
+        if (blockEntityData != null)
+            tag.put("blockEntityData", this.blockEntityData);
     }
 
     @Nonnull

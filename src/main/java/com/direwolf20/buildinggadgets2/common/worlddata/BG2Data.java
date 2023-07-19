@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
 import com.direwolf20.buildinggadgets2.util.modes.StatePos;
+import com.direwolf20.buildinggadgets2.util.modes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -19,14 +20,16 @@ import java.util.UUID;
 
 public class BG2Data extends SavedData {
     private static final String NAME = "buildinggadgets2";
-    private HashMap<UUID, ArrayList<StatePos>> undoList;
-    private HashMap<UUID, Long> undoListTimers;
-    private HashMap<UUID, ArrayList<StatePos>> copyPasteLookup;
+    private final HashMap<UUID, ArrayList<StatePos>> undoList;
+    private final HashMap<UUID, Long> undoListTimers;
+    private final HashMap<UUID, ArrayList<StatePos>> copyPasteLookup;
+    private final HashMap<UUID, ArrayList<TagPos>> teMap;
 
-    public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, Long> undoListTimers, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup) {
+    public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, Long> undoListTimers, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup, HashMap<UUID, ArrayList<TagPos>> teMap) {
         this.undoList = undoList;
         this.undoListTimers = undoListTimers;
         this.copyPasteLookup = copyPasteLookup;
+        this.teMap = teMap;
     }
 
     public void addToUndoList(UUID uuid, ArrayList<StatePos> list, Level level) {
@@ -41,12 +44,22 @@ public class BG2Data extends SavedData {
         this.setDirty();
     }
 
-    public ArrayList<StatePos> getCopyPasteList(UUID uuid) {
-        return copyPasteLookup.get(uuid);
+    public void addToTEMap(UUID uuid, ArrayList<TagPos> list) {
+        teMap.put(uuid, list);
+        this.setDirty();
     }
 
-    public CompoundTag getCopyPasteListAsNBTMap(UUID uuid) {
-        return statePosListToNBTMapArray(copyPasteLookup.get(uuid));
+    public ArrayList<StatePos> getCopyPasteList(UUID uuid, boolean remove) {
+        ArrayList<StatePos> returnList = copyPasteLookup.get(uuid);
+        if (remove) {
+            returnList = copyPasteLookup.remove(uuid);
+            this.setDirty();
+        }
+        return returnList;
+    }
+
+    public CompoundTag getCopyPasteListAsNBTMap(UUID uuid, boolean remove) {
+        return statePosListToNBTMapArray(getCopyPasteList(uuid, remove));
     }
 
     public void cleanupList(Level level) {
@@ -68,6 +81,12 @@ public class BG2Data extends SavedData {
         undoListTimers.remove(uuid);
         this.setDirty();
         return posList;
+    }
+
+    public ArrayList<TagPos> getTEMap(UUID uuid) {
+        ArrayList<TagPos> tagList = teMap.remove(uuid);
+        this.setDirty();
+        return tagList;
     }
 
     public static CompoundTag statePosListToNBTMapArray(ArrayList<StatePos> list) {
@@ -132,6 +151,19 @@ public class BG2Data extends SavedData {
             copyPasteTag.add(tempTag);
         }
         nbt.put("copypaste", copyPasteTag);
+
+        ListTag teMapTag = new ListTag();
+        for (Map.Entry<UUID, ArrayList<TagPos>> entry : teMap.entrySet()) {
+            CompoundTag tempTag = new CompoundTag();
+            tempTag.putUUID("uuid", entry.getKey());
+            ListTag tempList = new ListTag();
+            for (TagPos tagPos : entry.getValue()) {
+                tempList.add(tagPos.getTag());
+            }
+            tempTag.put("temaplist", tempList);
+            teMapTag.add(tempTag);
+        }
+        nbt.put("temaptag", teMapTag);
         return nbt;
     }
 
@@ -160,11 +192,23 @@ public class BG2Data extends SavedData {
             copyPaste.put(uuid, statePosListFromNBTMapArray(statePosList));
         }
 
-        return new BG2Data(undoList, undoListTimer, copyPaste);
+        HashMap<UUID, ArrayList<TagPos>> teMap = new HashMap<>();
+        ListTag teMapListTag = nbt.getList("temaptag", Tag.TAG_COMPOUND);
+        for (int i = 0; i < teMapListTag.size(); i++) {
+            UUID uuid = teMapListTag.getCompound(i).getUUID("uuid");
+            ListTag temaplistTag = teMapListTag.getCompound(i).getList("temaplist", Tag.TAG_COMPOUND);
+            ArrayList<TagPos> tagPosList = new ArrayList<>();
+            for (int j = 0; j < temaplistTag.size(); j++) {
+                TagPos tagPos = new TagPos(temaplistTag.getCompound(j));
+                tagPosList.add(tagPos);
+            }
+            teMap.put(uuid, tagPosList);
+        }
+        return new BG2Data(undoList, undoListTimer, copyPaste, teMap);
     }
 
     public static BG2Data get(ServerLevel world) {
-        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(BG2Data::readNbt, () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>()), NAME);
+        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(BG2Data::readNbt, () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>()), NAME);
         bg2Data.setDirty();
         return bg2Data;
     }

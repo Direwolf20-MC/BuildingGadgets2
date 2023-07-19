@@ -12,15 +12,9 @@ import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
-import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
-import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
-import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
-import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
+import com.direwolf20.buildinggadgets2.common.items.*;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.GadgetModeSwitchPacket;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketToggleSetting;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
+import com.direwolf20.buildinggadgets2.common.network.packets.*;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
@@ -104,6 +98,15 @@ public class ModeRadialMenu extends Screen {
                 sendRangeUpdate(slider.getValueInt());
             });
             sliderRange.getComponents().forEach(this::addRenderableWidget);
+        }
+
+        if (tool.getItem() instanceof GadgetCutPaste) {
+            addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.cut"), "cut", ScreenPosition.LEFT, false, send -> {
+                if (send)
+                    PacketHandler.sendToServer(new PacketCut());
+
+                return false;
+            }));
         }
 
         Button fuzzy_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.fuzzy"), "fuzzy", ScreenPosition.RIGHT, send -> {

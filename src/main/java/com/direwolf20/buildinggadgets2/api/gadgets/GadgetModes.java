@@ -43,6 +43,11 @@ public enum GadgetModes {
             add(new Paste());
         }});
 
+        modes.put(GadgetTarget.CUTPASTE, new LinkedHashSet<>() {{
+            add(new Cut());
+            add(new Paste());
+        }});
+
         this.gadgetModes.putAll(modes);
     }
 
