@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;

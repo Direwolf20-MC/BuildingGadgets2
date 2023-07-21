@@ -2,7 +2,7 @@ package com.direwolf20.buildinggadgets2.common.network.packets;
 
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;

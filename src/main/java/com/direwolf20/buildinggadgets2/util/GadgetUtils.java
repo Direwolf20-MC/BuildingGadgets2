@@ -1,7 +1,7 @@
 package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

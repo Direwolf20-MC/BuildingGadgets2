@@ -5,10 +5,10 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import com.direwolf20.buildinggadgets2.util.modes.Cut;
 import com.direwolf20.buildinggadgets2.util.modes.Paste;
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
-import com.direwolf20.buildinggadgets2.util.modes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -72,6 +72,7 @@ public class GadgetCutPaste extends BaseGadget {
     }
 
     public void cutAndStore(Player player, ItemStack gadget) {
+        //TODO Avoid iterating the blocks 3x
         ArrayList<StatePos> buildList = new Cut().collect(Direction.UP, player, BlockPos.ZERO, Blocks.AIR.defaultBlockState());
         ArrayList<TagPos> teData = new Cut().collectTileData(player);
         if (buildList.isEmpty()) return;

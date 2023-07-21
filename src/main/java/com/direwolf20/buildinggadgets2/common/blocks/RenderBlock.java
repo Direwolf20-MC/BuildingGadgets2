@@ -15,8 +15,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 
 public class RenderBlock extends Block implements EntityBlock {
-    //private static final Material EFFECT_BLOCK_MATERIAL = new Material.Builder(MaterialColor.NONE).nonSolid().build();
-
     public RenderBlock() {
         super(Block.Properties.of()
                 .strength(20f)

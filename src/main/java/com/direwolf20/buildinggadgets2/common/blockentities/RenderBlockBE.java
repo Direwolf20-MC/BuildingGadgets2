@@ -26,7 +26,6 @@ public class RenderBlockBE extends BlockEntity {
         increaseDrawSize();
         if (drawSize >= 40)
             drawSize = 40;
-        //System.out.println("I'm here!");
     }
 
     public void tickServer() {

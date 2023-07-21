@@ -31,8 +31,6 @@ public class Registration {
     private static final DeferredRegister<SoundEvent> SOUND_REGISTRY = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, BuildingGadgets2.MODID);
     public static final RegistryObject<SoundEvent> BEEP = SOUND_REGISTRY.register("beep", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(BuildingGadgets2.MODID, "beep")));
 
-    //public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
-    //public static final RegistryObject<CardClearRecipe.Serializer> CARD_CLEAR_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("cardclear", CardClearRecipe.Serializer::new);
     public static void init() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCKS.register(bus);
@@ -40,12 +38,7 @@ public class Registration {
         BLOCK_ENTITIES.register(bus);
         CONTAINERS.register(bus);
         SOUND_REGISTRY.register(bus);
-        //PARTICLE_TYPES.register(bus);
-        //RECIPE_SERIALIZERS.register(bus);
     }
-
-    // Some common properties for our blocks and items
-    //public static final Item.Properties ITEM_PROPERTIES = new Item.Properties().tab(ModSetup.ITEM_GROUP);
 
     //Blocks
     public static final RegistryObject<Block> RenderBlock = BLOCKS.register("render_block", RenderBlock::new);
@@ -64,9 +57,4 @@ public class Registration {
     //Containers
     //public static final RegistryObject<MenuType<LaserNodeContainer>> LaserNode_Container = CONTAINERS.register("lasernode",
     //        () -> IForgeMenuType.create((windowId, inv, data) -> new LaserNodeContainer(windowId, inv, inv.player, data)));
-
-    // Conveniance function: Take a RegistryObject<Block> and make a corresponding RegistryObject<Item> from it
-    /*public static <B extends Block> RegistryObject<Item> fromBlock(RegistryObject<B> block) {
-        return ITEMS.register(block.getId().getPath(), () -> new BlockItem(block.get(), ITEM_PROPERTIES));
-    }*/
 }

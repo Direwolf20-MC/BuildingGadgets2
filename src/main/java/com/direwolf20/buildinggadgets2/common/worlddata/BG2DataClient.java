@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,7 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
-import com.direwolf20.buildinggadgets2.util.modes.TagPos;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

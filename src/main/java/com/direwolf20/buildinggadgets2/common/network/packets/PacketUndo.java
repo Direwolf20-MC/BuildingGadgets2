@@ -32,7 +32,7 @@ public class PacketUndo {
                 return;
             }
 
-            actualGadget.undo(sender.level(), sender, gadget);
+            actualGadget.undo(sender.level(), gadget);
         });
 
         context.get().setPacketHandled(true);

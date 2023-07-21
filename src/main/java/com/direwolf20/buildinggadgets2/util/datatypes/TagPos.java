@@ -1,4 +1,4 @@
-package com.direwolf20.buildinggadgets2.util.modes;
+package com.direwolf20.buildinggadgets2.util.datatypes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

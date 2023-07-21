@@ -56,7 +56,6 @@ public class PacketRequestCopyData {
             } else {
                 sender.displayClientMessage(Component.literal("NBT Tag Size is: " + tag.sizeInBytes() + ". Packet size is: " + packetSize), false);
                 PacketHandler.sendTo(new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag), sender);
-                //sender.displayClientMessage(Component.literal("Received request to send copy data for " + message.gadgetUUID), false);
             }
         });
 

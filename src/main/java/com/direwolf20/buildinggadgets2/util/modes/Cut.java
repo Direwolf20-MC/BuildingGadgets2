@@ -5,6 +5,8 @@ import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -84,9 +86,11 @@ public class Cut extends BaseMode {
 
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
             level.removeBlockEntity(pos);
-            level.destroyBlock(pos, false, null, 512); //I think false means don't drop tile contents?
+            //TODO Use Render block to avoid torches popping off when they shouldn't
+            level.destroyBlock(pos, false, null, 128); //I think false means don't drop tile contents?
         });
     }
+
 
     public boolean isPosValidCustom(Level level, BlockPos pos, ItemStack gadget) {
         if (!GadgetUtils.isValidBlockState(level.getBlockState(pos)))

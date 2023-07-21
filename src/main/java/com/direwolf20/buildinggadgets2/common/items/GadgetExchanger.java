@@ -5,7 +5,7 @@ import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;

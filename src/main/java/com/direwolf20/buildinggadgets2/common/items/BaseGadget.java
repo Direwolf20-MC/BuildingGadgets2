@@ -7,8 +7,8 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -97,7 +97,7 @@ public abstract class BaseGadget extends Item {
         return heldItem;
     }
 
-    public void undo(Level level, Player player, ItemStack gadget) {
+    public void undo(Level level, ItemStack gadget) {
         BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
         ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;

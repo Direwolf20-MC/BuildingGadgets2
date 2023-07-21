@@ -13,8 +13,8 @@ import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestCopyD
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -70,57 +70,32 @@ public class VBORenderer {
     }
 
     //Start rendering - this is the most expensive part, so we render it, then cache it, and draw it over and over (much cheaper)
-    public static void buildRender(RenderLevelStageEvent evt, Player player, ItemStack heldItem) {
-        ArrayList<StatePos> buildList = new ArrayList<>();
-        BaseMode mode = GadgetNBT.getMode(heldItem);
-        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
+    public static void buildRender(RenderLevelStageEvent evt, Player player, ItemStack gadget) {
+        ArrayList<StatePos> buildList;
+        BaseMode mode = GadgetNBT.getMode(gadget);
+        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
         BlockPos renderPos = lookingAt.getBlockPos();
         if (player.level().getBlockState(renderPos).isAir())
             return;
-        if (heldItem.getItem() instanceof GadgetBuilding || heldItem.getItem() instanceof GadgetExchanger) {
-            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
+        if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
+            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             if (renderBlockState.isAir()) return;
             buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
-
-            //Extra blocks for testing FPS - will remove eventually (Or not cause its me)
-            /*for (int k = -15; k < 15; k++) {
-            for (int j = 1; j < 25; j++) {
-                for (int i = -1; i < 25; i++) {
-                    buildList.add(new StatePos(Blocks.GLASS.defaultBlockState(), new BlockPos(k, i, -j)));
-                    //buildList.add(new StatePos(Blocks.OAK_LOG.defaultBlockState(), new BlockPos(2, 0, i)));
-                    buildList.add(new StatePos(Blocks.COBBLESTONE.defaultBlockState(), new BlockPos(k, i, j)));
-                }
-            }
-            }*/
-            //buildList.add(new StatePos(Blocks.GLASS.defaultBlockState(), new BlockPos(1,0,1)));
-            //buildList.add(new StatePos(Blocks.COBBLESTONE.defaultBlockState(), new BlockPos(1,0,-1)));
 
             if (buildList.equals(statePosCache))
                 return;
 
-            //System.out.println("I'm Building!");
-            //Long drawStart = System.nanoTime();
-
-            //player.displayClientMessage(Component.literal("Rebuilding Render due to change." + level.getGameTime()), false);
             statePosCache = buildList;
-            copyPasteUUIDCache = UUID.randomUUID();
-        } else if (heldItem.getItem() instanceof GadgetCopyPaste || heldItem.getItem() instanceof GadgetCutPaste) {
+            copyPasteUUIDCache = UUID.randomUUID(); //In case theres an existing copy/Paste render saved, nullify it
+        } else if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
             renderPos = renderPos.above();
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
                 awaitingUpdate = false;
-                Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-                PoseStack matrix = evt.getPoseStack();
-                matrix.pushPose();
-                matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
-                BlockPos start = GadgetNBT.getCopyStartPos(heldItem);
-                BlockPos end = GadgetNBT.getCopyEndPos(heldItem);
-                Color color = mode.getId().getPath().equals("copy") ? Color.GREEN : Color.RED;
-                MyRenderMethods.renderCopy(evt.getPoseStack(), start, end, color);
-                matrix.popPose();
+                drawCopyBox(evt.getPoseStack(), gadget, mode.getId().getPath());
                 return;
-            } else {
-                UUID gadgetUUID = GadgetNBT.getUUID(heldItem);
-                UUID copyUUID = GadgetNBT.getCopyUUID(heldItem);
+            } else { //Paste Mode
+                UUID gadgetUUID = GadgetNBT.getUUID(gadget);
+                UUID copyUUID = GadgetNBT.getCopyUUID(gadget);
                 if (copyPasteUUIDCache.equals(copyUUID)) //If the Cache'd UUID of the copy/paste matches whats on the item, we don't need to rebuild the render
                     return; //No need to rebuild cache because its up to date!
                 UUID dataClientUUID = BG2DataClient.getCopyUUID(gadgetUUID);
@@ -129,10 +104,10 @@ public class VBORenderer {
                     statePosCache = BG2DataClient.getLookupFromUUID(gadgetUUID);
                     awaitingUpdate = false;
                     //Don't Return because we want to now draw the Copy/Paste
-                } else {
+                } else { //Neither this classes data NOR the BG2Client class's data is up to date - request it from server
                     if (awaitingUpdate) //If we already requested an update from the server, don't try again
                         return; //TODO Maybe a retry delay?
-                    PacketHandler.sendToServer(new PacketRequestCopyData(GadgetNBT.getUUID(heldItem)));
+                    PacketHandler.sendToServer(new PacketRequestCopyData(GadgetNBT.getUUID(gadget)));
                     awaitingUpdate = true;
                     return;
                 }
@@ -140,6 +115,8 @@ public class VBORenderer {
         } else {
             return;
         }
+
+        //Start drawing the Render and cache it, used for both Building and Copy/Paste
         Level level = player.level();
         PoseStack matrix = new PoseStack(); //Create a new matrix stack for use in the buffer building process
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
@@ -182,6 +159,17 @@ public class VBORenderer {
         }
     }
 
+    public static void drawCopyBox(PoseStack matrix, ItemStack gadget, String mode) {
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        matrix.pushPose();
+        matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+        BlockPos start = GadgetNBT.getCopyStartPos(gadget);
+        BlockPos end = GadgetNBT.getCopyEndPos(gadget);
+        Color color = mode.equals("copy") ? Color.GREEN : Color.RED;
+        MyRenderMethods.renderCopy(matrix, start, end, color);
+        matrix.popPose();
+    }
+
     public static boolean isModelRender(BlockState state) {
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         BakedModel ibakedmodel = dispatcher.getBlockModel(state);
@@ -197,41 +185,33 @@ public class VBORenderer {
     }
 
     //Draw what we've cached
-    public static void drawRender(RenderLevelStageEvent evt, Player player, ItemStack heldItem) {
+    public static void drawRender(RenderLevelStageEvent evt, Player player, ItemStack gadget) {
         if (vertexBuffers == null || statePosCache == null) {
             return;
         }
-        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, heldItem);
+        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
         BlockPos renderPos = lookingAt.getBlockPos();
-        var mode = GadgetNBT.getMode(heldItem);
-        if (!(heldItem.getItem() instanceof GadgetCopyPaste || heldItem.getItem() instanceof GadgetCutPaste)) {
-            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(heldItem);
+        var mode = GadgetNBT.getMode(gadget);
+        if (!(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste)) {
+            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             if (renderBlockState.isAir()) return;
-
-            // TODO: This might need caching (and invalidating when the mode changes)
-
-
             if (player.level().getBlockState(renderPos).isAir())
                 return;
             List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
             if (buildList.isEmpty()) return;
-        } else {
+        } else if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
-                return;
+                return; //This is handlded above
             }
             if (player.level().getBlockState(renderPos).isAir())
                 return;
-            if (!copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(heldItem)))
+            if (!copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(gadget)))
                 return;
             renderPos = renderPos.above();
         }
         //Sort every <X> Frames to prevent screendoor effect-- TODO Different sort times for different gadgets, scale with number of blocks? Or maybe when view rotation changes enough?
         if (sortCounter > 20) {
-            //NumberFormat numberFormat = NumberFormat.getInstance();
-            //long sortStart = System.nanoTime();
             sortAll(renderPos);
-            //long sortEnd = System.nanoTime();
-            //System.out.println("Sorting took: " + numberFormat.format(sortEnd - sortStart));
             sortCounter = 0;
         } else {
             sortCounter++;

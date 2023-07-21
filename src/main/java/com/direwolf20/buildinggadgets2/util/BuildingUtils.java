@@ -2,8 +2,8 @@ package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.setup.Registration;
-import com.direwolf20.buildinggadgets2.util.modes.StatePos;
-import com.direwolf20.buildinggadgets2.util.modes.TagPos;
+import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
@@ -35,7 +35,6 @@ public class BuildingUtils {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
-            //if (level.getBlockState(blockPos).isAir()) {
             boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
@@ -45,7 +44,6 @@ public class BuildingUtils {
             }
             actuallyBuiltList.add(new StatePos(pos.state, blockPos));
             be.setRenderBlock(pos.state);
-            //}
         }
         return actuallyBuiltList;
     }
