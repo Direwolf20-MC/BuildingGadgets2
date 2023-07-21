@@ -1,8 +1,10 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -14,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -83,12 +86,22 @@ public class Cut extends BaseMode {
         if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return;
 
         AABB area = new AABB(cutStart, cutEnd);
-
+        ArrayList<StatePos> affectedBlocks = new ArrayList<>();
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
+            BlockState oldState = level.getBlockState(pos);
+            if (oldState.isAir()) return;
             level.removeBlockEntity(pos);
-            //TODO Use Render block to avoid torches popping off when they shouldn't
-            level.destroyBlock(pos, false, null, 128); //I think false means don't drop tile contents?
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
+            affectedBlocks.add(new StatePos(oldState, pos));
         });
+
+        for (StatePos affectedBlock : affectedBlocks) {
+            boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
+            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
+            if (placed && be != null) {
+                be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState());
+            }
+        }
     }
 
 

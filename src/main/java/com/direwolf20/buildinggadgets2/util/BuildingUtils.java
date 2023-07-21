@@ -6,6 +6,8 @@ import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -25,7 +27,7 @@ public class BuildingUtils {
                     continue;
                 }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                be.setRenderBlock(pos.state);
+                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
             }
         }
         return actuallyBuiltList;
@@ -35,6 +37,7 @@ public class BuildingUtils {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
+            BlockState oldState = level.getBlockState(blockPos);
             boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
@@ -43,7 +46,7 @@ public class BuildingUtils {
                 continue;
             }
             actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-            be.setRenderBlock(pos.state);
+            be.setRenderData(oldState, pos.state);
         }
         return actuallyBuiltList;
     }
@@ -66,7 +69,7 @@ public class BuildingUtils {
                     continue;
                 }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                be.setRenderBlock(pos.state);
+                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
                 if (foundTagPos.isPresent()) {
                     TagPos result = foundTagPos.get();
                     be.setBlockEntityData(result.tag);

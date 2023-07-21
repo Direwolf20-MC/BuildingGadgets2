@@ -11,6 +11,7 @@ import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestCopyData;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -191,20 +192,22 @@ public class VBORenderer {
         }
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
         BlockPos renderPos = lookingAt.getBlockPos();
+        if (player.level().getBlockState(renderPos).isAir())
+            return;
+        BlockState lookingAtState = player.level().getBlockState(renderPos);
+        if (lookingAtState.getBlock().equals(Registration.RenderBlock.get()))
+            return;
         var mode = GadgetNBT.getMode(gadget);
         if (!(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste)) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             if (renderBlockState.isAir()) return;
-            if (player.level().getBlockState(renderPos).isAir())
-                return;
+
             List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
             if (buildList.isEmpty()) return;
         } else if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
                 return; //This is handlded above
             }
-            if (player.level().getBlockState(renderPos).isAir())
-                return;
             if (!copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(gadget)))
                 return;
             renderPos = renderPos.above();

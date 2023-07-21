@@ -31,7 +31,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         BlockPos pos = blockentity.getBlockPos();
         int drawSize = blockentity.drawSize;
         float nowScale = (float) (drawSize) / (float) 40;
-        float nextScale = (float) (drawSize + 1) / (float) 40;
+        float nextScale = (float) (blockentity.nextDrawSize()) / (float) 40;
         float scale = (Mth.lerp(partialTicks, nowScale, nextScale));
 
         if (scale >= 1.0f)
@@ -58,12 +58,8 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         }
         BlockColors blockColors = Minecraft.getInstance().getBlockColors();
 
-        //
-
         matrixStackIn.pushPose();
-
         //if (breakType == MiningProperties.BreakTypes.SHRINK) {
-
         VertexConsumer builder = bufferIn.getBuffer(RenderType.cutout());
         ModelBlockRenderer modelBlockRenderer = new ModelBlockRenderer(blockColors);
         matrixStackIn.translate((1 - scale) / 2, (1 - scale) / 2, (1 - scale) / 2);
@@ -73,7 +69,6 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos, matrixStackIn, builder, false, RandomSource.create(), renderState.getSeed(pos), combinedOverlayIn, ModelData.EMPTY, null);
         else
             blockrendererdispatcher.renderSingleBlock(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, ModelData.EMPTY, null);
-
 
         //} else if (breakType == MiningProperties.BreakTypes.FADE) {
         /*VertexConsumer builder = bufferIn.getBuffer(OurRenderTypes.RenderBlock);

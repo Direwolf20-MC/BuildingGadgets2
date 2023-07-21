@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -16,7 +17,11 @@ import javax.annotation.Nonnull;
 public class RenderBlockBE extends BlockEntity {
     public byte drawSize;
     public BlockState renderBlock;
+    public BlockState sourceBlock;
+    public BlockState targetBlock;
     public CompoundTag blockEntityData;
+    public boolean shrinking;
+    public boolean exchanging;
 
     public RenderBlockBE(BlockPos pos, BlockState state) {
         super(Registration.RenderBlock_BE.get(), pos, state);
@@ -24,34 +29,85 @@ public class RenderBlockBE extends BlockEntity {
 
     public void tickClient() {
         increaseDrawSize();
-        if (drawSize >= 40)
-            drawSize = 40;
     }
 
     public void tickServer() {
         increaseDrawSize();
-        //markDirtyClient();
-        if (drawSize >= 40) {
-            level.setBlockAndUpdate(this.getBlockPos(), renderBlock);
-            if (blockEntityData != null) {
-                BlockEntity newBE = level.getBlockEntity(this.getBlockPos());
-                try {
-                    newBE.load(blockEntityData);
-                } catch (Exception e) {
-                    System.out.println("Failed to restore tile data for block at: " + this.getBlockPos() + " with NBT: " + blockEntityData + ". Consider adding it to the blacklist");
+        if (exchanging) {
+            if (shrinking) {
+                if (drawSize <= 0) {
+                    shrinking = false;
+                    renderBlock = targetBlock;
+                    markDirtyClient();
+                }
+            } else {
+                if (drawSize >= 40) {
+                    setRealBlock(targetBlock);
+                }
+            }
+        } else {
+            if (shrinking) {
+                if (drawSize <= 0) {
+                    setRealBlock(Blocks.AIR.defaultBlockState());
+                }
+            } else {
+                if (drawSize >= 40) {
+                    setRealBlock(targetBlock);
                 }
             }
         }
     }
 
-    public void increaseDrawSize() {
-        //if (drawSize == 20) return;
-        drawSize++;
+    public void setRealBlock(BlockState realBlock) {
+        level.setBlockAndUpdate(this.getBlockPos(), realBlock);
+        if (blockEntityData != null) {
+            BlockEntity newBE = level.getBlockEntity(this.getBlockPos());
+            try {
+                newBE.load(blockEntityData);
+            } catch (Exception e) {
+                System.out.println("Failed to restore tile data for block at: " + this.getBlockPos() + " with NBT: " + blockEntityData + ". Consider adding it to the blacklist");
+            }
+        }
     }
 
-    public void setRenderBlock(BlockState state) {
-        renderBlock = state;
-        drawSize = 0;
+    public void increaseDrawSize() {
+        if (shrinking) {
+            drawSize--;
+            if (drawSize <= 0)
+                drawSize = 0;
+        } else {
+            drawSize++;
+            if (drawSize >= 40)
+                drawSize = 40;
+        }
+    }
+
+    public byte nextDrawSize() {
+        if (shrinking)
+            return (byte) (drawSize - 1);
+        return (byte) (drawSize + 1);
+    }
+
+    public void setRenderData(BlockState sourceBlock, BlockState targetBlock) {
+        this.sourceBlock = sourceBlock;
+        this.targetBlock = targetBlock;
+        if (sourceBlock.equals(Blocks.AIR.defaultBlockState())) { //If Source is air, we must be BUILDING!
+            exchanging = false;
+            shrinking = false;
+            this.renderBlock = targetBlock;
+            drawSize = 0;
+        } else if (targetBlock.equals(Blocks.AIR.defaultBlockState())) { //If Target is air, we must be DESTROYING!
+            exchanging = false;
+            shrinking = true;
+            this.renderBlock = sourceBlock;
+            drawSize = 40;
+        } else { //We must be EXCHANGING!
+            exchanging = true;
+            shrinking = true;
+            this.renderBlock = sourceBlock;
+            drawSize = 40;
+        }
+
         markDirtyClient();
     }
 
@@ -65,6 +121,10 @@ public class RenderBlockBE extends BlockEntity {
     public void load(CompoundTag tag) {
         super.load(tag);
         this.renderBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("renderBlock"));
+        this.sourceBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("sourceBlock"));
+        this.targetBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("targetBlock"));
+        this.shrinking = tag.getBoolean("shrinking");
+        this.exchanging = tag.getBoolean("exchanging");
         this.drawSize = tag.getByte("drawSize");
         if (tag.contains("blockEntityData"))
             this.blockEntityData = tag.getCompound("blockEntityData");
@@ -76,6 +136,14 @@ public class RenderBlockBE extends BlockEntity {
         if (this.renderBlock != null) {
             tag.put("renderBlock", NbtUtils.writeBlockState(this.renderBlock));
         }
+        if (this.sourceBlock != null) {
+            tag.put("sourceBlock", NbtUtils.writeBlockState(this.sourceBlock));
+        }
+        if (this.targetBlock != null) {
+            tag.put("targetBlock", NbtUtils.writeBlockState(this.targetBlock));
+        }
+        tag.putBoolean("shrinking", shrinking);
+        tag.putBoolean("exchanging", exchanging);
         tag.putByte("drawSize", this.drawSize);
         if (blockEntityData != null)
             tag.put("blockEntityData", this.blockEntityData);
