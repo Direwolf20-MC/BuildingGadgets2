@@ -14,6 +14,7 @@ public class BuildingUtils {
     public static ArrayList<StatePos> build(Level level, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         for (StatePos pos : blockPosList) {
+            if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (level.getBlockState(blockPos).canBeReplaced()) {
                 boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
@@ -53,6 +54,7 @@ public class BuildingUtils {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         if (teData == null) return actuallyBuiltList;
         for (StatePos pos : blockPosList) {
+            if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (level.getBlockState(blockPos).canBeReplaced()) {
                 Optional<TagPos> foundTagPos = teData.stream()

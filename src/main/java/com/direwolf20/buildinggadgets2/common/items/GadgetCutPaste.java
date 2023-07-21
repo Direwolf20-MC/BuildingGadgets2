@@ -82,6 +82,8 @@ public class GadgetCutPaste extends BaseGadget {
         bg2Data.addToTEMap(uuid, teData);
         new Cut().removeBlocks(player);
         player.displayClientMessage(Component.literal("Cut " + buildList.size() + " blocks."), true); //Todo temp
+        GadgetNBT.setCopyStartPos(gadget, GadgetNBT.nullPos);
+        GadgetNBT.setCopyEndPos(gadget, GadgetNBT.nullPos);
     }
 
     /**
