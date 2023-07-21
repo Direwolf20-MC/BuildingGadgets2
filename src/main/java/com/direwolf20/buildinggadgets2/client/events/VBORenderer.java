@@ -42,6 +42,8 @@ import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,7 +108,15 @@ public class VBORenderer {
             renderPos = renderPos.above();
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
                 awaitingUpdate = false;
-                //TODO Copy Box Render
+                Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+                PoseStack matrix = evt.getPoseStack();
+                matrix.pushPose();
+                matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+                BlockPos start = GadgetNBT.getCopyStartPos(heldItem);
+                BlockPos end = GadgetNBT.getCopyEndPos(heldItem);
+                Color color = mode.getId().getPath().equals("copy") ? Color.GREEN : Color.RED;
+                MyRenderMethods.renderCopy(evt.getPoseStack(), start, end, color);
+                matrix.popPose();
                 return;
             } else {
                 UUID gadgetUUID = GadgetNBT.getUUID(heldItem);
@@ -207,7 +217,6 @@ public class VBORenderer {
             if (buildList.isEmpty()) return;
         } else {
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
-                //TODO Copy Box Render
                 return;
             }
             if (player.level().getBlockState(renderPos).isAir())

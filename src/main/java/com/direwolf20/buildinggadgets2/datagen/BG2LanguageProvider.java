@@ -34,6 +34,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.modes.vertical_column", "Vertical Column");
         add("buildinggadgets2.modes.surface", "Surface");
         add("buildinggadgets2.modes.copy", "Copy");
+        add("buildinggadgets2.modes.cut", "Cut");
         add("buildinggadgets2.modes.paste", "Paste");
 
         //GUI
