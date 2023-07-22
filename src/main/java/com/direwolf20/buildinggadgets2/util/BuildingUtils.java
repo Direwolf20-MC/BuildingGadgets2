@@ -1,15 +1,18 @@
 package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class BuildingUtils {
@@ -77,5 +80,31 @@ public class BuildingUtils {
             }
         }
         return actuallyBuiltList;
+    }
+
+    public static ArrayList<StatePos> remove(Level level, List<BlockPos> blockPosList) {
+        ArrayList<StatePos> affectedBlocks = new ArrayList<>();
+        for (BlockPos pos : blockPosList) {
+            BlockState oldState = level.getBlockState(pos);
+            if (oldState.isAir()) continue;
+            if (oldState.getBlock() instanceof RenderBlock) {
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof RenderBlockBE renderBlockBE) {
+                    oldState = renderBlockBE.renderBlock;
+                }
+            }
+            level.removeBlockEntity(pos);
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
+            affectedBlocks.add(new StatePos(oldState, pos));
+        }
+
+        for (StatePos affectedBlock : affectedBlocks) {
+            boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
+            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
+            if (placed && be != null) {
+                be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState());
+            }
+        }
+        return affectedBlocks;
     }
 }
