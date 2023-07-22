@@ -25,7 +25,7 @@ public class VerticalWall extends BaseMode {
     }
 
     @Override
-    public ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state) {
+    public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ItemStack gadget = BaseGadget.getGadget(player);
         int range = GadgetNBT.getToolRange(gadget);
         int size = (range - 1) / 2;

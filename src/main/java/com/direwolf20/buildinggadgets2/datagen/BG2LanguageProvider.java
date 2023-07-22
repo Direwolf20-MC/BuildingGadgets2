@@ -45,6 +45,8 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.radialmenu.cut", "Cut");
         add("buildinggadgets2.radialmenu.connected_area", "Connected Area");
         add("buildinggadgets2.radialmenu.undo", "Undo");
+        add("buildinggadgets2.radialmenu.anchor", "Anchor");
+
 
     }
 }

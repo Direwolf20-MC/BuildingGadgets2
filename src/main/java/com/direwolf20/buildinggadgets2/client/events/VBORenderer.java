@@ -44,8 +44,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.awt.*;
-import java.util.List;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class VBORenderer {
@@ -75,9 +77,12 @@ public class VBORenderer {
         ArrayList<StatePos> buildList;
         BaseMode mode = GadgetNBT.getMode(gadget);
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
-        BlockPos renderPos = lookingAt.getBlockPos();
+        BlockPos anchorPos = GadgetNBT.getAnchorPos(gadget);
+        BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
+
         if (player.level().getBlockState(renderPos).isAir())
             return;
+
         if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             if (renderBlockState.isAir()) return;
@@ -190,19 +195,21 @@ public class VBORenderer {
         if (vertexBuffers == null || statePosCache == null) {
             return;
         }
+
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
-        BlockPos renderPos = lookingAt.getBlockPos();
-        if (player.level().getBlockState(renderPos).isAir())
-            return;
+        BlockPos anchorPos = GadgetNBT.getAnchorPos(gadget);
+        BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
         BlockState lookingAtState = player.level().getBlockState(renderPos);
-        if (lookingAtState.getBlock().equals(Registration.RenderBlock.get()))
+
+        if (lookingAtState.isAir() || lookingAtState.getBlock().equals(Registration.RenderBlock.get()))
             return;
+
         var mode = GadgetNBT.getMode(gadget);
-        if (!(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste)) {
+        if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             if (renderBlockState.isAir()) return;
+            ArrayList<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
 
-            List<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
             if (buildList.isEmpty()) return;
         } else if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {

@@ -9,6 +9,7 @@
   "buildinggadgets2.modes.surface": "Surface",
   "buildinggadgets2.modes.vertical_column": "Vertical Column",
   "buildinggadgets2.modes.vertical_wall": "Vertical Wall",
+  "buildinggadgets2.radialmenu.anchor": "Anchor",
   "buildinggadgets2.radialmenu.connected_area": "Connected Area",
   "buildinggadgets2.radialmenu.cut": "Cut",
   "buildinggadgets2.radialmenu.fuzzy": "Fuzzy",

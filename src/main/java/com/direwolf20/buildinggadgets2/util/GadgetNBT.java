@@ -19,8 +19,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class GadgetNBT {
     public enum NBTValues {
@@ -36,6 +38,45 @@ public class GadgetNBT {
 
     public final static BlockPos nullPos = new BlockPos(-999, -999, -999);
     final static int undoListSize = 10;
+
+    public static BlockPos setAnchorPos(ItemStack gadget, BlockPos blockPos) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        tag.put("anchor", NbtUtils.writeBlockPos(blockPos));
+        return blockPos;
+    }
+
+    public static BlockPos getAnchorPos(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("anchor")) return nullPos;
+        return NbtUtils.readBlockPos(tag.getCompound("anchor"));
+    }
+
+    public static void clearAnchorPos(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("anchor")) return;
+        tag.remove("anchor");
+        tag.remove("anchorList");
+    }
+
+    public static ArrayList<BlockPos> getAnchorList(ItemStack gadget) {
+        ArrayList<BlockPos> anchorList = new ArrayList<>();
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("anchorList")) return anchorList;
+
+        ListTag coordList = tag.getList("anchorList", Tag.TAG_COMPOUND);
+        if (coordList.size() == 0) return anchorList;
+
+        for (int i = 0; i < coordList.size(); i++) {
+            anchorList.add(NbtUtils.readBlockPos(coordList.getCompound(i)));
+        }
+
+        return anchorList;
+    }
+
+    public static void setAnchorList(ItemStack gadget, ArrayList<BlockPos> anchorList) {
+        CompoundTag tagCompound = gadget.getOrCreateTag();
+        tagCompound.put("anchorList", anchorList.stream().map(NbtUtils::writeBlockPos).collect(Collectors.toCollection(ListTag::new)));
+    }
 
     public static BlockPos setCopyStartPos(ItemStack gadget, BlockPos blockPos) {
         CompoundTag tag = gadget.getOrCreateTag();

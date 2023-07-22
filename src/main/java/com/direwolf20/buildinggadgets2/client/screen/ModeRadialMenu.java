@@ -136,6 +136,13 @@ public class ModeRadialMenu extends Screen {
             return false;
         }));
 
+        addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.anchor"), "anchor", ScreenPosition.LEFT, send -> {
+            if (send)
+                PacketHandler.sendToServer(new PacketAnchor());
+
+            return false;
+        }));
+
 
 /*        if (isDestruction) {
             addRenderableWidget(new PositionedIconActionable(RadialTranslation.DESTRUCTION_OVERLAY, "destroy_overlay", right, send -> {
@@ -235,17 +242,6 @@ public class ModeRadialMenu extends Screen {
                 return GadgetBuilding.shouldPlaceAtop(this.getGadget());
             }));
         }
-        addRenderableWidget(new PositionedIconActionable(RadialTranslation.ANCHOR, "anchor", left, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketAnchor());
-
-            ItemStack stack = this.getGadget();
-            if (stack.getItem() instanceof GadgetCopyPaste || stack.getItem() instanceof GadgetDestruction) {
-                return ((BaseGadget) stack.getItem()).getAnchor(stack) != null;
-            }
-
-            return GadgetUtils.getAnchor(stack).isPresent();
-        }));
 
         if (!(tool.getItem() instanceof GadgetExchanger)) {
             addRenderableWidget(new PositionedIconActionable(RadialTranslation.UNDO, "undo", left, false, send -> {
@@ -455,7 +451,7 @@ public class ModeRadialMenu extends Screen {
     private void changeMode() {
         if (this.slotSelected >= 0) {
             assert getMinecraft().player != null;
-            PacketHandler.sendToServer(new GadgetModeSwitchPacket(arrayOfModes.get(this.slotSelected).getId(), false));
+            PacketHandler.sendToServer(new PacketModeSwitch(arrayOfModes.get(this.slotSelected).getId(), false));
             OurSounds.playSound(Registration.BEEP.get());
         }
     }

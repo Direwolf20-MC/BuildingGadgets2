@@ -24,7 +24,7 @@ public class VerticalColumn extends BaseMode {
     }
 
     @Override
-    public ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state) {
+    public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ItemStack gadget = BaseGadget.getGadget(player);
         int range = GadgetNBT.getToolRange(gadget);
         ArrayList<StatePos> coordinates = new ArrayList<>();

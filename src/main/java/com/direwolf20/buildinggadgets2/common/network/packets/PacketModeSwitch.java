@@ -17,24 +17,24 @@ import java.util.function.Supplier;
 /**
  * TODO: remove me, this is a tmp
  */
-public class GadgetModeSwitchPacket {
+public class PacketModeSwitch {
     boolean rotate;
     ResourceLocation modeId;
 
-    public GadgetModeSwitchPacket(ResourceLocation modeId, boolean rotate) {
+    public PacketModeSwitch(ResourceLocation modeId, boolean rotate) {
         this.modeId = modeId;
     }
 
-    public static GadgetModeSwitchPacket decode(FriendlyByteBuf buf) {
-        return new GadgetModeSwitchPacket(buf.readResourceLocation(), buf.readBoolean());
+    public static PacketModeSwitch decode(FriendlyByteBuf buf) {
+        return new PacketModeSwitch(buf.readResourceLocation(), buf.readBoolean());
     }
 
-    public static void encode(GadgetModeSwitchPacket message, FriendlyByteBuf buf) {
+    public static void encode(PacketModeSwitch message, FriendlyByteBuf buf) {
         buf.writeResourceLocation(message.modeId);
         buf.writeBoolean(message.rotate);
     }
 
-    public static void handle(GadgetModeSwitchPacket message, Supplier<NetworkEvent.Context> context) {
+    public static void handle(PacketModeSwitch message, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             ServerPlayer sender = context.get().getSender();
             if (sender == null) {

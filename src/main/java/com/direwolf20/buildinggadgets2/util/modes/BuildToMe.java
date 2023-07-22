@@ -21,7 +21,7 @@ public class BuildToMe extends BaseMode {
     }
 
     @Override
-    public ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state) {
+    public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
 
         int startCoord = hitSide.getAxis().choose(start.getX(), start.getY(), start.getZ());

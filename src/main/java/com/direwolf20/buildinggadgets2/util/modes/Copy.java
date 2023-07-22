@@ -28,7 +28,7 @@ public class Copy extends BaseMode {
     }
 
     @Override
-    public ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state) {
+    public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
         ItemStack heldItem = BaseGadget.getGadget(player);
         if (!(heldItem.getItem() instanceof GadgetCopyPaste)) return coordinates; //Impossible....right?

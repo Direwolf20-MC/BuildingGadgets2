@@ -1,11 +1,14 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -24,9 +27,22 @@ public abstract class BaseMode implements Comparable<BaseMode> {
     }
 
     /**
-     * Collects a list of blocks that should be used when building and rendering the mode
+     * Collects a list of blocks that should be used when building and rendering the mode - Checks for an Anchor first
      */
-    public abstract ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state);
+    public final ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state) {
+        ItemStack gadget = BaseGadget.getGadget(player);
+        final ArrayList<StatePos> buildList = new ArrayList<>();
+        ArrayList<BlockPos> anchorList = GadgetNBT.getAnchorList(gadget);
+        if (anchorList.isEmpty()) {
+            buildList.addAll(collectWorld(hitSide, player, start, state));
+        } else {
+            ArrayList<BlockPos> posList = GadgetNBT.getAnchorList(gadget);
+            posList.forEach(e -> buildList.add(new StatePos(state, e)));
+        }
+        return buildList;
+    }
+
+    public abstract ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state);
 
     public abstract ResourceLocation getId();
 

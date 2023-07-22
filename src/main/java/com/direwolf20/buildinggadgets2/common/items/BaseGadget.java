@@ -10,6 +10,7 @@ import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.collect.ImmutableSortedSet;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -41,7 +42,7 @@ public abstract class BaseGadget extends Item {
             return InteractionResultHolder.success(gadget);
 
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, ClipContext.Fluid.NONE);
-        if (level.getBlockState(lookingAt.getBlockPos()).isAir())
+        if (level.getBlockState(lookingAt.getBlockPos()).isAir() && GadgetNBT.getAnchorPos(gadget).equals(GadgetNBT.nullPos))
             return InteractionResultHolder.success(gadget);
         ItemActionContext context = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, player, level, hand, gadget);
 
@@ -95,6 +96,11 @@ public abstract class BaseGadget extends Item {
             }
         }
         return heldItem;
+    }
+
+    public static BlockPos getHitPos(ItemActionContext context) {
+        BlockPos anchorPos = GadgetNBT.getAnchorPos(context.stack());
+        return anchorPos.equals(GadgetNBT.nullPos) ? context.pos() : anchorPos;
     }
 
     public void undo(Level level, ItemStack gadget) {
