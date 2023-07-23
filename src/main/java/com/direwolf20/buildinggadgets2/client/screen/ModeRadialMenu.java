@@ -136,18 +136,21 @@ public class ModeRadialMenu extends Screen {
         addRenderableWidget(connected_button);
         conditionalButtons.add(connected_button);
 
-        addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.undo"), "undo", ScreenPosition.LEFT, false, send -> {
+        Button undo_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.undo"), "undo", ScreenPosition.LEFT, false, send -> {
             if (send)
                 PacketHandler.sendToServer(new PacketUndo());
 
             return false;
-        }));
+        });
+        if (!(tool.getItem() instanceof GadgetCutPaste))
+            addRenderableWidget(undo_button);
+
 
         addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.anchor"), "anchor", ScreenPosition.LEFT, send -> {
             if (send)
                 PacketHandler.sendToServer(new PacketAnchor());
 
-            return false;
+            return !GadgetNBT.getAnchorPos(tool).equals(GadgetNBT.nullPos);
         }));
 
 

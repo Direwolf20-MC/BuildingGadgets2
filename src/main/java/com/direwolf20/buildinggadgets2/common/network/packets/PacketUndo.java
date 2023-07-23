@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.network.packets;
 
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +29,7 @@ public class PacketUndo {
             }
 
             ItemStack gadget = BaseGadget.getGadget(sender);
-            if (gadget.isEmpty() || !(gadget.getItem() instanceof BaseGadget actualGadget)) {
+            if (gadget.isEmpty() || !(gadget.getItem() instanceof BaseGadget actualGadget) || gadget.getItem() instanceof GadgetCutPaste) {
                 return;
             }
 
