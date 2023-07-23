@@ -28,7 +28,7 @@ public class GadgetExchanger extends BaseGadget {
         if (setState.isAir()) return InteractionResultHolder.pass(gadget);
 
         var mode = GadgetNBT.getMode(gadget);
-        ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), context.pos(), setState);
+        ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), getHitPos(context), setState);
 
         // This should go through some translation based process
         // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
