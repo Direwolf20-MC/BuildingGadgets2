@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 public class VBORenderer {
     private static ArrayList<StatePos> statePosCache;
     private static int sortCounter = 0;
+    public static UUID gadgetUUIDCache = UUID.randomUUID(); //The Unique ID of the gadget who's data we're caching. If this differs, it means the player swapped to another gadget
     public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
     public static boolean awaitingUpdate = false;
 
@@ -101,6 +102,8 @@ public class VBORenderer {
                 return;
             } else { //Paste Mode
                 UUID gadgetUUID = GadgetNBT.getUUID(gadget);
+                if (gadgetUUIDCache.equals(gadgetUUID)) //If the player swapped to another gadget, lets refresh the update request.
+                    awaitingUpdate = false;
                 UUID copyUUID = GadgetNBT.getCopyUUID(gadget);
                 if (copyPasteUUIDCache.equals(copyUUID)) //If the Cache'd UUID of the copy/paste matches whats on the item, we don't need to rebuild the render
                     return; //No need to rebuild cache because its up to date!
