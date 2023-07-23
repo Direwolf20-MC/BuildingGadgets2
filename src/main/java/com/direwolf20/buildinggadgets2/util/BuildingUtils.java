@@ -84,6 +84,7 @@ public class BuildingUtils {
 
     public static ArrayList<StatePos> remove(Level level, List<BlockPos> blockPosList) {
         ArrayList<StatePos> affectedBlocks = new ArrayList<>();
+        byte drawSize = 40;
         for (BlockPos pos : blockPosList) {
             BlockState oldState = level.getBlockState(pos);
             if (oldState.isAir()) continue;
@@ -91,6 +92,7 @@ public class BuildingUtils {
                 BlockEntity blockEntity = level.getBlockEntity(pos);
                 if (blockEntity instanceof RenderBlockBE renderBlockBE) {
                     oldState = renderBlockBE.renderBlock;
+                    drawSize = renderBlockBE.drawSize;
                 }
             }
             level.removeBlockEntity(pos);
@@ -103,6 +105,7 @@ public class BuildingUtils {
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
             if (placed && be != null) {
                 be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState());
+                be.drawSize = drawSize;
             }
         }
         return affectedBlocks;
