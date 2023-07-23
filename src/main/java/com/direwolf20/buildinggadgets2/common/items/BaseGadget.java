@@ -2,7 +2,6 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
-import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -20,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
@@ -110,10 +108,10 @@ public abstract class BaseGadget extends Item {
 
         ArrayList<BlockPos> todoList = new ArrayList<>();
         for (StatePos statePos : undoList) {
-            BlockState currentState = level.getBlockState(statePos.pos);
-            if (currentState.getBlock().equals(statePos.state.getBlock()) || currentState.getBlock() instanceof RenderBlock) {
-                todoList.add(statePos.pos);
-            }
+            //BlockState currentState = level.getBlockState(statePos.pos);
+            //if (currentState.getBlock().equals(statePos.state.getBlock()) || currentState.getBlock() instanceof RenderBlock) {
+            todoList.add(statePos.pos);
+            //}
         }
         BuildingUtils.remove(level, todoList);
     }

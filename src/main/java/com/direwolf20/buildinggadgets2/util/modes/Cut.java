@@ -85,7 +85,7 @@ public class Cut extends BaseMode {
         if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return;
 
         AABB area = new AABB(cutStart, cutEnd);
-        BuildingUtils.remove(level, BlockPos.betweenClosedStream(area).collect(Collectors.toList()));
+        BuildingUtils.remove(level, BlockPos.betweenClosedStream(area).map(BlockPos::immutable).collect(Collectors.toList()));
     }
 
 

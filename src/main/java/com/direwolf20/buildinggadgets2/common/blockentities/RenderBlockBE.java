@@ -33,28 +33,16 @@ public class RenderBlockBE extends BlockEntity {
 
     public void tickServer() {
         increaseDrawSize();
-        if (exchanging) {
-            if (shrinking) {
-                if (drawSize <= 0) {
-                    shrinking = false;
-                    renderBlock = targetBlock;
-                    markDirtyClient();
-                }
+        if (shrinking && drawSize <= 0) {
+            if (exchanging) {
+                shrinking = false;
+                renderBlock = targetBlock;
+                markDirtyClient();
             } else {
-                if (drawSize >= 40) {
-                    setRealBlock(targetBlock);
-                }
+                setRealBlock(Blocks.AIR.defaultBlockState());
             }
-        } else {
-            if (shrinking) {
-                if (drawSize <= 0) {
-                    setRealBlock(Blocks.AIR.defaultBlockState());
-                }
-            } else {
-                if (drawSize >= 40) {
-                    setRealBlock(targetBlock);
-                }
-            }
+        } else if (drawSize >= 40) {
+            setRealBlock(targetBlock);
         }
     }
 
