@@ -44,7 +44,7 @@ public class GadgetCutPaste extends BaseGadget {
             ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), buildList, getHitPos(context).above(), tagList);
             if (!actuallyBuiltList.isEmpty())
                 GadgetNBT.clearAnchorPos(gadget);
-            GadgetNBT.setCopyUUID(gadget); // Generate a new CopyUUID to let the render know its different now
+            GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
             return InteractionResultHolder.success(gadget);
         } else {
             return InteractionResultHolder.pass(gadget);

@@ -128,6 +128,18 @@ public class GadgetNBT {
         return tag.getUUID("copyuuid");
     }
 
+    public static boolean hasCopyUUID(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("copyuuid")) return false;
+        return true;
+    }
+
+    public static void clearCopyUUID(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("copyuuid")) return;
+        tag.remove("copyuuid");
+    }
+
     public static BlockState setGadgetBlockState(ItemStack gadget, BlockState blockState) {
         CompoundTag tag = gadget.getOrCreateTag();
         tag.put("blockstate", NbtUtils.writeBlockState(blockState));

@@ -55,6 +55,7 @@ public class ModeRadialMenu extends Screen {
     private int slotSelected = -1;
     private int segments;
     private ArrayList<BaseMode> arrayOfModes = new ArrayList();
+    private boolean cutForSure = false;
 
     public ModeRadialMenu(ItemStack stack) {
         super(Component.literal(""));
@@ -102,8 +103,14 @@ public class ModeRadialMenu extends Screen {
 
         if (tool.getItem() instanceof GadgetCutPaste) {
             addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.cut"), "cut", ScreenPosition.LEFT, false, send -> {
-                if (send)
+                if (send) {
+                    if (GadgetNBT.hasCopyUUID(tool) && !cutForSure) {
+                        this.getMinecraft().player.displayClientMessage(Component.literal("Tool already has data stored, click again to confirm OVERWRITING this Cut. This action cannot be undone!"), true);
+                        cutForSure = true;
+                        return false;
+                    }
                     PacketHandler.sendToServer(new PacketCut());
+                }
 
                 return false;
             }));
