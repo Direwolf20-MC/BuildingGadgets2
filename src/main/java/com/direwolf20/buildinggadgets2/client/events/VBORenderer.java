@@ -102,8 +102,10 @@ public class VBORenderer {
                 return;
             } else { //Paste Mode
                 UUID gadgetUUID = GadgetNBT.getUUID(gadget);
-                if (gadgetUUIDCache.equals(gadgetUUID)) //If the player swapped to another gadget, lets refresh the update request.
+                if (!gadgetUUIDCache.equals(gadgetUUID)) { //If the player swapped to another gadget, lets refresh the update request.
                     awaitingUpdate = false;
+                    gadgetUUIDCache = gadgetUUID;
+                }
                 UUID copyUUID = GadgetNBT.getCopyUUID(gadget);
                 if (copyPasteUUIDCache.equals(copyUUID)) //If the Cache'd UUID of the copy/paste matches whats on the item, we don't need to rebuild the render
                     return; //No need to rebuild cache because its up to date!
