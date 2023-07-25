@@ -35,6 +35,8 @@ public class PacketHandler {
         HANDLER.registerMessage(id++, PacketCut.class, PacketCut::encode, PacketCut::decode, PacketCut::handle);
         HANDLER.registerMessage(id++, PacketToggleSetting.class, PacketToggleSetting::encode, PacketToggleSetting::decode, PacketToggleSetting::handle);
         HANDLER.registerMessage(id++, PacketRequestCopyData.class, PacketRequestCopyData::encode, PacketRequestCopyData::decode, PacketRequestCopyData::handle);
+        HANDLER.registerMessage(id++, PacketCopyCoords.class, PacketCopyCoords::encode, PacketCopyCoords::decode, PacketCopyCoords::handle);
+        HANDLER.registerMessage(id++, PacketRelativePaste.class, PacketRelativePaste::encode, PacketRelativePaste::decode, PacketRelativePaste::handle);
 
         //Client Side
         HANDLER.registerMessage(id++, PacketSendCopyData.class, PacketSendCopyData::encode, PacketSendCopyData::decode, PacketSendCopyData.Handler::handle);

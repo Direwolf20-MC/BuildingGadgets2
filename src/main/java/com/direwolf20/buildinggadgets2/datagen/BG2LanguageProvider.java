@@ -39,6 +39,17 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //GUI
         add("buildinggadgets2.gui.range", "Range");
+        add("buildinggadgets2.screen.confirm", "Confirm");
+        add("buildinggadgets2.screen.close", "Close");
+        add("buildinggadgets2.screen.clear", "Clear");
+        add("buildinggadgets2.screen.absolutecoords", "Absolute");
+        add("buildinggadgets2.screen.relativecoords", "Relative");
+        add("buildinggadgets2.screen.start", "Start");
+        add("buildinggadgets2.screen.end", "End");
+        add("buildinggadgets2.screen.copyheading", "Adjust selection");
+        add("buildinggadgets2.screen.pasteheading", "Adjust placement");
+        add("buildinggadgets2.screen.copysubheading", "Use absolute mode to switch to block coordinates");
+
 
         //Radial Menu
         add("buildinggadgets2.radialmenu.fuzzy", "Fuzzy");
@@ -46,6 +57,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.radialmenu.connected_area", "Connected Area");
         add("buildinggadgets2.radialmenu.undo", "Undo");
         add("buildinggadgets2.radialmenu.anchor", "Anchor");
+        add("buildinggadgets2.radialmenu.copypastemenu", "Settings Menu");
 
 
     }

@@ -102,6 +102,7 @@ public class ModeRadialMenu extends Screen {
         }
 
         if (tool.getItem() instanceof GadgetCutPaste) {
+            //Cut Only
             addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.cut"), "cut", ScreenPosition.LEFT, false, send -> {
                 if (send) {
                     if (GadgetNBT.hasCopyUUID(tool) && !cutForSure) {
@@ -113,6 +114,23 @@ public class ModeRadialMenu extends Screen {
                 }
 
                 return false;
+            }));
+        }
+
+        if (tool.getItem() instanceof GadgetCutPaste || tool.getItem() instanceof GadgetCopyPaste) {
+            addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.copypastemenu"), "copypaste_opengui", ScreenPosition.RIGHT, false, send -> {
+                if (!send)
+                    return false;
+
+                assert this.getMinecraft().player != null;
+
+                getMinecraft().player.closeContainer();
+                var mode = GadgetNBT.getMode(tool);
+                if (mode.getId().getPath().equals("paste"))
+                    getMinecraft().setScreen(new PasteGUI(tool));
+                else
+                    getMinecraft().setScreen(new CopyGUI(tool));
+                return true;
             }));
         }
 

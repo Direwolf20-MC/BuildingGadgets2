@@ -90,6 +90,18 @@ public class GadgetNBT {
         return NbtUtils.readBlockPos(tag.getCompound("copystart"));
     }
 
+    public static BlockPos setRelativePaste(ItemStack gadget, BlockPos blockPos) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        tag.put("relativepaste", NbtUtils.writeBlockPos(blockPos));
+        return blockPos;
+    }
+
+    public static BlockPos getRelativePaste(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("relativepaste")) return BlockPos.ZERO;
+        return NbtUtils.readBlockPos(tag.getCompound("relativepaste"));
+    }
+
     public static BlockPos setCopyEndPos(ItemStack gadget, BlockPos blockPos) {
         CompoundTag tag = gadget.getOrCreateTag();
         tag.put("copyend", NbtUtils.writeBlockPos(blockPos));

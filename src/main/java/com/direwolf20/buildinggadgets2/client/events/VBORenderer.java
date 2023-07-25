@@ -96,6 +96,7 @@ public class VBORenderer {
             copyPasteUUIDCache = UUID.randomUUID(); //In case theres an existing copy/Paste render saved, nullify it
         } else if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
             renderPos = renderPos.above();
+            renderPos.offset(GadgetNBT.getRelativePaste(gadget));
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
                 awaitingUpdate = false;
                 drawCopyBox(evt.getPoseStack(), gadget, mode.getId().getPath());
@@ -222,7 +223,7 @@ public class VBORenderer {
             }
             if (!copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(gadget)))
                 return;
-            renderPos = renderPos.above();
+            renderPos = renderPos.above().offset(GadgetNBT.getRelativePaste(gadget));
         }
         //Sort every <X> Frames to prevent screendoor effect-- TODO Different sort times for different gadgets, scale with number of blocks? Or maybe when view rotation changes enough?
         if (sortCounter > 20) {
