@@ -130,7 +130,11 @@ public class BG2Data extends SavedData {
         for (Map.Entry<UUID, ArrayList<StatePos>> entry : undoList.entrySet()) {
             CompoundTag tempTag = new CompoundTag();
             tempTag.putUUID("uuid", entry.getKey());
-            tempTag.put("stateposlist", statePosListToNBTMapArray(entry.getValue()));
+            ListTag tempList = new ListTag();
+            for (StatePos statePos : entry.getValue()) {
+                tempList.add(statePos.getTag());
+            }
+            tempTag.put("stateposlist", tempList);
             undoTagList.add(tempTag);
         }
         nbt.put("undolist", undoTagList);
@@ -173,8 +177,12 @@ public class BG2Data extends SavedData {
         ListTag undoTagList = nbt.getList("undolist", Tag.TAG_COMPOUND);
         for (int i = 0; i < undoTagList.size(); i++) {
             UUID uuid = undoTagList.getCompound(i).getUUID("uuid");
-            CompoundTag statePosList = undoTagList.getCompound(i).getCompound("stateposlist");
-            undoList.put(uuid, statePosListFromNBTMapArray(statePosList));
+            ListTag statePosList = undoTagList.getCompound(i).getList("stateposlist", CompoundTag.TAG_COMPOUND);
+            ArrayList<StatePos> tempList = new ArrayList<>();
+            for (int j = 0; j < statePosList.size(); j++) {
+                tempList.add(new StatePos(statePosList.getCompound(j)));
+            }
+            undoList.put(uuid, tempList);
         }
 
         HashMap<UUID, Long> undoListTimer = new HashMap<>();
