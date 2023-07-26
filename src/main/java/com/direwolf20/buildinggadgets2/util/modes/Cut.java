@@ -11,6 +11,7 @@ import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Cut extends BaseMode {
     public Cut() {
@@ -45,7 +47,12 @@ public class Cut extends BaseMode {
         if (copyStart.equals(GadgetNBT.nullPos) || copyEnd.equals(GadgetNBT.nullPos)) return coordinates;
 
         AABB area = new AABB(copyStart, copyEnd);
-
+        Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
+        long size = areaStream.count();
+        if (size > 40000) {
+            player.displayClientMessage(Component.literal("Area too large, max size is 40,000 blocks, size was: " + size), false);
+            return coordinates;
+        }
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
             if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
                 coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));

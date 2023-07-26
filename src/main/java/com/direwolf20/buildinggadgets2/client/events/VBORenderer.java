@@ -81,10 +81,9 @@ public class VBORenderer {
         BlockPos anchorPos = GadgetNBT.getAnchorPos(gadget);
         BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
 
-        if (player.level().getBlockState(renderPos).isAir())
-            return;
-
         if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
+            if (player.level().getBlockState(renderPos).isAir())
+                return;
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             if (renderBlockState.isAir()) return;
             buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
@@ -281,7 +280,7 @@ public class VBORenderer {
         }
 
         //Red Overlay for missing Items
-        if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
+        if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative()) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState);
             int availableItems = BuildingUtils.countItemStacks(player.getInventory(), findStack);
