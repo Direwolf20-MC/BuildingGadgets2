@@ -50,7 +50,7 @@ public class Copy extends BaseMode {
         }
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
             if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
-                coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));
+                coordinates.add(new StatePos(GadgetUtils.cleanBlockState(level.getBlockState(pos)), pos.subtract(copyStart)));
             else
                 coordinates.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(copyStart))); //We need to have a block in EVERY position, so write air if invalid
         });

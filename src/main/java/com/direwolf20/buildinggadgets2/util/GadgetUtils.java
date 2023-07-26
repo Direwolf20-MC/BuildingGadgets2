@@ -1,14 +1,13 @@
 package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
+import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -18,17 +17,12 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class GadgetUtils {
-    // TODO: migrate to tags
-    private static final ImmutableList<Block> DISALLOWED_BLOCKS = ImmutableList.of(
-            Blocks.END_PORTAL, Blocks.NETHER_PORTAL, Blocks.END_PORTAL_FRAME, Blocks.BEDROCK, Blocks.SPAWNER,
-            Blocks.WHITE_BED, Blocks.OAK_DOOR
-    );
     private static final ImmutableList<Property> ALLOWED_PROPERTIES = ImmutableList.of(
             BlockStateProperties.FACING, BlockStateProperties.AXIS, BlockStateProperties.HORIZONTAL_FACING
     );
 
     public static boolean isValidBlockState(BlockState blockState, Level level, BlockPos blockPos) {
-        if (DISALLOWED_BLOCKS.contains(blockState.getBlock())) return false;
+        if (blockState.is(BG2BlockTags.BG2DENY)) return false;
         if (blockState.getDestroySpeed(level, blockPos) < 0) return false;
         return true;
     }

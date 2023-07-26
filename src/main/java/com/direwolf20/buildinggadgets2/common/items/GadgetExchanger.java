@@ -9,6 +9,7 @@ import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -52,8 +53,10 @@ public class GadgetExchanger extends BaseGadget {
     @Override
     InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
         BlockState blockState = context.level().getBlockState(context.pos());
-        if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos()))
+        if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos())) {
+            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.invalidblock"), true);
             return super.onShiftAction(context);
+        }
         if (GadgetUtils.setBlockState(context.stack(), blockState))
             return InteractionResultHolder.success(context.stack());
 

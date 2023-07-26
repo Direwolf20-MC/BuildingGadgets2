@@ -59,6 +59,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.radialmenu.anchor", "Anchor");
         add("buildinggadgets2.radialmenu.copypastemenu", "Settings Menu");
 
-
+        //Messages to Player
+        add("buildinggadgets2.messages.invalidblock", "Invalid Block");
     }
 }
