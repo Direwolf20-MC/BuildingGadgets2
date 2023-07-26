@@ -1,13 +1,19 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
+import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -52,6 +58,41 @@ public class GadgetExchanger extends BaseGadget {
             return InteractionResultHolder.success(context.stack());
 
         return super.onShiftAction(context);
+    }
+
+    /**
+     * Undo is handled differently for exchanger - we want to look at what the blocks that were replaced were previously, and grab them from the players inventory to undo it.
+     */
+    @Override
+    public void undo(Level level, Player player, ItemStack gadget) {
+        BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
+        ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
+        if (undoList.isEmpty()) return;
+
+        Inventory playerInventory = player.getInventory();
+        int lastSlot = -1;
+
+        for (StatePos pos : undoList) {
+            if (pos.state.isAir()) continue; //Since we store air now
+            if (!player.isCreative()) {
+                lastSlot = BuildingUtils.findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                if (lastSlot == -1) continue;
+            }
+            BlockState oldState = level.getBlockState(pos.pos);
+            boolean placed = level.setBlockAndUpdate(pos.pos, Registration.RenderBlock.get().defaultBlockState());
+            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(pos.pos);
+
+            if (!placed || be == null) {
+                // this can happen when another mod rejects the set block state (fixes #120)
+                continue;
+            }
+            if (!player.isCreative()) {
+                playerInventory.getItem(lastSlot).shrink(1);
+                ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
+                BuildingUtils.giveItemToPlayer(player, returnedItem);
+            }
+            be.setRenderData(oldState, pos.state);
+        }
     }
 
     /**

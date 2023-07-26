@@ -21,15 +21,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class BuildingUtils {
-    public static int lastSLot = -1;
+    public static int lastSlot = -1;
 
     public static int findItemStack(Inventory playerInventory, ItemStack itemStack) {
         if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return -1;
         //Todo Bag support
-        if (lastSLot != -1) {
-            ItemStack slotStack = playerInventory.getItem(lastSLot);
+        if (lastSlot != -1) {
+            ItemStack slotStack = playerInventory.getItem(lastSlot);
             if (ItemStack.isSameItem(slotStack, itemStack)) //Todo validate proper comparison
-                return lastSLot;
+                return lastSlot;
         }
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
@@ -65,8 +65,8 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!player.isCreative()) {
-                lastSLot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                if (lastSLot == -1) continue;
+                lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                if (lastSlot == -1) continue;
             }
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (level.getBlockState(blockPos).canBeReplaced()) {
@@ -78,7 +78,7 @@ public class BuildingUtils {
                     continue;
                 }
                 if (!player.isCreative())
-                    playerInventory.getItem(lastSLot).shrink(1);
+                    playerInventory.getItem(lastSlot).shrink(1);
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
             }
@@ -92,8 +92,8 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!player.isCreative()) {
-                lastSLot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                if (lastSLot == -1) continue;
+                lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                if (lastSlot == -1) continue;
             }
             BlockPos blockPos = pos.pos.offset(lookingAt);
             BlockState oldState = level.getBlockState(blockPos);
@@ -105,11 +105,11 @@ public class BuildingUtils {
                 continue;
             }
             if (!player.isCreative()) {
-                playerInventory.getItem(lastSLot).shrink(1);
+                playerInventory.getItem(lastSlot).shrink(1);
                 ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
                 giveItemToPlayer(player, returnedItem);
             }
-            actuallyBuiltList.add(new StatePos(pos.state, blockPos));
+            actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
             be.setRenderData(oldState, pos.state);
         }
         return actuallyBuiltList;
