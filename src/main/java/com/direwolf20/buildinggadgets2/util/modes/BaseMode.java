@@ -33,6 +33,8 @@ public abstract class BaseMode implements Comparable<BaseMode> {
     public final ArrayList<StatePos> collect(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ItemStack gadget = BaseGadget.getGadget(player);
         final ArrayList<StatePos> buildList = new ArrayList<>();
+        if (!player.mayBuild())
+            return buildList;
         ArrayList<BlockPos> anchorList = GadgetNBT.getAnchorList(gadget);
         if (anchorList.isEmpty()) {
             if (!isExchanging || !player.level().getBlockState(start).equals(state))
@@ -63,6 +65,8 @@ public abstract class BaseMode implements Comparable<BaseMode> {
     }
 
     public boolean isPosValid(Level level, BlockPos blockPos) {
+        if ((blockPos.getY() >= level.getMaxBuildHeight() || blockPos.getY() < level.getMinBuildHeight()))
+            return false;
         if (isExchanging) {
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos))
                 return false;
