@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.util.modes;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -63,7 +64,7 @@ public abstract class BaseMode implements Comparable<BaseMode> {
 
     public boolean isPosValid(Level level, BlockPos blockPos) {
         if (isExchanging) {
-            if (level.getBlockState(blockPos).getDestroySpeed(level, blockPos) < 0)
+            if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos))
                 return false;
             return true;
         } else {
