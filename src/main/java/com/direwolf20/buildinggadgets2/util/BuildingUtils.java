@@ -39,6 +39,17 @@ public class BuildingUtils {
         return -1;
     }
 
+    public static int countItemStacks(Inventory playerInventory, ItemStack itemStack) {
+        if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return 0;
+        int counter = 0;
+        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
+            ItemStack slotStack = playerInventory.getItem(i);
+            if (ItemStack.isSameItem(slotStack, itemStack)) //Todo validate proper comparison
+                counter += slotStack.getCount();
+        }
+        return counter;
+    }
+
     public static void giveItemToPlayer(Player player, ItemStack returnedItem) {
         if (!player.addItem(returnedItem)) {
             BlockPos dropPos = player.getOnPos();

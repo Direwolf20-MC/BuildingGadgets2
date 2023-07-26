@@ -72,7 +72,6 @@ public abstract class BaseMode implements Comparable<BaseMode> {
                 return false;
             return true;
         } else {
-            //Todo More validations like location, etc
             if (!level.getBlockState(blockPos).canBeReplaced())
                 return false;
             return true;

@@ -113,6 +113,7 @@ public abstract class BaseGadget extends Item {
             todoList.add(statePos.pos);
             //}
         }
-        BuildingUtils.remove(level, player, todoList, true);
+        boolean giveItemsBack = !player.isCreative(); //Might want more conditions later?
+        BuildingUtils.remove(level, player, todoList, giveItemsBack);
     }
 }

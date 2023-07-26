@@ -30,6 +30,19 @@ public class OurRenderTypes extends RenderType {
                             .setLightmapState(NO_LIGHTMAP)
                             .createCompositeState(false));
 
+    public static final RenderType MissingBlockOverlay = create("GadgetMissingBlockOverlay",
+            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, false,
+            RenderType.CompositeState.builder()
+                    .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+                    .setLayeringState(VIEW_OFFSET_Z_LAYERING) // view_offset_z_layering
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setTextureState(NO_TEXTURE)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .setCullState(NO_CULL)
+                    .setLightmapState(NO_LIGHTMAP)
+                    .setWriteMaskState(COLOR_WRITE)
+                    .createCompositeState(false));
+
     /*public static void updateRenders() {
         RenderBlock = create("GadgetRenderBlock",
                 DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,

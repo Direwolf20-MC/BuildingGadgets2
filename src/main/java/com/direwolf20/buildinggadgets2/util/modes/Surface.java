@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -76,16 +77,20 @@ public class Surface extends BaseMode {
     public boolean isPosValidCustom(Level level, BlockPos pos, BlockState compareState, ItemStack gadget) {
         boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.FUZZY.value);
         if (isExchanging) {
+            BlockState oldState = level.getBlockState(pos);
             if (fuzzy) {
-                if (level.getBlockState(pos).isAir()) return false;
+                if (oldState.isAir()) return false;
+                if (oldState.equals(GadgetNBT.getGadgetBlockState(gadget))) return false;
+                if (oldState.getBlock() instanceof RenderBlock) return false;
             } else {
-                if (!level.getBlockState(pos).equals(compareState)) return false;
+                if (!oldState.equals(compareState)) return false;
             }
         } else {
+            BlockState belowState = level.getBlockState(pos.below());
             if (fuzzy) {
-                if (level.getBlockState(pos.below()).isAir()) return false;
+                if (belowState.isAir()) return false;
             } else {
-                if (!level.getBlockState(pos.below()).equals(compareState)) return false;
+                if (!belowState.equals(compareState)) return false;
             }
         }
         return true;

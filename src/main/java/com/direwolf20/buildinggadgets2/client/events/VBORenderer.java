@@ -12,15 +12,14 @@ import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestCopyData;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.setup.Registration;
+import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -139,8 +138,8 @@ public class VBORenderer {
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
             if (mode.isExchanging) {
-                matrix.translate(-0.005f, -0.005f, -0.005f); //For Exchanger
-                matrix.scale(1.01f, 1.01f, 1.01f); //For Exchanger
+                matrix.translate(-0.0005f, -0.0005f, -0.0005f); //For Exchanger
+                matrix.scale(1.001f, 1.001f, 1.001f); //For Exchanger
             }
             for (RenderType renderType : ibakedmodel.getRenderTypes(pos.state, random, ModelData.EMPTY)) {
                 //Flowers render weirdly so we use a custom renderer to make them look better. Glass and Flowers are both cutouts, so we only want this for non-cube blocks
@@ -201,7 +200,8 @@ public class VBORenderer {
         if (vertexBuffers == null || statePosCache == null) {
             return;
         }
-
+        MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
         BlockPos anchorPos = GadgetNBT.getAnchorPos(gadget);
         BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
@@ -209,12 +209,12 @@ public class VBORenderer {
 
         if (lookingAtState.isAir() || lookingAtState.getBlock().equals(Registration.RenderBlock.get()))
             return;
-
+        ArrayList<StatePos> buildList = new ArrayList<>();
         var mode = GadgetNBT.getMode(gadget);
         if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             if (renderBlockState.isAir()) return;
-            ArrayList<StatePos> buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
+            buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
 
             if (buildList.isEmpty()) return;
         } else if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
@@ -233,7 +233,6 @@ public class VBORenderer {
             sortCounter++;
         }
 
-        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         PoseStack matrix = evt.getPoseStack();
         matrix.pushPose();
         matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
@@ -267,7 +266,6 @@ public class VBORenderer {
         matrix.popPose();
 
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
-        MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             matrix.pushPose();
             matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
@@ -275,6 +273,26 @@ public class VBORenderer {
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
             MyRenderMethods.renderBETransparent(pos.state, matrix, buffersource, 15728640, 655360, 0.5f);
             matrix.popPose();
+        }
+
+        //Red Overlay for missing Items
+        if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
+            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
+            ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState);
+            int availableItems = BuildingUtils.countItemStacks(player.getInventory(), findStack);
+            int missingItems = buildList.size() - availableItems;
+            if (missingItems > 0) {
+                for (int i = 1; i < missingItems + 1; i++) {
+                    matrix.pushPose();
+                    matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+                    matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+                    BlockPos missingPos = buildList.get(buildList.size() - i).pos;
+                    VertexConsumer builder = buffersource.getBuffer(OurRenderTypes.MissingBlockOverlay);
+                    MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, missingPos, 1, 0, 0, 0.35f);
+                    //buffersource.endBatch();
+                    matrix.popPose();
+                }
+            }
         }
     }
 
