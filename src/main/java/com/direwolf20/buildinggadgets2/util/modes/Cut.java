@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -46,8 +47,10 @@ public class Cut extends BaseMode {
         AABB area = new AABB(copyStart, copyEnd);
 
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            //if (isPosValidCustom(level, pos, heldItem))
-            coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));
+            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
+                coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));
+            else
+                coordinates.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(copyStart))); //We need to have a block in EVERY position, so write air if invalid
         });
         return coordinates;
     }
@@ -86,13 +89,5 @@ public class Cut extends BaseMode {
 
         AABB area = new AABB(cutStart, cutEnd);
         BuildingUtils.remove(level, player, BlockPos.betweenClosedStream(area).map(BlockPos::immutable).collect(Collectors.toList()), false);
-    }
-
-
-    public boolean isPosValidCustom(Level level, BlockPos pos, ItemStack gadget) {
-        if (!GadgetUtils.isValidBlockState(level.getBlockState(pos)))
-            return false; //Don't Copy Air or other invalid states
-        //Todo more validations!
-        return true;
     }
 }

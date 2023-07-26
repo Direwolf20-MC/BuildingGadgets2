@@ -46,7 +46,8 @@ public class GadgetExchanger extends BaseGadget {
     @Override
     InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
         BlockState blockState = context.level().getBlockState(context.pos());
-
+        if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos()))
+            return super.onShiftAction(context);
         if (GadgetUtils.setBlockState(context.stack(), blockState))
             return InteractionResultHolder.success(context.stack());
 

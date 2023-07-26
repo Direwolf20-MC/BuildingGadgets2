@@ -137,7 +137,7 @@ public class BuildingUtils {
         byte drawSize = 40;
         for (BlockPos pos : blockPosList) {
             BlockState oldState = level.getBlockState(pos);
-            if (oldState.isAir()) continue;
+            if (oldState.isAir() || !GadgetUtils.isValidBlockState(oldState, level, pos)) continue;
             if (oldState.getBlock() instanceof RenderBlock) {
                 BlockEntity blockEntity = level.getBlockEntity(pos);
                 if (blockEntity instanceof RenderBlockBE renderBlockBE) {

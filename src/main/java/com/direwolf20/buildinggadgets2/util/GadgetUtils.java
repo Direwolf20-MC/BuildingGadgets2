@@ -27,15 +27,13 @@ public class GadgetUtils {
             BlockStateProperties.FACING, BlockStateProperties.AXIS, BlockStateProperties.HORIZONTAL_FACING
     );
 
-    public static boolean isValidBlockState(BlockState blockState) {
-        if (blockState.isAir()) return false;
+    public static boolean isValidBlockState(BlockState blockState, Level level, BlockPos blockPos) {
         if (DISALLOWED_BLOCKS.contains(blockState.getBlock())) return false;
-        //TODO: Destroy Speed < 0
+        if (blockState.getDestroySpeed(level, blockPos) < 0) return false;
         return true;
     }
 
     public static boolean setBlockState(ItemStack gadget, BlockState blockState) {
-        if (!GadgetUtils.isValidBlockState(blockState)) return false;
         BlockState placeState = cleanBlockState(blockState);
         GadgetNBT.setGadgetBlockState(gadget, placeState);
         return true;
