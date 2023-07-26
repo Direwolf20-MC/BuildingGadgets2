@@ -137,7 +137,7 @@ public class VBORenderer {
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         ModelBlockRenderer modelBlockRenderer = dispatcher.getModelRenderer();
         final RandomSource random = RandomSource.create();
-        for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state)).toList()) {
+        for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state) || !pos.state.getFluidState().isEmpty()).toList()) {
             BakedModel ibakedmodel = dispatcher.getBlockModel(pos.state);
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
@@ -151,7 +151,10 @@ public class VBORenderer {
                     renderType = RenderType.translucent();
                 DireVertexConsumer direVertexConsumer = new DireVertexConsumer(getBuffer(renderType), 0.5f);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
-                modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, pos.state.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
+                if (pos.state.getFluidState().isEmpty())
+                    modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, pos.state.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
+                else
+                    dispatcher.renderLiquid(pos.pos, player.level(), direVertexConsumer, pos.state, pos.state.getFluidState());
                 //dispatcher.renderBatched(pos.state, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
 
             }

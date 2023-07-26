@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class GadgetUtils {
-    private static final ImmutableList<Property> ALLOWED_PROPERTIES = ImmutableList.of(
+    private static final ImmutableList<Property<?>> ALLOWED_PROPERTIES = ImmutableList.of(
             BlockStateProperties.FACING, BlockStateProperties.AXIS, BlockStateProperties.HORIZONTAL_FACING,
             BlockStateProperties.CHEST_TYPE
     );
