@@ -463,13 +463,11 @@ public class ModeRadialMenu extends Screen {
         Color color = Color.WHITE;
         RenderSystem.setShaderColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1);
         float s = 1.8F * fract;
-        PoseStack stack = guiGraphics.pose();
-        stack.pushPose();
-        stack.scale(s, s, s);
-        matrices.popPose();
-        stack.translate(x - (tool.getItem() instanceof GadgetCopyPaste ? 8 : 8.5), y - 8, 440);
+        matrices.pushPose();
+        matrices.scale(s, s, s);
+        matrices.translate(x / s - (tool.getItem() instanceof GadgetCopyPaste ? 8 : 8.5), y / s - 8, 440);
         guiGraphics.renderItem(tool, 0, 0);
-        stack.popPose();
+        matrices.popPose();
     }
 
     private boolean isCursorInSlice(float angle, float totalDeg, float degPer, boolean inRange) {
