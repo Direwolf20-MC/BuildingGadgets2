@@ -55,6 +55,7 @@ public class VBORenderer {
     public static UUID gadgetUUIDCache = UUID.randomUUID(); //The Unique ID of the gadget who's data we're caching. If this differs, it means the player swapped to another gadget
     public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
     public static boolean awaitingUpdate = false;
+    public static int updateTimer = 0;
 
     //Cached SortStates used for re-sorting every so often
     private static final Map<RenderType, BufferBuilder.SortState> sortStates = new HashMap<>();
@@ -114,12 +115,16 @@ public class VBORenderer {
                     copyPasteUUIDCache = dataClientUUID;
                     statePosCache = BG2DataClient.getLookupFromUUID(gadgetUUID);
                     awaitingUpdate = false;
+                    updateTimer = 0;
                     //Don't Return because we want to now draw the Copy/Paste
                 } else { //Neither this classes data NOR the BG2Client class's data is up to date - request it from server
-                    if (awaitingUpdate) //If we already requested an update from the server, don't try again
-                        return; //TODO Maybe a retry delay?
+                    if (awaitingUpdate && updateTimer < 100) { //If we already requested an update from the server, don't try again for a few seconds
+                        updateTimer++;
+                        return;
+                    }
                     PacketHandler.sendToServer(new PacketRequestCopyData(GadgetNBT.getUUID(gadget)));
                     awaitingUpdate = true;
+                    updateTimer = 0;
                     return;
                 }
             }
