@@ -156,7 +156,8 @@ public class BuildingUtils {
                     drawSize = renderBlockBE.drawSize;
                 }
             }
-            level.removeBlockEntity(pos);
+            if (!giveItem)
+                level.removeBlockEntity(pos); //Calling this prevents chests from dropping their contents, so only do it if we don't care about the drops (Like cut)
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
             affectedBlocks.add(new StatePos(oldState, pos));
             if (giveItem) {
