@@ -6,6 +6,11 @@ import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,10 +21,42 @@ import java.util.List;
 import java.util.Optional;
 
 public class BuildingUtils {
-    public static ArrayList<StatePos> build(Level level, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
+    public static int lastSLot = -1;
+
+    public static int findItemStack(Inventory playerInventory, ItemStack itemStack) {
+        if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return -1;
+        //Todo Bag support
+        if (lastSLot != -1) {
+            ItemStack slotStack = playerInventory.getItem(lastSLot);
+            if (ItemStack.isSameItem(slotStack, itemStack)) //Todo validate proper comparison
+                return lastSLot;
+        }
+        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
+            ItemStack slotStack = playerInventory.getItem(i);
+            if (ItemStack.isSameItem(slotStack, itemStack)) //Todo validate proper comparison
+                return i;
+        }
+        return -1;
+    }
+
+    public static void giveItemToPlayer(Player player, ItemStack returnedItem) {
+        if (!player.addItem(returnedItem)) {
+            BlockPos dropPos = player.getOnPos();
+            ItemEntity itementity = new ItemEntity(player.level(), dropPos.getX(), dropPos.getY(), dropPos.getZ(), returnedItem);
+            itementity.setPickUpDelay(40);
+            player.level().addFreshEntity(itementity);
+        }
+    }
+
+    public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
+        Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
+            if (!player.isCreative()) {
+                lastSLot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                if (lastSLot == -1) continue;
+            }
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (level.getBlockState(blockPos).canBeReplaced()) {
                 boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
@@ -29,6 +66,8 @@ public class BuildingUtils {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
                 }
+                if (!player.isCreative())
+                    playerInventory.getItem(lastSLot).shrink(1);
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
             }
@@ -36,9 +75,15 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> exchange(Level level, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
+    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
+        Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
+            if (pos.state.isAir()) continue; //Since we store air now
+            if (!player.isCreative()) {
+                lastSLot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                if (lastSLot == -1) continue;
+            }
             BlockPos blockPos = pos.pos.offset(lookingAt);
             BlockState oldState = level.getBlockState(blockPos);
             boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
@@ -47,6 +92,11 @@ public class BuildingUtils {
             if (!placed || be == null) {
                 // this can happen when another mod rejects the set block state (fixes #120)
                 continue;
+            }
+            if (!player.isCreative()) {
+                playerInventory.getItem(lastSLot).shrink(1);
+                ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
+                giveItemToPlayer(player, returnedItem);
             }
             actuallyBuiltList.add(new StatePos(pos.state, blockPos));
             be.setRenderData(oldState, pos.state);
@@ -82,7 +132,7 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> remove(Level level, List<BlockPos> blockPosList) {
+    public static ArrayList<StatePos> remove(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem) {
         ArrayList<StatePos> affectedBlocks = new ArrayList<>();
         byte drawSize = 40;
         for (BlockPos pos : blockPosList) {
@@ -98,6 +148,10 @@ public class BuildingUtils {
             level.removeBlockEntity(pos);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
             affectedBlocks.add(new StatePos(oldState, pos));
+            if (giveItem) {
+                ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
+                giveItemToPlayer(player, returnedItem);
+            }
         }
 
         for (StatePos affectedBlock : affectedBlocks) {

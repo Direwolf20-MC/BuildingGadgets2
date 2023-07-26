@@ -101,7 +101,7 @@ public abstract class BaseGadget extends Item {
         return anchorPos.equals(GadgetNBT.nullPos) ? context.pos() : anchorPos;
     }
 
-    public void undo(Level level, ItemStack gadget) {
+    public void undo(Level level, Player player, ItemStack gadget) {
         BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
         ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
@@ -113,6 +113,6 @@ public abstract class BaseGadget extends Item {
             todoList.add(statePos.pos);
             //}
         }
-        BuildingUtils.remove(level, todoList);
+        BuildingUtils.remove(level, player, todoList, true);
     }
 }

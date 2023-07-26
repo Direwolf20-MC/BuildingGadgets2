@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -47,7 +48,8 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     public void setRealBlock(BlockState realBlock) {
-        level.setBlockAndUpdate(this.getBlockPos(), realBlock);
+        BlockState adjustedState = Block.updateFromNeighbourShapes(realBlock, level, getBlockPos()); //Ensure double chests are placed as single chests if only 1 chest available in copy/paste, for example, or fixes fences
+        level.setBlockAndUpdate(this.getBlockPos(), adjustedState);
         if (blockEntityData != null) {
             BlockEntity newBE = level.getBlockEntity(this.getBlockPos());
             try {
