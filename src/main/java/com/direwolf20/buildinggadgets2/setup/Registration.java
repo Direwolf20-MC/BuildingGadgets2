@@ -3,10 +3,7 @@ package com.direwolf20.buildinggadgets2.setup;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
-import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
-import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
-import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
-import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
+import com.direwolf20.buildinggadgets2.common.items.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
@@ -53,6 +50,7 @@ public class Registration {
     public static final RegistryObject<Item> Exchanging_Gadget = ITEMS.register("gadget_exchanging", GadgetExchanger::new);
     public static final RegistryObject<Item> CopyPaste_Gadget = ITEMS.register("gadget_copy_paste", GadgetCopyPaste::new);
     public static final RegistryObject<Item> CutPaste_Gadget = ITEMS.register("gadget_cut_paste", GadgetCutPaste::new);
+    public static final RegistryObject<Item> Destruction_Gadget = ITEMS.register("gadget_destruction", GadgetDestruction::new);
 
     //Containers
     //public static final RegistryObject<MenuType<LaserNodeContainer>> LaserNode_Container = CONTAINERS.register("lasernode",

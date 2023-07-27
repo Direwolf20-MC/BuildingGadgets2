@@ -143,7 +143,7 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> remove(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem) {
+    public static ArrayList<StatePos> remove(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents) {
         ArrayList<StatePos> affectedBlocks = new ArrayList<>();
         byte drawSize = 40;
         for (BlockPos pos : blockPosList) {
@@ -156,7 +156,7 @@ public class BuildingUtils {
                     drawSize = renderBlockBE.drawSize;
                 }
             }
-            if (!giveItem)
+            if (!dropContents)
                 level.removeBlockEntity(pos); //Calling this prevents chests from dropping their contents, so only do it if we don't care about the drops (Like cut)
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
             affectedBlocks.add(new StatePos(oldState, pos));

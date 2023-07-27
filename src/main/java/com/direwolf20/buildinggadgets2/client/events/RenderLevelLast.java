@@ -1,6 +1,9 @@
 package com.direwolf20.buildinggadgets2.client.events;
 
+import com.direwolf20.buildinggadgets2.client.renderer.DestructionRenderer;
+import com.direwolf20.buildinggadgets2.client.renderer.VBORenderer;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetDestruction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +24,11 @@ public class RenderLevelLast {
         if (heldItem.isEmpty())
             return;
 
-        VBORenderer.buildRender(evt, player, heldItem);
-        VBORenderer.drawRender(evt, player, heldItem);
+        if (heldItem.getItem() instanceof GadgetDestruction) {
+            DestructionRenderer.render(evt, player, heldItem);
+        } else {
+            VBORenderer.buildRender(evt, player, heldItem);
+            VBORenderer.drawRender(evt, player, heldItem);
+        }
     }
 }

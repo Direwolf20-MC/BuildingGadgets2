@@ -7,6 +7,7 @@ import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -56,6 +57,7 @@ public class GadgetNBT {
         if (tag == null || !tag.contains("anchor")) return;
         tag.remove("anchor");
         tag.remove("anchorList");
+        tag.remove("anchorside");
     }
 
     public static ArrayList<BlockPos> getAnchorList(ItemStack gadget) {
@@ -76,6 +78,21 @@ public class GadgetNBT {
     public static void setAnchorList(ItemStack gadget, ArrayList<BlockPos> anchorList) {
         CompoundTag tagCompound = gadget.getOrCreateTag();
         tagCompound.put("anchorList", anchorList.stream().map(NbtUtils::writeBlockPos).collect(Collectors.toCollection(ListTag::new)));
+    }
+
+    public static void setAnchorSide(ItemStack stack, Direction side) {
+        CompoundTag tag = stack.getOrCreateTag();
+        if (side == null)
+            tag.remove("anchorside");
+        else
+            tag.putInt("anchorside", side.ordinal());
+    }
+
+    public static Direction getAnchorSide(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null || !tag.contains("anchorside")) return null;
+        int side = tag.getInt("anchorside");
+        return Direction.values()[side];
     }
 
     public static BlockPos setCopyStartPos(ItemStack gadget, BlockPos blockPos) {
@@ -233,6 +250,14 @@ public class GadgetNBT {
     public static int getToolRange(ItemStack stack) {
         CompoundTag tagCompound = stack.getOrCreateTag();
         return Mth.clamp(tagCompound.getInt("range"), 1, 15); //TODO Config
+    }
+
+    public static void setToolValue(ItemStack stack, int value, String valueName) {
+        stack.getOrCreateTag().putInt(valueName, value);
+    }
+
+    public static int getToolValue(ItemStack stack, String valueName) {
+        return stack.getOrCreateTag().getInt(valueName);
     }
 
     public static boolean getFuzzy(ItemStack stack) {

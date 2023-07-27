@@ -1,9 +1,11 @@
 package com.direwolf20.buildinggadgets2.client.events;
 
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
+import com.direwolf20.buildinggadgets2.client.screen.DestructionGUI;
 import com.direwolf20.buildinggadgets2.client.screen.ModeRadialMenu;
 import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetDestruction;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketAnchor;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
@@ -38,7 +40,10 @@ public class EventKeyInput {
         KeyMapping mode = KeyBindings.menuSettings;
         if (!(mc.screen instanceof ModeRadialMenu) && mode.consumeClick() && ((mode.getKeyModifier() == KeyModifier.NONE
                 && KeyModifier.getActiveModifier() == KeyModifier.NONE) || mode.getKeyModifier() != KeyModifier.NONE)) {
-            mc.setScreen(new ModeRadialMenu(tool));
+            if (tool.getItem() instanceof GadgetDestruction)
+                mc.setScreen(new DestructionGUI(tool, true));
+            else
+                mc.setScreen(new ModeRadialMenu(tool));
         } else if (KeyBindings.undo.consumeClick()) {
             PacketHandler.sendToServer(new PacketUndo());
         } else if (KeyBindings.anchor.consumeClick()) {

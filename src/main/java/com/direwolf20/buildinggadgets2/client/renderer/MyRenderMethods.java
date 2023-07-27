@@ -129,8 +129,6 @@ public class MyRenderMethods {
         float endY = (float) yEnd;
         float endZ = (float) zEnd;
 
-//        float startX = 0, startY = 0, startZ = -1, endX = 1, endY = 1, endZ = 0;
-
         //down
         builder.vertex(matrix, startX, startY, startZ).color(red, green, blue, alpha).endVertex();
         builder.vertex(matrix, endX, startY, startZ).color(red, green, blue, alpha).endVertex();

@@ -1,9 +1,5 @@
-package com.direwolf20.buildinggadgets2.client.events;
+package com.direwolf20.buildinggadgets2.client.renderer;
 
-import com.direwolf20.buildinggadgets2.client.renderer.DireBufferBuilder;
-import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumer;
-import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
-import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
@@ -272,6 +268,7 @@ public class VBORenderer {
         }
         matrix.popPose();
 
+        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             matrix.pushPose();
@@ -281,6 +278,19 @@ public class VBORenderer {
             MyRenderMethods.renderBETransparent(pos.state, matrix, buffersource, 15728640, 655360, 0.5f);
             matrix.popPose();
         }
+
+        //Fluid Rendering
+        /*for (StatePos pos : statePosCache.stream().filter(pos -> (!pos.state.getFluidState().isEmpty())).toList()) {
+            matrix.pushPose();
+            matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+            matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+            FluidState fluidstate = pos.state.getFluidState();
+            RenderType rendertype = ItemBlockRenderTypes.getRenderLayer(fluidstate);
+            DireVertexConsumer direVertexConsumer = new DireVertexConsumer(buffersource.getBuffer(rendertype), 0.5f);
+            dispatcher.renderLiquid(pos.pos, player.level(), direVertexConsumer, pos.state, fluidstate);
+            buffersource.endBatch(rendertype);
+            matrix.popPose();
+        }*/
 
         //Red Overlay for missing Items
         if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative()) {

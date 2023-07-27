@@ -54,6 +54,7 @@ public class PacketAnchor {
             } else {
                 if (lookingAtState.isAir()) return;
                 GadgetNBT.setAnchorPos(gadget, lookingAtPos);
+                GadgetNBT.setAnchorSide(gadget, lookingAt.getDirection());
                 if (gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) {
                     BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
                     if (renderBlockState.isAir()) return;

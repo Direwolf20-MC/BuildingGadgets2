@@ -101,6 +101,17 @@ public class ModeRadialMenu extends Screen {
             sliderRange.getComponents().forEach(this::addRenderableWidget);
         }
 
+        if (tool.getItem() instanceof GadgetExchanger) {
+            //Exchanger Only
+            Button affectTiles = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.affecttiles"), "affecttiles", ScreenPosition.RIGHT, true, send -> {
+                if (send)
+                    PacketHandler.sendToServer(new PacketToggleSetting("affecttiles"));
+
+                return GadgetNBT.getSetting(tool, "affecttiles");
+            });
+            this.addRenderableWidget(affectTiles);
+        }
+
         if (tool.getItem() instanceof GadgetCutPaste) {
             //Cut Only
             addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.cut"), "cut", ScreenPosition.LEFT, false, send -> {

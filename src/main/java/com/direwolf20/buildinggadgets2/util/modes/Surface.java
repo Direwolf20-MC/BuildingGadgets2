@@ -78,6 +78,8 @@ public class Surface extends BaseMode {
         boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.FUZZY.value);
         if (isExchanging) {
             BlockState oldState = level.getBlockState(pos);
+            if (oldState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
+                return false;
             if (fuzzy) {
                 if (oldState.isAir()) return false;
                 if (oldState.equals(GadgetNBT.getGadgetBlockState(gadget))) return false;

@@ -24,6 +24,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(Registration.Exchanging_Gadget.get(), "Exchanging Gadget");
         add(Registration.CopyPaste_Gadget.get(), "Copy Paste Gadget");
         add(Registration.CutPaste_Gadget.get(), "Cut Paste Gadget");
+        add(Registration.Destruction_Gadget.get(), "Destruction Gadget");
 
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
 
@@ -41,7 +42,10 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.gui.range", "Range");
         add("buildinggadgets2.screen.confirm", "Confirm");
         add("buildinggadgets2.screen.close", "Close");
+        add("buildinggadgets2.screen.cancel", "Cancel");
+        add("buildinggadgets2.screen.revert", "Revert");
         add("buildinggadgets2.screen.clear", "Clear");
+        add("buildinggadgets2.screen.affecttiles", "Affect Block Entities");
         add("buildinggadgets2.screen.absolutecoords", "Absolute");
         add("buildinggadgets2.screen.relativecoords", "Relative");
         add("buildinggadgets2.screen.start", "Start");
@@ -49,6 +53,12 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.screen.copyheading", "Adjust selection");
         add("buildinggadgets2.screen.pasteheading", "Adjust placement");
         add("buildinggadgets2.screen.copysubheading", "Use absolute mode to switch to block coordinates");
+        add("buildinggadgets2.screen.destructiontoolarge", "Destruction Area too large");
+        add("buildinggadgets2.screen.depth", "Depth");
+        add("buildinggadgets2.screen.down", "Down");
+        add("buildinggadgets2.screen.up", "Up");
+        add("buildinggadgets2.screen.left", "Left");
+        add("buildinggadgets2.screen.right", "Right");
 
 
         //Radial Menu

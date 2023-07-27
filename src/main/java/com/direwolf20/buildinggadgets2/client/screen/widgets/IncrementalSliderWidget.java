@@ -84,7 +84,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
     public Collection<AbstractWidget> getComponents() {
         return ImmutableSet.of(
                 this,
-                new GuiButtonIncrement(getX() - 30, getY(), height, height, Component.literal("-"), b -> {
+                new GuiButtonIncrement(getX() - height - 5, getY(), height, height, Component.literal("-"), b -> {
                     this.setValue(this.getValueInt() - 1);
                     IncrementalSliderWidget.this.applyValue();
                 }),
@@ -97,7 +97,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
 
     private class GuiButtonIncrement extends Button {
         public GuiButtonIncrement(int x, int y, int width, int height, Component message, OnPress action) {
-            super(x, y, 25, 25, message, action, Button.DEFAULT_NARRATION);
+            super(x, y, width, height, message, action, Button.DEFAULT_NARRATION);
         }
 
         @Override

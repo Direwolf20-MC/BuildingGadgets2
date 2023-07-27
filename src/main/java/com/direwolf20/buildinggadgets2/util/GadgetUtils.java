@@ -1,11 +1,13 @@
 package com.direwolf20.buildinggadgets2.util;
 
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +27,13 @@ public class GadgetUtils {
     public static boolean isValidBlockState(BlockState blockState, Level level, BlockPos blockPos) {
         if (blockState.is(BG2BlockTags.BG2DENY)) return false;
         if (blockState.getDestroySpeed(level, blockPos) < 0) return false;
+        return true;
+    }
+
+    public static boolean isValidDestroyBlockState(BlockState blockState, Level level, BlockPos blockPos) {
+        if (blockState.isAir()) return false;
+        if (blockState.getDestroySpeed(level, blockPos) < 0) return false;
+        if (blockState.getBlock() instanceof RenderBlock) return false;
         return true;
     }
 
@@ -76,6 +85,36 @@ public class GadgetUtils {
             default:
                 throw new IllegalStateException("Unexpected value: " + face);
         }
+    }
+
+    public static ArrayList<StatePos> getDestructionArea(Level level, BlockPos pos, Direction face, Player player, ItemStack gadget) {
+        int depth = GadgetNBT.getToolValue(gadget, "depth");
+
+        if (gadget.isEmpty() || depth == 0 || !player.mayBuild())
+            return new ArrayList<>();
+
+        boolean vertical = face.getAxis().isVertical();
+        Direction up = vertical ? player.getDirection() : Direction.UP;
+        Direction down = up.getOpposite();
+        Direction right = vertical ? up.getClockWise() : face.getCounterClockWise();
+        Direction left = right.getOpposite();
+
+        BlockPos first = pos.relative(left, GadgetNBT.getToolValue(gadget, "left")).relative(up, GadgetNBT.getToolValue(gadget, "up"));
+        BlockPos second = pos.relative(right, GadgetNBT.getToolValue(gadget, "right"))
+                .relative(down, GadgetNBT.getToolValue(gadget, "down"))
+                .relative(face.getOpposite(), depth - 1);
+
+        //boolean isFluidOnly = getIsFluidOnly(gadget); //Todo
+        AABB box = new AABB(first, second);
+        ArrayList<StatePos> returnList = new ArrayList<>();
+        BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(blockPos -> {
+            BlockState blockState = level.getBlockState(blockPos);
+            if (blockState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
+                return;
+            if (isValidDestroyBlockState(blockState, level, blockPos)) //Todo more validations?
+                returnList.add(new StatePos(blockState, blockPos));
+        });
+        return returnList;
     }
 
     //Because contains doesn't use <= just <

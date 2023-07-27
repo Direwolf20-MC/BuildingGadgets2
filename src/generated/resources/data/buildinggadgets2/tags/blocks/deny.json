@@ -3,6 +3,7 @@
     "minecraft:piston_head",
     "minecraft:bedrock",
     "minecraft:end_portal_frame",
+    "buildinggadgets2:render_block",
     "#minecraft:beds",
     "#minecraft:portals",
     "#minecraft:doors"
