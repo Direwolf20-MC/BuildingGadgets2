@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.util;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
@@ -239,6 +240,17 @@ public class GadgetNBT {
     public static boolean getSetting(ItemStack stack, String setting) {
         CompoundTag tagCompound = stack.getOrCreateTag();
         return tagCompound.getBoolean(setting);
+    }
+
+    public static boolean getPasteReplace(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null || !tag.contains("pastereplace")) {
+            if (stack.getItem() instanceof GadgetCutPaste)
+                return toggleSetting(stack, "pastereplace"); //Make PasteReplace true by default for cut/paste gadget
+            else
+                return false;
+        }
+        return tag.getBoolean("pastereplace");
     }
 
     public static void setToolRange(ItemStack stack, int range) {

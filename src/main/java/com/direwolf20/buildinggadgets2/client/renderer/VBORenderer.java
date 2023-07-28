@@ -102,6 +102,8 @@ public class VBORenderer {
                     awaitingUpdate = false;
                     gadgetUUIDCache = gadgetUUID;
                 }
+                if (!GadgetNBT.hasCopyUUID(gadget))
+                    return; //If the gadget hasn't copied anything yet, lets just bail out now!
                 UUID copyUUID = GadgetNBT.getCopyUUID(gadget);
                 if (copyPasteUUIDCache.equals(copyUUID)) //If the Cache'd UUID of the copy/paste matches whats on the item, we don't need to rebuild the render
                     return; //No need to rebuild cache because its up to date!
@@ -224,7 +226,7 @@ public class VBORenderer {
             if (mode.getId().getPath().equals("copy") || mode.getId().getPath().equals("cut")) {
                 return; //This is handlded above
             }
-            if (!copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(gadget)))
+            if (!GadgetNBT.hasCopyUUID(gadget) || !copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(gadget)))
                 return;
             renderPos = renderPos.above().offset(GadgetNBT.getRelativePaste(gadget));
         }

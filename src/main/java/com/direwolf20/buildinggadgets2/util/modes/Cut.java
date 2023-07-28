@@ -56,7 +56,7 @@ public class Cut extends BaseMode {
         }
 
         int totalCost = gadgetCutPaste.getEnergyCost() * (int) size;
-        if (!BuildingUtils.hasEnoughEnergy(heldItem, totalCost)) {
+        if (!player.isCreative() && !BuildingUtils.hasEnoughEnergy(heldItem, totalCost)) {
             player.displayClientMessage(Component.literal("Not enough energy for cut, need: " + totalCost), false);
             return coordinates;
         }

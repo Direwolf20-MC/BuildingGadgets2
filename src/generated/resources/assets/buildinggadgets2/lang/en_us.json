@@ -29,6 +29,7 @@
   "buildinggadgets2.screen.down": "Down",
   "buildinggadgets2.screen.end": "End",
   "buildinggadgets2.screen.left": "Left",
+  "buildinggadgets2.screen.paste_replace": "Replace Blocks",
   "buildinggadgets2.screen.pasteheading": "Adjust placement",
   "buildinggadgets2.screen.relativecoords": "Relative",
   "buildinggadgets2.screen.revert": "Revert",

@@ -21,7 +21,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class BuildingUtils {
     public static int lastSlot = -1;
@@ -130,11 +129,13 @@ public class BuildingUtils {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
-            if (pos.state.isAir()) continue; //Since we store air now
+            //if (pos.state.isAir()) continue; //Since we store air now
             if (!player.isCreative()) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
-                lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                if (lastSlot == -1) continue;
+                if (!pos.state.isAir()) {
+                    lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                    if (lastSlot == -1) continue;
+                }
             }
             BlockPos blockPos = pos.pos.offset(lookingAt);
             BlockState oldState = level.getBlockState(blockPos);
@@ -147,9 +148,11 @@ public class BuildingUtils {
             }
             if (!player.isCreative()) {
                 useEnergy(gadget);
-                playerInventory.getItem(lastSlot).shrink(1);
-                ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
-                giveItemToPlayer(player, returnedItem);
+                if (!pos.state.isAir()) {
+                    playerInventory.getItem(lastSlot).shrink(1);
+                    ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
+                    giveItemToPlayer(player, returnedItem);
+                }
             }
             actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
             be.setRenderData(oldState, pos.state);
@@ -157,30 +160,23 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> buildWithTileData(Level level, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ArrayList<TagPos> teData) {
+    public static ArrayList<StatePos> buildWithTileData(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ArrayList<TagPos> teData, ItemStack gadget) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         if (teData == null) return actuallyBuiltList;
-        for (StatePos pos : blockPosList) {
-            if (pos.state.isAir()) continue; //Since we store air now
-            BlockPos blockPos = pos.pos.offset(lookingAt);
-            if (level.getBlockState(blockPos).canBeReplaced()) {
-                Optional<TagPos> foundTagPos = teData.stream()
-                        .filter(tagPos -> tagPos.pos.equals(pos.pos))
-                        .findFirst();
-                boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
-                RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
-                if (!placed || be == null) {
-                    // this can happen when another mod rejects the set block state (fixes #120)
-                    continue;
-                }
-                actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
-                if (foundTagPos.isPresent()) {
-                    TagPos result = foundTagPos.get();
-                    be.setBlockEntityData(result.tag);
-                }
+        boolean replace = GadgetNBT.getPasteReplace(gadget);
+        if (!replace)
+            actuallyBuiltList = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget);
+        else
+            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget);
+
+        for (TagPos tagPos : teData) {
+            BlockPos blockPos = tagPos.pos.offset(lookingAt);
+            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
+            if (be == null) {
+                continue; //Shouldn't Happen!
             }
+            be.setBlockEntityData(tagPos.tag);
         }
         return actuallyBuiltList;
     }

@@ -129,6 +129,14 @@ public class ModeRadialMenu extends Screen {
         }
 
         if (tool.getItem() instanceof GadgetCutPaste || tool.getItem() instanceof GadgetCopyPaste) {
+            Button pastereplace = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.paste_replace"), "paste_replace", ScreenPosition.RIGHT, true, send -> {
+                if (send)
+                    PacketHandler.sendToServer(new PacketToggleSetting("pastereplace"));
+
+                return GadgetNBT.getPasteReplace(tool);
+            });
+            this.addRenderableWidget(pastereplace);
+
             addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.copypastemenu"), "copypaste_opengui", ScreenPosition.RIGHT, false, send -> {
                 if (!send)
                     return false;

@@ -52,7 +52,7 @@ public class GadgetCutPaste extends BaseGadget {
 
             // This should go through some translation based process
             // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-            ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), buildList, getHitPos(context).above(), tagList);
+            ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), context.player(), buildList, getHitPos(context).above(), tagList, gadget);
             if (!actuallyBuiltList.isEmpty())
                 GadgetNBT.clearAnchorPos(gadget);
             GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt

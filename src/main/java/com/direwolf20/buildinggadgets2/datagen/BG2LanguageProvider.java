@@ -53,6 +53,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.screen.relativecoords", "Relative");
         add("buildinggadgets2.screen.start", "Start");
         add("buildinggadgets2.screen.end", "End");
+        add("buildinggadgets2.screen.paste_replace", "Replace Blocks");
         add("buildinggadgets2.screen.copyheading", "Adjust selection");
         add("buildinggadgets2.screen.pasteheading", "Adjust placement");
         add("buildinggadgets2.screen.copysubheading", "Use absolute mode to switch to block coordinates");
