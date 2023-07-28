@@ -5,6 +5,7 @@ import com.direwolf20.buildinggadgets2.client.screen.DestructionGUI;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
+import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -31,6 +32,16 @@ import java.util.ArrayList;
 public class GadgetDestruction extends BaseGadget {
     public GadgetDestruction() {
         super();
+    }
+
+    @Override
+    public int getEnergyMax() {
+        return Config.DESTRUCTIONGADGET_MAXPOWER.get();
+    }
+
+    @Override
+    public int getEnergyCost() {
+        return Config.DESTRUCTIONGADGET_COST.get();
     }
 
     @Override
@@ -66,7 +77,7 @@ public class GadgetDestruction extends BaseGadget {
         ArrayList<StatePos> destroyList = GadgetUtils.getDestructionArea(context.level(), startBlock, facing, context.player(), gadget);
         ArrayList<BlockPos> destroyPosList = new ArrayList<>();
         destroyList.forEach(e -> destroyPosList.add(e.pos));
-        ArrayList<StatePos> actuallyDestroyedList = BuildingUtils.remove(context.level(), context.player(), destroyPosList, false, true);
+        ArrayList<StatePos> actuallyDestroyedList = BuildingUtils.remove(context.level(), context.player(), destroyPosList, false, true, gadget);
         if (!actuallyDestroyedList.isEmpty()) {
             GadgetUtils.addToUndoList(context.level(), gadget, actuallyDestroyedList); //If we placed anything at all, add to the undoList
             GadgetNBT.clearAnchorPos(gadget);

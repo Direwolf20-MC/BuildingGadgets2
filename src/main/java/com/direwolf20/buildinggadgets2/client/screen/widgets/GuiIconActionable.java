@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
-import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;

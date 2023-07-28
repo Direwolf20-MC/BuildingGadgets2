@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
+import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -23,6 +24,16 @@ public class GadgetCopyPaste extends BaseGadget {
     }
 
     @Override
+    public int getEnergyMax() {
+        return Config.COPYPASTEGADGET_MAXPOWER.get();
+    }
+
+    @Override
+    public int getEnergyCost() {
+        return Config.COPYPASTEGADGET_COST.get();
+    }
+
+    @Override
     InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
         var gadget = context.stack();
 
@@ -37,7 +48,7 @@ public class GadgetCopyPaste extends BaseGadget {
 
             // This should go through some translation based process
             // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-            ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)));
+            ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget);
             if (!actuallyBuiltList.isEmpty()) {
                 GadgetNBT.clearAnchorPos(gadget);
                 GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList

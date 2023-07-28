@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
+import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -18,6 +19,16 @@ public class GadgetBuilding extends BaseGadget {
         super();
     }
 
+    @Override
+    public int getEnergyMax() {
+        return Config.BUILDINGGADGET_MAXPOWER.get();
+    }
+
+    @Override
+    public int getEnergyCost() {
+        return Config.BUILDINGGADGET_COST.get();
+    }
+
     /**
      * TODO: it's very possible this method could be common on all gadgets
      */
@@ -33,7 +44,7 @@ public class GadgetBuilding extends BaseGadget {
 
         // This should go through some translation based process
         // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context));
+        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context), gadget);
         if (!actuallyBuiltList.isEmpty()) {
             GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
             GadgetNBT.clearAnchorPos(gadget);

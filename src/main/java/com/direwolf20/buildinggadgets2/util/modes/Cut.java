@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
-import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
@@ -39,7 +39,7 @@ public class Cut extends BaseMode {
     public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
         ItemStack heldItem = BaseGadget.getGadget(player);
-        if (!(heldItem.getItem() instanceof GadgetCutPaste)) return coordinates; //Impossible....right?
+        if (!(heldItem.getItem() instanceof GadgetCutPaste gadgetCutPaste)) return coordinates; //Impossible....right?
         Level level = player.level();
         BlockPos copyStart = GadgetNBT.getCopyStartPos(heldItem);
         BlockPos copyEnd = GadgetNBT.getCopyEndPos(heldItem);
@@ -47,12 +47,20 @@ public class Cut extends BaseMode {
         if (copyStart.equals(GadgetNBT.nullPos) || copyEnd.equals(GadgetNBT.nullPos)) return coordinates;
 
         AABB area = new AABB(copyStart, copyEnd);
+
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
-        if (size > 40000) {
-            player.displayClientMessage(Component.literal("Area too large, max size is 40,000 blocks, size was: " + size), false);
+        if (size > 100000) {
+            player.displayClientMessage(Component.literal("Area too large, max size is 100,000 blocks, size was: " + size), false);
             return coordinates;
         }
+
+        int totalCost = gadgetCutPaste.getEnergyCost() * (int) size;
+        if (!BuildingUtils.hasEnoughEnergy(heldItem, totalCost)) {
+            player.displayClientMessage(Component.literal("Not enough energy for cut, need: " + totalCost), false);
+            return coordinates;
+        }
+
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
             if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
                 coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));
@@ -87,7 +95,7 @@ public class Cut extends BaseMode {
 
     public void removeBlocks(Player player) {
         ItemStack heldItem = BaseGadget.getGadget(player);
-        if (!(heldItem.getItem() instanceof GadgetCutPaste)) return; //Impossible....right?
+        if (!(heldItem.getItem() instanceof GadgetCutPaste gadgetCutPaste)) return; //Impossible....right?
         Level level = player.level();
         BlockPos cutStart = GadgetNBT.getCopyStartPos(heldItem);
         BlockPos cutEnd = GadgetNBT.getCopyEndPos(heldItem);
@@ -95,6 +103,6 @@ public class Cut extends BaseMode {
         if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return;
 
         AABB area = new AABB(cutStart, cutEnd);
-        BuildingUtils.remove(level, player, BlockPos.betweenClosedStream(area).map(BlockPos::immutable).collect(Collectors.toList()), false, false);
+        BuildingUtils.remove(level, player, BlockPos.betweenClosedStream(area).map(BlockPos::immutable).collect(Collectors.toList()), false, false, heldItem);
     }
 }

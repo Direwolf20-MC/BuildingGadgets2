@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network;
 
-import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.network.packets.*;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;

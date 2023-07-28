@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.data.loot.packs.VanillaBlockLoot;
 import net.minecraft.world.level.block.Block;
@@ -13,7 +13,7 @@ public class BG2LootTables extends VanillaBlockLoot {
 
     @Override
     protected void generate() {
-        dropSelf(Registration.RenderBlock.get());
+        add(Registration.RenderBlock.get(), noDrop());
     }
 
     @Override

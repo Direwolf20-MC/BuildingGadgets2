@@ -1,6 +1,7 @@
-package com.direwolf20.buildinggadgets2.common;
+package com.direwolf20.buildinggadgets2;
 
 import com.direwolf20.buildinggadgets2.setup.ClientSetup;
+import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.ModSetup;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.mojang.logging.LogUtils;
@@ -19,6 +20,8 @@ public class BuildingGadgets2 {
     public BuildingGadgets2() {
         // Register the deferred registry
         Registration.init();
+        Config.register();
+
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         modEventBus.addListener(ModSetup::init);

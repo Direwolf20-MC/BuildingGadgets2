@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
@@ -15,6 +16,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.IEnergyStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,12 +62,47 @@ public class BuildingUtils {
         }
     }
 
-    public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
+    public static int getEnergyStored(ItemStack gadget) {
+        if (gadget.getItem() instanceof BaseGadget baseGadget) {
+            IEnergyStorage energy = gadget.getCapability(ForgeCapabilities.ENERGY, null).orElse(null);
+            return energy.getEnergyStored();
+        }
+        return 0;
+    }
+
+    public static int getEnergyCost(ItemStack gadget) {
+        if (gadget.getItem() instanceof BaseGadget baseGadget) {
+            return baseGadget.getEnergyCost();
+        }
+        return -1;
+    }
+
+    public static boolean hasEnoughEnergy(ItemStack gadget) {
+        int energyStored = getEnergyStored(gadget);
+        int energyCost = getEnergyCost(gadget);
+        return energyCost <= energyStored;
+    }
+
+    public static boolean hasEnoughEnergy(ItemStack gadget, int cost) {
+        int energyStored = getEnergyStored(gadget);
+        return cost <= energyStored;
+    }
+
+    public static void useEnergy(ItemStack gadget) {
+        if (gadget.getItem() instanceof BaseGadget baseGadget) {
+            IEnergyStorage energy = gadget.getCapability(ForgeCapabilities.ENERGY, null).orElse(null);
+            int cost = baseGadget.getEnergyCost();
+            energy.extractEnergy(cost, false);
+        }
+    }
+
+    public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!player.isCreative()) {
+                if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
                 if (lastSlot == -1) continue;
             }
@@ -77,8 +115,10 @@ public class BuildingUtils {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
                 }
-                if (!player.isCreative())
+                if (!player.isCreative()) {
+                    useEnergy(gadget);
                     playerInventory.getItem(lastSlot).shrink(1);
+                }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
             }
@@ -86,12 +126,13 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt) {
+    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!player.isCreative()) {
+                if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
                 if (lastSlot == -1) continue;
             }
@@ -105,6 +146,7 @@ public class BuildingUtils {
                 continue;
             }
             if (!player.isCreative()) {
+                useEnergy(gadget);
                 playerInventory.getItem(lastSlot).shrink(1);
                 ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
                 giveItemToPlayer(player, returnedItem);
@@ -143,10 +185,13 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> remove(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents) {
+    public static ArrayList<StatePos> remove(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
         ArrayList<StatePos> affectedBlocks = new ArrayList<>();
         byte drawSize = 40;
         for (BlockPos pos : blockPosList) {
+            if (!player.isCreative()) {
+                if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
+            }
             BlockState oldState = level.getBlockState(pos);
             if (oldState.isAir() || !GadgetUtils.isValidBlockState(oldState, level, pos)) continue;
             if (oldState.getBlock() instanceof RenderBlock) {
@@ -160,6 +205,8 @@ public class BuildingUtils {
                 level.removeBlockEntity(pos); //Calling this prevents chests from dropping their contents, so only do it if we don't care about the drops (Like cut)
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
             affectedBlocks.add(new StatePos(oldState, pos));
+            if (!player.isCreative())
+                useEnergy(gadget);
             if (giveItem) {
                 ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
                 giveItemToPlayer(player, returnedItem);

@@ -171,8 +171,8 @@ dependencies {
 
     //Other mods for dev environment
     //runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
-    //runtimeOnly fg.deobf("curse.maven:charging-gadgets-399757:3955867")
-    //runtimeOnly fg.deobf("curse.maven:create-328085:4371809")
+    runtimeOnly fg.deobf("curse.maven:charging-gadgets-399757:4617304")
+    runtimeOnly fg.deobf("curse.maven:create-328085:4626108")
     //runtimeOnly fg.deobf("curse.maven:flywheel-486392:4341471")
 
     // For more info...

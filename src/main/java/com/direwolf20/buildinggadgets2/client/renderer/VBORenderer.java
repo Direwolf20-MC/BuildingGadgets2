@@ -210,7 +210,7 @@ public class VBORenderer {
         BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
         BlockState lookingAtState = player.level().getBlockState(renderPos);
 
-        if (lookingAtState.isAir() || lookingAtState.getBlock().equals(Registration.RenderBlock.get()))
+        if ((lookingAtState.isAir() && anchorPos.equals(GadgetNBT.nullPos)) || lookingAtState.getBlock().equals(Registration.RenderBlock.get()))
             return;
         ArrayList<StatePos> buildList = new ArrayList<>();
         var mode = GadgetNBT.getMode(gadget);
@@ -297,18 +297,19 @@ public class VBORenderer {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState);
             int availableItems = BuildingUtils.countItemStacks(player.getInventory(), findStack);
-            int missingItems = buildList.size() - availableItems;
-            if (missingItems > 0) {
-                for (int i = 1; i < missingItems + 1; i++) {
+            int energyStored = BuildingUtils.getEnergyStored(gadget);
+            int energyCost = BuildingUtils.getEnergyCost(gadget);
+            for (StatePos statePos : buildList) {
+                if (availableItems <= 0 || energyStored < energyCost) {
                     matrix.pushPose();
                     matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
                     matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
-                    BlockPos missingPos = buildList.get(buildList.size() - i).pos;
                     VertexConsumer builder = buffersource.getBuffer(OurRenderTypes.MissingBlockOverlay);
-                    MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, missingPos, 1, 0, 0, 0.35f);
-                    //buffersource.endBatch();
+                    MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, statePos.pos, 1, 0, 0, 0.35f);
                     matrix.popPose();
                 }
+                availableItems--;
+                energyStored -= energyCost;
             }
         }
     }

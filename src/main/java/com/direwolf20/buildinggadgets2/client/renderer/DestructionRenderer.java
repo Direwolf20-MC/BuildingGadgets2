@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.client.renderer;
 
 import com.direwolf20.buildinggadgets2.setup.Registration;
+import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
@@ -44,10 +45,15 @@ public class DestructionRenderer {
 
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
         VertexConsumer builder = buffer.getBuffer(OurRenderTypes.MissingBlockOverlay);
-
+        final int[] counter = {BuildingUtils.getEnergyStored(gadget)};
+        final int energyCost = BuildingUtils.getEnergyCost(gadget);
         //Todo More Efficient for more FPS, consider a VBO?
         GadgetUtils.getDestructionArea(level, startBlock, facing, player, gadget)
-                .forEach(pos -> MyRenderMethods.renderBoxSolid(stack.last().pose(), builder, pos.pos, 1, 0, 0, 0.35f));
+                .forEach(pos -> {
+                    if (counter[0] >= energyCost || player.isCreative())
+                        MyRenderMethods.renderBoxSolid(stack.last().pose(), builder, pos.pos, 1, 0, 0, 0.35f);
+                    counter[0] -= energyCost;
+                });
 
         stack.popPose();
         //RenderSystem.disableDepthTest();

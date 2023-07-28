@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
-import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

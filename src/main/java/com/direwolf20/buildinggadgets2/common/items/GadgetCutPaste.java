@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
+import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
@@ -23,6 +24,16 @@ import java.util.UUID;
 public class GadgetCutPaste extends BaseGadget {
     public GadgetCutPaste() {
         super();
+    }
+
+    @Override
+    public int getEnergyMax() {
+        return Config.CUTPASTEGADGET_MAXPOWER.get();
+    }
+
+    @Override
+    public int getEnergyCost() {
+        return Config.CUTPASTEGADGET_COST.get();
     }
 
     @Override

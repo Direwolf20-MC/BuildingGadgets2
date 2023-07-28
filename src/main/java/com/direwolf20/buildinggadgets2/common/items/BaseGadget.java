@@ -2,31 +2,118 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
+import com.direwolf20.buildinggadgets2.common.capabilities.CapabilityEnergyProvider;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import com.direwolf20.buildinggadgets2.util.MagicHelpers;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.collect.ImmutableSortedSet;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.energy.IEnergyStorage;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseGadget extends Item {
+
     public BaseGadget() {
         super(new Properties()
                 .stacksTo(1));
+    }
+
+    /**
+     * Forge Energy Storage methods
+     */
+
+    public abstract int getEnergyMax();
+
+    public abstract int getEnergyCost();
+
+    @Override
+    public int getMaxDamage(ItemStack stack) {
+        return getEnergyMax();
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        IEnergyStorage energy = stack.getCapability(ForgeCapabilities.ENERGY, null).orElse(null);
+        return (energy.getEnergyStored() < energy.getMaxEnergyStored());
+    }
+
+    @Nullable
+    @Override
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
+        return new CapabilityEnergyProvider(stack, getEnergyMax());
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        return stack.getCapability(ForgeCapabilities.ENERGY, null)
+                .map(e -> Math.min(13 * e.getEnergyStored() / e.getMaxEnergyStored(), 13))
+                .orElse(0);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return stack.getCapability(ForgeCapabilities.ENERGY)
+                .map(e -> Mth.hsvToRgb(Math.max(0.0F, (float) e.getEnergyStored() / (float) e.getMaxEnergyStored()) / 3.0F, 1.0F, 1.0F))
+                .orElse(super.getBarColor(stack));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+        Minecraft mc = Minecraft.getInstance();
+
+        if (level == null || mc.player == null) {
+            return;
+        }
+
+        boolean sneakPressed = Screen.hasShiftDown();
+
+        if (!sneakPressed) {
+            tooltip.add(Component.translatable("buildinggadgets2.tooltips.holdshift",
+                            "shift")
+                    .withStyle(ChatFormatting.GRAY));
+        } else {
+
+        }
+
+        stack.getCapability(ForgeCapabilities.ENERGY, null)
+                .ifPresent(energy -> {
+                    MutableComponent energyText = !sneakPressed
+                            ? Component.translatable("buildinggadgets2.tooltips.energy", MagicHelpers.tidyValue(energy.getEnergyStored()), MagicHelpers.tidyValue(energy.getMaxEnergyStored()))
+                            : Component.translatable("buildinggadgets2.tooltips.energy", String.format("%,d", energy.getEnergyStored()), String.format("%,d", energy.getMaxEnergyStored()));
+                    tooltip.add(energyText.withStyle(ChatFormatting.GREEN));
+                });
+
     }
 
     /**
@@ -114,6 +201,6 @@ public abstract class BaseGadget extends Item {
             //}
         }
         boolean giveItemsBack = !player.isCreative(); //Might want more conditions later?
-        BuildingUtils.remove(level, player, todoList, giveItemsBack, giveItemsBack);
+        BuildingUtils.remove(level, player, todoList, giveItemsBack, giveItemsBack, gadget);
     }
 }

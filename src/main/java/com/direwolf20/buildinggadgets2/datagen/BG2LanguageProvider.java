@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;
@@ -28,6 +28,9 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
 
+        //Tooltips
+        add("buildinggadgets2.tooltips.holdshift", "Hold Shift for details");
+        add("buildinggadgets2.tooltips.energy", "Energy: %d/%d");
 
         //Modes
         add("buildinggadgets2.modes.vertical_wall", "Vertical Wall");

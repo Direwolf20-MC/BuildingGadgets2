@@ -1,13 +1,12 @@
 package com.direwolf20.buildinggadgets2.setup;
 
-import com.direwolf20.buildinggadgets2.common.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -17,7 +16,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import static com.direwolf20.buildinggadgets2.common.BuildingGadgets2.MODID;
+import static com.direwolf20.buildinggadgets2.BuildingGadgets2.MODID;
 
 public class Registration {
 
@@ -39,7 +38,7 @@ public class Registration {
 
     //Blocks
     public static final RegistryObject<Block> RenderBlock = BLOCKS.register("render_block", RenderBlock::new);
-    public static final RegistryObject<Item> RenderBlock_ITEM = ITEMS.register("render_block", () -> new BlockItem(RenderBlock.get(), new Item.Properties()));
+    //public static final RegistryObject<Item> RenderBlock_ITEM = ITEMS.register("render_block", () -> new BlockItem(RenderBlock.get(), new Item.Properties()));
 
     //BlockEntities (Not TileEntities - Honest)
     public static final RegistryObject<BlockEntityType<RenderBlockBE>> RenderBlock_BE = BLOCK_ENTITIES.register("renderblock", () -> BlockEntityType.Builder.of(RenderBlockBE::new, RenderBlock.get()).build(null));
