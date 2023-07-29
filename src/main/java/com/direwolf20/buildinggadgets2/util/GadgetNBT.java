@@ -4,6 +4,7 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSortedSet;
@@ -214,10 +215,11 @@ public class GadgetNBT {
         tag.put("undolist", undoListTag);
     }
 
-    public static void addToUndoList(ItemStack gadget, UUID uuid) {
+    public static void addToUndoList(ItemStack gadget, UUID uuid, BG2Data bg2Data) {
         LinkedList<UUID> undoList = getUndoList(gadget);
         if (undoList.size() >= undoListSize) {
-            undoList.removeFirst();
+            UUID removal = undoList.removeFirst();
+            bg2Data.removeFromUndoList(removal);
         }
         undoList.add(uuid);
         setUndoList(gadget, undoList);

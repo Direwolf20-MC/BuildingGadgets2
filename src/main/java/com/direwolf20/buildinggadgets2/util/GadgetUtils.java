@@ -62,7 +62,7 @@ public class GadgetUtils {
         BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
         UUID uuid = UUID.randomUUID();
         bg2Data.addToUndoList(uuid, buildList, level);
-        GadgetNBT.addToUndoList(gadget, uuid);
+        GadgetNBT.addToUndoList(gadget, uuid, bg2Data);
     }
 
     private static <T extends Comparable<T>> BlockState applyProperty(BlockState state, BlockState from, Property<T> prop) {

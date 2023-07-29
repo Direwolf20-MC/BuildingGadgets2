@@ -21,21 +21,22 @@ import java.util.UUID;
 public class BG2Data extends SavedData {
     private static final String NAME = "buildinggadgets2";
     private final HashMap<UUID, ArrayList<StatePos>> undoList;
-    private final HashMap<UUID, Long> undoListTimers;
     private final HashMap<UUID, ArrayList<StatePos>> copyPasteLookup;
     private final HashMap<UUID, ArrayList<TagPos>> teMap;
 
-    public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, Long> undoListTimers, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup, HashMap<UUID, ArrayList<TagPos>> teMap) {
+    public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup, HashMap<UUID, ArrayList<TagPos>> teMap) {
         this.undoList = undoList;
-        this.undoListTimers = undoListTimers;
         this.copyPasteLookup = copyPasteLookup;
         this.teMap = teMap;
     }
 
     public void addToUndoList(UUID uuid, ArrayList<StatePos> list, Level level) {
         undoList.put(uuid, list);
-        undoListTimers.put(uuid, level.getGameTime());
-        cleanupList(level);
+        this.setDirty();
+    }
+
+    public void removeFromUndoList(UUID uuid) {
+        undoList.remove(uuid);
         this.setDirty();
     }
 
@@ -62,23 +63,8 @@ public class BG2Data extends SavedData {
         return statePosListToNBTMapArray(getCopyPasteList(uuid, remove));
     }
 
-    public void cleanupList(Level level) {
-        long currentTime = level.getGameTime();
-        ArrayList<UUID> uuidsToRemove = new ArrayList<>();
-        for (Map.Entry<UUID, Long> entry : undoListTimers.entrySet()) {
-            if (currentTime - entry.getValue() > 100000) {
-                uuidsToRemove.add(entry.getKey());
-            }
-        }
-        for (UUID uuid : uuidsToRemove) {
-            undoList.remove(uuid);
-            undoListTimers.remove(uuid);
-        }
-    }
-
     public ArrayList<StatePos> getUndoList(UUID uuid) {
         ArrayList<StatePos> posList = undoList.remove(uuid);
-        undoListTimers.remove(uuid);
         this.setDirty();
         return posList;
     }
@@ -139,15 +125,6 @@ public class BG2Data extends SavedData {
         }
         nbt.put("undolist", undoTagList);
 
-        ListTag undoTagListTimer = new ListTag();
-        for (Map.Entry<UUID, Long> entry : undoListTimers.entrySet()) {
-            CompoundTag tempTag = new CompoundTag();
-            tempTag.putUUID("uuid", entry.getKey());
-            tempTag.putLong("time", entry.getValue());
-            undoTagListTimer.add(tempTag);
-        }
-        nbt.put("undolisttimer", undoTagListTimer);
-
         ListTag copyPasteTag = new ListTag();
         for (Map.Entry<UUID, ArrayList<StatePos>> entry : copyPasteLookup.entrySet()) {
             CompoundTag tempTag = new CompoundTag();
@@ -185,14 +162,6 @@ public class BG2Data extends SavedData {
             undoList.put(uuid, tempList);
         }
 
-        HashMap<UUID, Long> undoListTimer = new HashMap<>();
-        ListTag undoTagListTimer = nbt.getList("undolisttimer", Tag.TAG_COMPOUND);
-        for (int i = 0; i < undoTagListTimer.size(); i++) {
-            UUID uuid = undoTagListTimer.getCompound(i).getUUID("uuid");
-            Long time = undoTagListTimer.getCompound(i).getLong("time");
-            undoListTimer.put(uuid, time);
-        }
-
         HashMap<UUID, ArrayList<StatePos>> copyPaste = new HashMap<>();
         ListTag copyPasteList = nbt.getList("copypaste", Tag.TAG_COMPOUND);
         for (int i = 0; i < copyPasteList.size(); i++) {
@@ -213,11 +182,11 @@ public class BG2Data extends SavedData {
             }
             teMap.put(uuid, tagPosList);
         }
-        return new BG2Data(undoList, undoListTimer, copyPaste, teMap);
+        return new BG2Data(undoList, copyPaste, teMap);
     }
 
     public static BG2Data get(ServerLevel world) {
-        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(BG2Data::readNbt, () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>()), NAME);
+        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(BG2Data::readNbt, () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>()), NAME);
         bg2Data.setDirty();
         return bg2Data;
     }
