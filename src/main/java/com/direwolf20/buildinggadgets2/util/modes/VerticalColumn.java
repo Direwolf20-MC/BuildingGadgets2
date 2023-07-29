@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.ArrayList;
 
 public class VerticalColumn extends BaseMode {
-    public VerticalColumn() {
-        super(false);
+    public VerticalColumn(boolean exchange) {
+        super(exchange);
     }
 
     @Override
@@ -30,21 +30,22 @@ public class VerticalColumn extends BaseMode {
         ArrayList<StatePos> coordinates = new ArrayList<>();
 
         // If up or down, full height from start block
-        int halfRange = (int) Math.ceil(range / 2f);
+        int halfRange = range / 2;
 
         if (hitSide.getAxis().equals(Direction.Axis.Y)) {
             // The exchanger handles the Y completely differently :sad: means more code
-            /*if( isExchanging() ) {
+            if (isExchanging) {
                 Direction playerFacing = player.getDirection();
                 for (int i = -halfRange; i <= halfRange; i++)
-                    coordinates.add(XYZ.extendPosSingle(i, start, playerFacing, XYZ.fromFacing(playerFacing)));
-            } else {*/
-            for (int i = 1; i < range + 1; i++) {
-                if (isPosValid(player.level(), start.relative(hitSide, i)))
-                    coordinates.add(new StatePos(state, BlockPos.ZERO.relative(hitSide, i)));
+                    if (isPosValid(player.level(), start.relative(playerFacing, i)))
+                        coordinates.add(new StatePos(state, BlockPos.ZERO.relative(playerFacing, i)));
+            } else {
+                for (int i = 1; i < range + 1; i++) {
+                    if (isPosValid(player.level(), start.relative(hitSide, i)))
+                        coordinates.add(new StatePos(state, BlockPos.ZERO.relative(hitSide, i)));
+                }
             }
-            //}
-            // Else, half and half
+            //Else, half and half
         } else {
             for (int i = -halfRange; i <= halfRange; i++) {
                 if (isPosValid(player.level(), start.relative(Direction.UP, i)))

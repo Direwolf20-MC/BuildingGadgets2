@@ -26,15 +26,18 @@ public enum GadgetModes {
         modes.put(GadgetTarget.BUILDING, new LinkedHashSet<>() {{
             add(new BuildToMe());
             add(new VerticalWall());
-            add(new VerticalColumn());
+            add(new VerticalColumn(false));
             add(new Surface(false));
             add(new HorizontalWall());
             add(new Stairs());
+            add(new HorizontalRow(false));
         }});
 
         // Exchanging Gadget
         modes.put(GadgetTarget.EXCHANGING, new LinkedHashSet<>() {{
             add(new Surface(true));
+            add(new VerticalColumn(true));
+            add(new HorizontalRow(true));
         }});
 
         modes.put(GadgetTarget.DESTRUCTION, new LinkedHashSet<>() {{

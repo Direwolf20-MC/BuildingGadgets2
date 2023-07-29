@@ -17,10 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public abstract class BaseMode implements Comparable<BaseMode> {
-    /**
-     * @deprecated all the modes should be possible without knowing the type of gadget... I'd hope
-     */
-    @Deprecated
     public boolean isExchanging;
 
     public BaseMode(boolean isExchanging) {
