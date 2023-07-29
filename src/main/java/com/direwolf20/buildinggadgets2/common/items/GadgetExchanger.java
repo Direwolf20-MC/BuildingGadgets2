@@ -12,16 +12,21 @@ import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GadgetExchanger extends BaseGadget {
     public GadgetExchanger() {
@@ -117,8 +122,9 @@ public class GadgetExchanger extends BaseGadget {
             }
             if (!player.isCreative()) {
                 playerInventory.getItem(lastSlot).shrink(1);
-                ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
-                BuildingUtils.giveItemToPlayer(player, returnedItem);
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, oldState, gadget);
+                for (ItemStack returnedItem : returnedItems)
+                    BuildingUtils.giveItemToPlayer(player, returnedItem);
             }
             if (oldRenderState.equals(pos.state))
                 be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
@@ -134,5 +140,28 @@ public class GadgetExchanger extends BaseGadget {
     @Override
     public GadgetTarget gadgetTarget() {
         return GadgetTarget.EXCHANGING;
+    }
+
+    /**
+     * For Silk Touch
+     */
+    @Override
+    public int getEnchantmentValue(ItemStack stack) {
+        return 3;
+    }
+
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return EnchantmentHelper.getEnchantments(book).containsKey(Enchantments.SILK_TOUCH) || super.isBookEnchantable(stack, book);
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        return enchantment == Enchantments.SILK_TOUCH || super.canApplyAtEnchantingTable(stack, enchantment);
     }
 }

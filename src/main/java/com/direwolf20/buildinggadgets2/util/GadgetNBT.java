@@ -2,8 +2,7 @@ package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
-import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
-import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
+import com.direwolf20.buildinggadgets2.common.items.*;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.base.Preconditions;
@@ -293,6 +292,26 @@ public class GadgetNBT {
 
         ImmutableSortedSet<BaseMode> modesForGadget = GadgetModes.INSTANCE.getModesForGadget(gadgetTarget);
         if (mode.isEmpty()) {
+            if (stack.getItem() instanceof GadgetBuilding)
+                return modesForGadget.stream()
+                        .filter(m -> m.getId().equals("build_to_me"))
+                        .findFirst()
+                        .orElse(modesForGadget.first());
+            if (stack.getItem() instanceof GadgetExchanger)
+                return modesForGadget.stream()
+                        .filter(m -> m.getId().equals("surface"))
+                        .findFirst()
+                        .orElse(modesForGadget.first());
+            if (stack.getItem() instanceof GadgetCutPaste)
+                return modesForGadget.stream()
+                        .filter(m -> m.getId().equals("cut"))
+                        .findFirst()
+                        .orElse(modesForGadget.first());
+            if (stack.getItem() instanceof GadgetCopyPaste)
+                return modesForGadget.stream()
+                        .filter(m -> m.getId().equals("copy"))
+                        .findFirst()
+                        .orElse(modesForGadget.first());
             return modesForGadget.first();
         }
 

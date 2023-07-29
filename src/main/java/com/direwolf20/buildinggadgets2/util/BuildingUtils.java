@@ -7,6 +7,7 @@ import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -150,8 +151,9 @@ public class BuildingUtils {
                 useEnergy(gadget);
                 if (!pos.state.isAir()) {
                     playerInventory.getItem(lastSlot).shrink(1);
-                    ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
-                    giveItemToPlayer(player, returnedItem);
+                    List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, gadget);
+                    for (ItemStack returnedItem : returnedItems)
+                        giveItemToPlayer(player, returnedItem);
                 }
             }
             actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
@@ -204,8 +206,9 @@ public class BuildingUtils {
             if (!player.isCreative())
                 useEnergy(gadget);
             if (giveItem) {
-                ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
-                giveItemToPlayer(player, returnedItem);
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos, oldState, gadget);
+                for (ItemStack returnedItem : returnedItems)
+                    giveItemToPlayer(player, returnedItem);
             }
         }
 
