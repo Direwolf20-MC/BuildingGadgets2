@@ -34,6 +34,8 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //Modes
         add("buildinggadgets2.modes.vertical_wall", "Vertical Wall");
+        add("buildinggadgets2.modes.horizontal_wall", "Horizontal Wall");
+        add("buildinggadgets2.modes.stairs", "Stairs");
         add("buildinggadgets2.modes.build_to_me", "Build to Me");
         add("buildinggadgets2.modes.vertical_column", "Vertical Column");
         add("buildinggadgets2.modes.surface", "Surface");
@@ -67,6 +69,7 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //Radial Menu
         add("buildinggadgets2.radialmenu.fuzzy", "Fuzzy");
+        add("buildinggadgets2.screen.placeatop", "Place On Top");
         add("buildinggadgets2.radialmenu.cut", "Cut");
         add("buildinggadgets2.radialmenu.connected_area", "Connected Area");
         add("buildinggadgets2.radialmenu.undo", "Undo");

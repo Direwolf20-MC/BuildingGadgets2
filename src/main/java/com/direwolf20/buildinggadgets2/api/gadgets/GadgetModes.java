@@ -28,6 +28,8 @@ public enum GadgetModes {
             add(new VerticalWall());
             add(new VerticalColumn());
             add(new Surface(false));
+            add(new HorizontalWall());
+            add(new Stairs());
         }});
 
         // Exchanging Gadget

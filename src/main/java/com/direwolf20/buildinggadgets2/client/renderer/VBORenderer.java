@@ -136,6 +136,7 @@ public class VBORenderer {
         ModelBlockRenderer modelBlockRenderer = dispatcher.getModelRenderer();
         final RandomSource random = RandomSource.create();
         for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state) || !pos.state.getFluidState().isEmpty()).toList()) {
+            if (pos.state.isAir()) continue;
             BakedModel ibakedmodel = dispatcher.getBlockModel(pos.state);
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());

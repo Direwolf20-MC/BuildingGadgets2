@@ -94,6 +94,16 @@ public class ModeRadialMenu extends Screen {
         }
         this.conditionalButtons.clear();
 
+        if (tool.getItem() instanceof GadgetBuilding) {
+            Button placeOnTop = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.placeatop"), "building_place_atop", ScreenPosition.RIGHT, true, send -> {
+                if (send)
+                    PacketHandler.sendToServer(new PacketToggleSetting("placeontop"));
+
+                return GadgetNBT.getSetting(tool, "placeontop");
+            });
+            this.addRenderableWidget(placeOnTop);
+        }
+
 
         if (tool.getItem() instanceof GadgetBuilding || tool.getItem() instanceof GadgetExchanger) {
             int widthSlider = 82;
@@ -282,14 +292,7 @@ public class ModeRadialMenu extends Screen {
 
             return BaseGadget.shouldRayTraceFluid(this.getGadget());
         }));
-        if (tool.getItem() instanceof GadgetBuilding) {
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.PLACE_ON_TOP, "building_place_atop", right, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketToggleBlockPlacement());
 
-                return GadgetBuilding.shouldPlaceAtop(this.getGadget());
-            }));
-        }
 
         if (!(tool.getItem() instanceof GadgetExchanger)) {
             addRenderableWidget(new PositionedIconActionable(RadialTranslation.UNDO, "undo", left, false, send -> {

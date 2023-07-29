@@ -28,13 +28,13 @@ public class VerticalWall extends BaseMode {
     public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ItemStack gadget = BaseGadget.getGadget(player);
         int range = GadgetNBT.getToolRange(gadget);
-        int size = (range - 1) / 2;
+        int size = range / 2;
         ArrayList<StatePos> coordinates = new ArrayList<>();
 
         Direction.Axis side = hitSide.getAxis() == Direction.Axis.Y ? player.getDirection().getOpposite().getAxis() : hitSide.getAxis();
 
-        int startY = hitSide.getAxis() == Direction.Axis.Y ? start.getY() : start.getY() - size;
-        int endY = hitSide.getAxis() == Direction.Axis.Y ? start.getY() + ((range - 1) * (hitSide == Direction.DOWN ? -1 : 1)) : start.getY() + size;
+        int startY = hitSide.getAxis() == Direction.Axis.Y ? start.getY() + 1 : start.getY() - size;
+        int endY = hitSide.getAxis() == Direction.Axis.Y ? start.getY() + ((range - 1) * (hitSide == Direction.DOWN ? -1 : 1)) + 1 : start.getY() + size;
 
         AABB box = new AABB(
                 start.getX() - (side == Direction.Axis.Z ? size : 0), startY, start.getZ() - (side == Direction.Axis.X ? size : 0),
