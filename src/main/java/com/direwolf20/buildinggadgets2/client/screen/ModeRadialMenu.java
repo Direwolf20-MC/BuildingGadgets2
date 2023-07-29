@@ -56,6 +56,7 @@ public class ModeRadialMenu extends Screen {
     private int segments;
     private ArrayList<BaseMode> arrayOfModes = new ArrayList();
     private boolean cutForSure = false;
+    private BaseMode mode;
 
     public ModeRadialMenu(ItemStack stack) {
         super(Component.literal(""));
@@ -63,6 +64,7 @@ public class ModeRadialMenu extends Screen {
         if (stack.getItem() instanceof BaseGadget) {
             this.setSocketable(stack);
         }
+        mode = GadgetNBT.getMode(stack);
     }
 
     private static float mouseAngle(int x, int y, int mx, int my) {
@@ -144,7 +146,6 @@ public class ModeRadialMenu extends Screen {
                 assert this.getMinecraft().player != null;
 
                 getMinecraft().player.closeContainer();
-                var mode = GadgetNBT.getMode(tool);
                 if (mode.getId().getPath().equals("paste"))
                     getMinecraft().setScreen(new PasteGUI(tool));
                 else
@@ -386,7 +387,6 @@ public class ModeRadialMenu extends Screen {
 
         this.slotSelected = -1;
 
-        BaseMode mode = GadgetNBT.getMode(tool);
         int modeIndex = arrayOfModes.indexOf(mode);
 
         /*if (tool.getItem() instanceof GadgetBuilding) {
@@ -497,6 +497,7 @@ public class ModeRadialMenu extends Screen {
         if (this.slotSelected >= 0) {
             assert getMinecraft().player != null;
             PacketHandler.sendToServer(new PacketModeSwitch(arrayOfModes.get(this.slotSelected).getId(), false));
+            mode = arrayOfModes.get(this.slotSelected);
             OurSounds.playSound(Registration.BEEP.get());
         }
     }
@@ -525,7 +526,7 @@ public class ModeRadialMenu extends Screen {
         boolean changed = false;
         for (Button button : this.conditionalButtons) {
             if (tool.getItem() instanceof GadgetBuilding) {
-                showButton = GadgetNBT.getMode(tool).getId().getPath().equals("surface");
+                showButton = mode.getId().getPath().equals("surface");
             } else if (tool.getItem() instanceof GadgetExchanger) {
                 showButton = true;
             } else {

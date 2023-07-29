@@ -27,6 +27,7 @@ public class GadgetUtils {
     public static boolean isValidBlockState(BlockState blockState, Level level, BlockPos blockPos) {
         if (blockState.is(BG2BlockTags.BG2DENY)) return false;
         if (blockState.getDestroySpeed(level, blockPos) < 0) return false;
+        if (!blockState.getFluidState().isEmpty() && !blockState.getFluidState().isSource()) return false;
         return true;
     }
 
