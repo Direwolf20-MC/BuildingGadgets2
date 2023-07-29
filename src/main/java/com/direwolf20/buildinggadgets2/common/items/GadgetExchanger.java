@@ -92,6 +92,10 @@ public class GadgetExchanger extends BaseGadget {
 
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
+            if (!player.isCreative()) {
+                lastSlot = BuildingUtils.findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                if (lastSlot == -1) continue;
+            }
             boolean placed = false;
             BlockState oldState = level.getBlockState(pos.pos);
             BlockState oldRenderState = level.getBlockState(pos.pos);
@@ -102,11 +106,6 @@ public class GadgetExchanger extends BaseGadget {
                     oldRenderState = renderBlockBE.renderBlock;
                     drawSize = renderBlockBE.drawSize;
                     placed = true;
-
-                    if (!player.isCreative()) {
-                        lastSlot = BuildingUtils.findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                        if (lastSlot == -1) continue;
-                    }
                 }
             } else {
                 placed = level.setBlockAndUpdate(pos.pos, Registration.RenderBlock.get().defaultBlockState());
