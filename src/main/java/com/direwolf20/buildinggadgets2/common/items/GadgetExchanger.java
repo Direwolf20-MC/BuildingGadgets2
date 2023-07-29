@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.Registration;
@@ -16,6 +17,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -82,20 +85,33 @@ public class GadgetExchanger extends BaseGadget {
         BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
         ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
+        byte drawSize = 40;
 
         Inventory playerInventory = player.getInventory();
         int lastSlot = -1;
 
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
-            if (!player.isCreative()) {
-                lastSlot = BuildingUtils.findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                if (lastSlot == -1) continue;
-            }
+            boolean placed = false;
             BlockState oldState = level.getBlockState(pos.pos);
-            boolean placed = level.setBlockAndUpdate(pos.pos, Registration.RenderBlock.get().defaultBlockState());
-            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(pos.pos);
+            BlockState oldRenderState = level.getBlockState(pos.pos);
+            if (oldState.getBlock() instanceof RenderBlock) {
+                BlockEntity blockEntity = level.getBlockEntity(pos.pos);
+                if (blockEntity instanceof RenderBlockBE renderBlockBE) {
+                    oldState = renderBlockBE.targetBlock;
+                    oldRenderState = renderBlockBE.renderBlock;
+                    drawSize = renderBlockBE.drawSize;
+                    placed = true;
 
+                    if (!player.isCreative()) {
+                        lastSlot = BuildingUtils.findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
+                        if (lastSlot == -1) continue;
+                    }
+                }
+            } else {
+                placed = level.setBlockAndUpdate(pos.pos, Registration.RenderBlock.get().defaultBlockState());
+            }
+            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(pos.pos);
             if (!placed || be == null) {
                 // this can happen when another mod rejects the set block state (fixes #120)
                 continue;
@@ -105,7 +121,11 @@ public class GadgetExchanger extends BaseGadget {
                 ItemStack returnedItem = GadgetUtils.getItemForBlock(oldState);
                 BuildingUtils.giveItemToPlayer(player, returnedItem);
             }
-            be.setRenderData(oldState, pos.state);
+            if (oldRenderState.equals(pos.state))
+                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
+            else
+                be.setRenderData(oldState, pos.state);
+            be.drawSize = drawSize;
         }
     }
 

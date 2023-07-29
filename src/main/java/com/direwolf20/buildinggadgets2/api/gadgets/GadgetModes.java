@@ -31,6 +31,7 @@ public enum GadgetModes {
             add(new HorizontalWall());
             add(new Stairs());
             add(new HorizontalRow(false));
+            add(new Grid(false));
         }});
 
         // Exchanging Gadget
@@ -38,6 +39,7 @@ public enum GadgetModes {
             add(new Surface(true));
             add(new VerticalColumn(true));
             add(new HorizontalRow(true));
+            add(new Grid(true));
         }});
 
         modes.put(GadgetTarget.DESTRUCTION, new LinkedHashSet<>() {{
