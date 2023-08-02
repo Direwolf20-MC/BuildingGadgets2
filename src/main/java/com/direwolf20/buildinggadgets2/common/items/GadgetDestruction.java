@@ -20,7 +20,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -48,7 +47,7 @@ public class GadgetDestruction extends BaseGadget {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack gadget = player.getItemInHand(hand);
 
-        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, ClipContext.Fluid.NONE);
+        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
         ItemActionContext context = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, player, level, hand, gadget);
 
         if (player.isShiftKeyDown()) {
@@ -71,7 +70,7 @@ public class GadgetDestruction extends BaseGadget {
         if (context.level().getBlockState(VectorHelper.getLookingAt(context.player(), gadget).getBlockPos()) == Blocks.AIR.defaultBlockState() && anchor == null)
             return InteractionResultHolder.pass(gadget);
 
-        BlockPos startBlock = (anchor == GadgetNBT.nullPos) ? context.hitResult().getBlockPos() : anchor;
+        BlockPos startBlock = getHitPos(context);
         Direction facing = (anchorSide == null) ? context.hitResult().getDirection() : anchorSide;
 
         ArrayList<StatePos> destroyList = GadgetUtils.getDestructionArea(context.level(), startBlock, facing, context.player(), gadget);
@@ -107,8 +106,8 @@ public class GadgetDestruction extends BaseGadget {
             if (pos.state.isAir()) continue; //Since we store air now
 
             BlockState oldState = level.getBlockState(pos.pos);
-            if (!oldState.isAir() && !(oldState.getBlock() instanceof RenderBlock))
-                continue; //Don't overwrite any blocks that have been placed since destroying - only air.
+            if (!oldState.canBeReplaced() && !(oldState.getBlock() instanceof RenderBlock))
+                continue; //Don't overwrite any blocks that have been placed since destroying - only air or replacables like grass/water.
 
             if ((oldState.getBlock() instanceof RenderBlock)) {
                 BlockEntity blockEntity = level.getBlockEntity(pos.pos);

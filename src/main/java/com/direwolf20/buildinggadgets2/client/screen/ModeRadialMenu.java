@@ -94,6 +94,14 @@ public class ModeRadialMenu extends Screen {
         }
         this.conditionalButtons.clear();
 
+        Button rayTrace = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), "raytrace_fluid", ScreenPosition.RIGHT, send -> {
+            if (send)
+                PacketHandler.sendToServer(new PacketToggleSetting("raytracefluid"));
+
+            return GadgetNBT.getSetting(tool, "raytracefluid");
+        });
+        this.addRenderableWidget(rayTrace);
+
         if (tool.getItem() instanceof GadgetBuilding) {
             Button placeOnTop = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.placeatop"), "building_place_atop", ScreenPosition.RIGHT, true, send -> {
                 if (send)

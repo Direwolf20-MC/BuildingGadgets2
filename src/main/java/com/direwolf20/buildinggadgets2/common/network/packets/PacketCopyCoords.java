@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -52,7 +51,7 @@ public class PacketCopyCoords {
 
             GadgetNBT.setCopyStartPos(gadget, message.startPos);
             GadgetNBT.setCopyEndPos(gadget, message.endPos);
-            BlockHitResult lookingAt = VectorHelper.getLookingAt(sender, ClipContext.Fluid.NONE);
+            BlockHitResult lookingAt = VectorHelper.getLookingAt(sender, gadget);
             ItemActionContext itemContext = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, sender, sender.level(), InteractionHand.MAIN_HAND, gadget);
             if (gadget.getItem() instanceof GadgetCopyPaste gadgetCopyPaste)
                 gadgetCopyPaste.buildAndStore(itemContext, gadget);

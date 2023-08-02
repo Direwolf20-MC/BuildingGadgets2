@@ -15,7 +15,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -183,12 +182,7 @@ public class GadgetNBT {
     }
 
     public static boolean shouldRayTraceFluid(ItemStack stack) {
-        return stack.getOrCreateTag().getBoolean("raytrace_fluid");
-    }
-
-    public static void toggleRayTraceFluid(ServerPlayer player, ItemStack stack) {
-        stack.getOrCreateTag().putBoolean("raytrace_fluid", !shouldRayTraceFluid(stack));
-        //player.displayClientMessage(MessageTranslation.RAYTRACE_FLUID.componentTranslation(shouldRayTraceFluid(stack)).setStyle(Styles.AQUA), true);
+        return getSetting(stack, "raytracefluid");
     }
 
     public static LinkedList<UUID> getUndoList(ItemStack gadget) {

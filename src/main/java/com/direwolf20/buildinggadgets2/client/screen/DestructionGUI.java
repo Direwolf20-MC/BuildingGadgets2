@@ -102,6 +102,14 @@ public class DestructionGUI extends Screen {
         });
         this.addRenderableWidget(affectTiles);
 
+        Button rayTrace = new GuiIconActionable(x + 35, y - 75, "raytrace_fluid", Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), true, send -> {
+            if (send)
+                PacketHandler.sendToServer(new PacketToggleSetting("raytracefluid"));
+
+            return GadgetNBT.getSetting(destructionGadget, "raytracefluid");
+        });
+        this.addRenderableWidget(rayTrace);
+
         sliders.clear();
         sliders.add(depth = this.createSlider(x - (70 / 2), y - (14 / 2), Component.translatable("buildinggadgets2.screen.depth"), GadgetNBT.getToolValue(destructionGadget, "depth")));
         sliders.add(right = this.createSlider(x + (70 + 5), y - (14 / 2), Component.translatable("buildinggadgets2.screen.right"), GadgetNBT.getToolValue(destructionGadget, "right")));
