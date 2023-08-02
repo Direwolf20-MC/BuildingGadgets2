@@ -2,7 +2,16 @@
   "block.buildinggadgets2.render_block": "Render Block (DO NOT USE)",
   "buildinggadgets2.gui.range": "Range",
   "buildinggadgets2.keymapping.mode-switch": "Switch Modes",
+  "buildinggadgets2.messages.anchorcleared": "Anchor Cleared",
+  "buildinggadgets2.messages.anchorset": "Anchor Set to: ",
+  "buildinggadgets2.messages.areatoolarge": "Area too large! Max size is: %d. Size was: %d",
+  "buildinggadgets2.messages.copyblocks": "Copied %d blocks",
+  "buildinggadgets2.messages.cutblocks": "Cut %d blocks",
   "buildinggadgets2.messages.invalidblock": "Invalid Block",
+  "buildinggadgets2.messages.notenoughenergy": "Not enough energy for cut, need: %d. Have: %d",
+  "buildinggadgets2.messages.overwritecut": "Tool already has cut data stored - click again to OVERWRITE this data",
+  "buildinggadgets2.messages.range_set": "Range set to: %d",
+  "buildinggadgets2.messages.relativepaste": "Relative Paste set to: [%s]",
   "buildinggadgets2.modes.build_to_me": "Build to Me",
   "buildinggadgets2.modes.copy": "Copy",
   "buildinggadgets2.modes.cut": "Cut",
@@ -48,5 +57,10 @@
   "item.buildinggadgets2.gadget_cut_paste": "Cut Paste Gadget",
   "item.buildinggadgets2.gadget_destruction": "Destruction Gadget",
   "item.buildinggadgets2.gadget_exchanging": "Exchanging Gadget",
-  "itemGroup.buildinggadgets2": "BuildingGadgets2"
+  "itemGroup.buildinggadgets2": "BuildingGadgets2",
+  "key.buildinggadgets2.anchor": "Anchor",
+  "key.buildinggadgets2.category": "Building Gadgets 2",
+  "key.buildinggadgets2.range": "Range",
+  "key.buildinggadgets2.settings_menu": "Settings Menu",
+  "key.buildinggadgets2.undo": "Undo"
 }

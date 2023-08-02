@@ -7,7 +7,6 @@ import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -55,7 +54,7 @@ public class PacketCopyCoords {
             ItemActionContext itemContext = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, sender, sender.level(), InteractionHand.MAIN_HAND, gadget);
             if (gadget.getItem() instanceof GadgetCopyPaste gadgetCopyPaste)
                 gadgetCopyPaste.buildAndStore(itemContext, gadget);
-            sender.displayClientMessage(Component.literal("Copy set to " + message.startPos + ":" + message.endPos), true);
+            //sender.displayClientMessage(Component.literal("Copy set to " + message.startPos + ":" + message.endPos), true);
         });
 
         context.get().setPacketHandled(true);

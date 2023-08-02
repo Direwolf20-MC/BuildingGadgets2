@@ -44,8 +44,9 @@ public class Copy extends BaseMode {
         AABB area = new AABB(copyStart, copyEnd);
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
-        if (size > 100000) { //Todo Config?
-            player.displayClientMessage(Component.literal("Area too large, max size is 100,000 blocks, size was: " + size), false);
+        int maxSize = 100000;
+        if (size > maxSize) { //Todo Config?
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.areatoolarge", maxSize, size), false);
             return coordinates;
         }
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {

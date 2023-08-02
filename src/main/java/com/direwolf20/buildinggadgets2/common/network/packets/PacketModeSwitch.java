@@ -6,7 +6,6 @@ import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -48,7 +47,7 @@ public class PacketModeSwitch {
 
             if (message.rotate) {
                 var mode = actualGadget.rotateModes(gadget);
-                sender.displayClientMessage(Component.literal("Mode changed to ").append(Component.translatable("buildinggadgets2.modes." + mode.getPath())), true);
+                //sender.displayClientMessage(Component.literal("Mode changed to ").append(Component.translatable("buildinggadgets2.modes." + mode.getPath())), true);
                 return;
             }
 
@@ -62,7 +61,7 @@ public class PacketModeSwitch {
                     .orElse(modesForGadget.first());
 
             GadgetNBT.setMode(gadget, modeToUse);
-            sender.displayClientMessage(Component.literal("Mode changed to: ").append(Component.translatable(modeToUse.i18n())), true);
+            //sender.displayClientMessage(Component.literal("Mode changed to: ").append(Component.translatable(modeToUse.i18n())), true);
         });
 
         context.get().setPacketHandled(true);

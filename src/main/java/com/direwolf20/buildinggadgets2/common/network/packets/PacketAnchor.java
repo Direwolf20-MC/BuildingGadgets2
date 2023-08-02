@@ -50,7 +50,7 @@ public class PacketAnchor {
             BlockState lookingAtState = sender.level().getBlockState(lookingAtPos);
             if (!GadgetNBT.getAnchorPos(gadget).equals(GadgetNBT.nullPos)) {
                 GadgetNBT.clearAnchorPos(gadget);
-                sender.displayClientMessage(Component.literal("Anchor Cleared."), true);
+                sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.anchorcleared"), true);
             } else {
                 if (lookingAtState.isAir()) return;
                 GadgetNBT.setAnchorPos(gadget, lookingAtPos);
@@ -64,7 +64,7 @@ public class PacketAnchor {
                     buildList.forEach(e -> blockPosList.add(e.pos));
                     GadgetNBT.setAnchorList(gadget, blockPosList);
                 }
-                sender.displayClientMessage(Component.literal("Anchor Set to ").append(lookingAtPos.toString()), true);
+                sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.anchorset").append(lookingAtPos.toShortString()), true);
             }
         });
 

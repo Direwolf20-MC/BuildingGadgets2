@@ -41,7 +41,7 @@ public class PacketRangeChange {
             }
 
             GadgetNBT.setToolRange(gadget, message.range);
-            sender.displayClientMessage(Component.literal("Range changed to " + message.range), true);
+            sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.range_set", message.range), true);
         });
 
         context.get().setPacketHandled(true);

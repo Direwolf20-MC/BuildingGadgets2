@@ -8,7 +8,9 @@ import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetDestruction;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketAnchor;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
+import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -48,7 +50,11 @@ public class EventKeyInput {
             PacketHandler.sendToServer(new PacketUndo());
         } else if (KeyBindings.anchor.consumeClick()) {
             PacketHandler.sendToServer(new PacketAnchor());
-        } /*else if (KeyBindings.rotateMirror.consumeClick()) {
+        } else if (KeyBindings.range.consumeClick()) {
+            int oldRange = GadgetNBT.getToolRange(tool);
+            int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1; //Todo Config?
+            PacketHandler.sendToServer(new PacketRangeChange(newRange));
+        }/*else if (KeyBindings.rotateMirror.consumeClick()) {
             PacketHandler.sendToServer(new PacketRotateMirror());
         } else if (KeyBindings.undo.consumeClick()) {
             PacketHandler.sendToServer(new PacketUndo());

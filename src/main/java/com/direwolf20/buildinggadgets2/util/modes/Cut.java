@@ -50,14 +50,15 @@ public class Cut extends BaseMode {
 
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
-        if (size > 100000) {
-            player.displayClientMessage(Component.literal("Area too large, max size is 100,000 blocks, size was: " + size), false);
+        int maxSize = 100000; //Todo Config?
+        if (size > maxSize) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.areatoolarge", maxSize, size), false);
             return coordinates;
         }
 
         int totalCost = gadgetCutPaste.getEnergyCost() * (int) size;
         if (!player.isCreative() && !BuildingUtils.hasEnoughEnergy(heldItem, totalCost)) {
-            player.displayClientMessage(Component.literal("Not enough energy for cut, need: " + totalCost), false);
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.notenoughenergy", totalCost, BuildingUtils.getEnergyStored(heldItem)), false);
             return coordinates;
         }
 

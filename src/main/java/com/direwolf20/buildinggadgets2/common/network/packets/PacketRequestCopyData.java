@@ -6,10 +6,8 @@ import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
@@ -47,7 +45,8 @@ public class PacketRequestCopyData {
 
             BG2Data bg2Data = BG2Data.get(sender.level().getServer().overworld()); //TODO NPE?
             CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(gadget), false);
-            FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+            //Will bring this back if needed, but the block limit in place should make this obsolete
+            /*FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             PacketSendCopyData packet = new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag);
             PacketSendCopyData.encode(packet, buffer);
             int packetSize = buffer.writerIndex();
@@ -56,7 +55,8 @@ public class PacketRequestCopyData {
             } else {
                 sender.displayClientMessage(Component.literal("NBT Tag Size is: " + tag.sizeInBytes() + ". Packet size is: " + packetSize), false);
                 PacketHandler.sendTo(new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag), sender);
-            }
+            }*/
+            PacketHandler.sendTo(new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag), sender);
         });
 
         context.get().setPacketHandled(true);

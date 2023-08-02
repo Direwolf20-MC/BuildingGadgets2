@@ -137,11 +137,15 @@ public class ModeRadialMenu extends Screen {
             addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.cut"), "cut", ScreenPosition.LEFT, false, send -> {
                 if (send) {
                     if (GadgetNBT.hasCopyUUID(tool) && !cutForSure) {
-                        this.getMinecraft().player.displayClientMessage(Component.literal("Tool already has data stored, click again to confirm OVERWRITING this Cut. This action cannot be undone!"), true);
+                        this.getMinecraft().player.displayClientMessage(Component.translatable("buildinggadgets2.messages.overwritecut"), true);
                         cutForSure = true;
                         return false;
                     }
                     PacketHandler.sendToServer(new PacketCut());
+                    int modeIndex = arrayOfModes.indexOf(mode);
+                    modeIndex = modeIndex == 0 ? 1 : 0;
+                    PacketHandler.sendToServer(new PacketModeSwitch(arrayOfModes.get(modeIndex).getId(), false));
+                    mode = arrayOfModes.get(modeIndex);
                 }
 
                 return false;

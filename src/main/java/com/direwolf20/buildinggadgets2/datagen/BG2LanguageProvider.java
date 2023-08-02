@@ -26,7 +26,14 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(Registration.CutPaste_Gadget.get(), "Cut Paste Gadget");
         add(Registration.Destruction_Gadget.get(), "Destruction Gadget");
 
+        //Musc
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
+        add("key.buildinggadgets2.category", "Building Gadgets 2");
+        add("key.buildinggadgets2.anchor", "Anchor");
+        add("key.buildinggadgets2.range", "Range");
+        add("key.buildinggadgets2.settings_menu", "Settings Menu");
+        add("key.buildinggadgets2.undo", "Undo");
+
 
         //Tooltips
         add("buildinggadgets2.tooltips.holdshift", "Hold Shift for details");
@@ -80,5 +87,14 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //Messages to Player
         add("buildinggadgets2.messages.invalidblock", "Invalid Block");
+        add("buildinggadgets2.messages.anchorcleared", "Anchor Cleared");
+        add("buildinggadgets2.messages.anchorset", "Anchor Set to: ");
+        add("buildinggadgets2.messages.overwritecut", "Tool already has cut data stored - click again to OVERWRITE this data");
+        add("buildinggadgets2.messages.copyblocks", "Copied %d blocks");
+        add("buildinggadgets2.messages.cutblocks", "Cut %d blocks");
+        add("buildinggadgets2.messages.range_set", "Range set to: %d");
+        add("buildinggadgets2.messages.relativepaste", "Relative Paste set to: [%s]");
+        add("buildinggadgets2.messages.areatoolarge", "Area too large! Max size is: %d. Size was: %d");
+        add("buildinggadgets2.messages.notenoughenergy", "Not enough energy for cut, need: %d. Have: %d");
     }
 }

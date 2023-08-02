@@ -56,6 +56,7 @@ public class GadgetCutPaste extends BaseGadget {
             if (!actuallyBuiltList.isEmpty())
                 GadgetNBT.clearAnchorPos(gadget);
             GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
+            GadgetNBT.setMode(gadget, new Cut()); // Set it back to cut mode - no need to stay in paste since the paste is gone :)
             return InteractionResultHolder.success(gadget);
         } else {
             return InteractionResultHolder.pass(gadget);
@@ -95,7 +96,7 @@ public class GadgetCutPaste extends BaseGadget {
         bg2Data.addToCopyPaste(uuid, buildList);
         bg2Data.addToTEMap(uuid, teData);
         new Cut().removeBlocks(player);
-        player.displayClientMessage(Component.literal("Cut " + buildList.size() + " blocks."), true); //Todo temp
+        player.displayClientMessage(Component.translatable("buildinggadgets2.messages.cutblocks", buildList.size()), true); //Todo temp
         GadgetNBT.setCopyStartPos(gadget, GadgetNBT.nullPos);
         GadgetNBT.setCopyEndPos(gadget, GadgetNBT.nullPos);
     }

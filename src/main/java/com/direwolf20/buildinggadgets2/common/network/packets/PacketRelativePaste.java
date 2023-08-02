@@ -48,7 +48,7 @@ public class PacketRelativePaste {
             }
             BlockPos relativePos = new BlockPos(message.x, message.y, message.z);
             GadgetNBT.setRelativePaste(gadget, relativePos);
-            sender.displayClientMessage(Component.literal("Relative Paste set to " + relativePos), true);
+            sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.relativepaste", relativePos.toShortString()), true);
         });
 
         context.get().setPacketHandled(true);
