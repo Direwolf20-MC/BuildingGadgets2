@@ -93,13 +93,14 @@ public class GadgetExchanger extends BaseGadget {
         byte drawSize = 40;
 
         Inventory playerInventory = player.getInventory();
-        int lastSlot = -1;
 
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
+            boolean foundStacks = false;
+            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative()) {
-                lastSlot = BuildingUtils.findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                if (lastSlot == -1) continue;
+                foundStacks = BuildingUtils.removeStacksFromInventory(playerInventory, neededItems, true);
+                if (!foundStacks) continue;
             }
             boolean placed = false;
             BlockState oldState = level.getBlockState(pos.pos);
@@ -121,7 +122,7 @@ public class GadgetExchanger extends BaseGadget {
                 continue;
             }
             if (!player.isCreative()) {
-                playerInventory.getItem(lastSlot).shrink(1);
+                BuildingUtils.removeStacksFromInventory(playerInventory, neededItems, false);
                 List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, oldState, gadget);
                 for (ItemStack returnedItem : returnedItems)
                     BuildingUtils.giveItemToPlayer(player, returnedItem);

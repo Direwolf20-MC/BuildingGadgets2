@@ -22,24 +22,26 @@ import net.minecraftforge.energy.IEnergyStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BuildingUtils {
-    public static int lastSlot = -1;
 
-    public static int findItemStack(Inventory playerInventory, ItemStack itemStack) {
-        if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return -1;
+    public static boolean removeStacksFromInventory(Inventory playerInventory, List<ItemStack> itemStacks, boolean simulate) {
+        if (itemStacks.isEmpty() || itemStacks.contains(Items.AIR.getDefaultInstance())) return false;
         //Todo Bag support
-        if (lastSlot != -1) {
-            ItemStack slotStack = playerInventory.getItem(lastSlot);
-            if (ItemStack.isSameItem(slotStack, itemStack)) //Todo validate proper comparison
-                return lastSlot;
-        }
+        ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
-            if (ItemStack.isSameItem(slotStack, itemStack)) //Todo validate proper comparison
-                return i;
+            Optional<ItemStack> matchStack = itemStacks.stream().filter(e -> ItemStack.isSameItem(e, slotStack) && slotStack.getCount() >= e.getCount()).findFirst();
+            if (matchStack.isPresent()) { //Todo validate proper comparison, support multiple stacks of same item
+                ItemStack matchingStack = matchStack.get();
+                if (!simulate)
+                    slotStack.shrink(matchingStack.getCount());
+                testArray.remove(matchingStack);
+                if (testArray.isEmpty()) return true;
+            }
         }
-        return -1;
+        return false;
     }
 
     public static int countItemStacks(Inventory playerInventory, ItemStack itemStack) {
@@ -101,10 +103,12 @@ public class BuildingUtils {
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
+            boolean foundStacks = false;
+            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative()) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
-                lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                if (lastSlot == -1) continue;
+                foundStacks = removeStacksFromInventory(playerInventory, neededItems, true);
+                if (!foundStacks) continue;
             }
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (level.getBlockState(blockPos).canBeReplaced()) {
@@ -117,7 +121,7 @@ public class BuildingUtils {
                 }
                 if (!player.isCreative()) {
                     useEnergy(gadget);
-                    playerInventory.getItem(lastSlot).shrink(1);
+                    removeStacksFromInventory(playerInventory, neededItems, false);
                 }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
@@ -131,11 +135,14 @@ public class BuildingUtils {
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             //if (pos.state.isAir()) continue; //Since we store air now
+            boolean foundStacks = false;
+            List<ItemStack> neededItems = new ArrayList<>();
             if (!player.isCreative()) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 if (!pos.state.isAir()) {
-                    lastSlot = findItemStack(playerInventory, GadgetUtils.getItemForBlock(pos.state));
-                    if (lastSlot == -1) continue;
+                    neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state));
+                    foundStacks = removeStacksFromInventory(playerInventory, neededItems, true);
+                    if (!foundStacks) continue;
                 }
             }
             BlockPos blockPos = pos.pos.offset(lookingAt);
@@ -150,7 +157,7 @@ public class BuildingUtils {
             if (!player.isCreative()) {
                 useEnergy(gadget);
                 if (!pos.state.isAir()) {
-                    playerInventory.getItem(lastSlot).shrink(1);
+                    removeStacksFromInventory(playerInventory, neededItems, false);
                     List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, gadget);
                     for (ItemStack returnedItem : returnedItems)
                         giveItemToPlayer(player, returnedItem);
