@@ -67,10 +67,11 @@ public class GadgetUtils {
         ItemStack tempStack = new ItemStack(Registration.Exchanging_Gadget.get());
         tempStack.enchant(Enchantments.SILK_TOUCH, 1);
         List<ItemStack> drops = new ArrayList<>(getDropsForBlockState(level, blockPos, blockState, tempStack));
-        if (drops.isEmpty()) { //Handles Cake for example
-            ItemStack lastAttempt = getItemForBlock(blockState);
-            if (!lastAttempt.isEmpty())
-                drops.add(lastAttempt);
+        ItemStack baseItem = getItemForBlock(blockState);
+        if (drops.stream().filter(e -> ItemStack.isSameItem(e, baseItem)).toList().isEmpty()) { //If the item we expect to find isn't in the drops list, something weird happened, like wheat seeds from tall grass
+            drops = new ArrayList<>();
+            drops.add(baseItem);
+            return drops;
         }
         return drops;
     }

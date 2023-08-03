@@ -29,13 +29,6 @@ public class BG2BlockTags extends BlockTagsProvider {
                 .add(Blocks.BEDROCK)
                 .add(Blocks.END_PORTAL_FRAME)
                 .add(Blocks.CANDLE_CAKE)
-                .add(Blocks.INFESTED_CHISELED_STONE_BRICKS)
-                .add(Blocks.INFESTED_COBBLESTONE)
-                .add(Blocks.INFESTED_CRACKED_STONE_BRICKS)
-                .add(Blocks.INFESTED_DEEPSLATE)
-                .add(Blocks.INFESTED_STONE)
-                .add(Blocks.INFESTED_MOSSY_STONE_BRICKS)
-                .add(Blocks.INFESTED_STONE_BRICKS)
                 .addTag(BlockTags.BEDS)
                 .addTag(BlockTags.PORTALS)
                 .addTag(BlockTags.DOORS);
