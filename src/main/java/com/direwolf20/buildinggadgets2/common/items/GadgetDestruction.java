@@ -1,7 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
-import com.direwolf20.buildinggadgets2.client.screen.DestructionGUI;
+import com.direwolf20.buildinggadgets2.client.screen.ScreenOpener;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
@@ -13,7 +13,6 @@ import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -87,7 +86,7 @@ public class GadgetDestruction extends BaseGadget {
     @Override
     InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
         if (context.level().isClientSide)
-            Minecraft.getInstance().setScreen(new DestructionGUI(context.stack(), false));
+            ScreenOpener.openDestructionScreen(context.stack());
 
         return super.onShiftAction(context);
     }

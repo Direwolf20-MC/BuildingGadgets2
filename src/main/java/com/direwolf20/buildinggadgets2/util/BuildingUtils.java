@@ -98,7 +98,7 @@ public class BuildingUtils {
         }
     }
 
-    public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget) {
+    public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
@@ -107,7 +107,7 @@ public class BuildingUtils {
             if (!pos.state.canSurvive(level, blockPos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
-            if (!player.isCreative()) {
+            if (!player.isCreative() && needItems) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 foundStacks = removeStacksFromInventory(playerInventory, neededItems, true);
                 if (!foundStacks) continue;
@@ -121,7 +121,7 @@ public class BuildingUtils {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
                 }
-                if (!player.isCreative()) {
+                if (!player.isCreative() && needItems) {
                     useEnergy(gadget);
                     removeStacksFromInventory(playerInventory, neededItems, false);
                 }
@@ -132,7 +132,7 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget) {
+    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
@@ -141,7 +141,7 @@ public class BuildingUtils {
             if (!pos.state.canSurvive(level, blockPos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = new ArrayList<>();
-            if (!player.isCreative()) {
+            if (!player.isCreative() && needItems) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 if (!pos.state.isAir()) {
                     neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state));
@@ -157,7 +157,7 @@ public class BuildingUtils {
                 // this can happen when another mod rejects the set block state (fixes #120)
                 continue;
             }
-            if (!player.isCreative()) {
+            if (!player.isCreative() && needItems) {
                 useEnergy(gadget);
                 if (!pos.state.isAir()) {
                     removeStacksFromInventory(playerInventory, neededItems, false);
@@ -178,9 +178,9 @@ public class BuildingUtils {
 
         boolean replace = GadgetNBT.getPasteReplace(gadget);
         if (!replace)
-            actuallyBuiltList = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget);
+            actuallyBuiltList = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, false);
         else
-            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget);
+            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false);
 
         for (TagPos tagPos : teData) {
             BlockPos blockPos = tagPos.pos.offset(lookingAt);
@@ -216,7 +216,7 @@ public class BuildingUtils {
             if (!player.isCreative())
                 useEnergy(gadget);
             if (giveItem) {
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos, oldState, gadget);
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos, oldState);
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
             }
