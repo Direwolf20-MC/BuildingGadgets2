@@ -104,7 +104,7 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos.offset(lookingAt);
-            if (!pos.state.canSurvive(level, blockPos)) continue;
+            if (needItems && !pos.state.canSurvive(level, blockPos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative() && needItems) {
@@ -138,7 +138,7 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
             //if (pos.state.isAir()) continue; //Since we store air now
-            if (!pos.state.canSurvive(level, blockPos)) continue;
+            if (needItems && !pos.state.canSurvive(level, blockPos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = new ArrayList<>();
             if (!player.isCreative() && needItems) {
