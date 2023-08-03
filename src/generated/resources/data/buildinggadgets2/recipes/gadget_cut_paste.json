@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "buildinggadgets2",
+  "key": {
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "l": {
+      "tag": "forge:gems/lapis"
+    },
+    "r": {
+      "tag": "forge:dusts/redstone"
+    },
+    "s": {
+      "tag": "forge:shears"
+    }
+  },
+  "pattern": [
+    "iri",
+    "srs",
+    "ili"
+  ],
+  "result": {
+    "item": "buildinggadgets2:gadget_cut_paste"
+  },
+  "show_notification": true
+}

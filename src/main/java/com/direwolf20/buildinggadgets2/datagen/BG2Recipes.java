@@ -1,8 +1,14 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
+import com.direwolf20.buildinggadgets2.setup.Registration;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.common.Tags;
 
 import java.util.function.Consumer;
 
@@ -14,21 +20,65 @@ public class BG2Recipes extends RecipeProvider {
 
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
-        //Crafting Components
-        /*ShapedRecipeBuilder.shaped(Registration.Logic_Chip_Raw.get(), 4)
-                .pattern("rgr")
-                .pattern("cqc")
-                .pattern("rgr")
+        //Gadgets
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Building_Gadget.get())
+                .pattern("iri")
+                .pattern("drd")
+                .pattern("ili")
                 .define('r', Tags.Items.DUSTS_REDSTONE)
-                .define('q', Tags.Items.STORAGE_BLOCKS_QUARTZ)
-                .define('g', Tags.Items.NUGGETS_GOLD)
-                .define('c', Items.CLAY_BALL)
-                .group("laserio")
-                .unlockedBy("has_quartz", InventoryChangeTrigger.TriggerInstance.hasItems(Items.QUARTZ_BLOCK))
+                .define('i', Tags.Items.INGOTS_IRON)
+                .define('d', Tags.Items.GEMS_DIAMOND)
+                .define('l', Tags.Items.GEMS_LAPIS)
+                .group("buildinggadgets2")
+                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(consumer);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Registration.Logic_Chip_Raw.get()),
-                        Registration.Logic_Chip.get(), 1.0f, 100)
-                .unlockedBy("has_raw_chip", inventoryTrigger(ItemPredicate.Builder.item().of(Registration.Logic_Chip_Raw.get()).build()))
-                .save(consumer);*/
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Exchanging_Gadget.get())
+                .pattern("iri")
+                .pattern("dld")
+                .pattern("ili")
+                .define('r', Tags.Items.DUSTS_REDSTONE)
+                .define('i', Tags.Items.INGOTS_IRON)
+                .define('d', Tags.Items.GEMS_DIAMOND)
+                .define('l', Tags.Items.GEMS_LAPIS)
+                .group("buildinggadgets2")
+                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CopyPaste_Gadget.get())
+                .pattern("iri")
+                .pattern("ere")
+                .pattern("ili")
+                .define('r', Tags.Items.DUSTS_REDSTONE)
+                .define('i', Tags.Items.INGOTS_IRON)
+                .define('e', Tags.Items.GEMS_EMERALD)
+                .define('l', Tags.Items.GEMS_LAPIS)
+                .group("buildinggadgets2")
+                .unlockedBy("has_emerald", InventoryChangeTrigger.TriggerInstance.hasItems(Items.EMERALD))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Destruction_Gadget.get())
+                .pattern("iri")
+                .pattern("ere")
+                .pattern("ili")
+                .define('r', Tags.Items.DUSTS_REDSTONE)
+                .define('i', Tags.Items.INGOTS_IRON)
+                .define('e', Tags.Items.ENDER_PEARLS)
+                .define('l', Tags.Items.GEMS_LAPIS)
+                .group("buildinggadgets2")
+                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CutPaste_Gadget.get())
+                .pattern("iri")
+                .pattern("srs")
+                .pattern("ili")
+                .define('r', Tags.Items.DUSTS_REDSTONE)
+                .define('i', Tags.Items.INGOTS_IRON)
+                .define('s', Tags.Items.SHEARS)
+                .define('l', Tags.Items.GEMS_LAPIS)
+                .group("buildinggadgets2")
+                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .save(consumer);
     }
 }
