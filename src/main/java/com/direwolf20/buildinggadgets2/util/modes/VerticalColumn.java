@@ -37,18 +37,18 @@ public class VerticalColumn extends BaseMode {
             if (isExchanging) {
                 Direction playerFacing = player.getDirection();
                 for (int i = -halfRange; i <= halfRange; i++)
-                    if (isPosValid(player.level(), start.relative(playerFacing, i)))
+                    if (isPosValid(player.level(), start.relative(playerFacing, i), state))
                         coordinates.add(new StatePos(state, BlockPos.ZERO.relative(playerFacing, i)));
             } else {
                 for (int i = 1; i < range + 1; i++) {
-                    if (isPosValid(player.level(), start.relative(hitSide, i)))
+                    if (isPosValid(player.level(), start.relative(hitSide, i), state))
                         coordinates.add(new StatePos(state, BlockPos.ZERO.relative(hitSide, i)));
                 }
             }
             //Else, half and half
         } else {
             for (int i = -halfRange; i <= halfRange; i++) {
-                if (isPosValid(player.level(), start.relative(Direction.UP, i)))
+                if (isPosValid(player.level(), start.relative(Direction.UP, i), state))
                     coordinates.add(new StatePos(state, BlockPos.ZERO.relative(Direction.UP, i)));
             }
         }

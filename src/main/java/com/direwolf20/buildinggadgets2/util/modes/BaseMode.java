@@ -60,9 +60,10 @@ public abstract class BaseMode implements Comparable<BaseMode> {
         return new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
     }
 
-    public boolean isPosValid(Level level, BlockPos blockPos) {
+    public boolean isPosValid(Level level, BlockPos blockPos, BlockState blockState) {
         if ((blockPos.getY() >= level.getMaxBuildHeight() || blockPos.getY() < level.getMinBuildHeight()))
             return false;
+        if (!blockState.canSurvive(level, blockPos)) return false;
         if (isExchanging) {
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos))
                 return false;

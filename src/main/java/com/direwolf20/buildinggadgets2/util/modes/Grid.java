@@ -36,7 +36,7 @@ public class Grid extends BaseMode {
                 if (x % (((range - 2) % 6) + 2) != 0 || z % (((range - 2) % 6) + 2) != 0)
                     continue;
                 BlockPos coord = new BlockPos(startAt.getX() + x, startAt.getY(), startAt.getZ() + z);
-                if (isPosValid(player.level(), coord))
+                if (isPosValid(player.level(), coord, state))
                     coordinates.add(new StatePos(state, coord.subtract(start)));
             }
         }

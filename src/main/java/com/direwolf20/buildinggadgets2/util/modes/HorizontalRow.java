@@ -34,13 +34,13 @@ public class HorizontalRow extends BaseMode {
         Direction side = hitSide.getAxis() == Direction.Axis.Y ? player.getDirection() : hitSide.getOpposite();
         if (!isExchanging) {
             for (int i = 0; i < range; i++)
-                if (isPosValid(player.level(), startAt.relative(side, i)))
+                if (isPosValid(player.level(), startAt.relative(side, i), state))
                     coordinates.add(new StatePos(state, startAt.relative(side, i).subtract(start)));
         } else {
             side = side.getClockWise();
             int halfRange = range / 2;
             for (int i = -halfRange; i <= halfRange; i++)
-                if (isPosValid(player.level(), startAt.relative(side, i)))
+                if (isPosValid(player.level(), startAt.relative(side, i), state))
                     coordinates.add(new StatePos(state, startAt.relative(side, i).subtract(start)));
         }
 

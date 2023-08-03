@@ -103,6 +103,8 @@ public class BuildingUtils {
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
+            BlockPos blockPos = pos.pos.offset(lookingAt);
+            if (!pos.state.canSurvive(level, blockPos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative()) {
@@ -110,7 +112,7 @@ public class BuildingUtils {
                 foundStacks = removeStacksFromInventory(playerInventory, neededItems, true);
                 if (!foundStacks) continue;
             }
-            BlockPos blockPos = pos.pos.offset(lookingAt);
+
             if (level.getBlockState(blockPos).canBeReplaced()) {
                 boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
                 RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
@@ -134,7 +136,9 @@ public class BuildingUtils {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
+            BlockPos blockPos = pos.pos.offset(lookingAt);
             //if (pos.state.isAir()) continue; //Since we store air now
+            if (!pos.state.canSurvive(level, blockPos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = new ArrayList<>();
             if (!player.isCreative()) {
@@ -145,7 +149,6 @@ public class BuildingUtils {
                     if (!foundStacks) continue;
                 }
             }
-            BlockPos blockPos = pos.pos.offset(lookingAt);
             BlockState oldState = level.getBlockState(blockPos);
             boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);

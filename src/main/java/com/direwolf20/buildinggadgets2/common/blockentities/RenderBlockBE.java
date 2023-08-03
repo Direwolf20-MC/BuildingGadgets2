@@ -1,12 +1,16 @@
 package com.direwolf20.buildinggadgets2.common.blockentities;
 
 import com.direwolf20.buildinggadgets2.setup.Registration;
+import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class RenderBlockBE extends BlockEntity {
     public byte drawSize;
@@ -48,6 +53,16 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     public void setRealBlock(BlockState realBlock) {
+        if (!realBlock.canSurvive(level, getBlockPos())) {
+            List<ItemStack> drops = GadgetUtils.getDropsForBlockState((ServerLevel) level, getBlockPos(), realBlock);
+            for (ItemStack returnedItem : drops) {
+                ItemEntity itementity = new ItemEntity(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), returnedItem);
+                itementity.setPickUpDelay(40);
+                level.addFreshEntity(itementity);
+                level.setBlockAndUpdate(this.getBlockPos(), Blocks.AIR.defaultBlockState());
+                return;
+            }
+        }
         BlockState adjustedState = Block.updateFromNeighbourShapes(realBlock, level, getBlockPos()); //Ensure double chests are placed as single chests if only 1 chest available in copy/paste, for example, or fixes fences
         level.setBlockAndUpdate(this.getBlockPos(), adjustedState);
         if (blockEntityData != null) {

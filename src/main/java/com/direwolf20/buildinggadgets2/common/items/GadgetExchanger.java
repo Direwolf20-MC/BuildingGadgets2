@@ -96,6 +96,7 @@ public class GadgetExchanger extends BaseGadget {
 
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
+            if (!pos.state.canSurvive(level, pos.pos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative()) {
