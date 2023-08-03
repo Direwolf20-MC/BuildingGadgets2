@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.util;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
@@ -10,7 +11,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -24,9 +27,16 @@ import java.util.List;
 import java.util.UUID;
 
 public class GadgetUtils {
-    private static final ImmutableList<Property<?>> ALLOWED_PROPERTIES = ImmutableList.of(
+    /*private static final ImmutableList<Property<?>> ALLOWED_PROPERTIES = ImmutableList.of(
             BlockStateProperties.FACING, BlockStateProperties.AXIS, BlockStateProperties.HORIZONTAL_FACING,
-            BlockStateProperties.CHEST_TYPE
+            BlockStateProperties.CHEST_TYPE, BlockStateProperties.SLAB_TYPE
+    );*/
+
+    private static final ImmutableList<Property<?>> DENY_PROPERTIES = ImmutableList.of(
+            BlockStateProperties.AGE_1, BlockStateProperties.AGE_2, BlockStateProperties.AGE_3, BlockStateProperties.AGE_4,
+            BlockStateProperties.AGE_5, BlockStateProperties.AGE_7, BlockStateProperties.AGE_15, BlockStateProperties.AGE_25,
+            DoublePlantBlock.HALF, BlockStateProperties.WATERLOGGED, BlockStateProperties.LIT, BlockStateProperties.HAS_RECORD,
+            BlockStateProperties.HAS_BOOK, BlockStateProperties.OPEN, BlockStateProperties.STAGE
     );
 
     public static boolean isValidBlockState(BlockState blockState, Level level, BlockPos blockPos) {
@@ -50,7 +60,19 @@ public class GadgetUtils {
     }
 
     public static ItemStack getItemForBlock(BlockState blockState) {
-        return new ItemStack(blockState.getBlock().asItem(), 1);
+        return new ItemStack(blockState.getBlock());
+    }
+
+    public static List<ItemStack> getDropsForBlockState(ServerLevel level, BlockPos blockPos, BlockState blockState) {
+        ItemStack tempStack = new ItemStack(Registration.Exchanging_Gadget.get());
+        tempStack.enchant(Enchantments.SILK_TOUCH, 1);
+        List<ItemStack> drops = new ArrayList<>(getDropsForBlockState(level, blockPos, blockState, tempStack));
+        if (drops.isEmpty()) { //Handles Cake for example
+            ItemStack lastAttempt = getItemForBlock(blockState);
+            if (!lastAttempt.isEmpty())
+                drops.add(lastAttempt);
+        }
+        return drops;
     }
 
     public static List<ItemStack> getDropsForBlockState(ServerLevel level, BlockPos blockPos, BlockState blockState, ItemStack gadget) {
@@ -64,7 +86,7 @@ public class GadgetUtils {
     public static BlockState cleanBlockState(BlockState sourceState) {
         BlockState placeState = sourceState.getBlock().defaultBlockState();
         for (Property<?> prop : sourceState.getProperties()) {
-            if (ALLOWED_PROPERTIES.contains(prop)) {
+            if (!DENY_PROPERTIES.contains(prop)) {
                 placeState = applyProperty(placeState, sourceState, prop);
             }
         }
