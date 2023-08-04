@@ -38,6 +38,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class BaseGadget extends Item {
 
@@ -188,7 +189,7 @@ public abstract class BaseGadget extends Item {
     }
 
     public void undo(Level level, Player player, ItemStack gadget) {
-        BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
 

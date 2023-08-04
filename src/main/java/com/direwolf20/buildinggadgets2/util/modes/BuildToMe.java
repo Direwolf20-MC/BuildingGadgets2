@@ -28,7 +28,7 @@ public class BuildToMe extends BaseMode {
         int playerCoord = hitSide.getAxis().choose(player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ());
 
         // Clamp the value to the max range of the gadgets raytrace
-        double difference = Math.max(0, Math.min(32, Math.abs(startCoord - playerCoord))); //TODO Config
+        double difference = Math.max(0, Math.min(32, Math.abs(startCoord - playerCoord)));
         for (int i = 1; i < difference; i++) {
             if (isPosValid(player.level(), start.relative(hitSide, i), state))
                 coordinates.add(new StatePos(state, BlockPos.ZERO.relative(hitSide, i)));

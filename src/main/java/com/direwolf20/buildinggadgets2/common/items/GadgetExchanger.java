@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GadgetExchanger extends BaseGadget {
     public GadgetExchanger() {
@@ -43,9 +44,6 @@ public class GadgetExchanger extends BaseGadget {
         return Config.EXCHANGINGGADGET_COST.get();
     }
 
-    /**
-     * TODO: Placeholder Class for now.
-     */
     @Override
     InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
         var gadget = context.stack();
@@ -87,7 +85,7 @@ public class GadgetExchanger extends BaseGadget {
      */
     @Override
     public void undo(Level level, Player player, ItemStack gadget) {
-        BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
         byte drawSize = 40;

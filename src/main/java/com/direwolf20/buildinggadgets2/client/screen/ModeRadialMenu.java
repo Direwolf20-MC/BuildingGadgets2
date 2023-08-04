@@ -102,6 +102,8 @@ public class ModeRadialMenu extends Screen {
         });
         this.addRenderableWidget(rayTrace);
 
+
+        //Building Gadget Only
         if (tool.getItem() instanceof GadgetBuilding) {
             Button placeOnTop = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.placeatop"), "building_place_atop", ScreenPosition.RIGHT, true, send -> {
                 if (send)
@@ -112,7 +114,7 @@ public class ModeRadialMenu extends Screen {
             this.addRenderableWidget(placeOnTop);
         }
 
-
+        //Building and Exchanging Gadget Only
         if (tool.getItem() instanceof GadgetBuilding || tool.getItem() instanceof GadgetExchanger) {
             int widthSlider = 82;
             IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, /*Config.GADGETS.maxRange.get()*/15, Component.translatable("buildinggadgets2.gui.range").append(": "), GadgetNBT.getToolRange(tool), slider -> {
@@ -121,8 +123,8 @@ public class ModeRadialMenu extends Screen {
             sliderRange.getComponents().forEach(this::addRenderableWidget);
         }
 
+        //Exchanging Gadget Only
         if (tool.getItem() instanceof GadgetExchanger) {
-            //Exchanger Only
             Button affectTiles = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.affecttiles"), "affecttiles", ScreenPosition.RIGHT, true, send -> {
                 if (send)
                     PacketHandler.sendToServer(new PacketToggleSetting("affecttiles"));
@@ -132,8 +134,8 @@ public class ModeRadialMenu extends Screen {
             this.addRenderableWidget(affectTiles);
         }
 
+        //Cut Paste Gadget Only
         if (tool.getItem() instanceof GadgetCutPaste) {
-            //Cut Only
             addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.cut"), "cut", ScreenPosition.LEFT, false, send -> {
                 if (send) {
                     if (GadgetNBT.hasCopyUUID(tool) && !cutForSure) {
@@ -152,6 +154,7 @@ public class ModeRadialMenu extends Screen {
             }));
         }
 
+        //Cut Paste or Copy Paste Gadget Only
         if (tool.getItem() instanceof GadgetCutPaste || tool.getItem() instanceof GadgetCopyPaste) {
             Button pastereplace = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.paste_replace"), "paste_replace", ScreenPosition.RIGHT, true, send -> {
                 if (send)
@@ -176,6 +179,17 @@ public class ModeRadialMenu extends Screen {
             }));
         }
 
+        //Everything but Cut and Paste Gadget
+        if (!(tool.getItem() instanceof GadgetCutPaste)) {
+            Button undo_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.undo"), "undo", ScreenPosition.LEFT, false, send -> {
+                if (send)
+                    PacketHandler.sendToServer(new PacketUndo());
+
+                return false;
+            });
+            addRenderableWidget(undo_button);
+        }
+
         Button fuzzy_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.fuzzy"), "fuzzy", ScreenPosition.RIGHT, send -> {
             if (send) {
                 PacketHandler.sendToServer(new PacketToggleSetting(GadgetNBT.NBTValues.FUZZY.value));
@@ -196,16 +210,6 @@ public class ModeRadialMenu extends Screen {
         addRenderableWidget(connected_button);
         conditionalButtons.add(connected_button);
 
-        Button undo_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.undo"), "undo", ScreenPosition.LEFT, false, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketUndo());
-
-            return false;
-        });
-        if (!(tool.getItem() instanceof GadgetCutPaste))
-            addRenderableWidget(undo_button);
-
-
         addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.anchor"), "anchor", ScreenPosition.LEFT, send -> {
             if (send)
                 PacketHandler.sendToServer(new PacketAnchor());
@@ -214,107 +218,6 @@ public class ModeRadialMenu extends Screen {
         }));
 
 
-/*        if (isDestruction) {
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.DESTRUCTION_OVERLAY, "destroy_overlay", right, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketChangeRange());
-
-                return GadgetDestruction.getOverlay(this.getGadget());
-            }));
-
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.FLUID_ONLY, "fluid_only", right, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketToggleFluidOnly());
-
-                return GadgetDestruction.getIsFluidOnly(this.getGadget());
-            }));
-        } else {
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.ROTATE, "rotate", left, false, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketRotateMirror(PacketRotateMirror.Operation.ROTATE));
-
-                return false;
-            }));
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.MIRROR, "mirror", left, false, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketRotateMirror(PacketRotateMirror.Operation.MIRROR));
-
-                return false;
-            }));
-        }
-        if (!(tool.getItem() instanceof GadgetCopyPaste)) {
-            if (!isDestruction || Config.GADGETS.GADGET_DESTRUCTION.nonFuzzyEnabled.get()) {
-                Button button = new PositionedIconActionable(RadialTranslation.FUZZY, "fuzzy", right, send -> {
-                    if (send) {
-                        PacketHandler.sendToServer(new PacketToggleFuzzy());
-                    }
-
-                    return BaseGadget.getFuzzy(this.getGadget());
-                });
-                addRenderableWidget(button);
-                conditionalButtons.add(button);
-            }
-            if (!isDestruction) {
-                Button button = new PositionedIconActionable(RadialTranslation.CONNECTED_SURFACE, "connected_area", right, send -> {
-                    if (send) {
-                        PacketHandler.sendToServer(new PacketToggleConnectedArea());
-                    }
-
-                    return BaseGadget.getConnectedArea(this.getGadget());
-                });
-                addRenderableWidget(button);
-                conditionalButtons.add(button);
-            }
-            if (!isDestruction) {
-                int widthSlider = 82;
-                IncrementalSliderWidget sliderRange = new IncrementalSliderWidget(width / 2 - widthSlider / 2, height / 2 + 72, widthSlider, 14, 1, Config.GADGETS.maxRange.get(), GuiTranslation.SINGLE_RANGE.componentTranslation().append(": "),  GadgetUtils.getToolRange(tool), slider -> {
-                    sendRangeUpdate(slider.getValueInt());
-                });
-                sliderRange.getComponents().forEach(this::addRenderableWidget);
-            }
-        } else {
-            // Copy Paste specific
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.OPEN_GUI, "copypaste_opengui", right, send -> {
-                if (!send)
-                    return false;
-
-                assert this.getMinecraft().player != null;
-
-                getMinecraft().player.closeContainer();
-                if (GadgetCopyPaste.getToolMode(tool) == GadgetCopyPaste.ToolMode.COPY)
-                    getMinecraft().setScreen(new CopyGUI(tool));
-                else
-                    getMinecraft().setScreen(new PasteGUI(tool));
-                return true;
-            }));
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.OPEN_MATERIAL_LIST, "copypaste_materiallist", right, send -> {
-                if (!send)
-                    return false;
-
-                assert this.getMinecraft().player != null;
-
-                getMinecraft().player.closeContainer();
-                getMinecraft().setScreen(new MaterialListGUI(tool));
-                return true;
-            }));
-        }
-        addRenderableWidget(new PositionedIconActionable(RadialTranslation.RAYTRACE_FLUID, "raytrace_fluid", right, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketToggleRayTraceFluid());
-
-            return BaseGadget.shouldRayTraceFluid(this.getGadget());
-        }));
-
-
-        if (!(tool.getItem() instanceof GadgetExchanger)) {
-            addRenderableWidget(new PositionedIconActionable(RadialTranslation.UNDO, "undo", left, false, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketUndo());
-
-                return false;
-            }));
-        }
-*/
         this.updateButtons();
     }
 
@@ -403,17 +306,6 @@ public class ModeRadialMenu extends Screen {
         this.slotSelected = -1;
 
         int modeIndex = arrayOfModes.indexOf(mode);
-
-        /*if (tool.getItem() instanceof GadgetBuilding) {
-            modeIndex = GadgetBuilding.getToolMode(tool).ordinal();
-            signs = Arrays.stream(BuildingModes.values()).map(e -> new ResourceLocation(BuildingGadgets2.MODID, e.getIcon())).collect(Collectors.toList());
-        } else if (tool.getItem() instanceof GadgetExchanger) {
-            modeIndex = GadgetExchanger.getToolMode(tool).ordinal();
-            signs = Arrays.stream(ExchangingModes.values()).map(e -> new ResourceLocation(BuildingGadgets2.MODID, e.getIcon())).collect(Collectors.toList());
-        } else {
-            modeIndex = GadgetCopyPaste.getToolMode(tool).ordinal();
-            signs = signsCopyPaste;
-        }*/
 
         boolean shouldCenter = (this.segments + 2) % 4 == 0;
         int indexBottom = this.segments / 4;

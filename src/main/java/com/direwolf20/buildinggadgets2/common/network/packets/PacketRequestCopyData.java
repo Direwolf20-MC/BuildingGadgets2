@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -43,7 +44,7 @@ public class PacketRequestCopyData {
             if (!GadgetNBT.getUUID(gadget).equals(message.gadgetUUID)) //This should almost never happen but lets confirm?
                 return;
 
-            BG2Data bg2Data = BG2Data.get(sender.level().getServer().overworld()); //TODO NPE?
+            BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(sender.level().getServer()).overworld());
             CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(gadget), false);
             //Will bring this back if needed, but the block limit in place should make this obsolete
             /*FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());

@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class GadgetUtils {
@@ -95,7 +96,7 @@ public class GadgetUtils {
     }
 
     public static void addToUndoList(Level level, ItemStack gadget, ArrayList<StatePos> buildList) {
-        BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         UUID uuid = UUID.randomUUID();
         bg2Data.addToUndoList(uuid, buildList, level);
         GadgetNBT.addToUndoList(gadget, uuid, bg2Data);
@@ -148,7 +149,7 @@ public class GadgetUtils {
             BlockState blockState = level.getBlockState(blockPos);
             if (blockState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
                 return;
-            if (isValidDestroyBlockState(blockState, level, blockPos)) //Todo more validations?
+            if (isValidDestroyBlockState(blockState, level, blockPos))
                 returnList.add(new StatePos(blockState, blockPos));
         });
         return returnList;

@@ -52,7 +52,7 @@ public class EventKeyInput {
             PacketHandler.sendToServer(new PacketAnchor());
         } else if (KeyBindings.range.consumeClick()) {
             int oldRange = GadgetNBT.getToolRange(tool);
-            int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1; //Todo Config?
+            int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
             PacketHandler.sendToServer(new PacketRangeChange(newRange));
         }/*else if (KeyBindings.rotateMirror.consumeClick()) {
             PacketHandler.sendToServer(new PacketRotateMirror());

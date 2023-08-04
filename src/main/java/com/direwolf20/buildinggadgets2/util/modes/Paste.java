@@ -23,19 +23,7 @@ public class Paste extends BaseMode {
     @Override
     public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
-
-        //Todo
-        /*int startCoord = hitSide.getAxis().choose(start.getX(), start.getY(), start.getZ());
-        int playerCoord = hitSide.getAxis().choose(player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ());
-
-        // Clamp the value to the max range of the gadgets raytrace
-        double difference = Math.max(0, Math.min(32, Math.abs(startCoord - playerCoord)));
-        for (int i = 1; i < difference; i++) {
-            if (isPosValid(player.level(), start.relative(hitSide, i)))
-                coordinates.add(new StatePos(state, BlockPos.ZERO.relative(hitSide, i)));
-        }*/
-
-
+        //Intentional No-Op
         return coordinates;
     }
 }

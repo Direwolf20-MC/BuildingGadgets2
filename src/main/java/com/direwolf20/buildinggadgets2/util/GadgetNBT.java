@@ -256,7 +256,7 @@ public class GadgetNBT {
 
     public static int getToolRange(ItemStack stack) {
         CompoundTag tagCompound = stack.getOrCreateTag();
-        return Mth.clamp(tagCompound.getInt("range"), 1, 15); //TODO Config
+        return Mth.clamp(tagCompound.getInt("range"), 1, 15);
     }
 
     public static void setToolValue(ItemStack stack, int value, String valueName) {

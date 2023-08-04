@@ -24,8 +24,6 @@ public class GuiTextFieldBase extends EditBox {
     @Override
     public void setValue(String textIn) {
         super.setValue(textIn);
-
-        //TODO validate that this is the correct place
         postModification(textIn);
     }
 

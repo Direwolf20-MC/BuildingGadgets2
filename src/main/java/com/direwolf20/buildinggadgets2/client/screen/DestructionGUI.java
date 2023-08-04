@@ -144,7 +144,7 @@ public class DestructionGUI extends Screen {
         int x = left.getValueInt() + right.getValueInt();
         int y = up.getValueInt() + down.getValueInt();
         int z = depth.getValueInt();
-        int dim = 16; //Todo Config?
+        int dim = 16;
 
         return x <= dim && y <= dim && z <= dim;
     }

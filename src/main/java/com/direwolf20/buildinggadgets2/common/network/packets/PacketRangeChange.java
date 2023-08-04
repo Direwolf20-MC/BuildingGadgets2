@@ -10,9 +10,6 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-/**
- * TODO: remove me, this is a tmp
- */
 public class PacketRangeChange {
     int range;
 

@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 public class GadgetCopyPaste extends BaseGadget {
@@ -43,7 +44,7 @@ public class GadgetCopyPaste extends BaseGadget {
             buildAndStore(context, gadget);
         } else if (mode.getId().getPath().equals("paste")) {
             UUID uuid = GadgetNBT.getUUID(gadget);
-            BG2Data bg2Data = BG2Data.get(context.player().level().getServer().overworld()); //TODO NPE?
+            BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
             ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false);
 
             // This should go through some translation based process
@@ -90,9 +91,9 @@ public class GadgetCopyPaste extends BaseGadget {
         ArrayList<StatePos> buildList = new Copy().collect(context.hitResult().getDirection(), context.player(), context.pos(), Blocks.AIR.defaultBlockState());
         UUID uuid = GadgetNBT.getUUID(gadget);
         GadgetNBT.setCopyUUID(gadget); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
-        BG2Data bg2Data = BG2Data.get(context.player().level().getServer().overworld()); //TODO NPE?
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
         bg2Data.addToCopyPaste(uuid, buildList);
-        context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copyblocks", buildList.size()), true); //Todo temp
+        context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copyblocks", buildList.size()), true);
     }
 
     /**

@@ -33,7 +33,7 @@ public class BuildingUtils {
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
             Optional<ItemStack> matchStack = itemStacks.stream().filter(e -> ItemStack.isSameItem(e, slotStack) && slotStack.getCount() >= e.getCount()).findFirst();
-            if (matchStack.isPresent()) { //Todo validate proper comparison, support multiple stacks of same item
+            if (matchStack.isPresent()) { //Todo: Support multiple stacks of same item
                 ItemStack matchingStack = matchStack.get();
                 if (!simulate)
                     slotStack.shrink(matchingStack.getCount());
@@ -49,7 +49,7 @@ public class BuildingUtils {
         int counter = 0;
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
-            if (ItemStack.isSameItem(slotStack, itemStack)) //Todo validate proper comparison
+            if (ItemStack.isSameItem(slotStack, itemStack))
                 counter += slotStack.getCount();
         }
         return counter;

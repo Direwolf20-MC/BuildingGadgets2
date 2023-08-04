@@ -29,9 +29,6 @@ public class GadgetBuilding extends BaseGadget {
         return Config.BUILDINGGADGET_COST.get();
     }
 
-    /**
-     * TODO: it's very possible this method could be common on all gadgets
-     */
     @Override
     InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
         var gadget = context.stack();
@@ -42,9 +39,7 @@ public class GadgetBuilding extends BaseGadget {
         var mode = GadgetNBT.getMode(gadget);
         ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), getHitPos(context), setState);
 
-        // This should go through some translation based process
-        // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context), gadget, true);
+         ArrayList<StatePos> actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context), gadget, true);
         if (!actuallyBuiltList.isEmpty()) {
             GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
             GadgetNBT.clearAnchorPos(gadget);

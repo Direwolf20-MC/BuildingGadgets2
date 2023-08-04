@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class GadgetDestruction extends BaseGadget {
     public GadgetDestruction() {
@@ -96,7 +97,7 @@ public class GadgetDestruction extends BaseGadget {
      */
     @Override
     public void undo(Level level, Player player, ItemStack gadget) {
-        BG2Data bg2Data = BG2Data.get(level.getServer().overworld()); //TODO NPE?
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
 
