@@ -14,7 +14,6 @@ import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -90,15 +89,13 @@ public class GadgetExchanger extends BaseGadget {
         if (undoList.isEmpty()) return;
         byte drawSize = 40;
 
-        Inventory playerInventory = player.getInventory();
-
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!pos.state.canSurvive(level, pos.pos)) continue;
             boolean foundStacks = false;
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative()) {
-                foundStacks = BuildingUtils.removeStacksFromInventory(playerInventory, neededItems, true);
+                foundStacks = BuildingUtils.removeStacksFromInventory(player, neededItems, true);
                 if (!foundStacks) continue;
             }
             boolean placed = false;
@@ -121,7 +118,7 @@ public class GadgetExchanger extends BaseGadget {
                 continue;
             }
             if (!player.isCreative()) {
-                BuildingUtils.removeStacksFromInventory(playerInventory, neededItems, false);
+                BuildingUtils.removeStacksFromInventory(player, neededItems, false);
                 List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, oldState, gadget);
                 for (ItemStack returnedItem : returnedItems)
                     BuildingUtils.giveItemToPlayer(player, returnedItem);

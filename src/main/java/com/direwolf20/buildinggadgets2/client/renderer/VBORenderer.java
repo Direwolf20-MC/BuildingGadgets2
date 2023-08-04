@@ -299,7 +299,7 @@ public class VBORenderer {
         if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative()) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState);
-            int availableItems = BuildingUtils.countItemStacks(player.getInventory(), findStack);
+            int availableItems = BuildingUtils.countItemStacks(player, findStack);
             int energyStored = BuildingUtils.getEnergyStored(gadget);
             int energyCost = BuildingUtils.getEnergyCost(gadget);
             for (StatePos statePos : buildList) {

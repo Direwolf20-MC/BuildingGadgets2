@@ -18,7 +18,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,36 +31,155 @@ import java.util.Optional;
 
 public class BuildingUtils {
 
-    public static boolean removeStacksFromInventory(Inventory playerInventory, List<ItemStack> itemStacks, boolean simulate) {
-        if (itemStacks.isEmpty() || itemStacks.contains(Items.AIR.getDefaultInstance())) return false;
-        //Todo Bag support
-        ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
-        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
-            ItemStack slotStack = playerInventory.getItem(i);
-            Optional<ItemStack> matchStack = itemStacks.stream().filter(e -> ItemStack.isSameItem(e, slotStack) && slotStack.getCount() >= e.getCount()).findFirst();
-            if (matchStack.isPresent()) { //Todo: Support multiple stacks of same item
-                ItemStack matchingStack = matchStack.get();
-                if (!simulate)
-                    slotStack.shrink(matchingStack.getCount());
-                testArray.remove(matchingStack);
-                if (testArray.isEmpty()) return true;
+    public static void checkHandlerForItems(ItemStackHandler handler, List<ItemStack> testArray, boolean simulate) {
+        for (int j = 0; j < handler.getSlots(); j++) {
+            ItemStack itemInSlot = handler.getStackInSlot(j);
+            LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+            if (itemStackCapability.isPresent()) {
+                ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                checkHandlerForItems(slotHandler, testArray, simulate);
+                if (testArray.isEmpty()) break;
+            } else {
+                Optional<ItemStack> matchStack = testArray.stream().filter(e -> ItemStack.isSameItem(e, itemInSlot) && itemInSlot.getCount() >= e.getCount()).findFirst();
+                if (matchStack.isPresent()) { //Todo: Support multiple stacks of same item
+                    ItemStack matchingStack = matchStack.get();
+                    handler.extractItem(j, matchingStack.getCount(), simulate);
+                    testArray.remove(matchingStack);
+                }
             }
+            if (testArray.isEmpty()) break;
         }
+    }
+
+    public static void checkInventoryForItems(Inventory inventory, List<ItemStack> testArray, boolean simulate) {
+        for (int j = 0; j < inventory.getContainerSize(); j++) {
+            ItemStack itemInSlot = inventory.getItem(j);
+            LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+            if (itemStackCapability.isPresent()) {
+                ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                checkHandlerForItems(slotHandler, testArray, simulate);
+                if (testArray.isEmpty()) break;
+            } else {
+                Optional<ItemStack> matchStack = testArray.stream().filter(e -> ItemStack.isSameItem(e, itemInSlot) && itemInSlot.getCount() >= e.getCount()).findFirst();
+                if (matchStack.isPresent()) { //Todo: Support multiple stacks of same item
+                    ItemStack matchingStack = matchStack.get();
+                    if (!simulate)
+                        itemInSlot.shrink(matchingStack.getCount());
+                    testArray.remove(matchingStack);
+                }
+            }
+            if (testArray.isEmpty()) break;
+        }
+    }
+
+    public static boolean removeStacksFromInventory(Player player, List<ItemStack> itemStacks, boolean simulate) {
+        if (itemStacks.isEmpty() || itemStacks.contains(Items.AIR.getDefaultInstance())) return false;
+        ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
+        //Check curious slots first:
+        LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
+        if (curiosOpt.isPresent()) {
+            curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
+                for (int j = 0; j < stackHandler.getSlots(); j++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
+                    LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+                    if (itemStackCapability.isPresent()) {
+                        ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                        checkHandlerForItems(slotHandler, testArray, simulate);
+                        if (testArray.isEmpty()) break;
+                    }
+                }
+            });
+        }
+        if (testArray.isEmpty()) return true;
+
+        Inventory playerInventory = player.getInventory();
+        checkInventoryForItems(playerInventory, testArray, simulate);
+        if (testArray.isEmpty()) return true;
         return false;
     }
 
-    public static int countItemStacks(Inventory playerInventory, ItemStack itemStack) {
+    public static int countItemStacks(Player player, ItemStack itemStack) {
         if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return 0;
-        int counter = 0;
+        Inventory playerInventory = player.getInventory();
+        final int[] counter = {0};
+
+        //Check curious slots first:
+        LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
+        if (curiosOpt.isPresent()) {
+            curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
+                for (int i = 0; i < stackHandler.getSlots(); i++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
+                    LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+                    if (itemStackCapability.isPresent()) {
+                        ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                        for (int j = 0; j < slotHandler.getSlots(); j++) {
+                            ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
+                            if (ItemStack.isSameItem(itemInBagSlot, itemStack))
+                                counter[0] += itemInBagSlot.getCount();
+                        }
+                    }
+                }
+            });
+        }
+
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
-            if (ItemStack.isSameItem(slotStack, itemStack))
-                counter += slotStack.getCount();
+            LazyOptional<IItemHandler> itemStackCapability = slotStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+            if (itemStackCapability.isPresent()) {
+                ItemStackHandler handler = (ItemStackHandler) itemStackCapability.resolve().get();
+                for (int j = 0; j < handler.getSlots(); j++) {
+                    ItemStack itemInSlot = handler.getStackInSlot(j);
+                    if (ItemStack.isSameItem(itemInSlot, itemStack))
+                        counter[0] += itemInSlot.getCount();
+                }
+            } else {
+                if (ItemStack.isSameItem(slotStack, itemStack))
+                    counter[0] += slotStack.getCount();
+            }
         }
-        return counter;
+        return counter[0];
     }
 
     public static void giveItemToPlayer(Player player, ItemStack returnedItem) {
+        //Look for matching itemstacks inside curios inventories first - if found, insert there!
+        LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
+        if (curiosOpt.isPresent()) {
+            curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
+                for (int i = 0; i < stackHandler.getSlots(); i++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
+                    LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+                    if (itemStackCapability.isPresent()) {
+                        ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                        for (int j = 0; j < slotHandler.getSlots(); j++) {
+                            ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
+                            if (ItemStack.isSameItem(itemInBagSlot, returnedItem))
+                                slotHandler.insertItem(j, returnedItem.split(itemInBagSlot.getMaxStackSize() - itemInBagSlot.getCount()), false);
+                            if (returnedItem.isEmpty()) return;
+                        }
+                    }
+                }
+            });
+        }
+        if (returnedItem.isEmpty()) return;
+
+        //Now look for bags inside the players inventory
+        Inventory playerInventory = player.getInventory();
+        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
+            ItemStack slotStack = playerInventory.getItem(i);
+            LazyOptional<IItemHandler> itemStackCapability = slotStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+            if (itemStackCapability.isPresent()) {
+                ItemStackHandler handler = (ItemStackHandler) itemStackCapability.resolve().get();
+                for (int j = 0; j < handler.getSlots(); j++) {
+                    ItemStack itemInSlot = handler.getStackInSlot(j);
+                    if (ItemStack.isSameItem(itemInSlot, returnedItem))
+                        handler.insertItem(j, returnedItem.split(itemInSlot.getMaxStackSize() - itemInSlot.getCount()), false);
+                    if (returnedItem.isEmpty()) break;
+                }
+            }
+        }
+        if (returnedItem.isEmpty()) return;
+
+        //Finally just give it to the player already!
         if (!player.addItem(returnedItem)) {
             BlockPos dropPos = player.getOnPos();
             ItemEntity itementity = new ItemEntity(player.level(), dropPos.getX(), dropPos.getY(), dropPos.getZ(), returnedItem);
@@ -100,7 +224,6 @@ public class BuildingUtils {
 
     public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
-        Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos.offset(lookingAt);
@@ -109,7 +232,7 @@ public class BuildingUtils {
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative() && needItems) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
-                foundStacks = removeStacksFromInventory(playerInventory, neededItems, true);
+                foundStacks = removeStacksFromInventory(player, neededItems, true);
                 if (!foundStacks) continue;
             }
 
@@ -123,7 +246,7 @@ public class BuildingUtils {
                 }
                 if (!player.isCreative() && needItems) {
                     useEnergy(gadget);
-                    removeStacksFromInventory(playerInventory, neededItems, false);
+                    removeStacksFromInventory(player, neededItems, false);
                 }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
@@ -134,7 +257,6 @@ public class BuildingUtils {
 
     public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
-        Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
             //if (pos.state.isAir()) continue; //Since we store air now
@@ -145,7 +267,7 @@ public class BuildingUtils {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 if (!pos.state.isAir()) {
                     neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state));
-                    foundStacks = removeStacksFromInventory(playerInventory, neededItems, true);
+                    foundStacks = removeStacksFromInventory(player, neededItems, true);
                     if (!foundStacks) continue;
                 }
             }
@@ -160,7 +282,7 @@ public class BuildingUtils {
             if (!player.isCreative() && needItems) {
                 useEnergy(gadget);
                 if (!pos.state.isAir()) {
-                    removeStacksFromInventory(playerInventory, neededItems, false);
+                    removeStacksFromInventory(player, neededItems, false);
                 }
             }
             if (!player.isCreative() && returnItems && !oldState.isAir()) {

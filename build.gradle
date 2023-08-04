@@ -144,6 +144,10 @@ repositories {
         url 'https://maven.blamejared.com'
     }
 
+    maven { //Curios
+        url = "https://maven.theillusivec4.top/"
+    }
+
     maven { url = 'https://modmaven.dev/' } // mek
     maven { url = "https://www.cursemaven.com" } // curse mods
 }
@@ -173,8 +177,13 @@ dependencies {
     //runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
     runtimeOnly fg.deobf("curse.maven:charging-gadgets-399757:4617304")
     runtimeOnly fg.deobf("curse.maven:create-328085:4626108")
-    runtimeOnly fg.deobf("curse.maven:applied-energistics-2-223794:4647844")
-    //runtimeOnly fg.deobf("curse.maven:flywheel-486392:4341471")
+    //runtimeOnly fg.deobf("curse.maven:applied-energistics-2-223794:4647844")
+    runtimeOnly fg.deobf("curse.maven:sophisticated-core-618298:4668695")
+    runtimeOnly fg.deobf("curse.maven:sophisticated-backpacks-422301:4637294")
+
+    //Curios
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
