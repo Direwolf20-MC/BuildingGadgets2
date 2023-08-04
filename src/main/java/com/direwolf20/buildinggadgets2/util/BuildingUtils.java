@@ -132,7 +132,7 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
+    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         Inventory playerInventory = player.getInventory();
         for (StatePos pos : blockPosList) {
@@ -161,10 +161,12 @@ public class BuildingUtils {
                 useEnergy(gadget);
                 if (!pos.state.isAir()) {
                     removeStacksFromInventory(playerInventory, neededItems, false);
-                    List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, gadget);
-                    for (ItemStack returnedItem : returnedItems)
-                        giveItemToPlayer(player, returnedItem);
                 }
+            }
+            if (!player.isCreative() && returnItems && !oldState.isAir()) {
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, gadget);
+                for (ItemStack returnedItem : returnedItems)
+                    giveItemToPlayer(player, returnedItem);
             }
             actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
             be.setRenderData(oldState, pos.state);
@@ -180,7 +182,7 @@ public class BuildingUtils {
         if (!replace)
             actuallyBuiltList = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, false);
         else
-            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false);
+            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, true);
 
         for (TagPos tagPos : teData) {
             BlockPos blockPos = tagPos.pos.offset(lookingAt);

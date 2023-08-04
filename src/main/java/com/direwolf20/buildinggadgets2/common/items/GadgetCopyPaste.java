@@ -54,7 +54,7 @@ public class GadgetCopyPaste extends BaseGadget {
             if (!replace)
                 actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
             else
-                actuallyBuiltList = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
+                actuallyBuiltList = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, true);
             if (!actuallyBuiltList.isEmpty()) {
                 GadgetNBT.clearAnchorPos(gadget);
                 GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
