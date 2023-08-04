@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +22,7 @@ public class BG2BlockTags extends BlockTagsProvider {
     }
 
     public static final TagKey<Block> BG2DENY = BlockTags.create(new ResourceLocation(BuildingGadgets2.MODID, "deny"));
+    public static final TagKey<Block> NO_MOVE = BlockTags.create(new ResourceLocation("forge", "relocation_not_supported"));
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
@@ -35,6 +37,8 @@ public class BG2BlockTags extends BlockTagsProvider {
         /*tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(Registration.LaserNode.get())
                 .add(Registration.LaserConnector.get());*/
+        tag(NO_MOVE)
+                .add(Registration.RenderBlock.get());
     }
 
     @Override
