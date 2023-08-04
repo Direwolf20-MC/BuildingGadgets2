@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.util.modes;
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
+import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -22,7 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Cut extends BaseMode {
@@ -63,12 +63,17 @@ public class Cut extends BaseMode {
         }
 
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
+            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos)))
                 coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));
             else
                 coordinates.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(copyStart))); //We need to have a block in EVERY position, so write air if invalid
         });
         return coordinates;
+    }
+
+    public boolean customCutValidation(BlockState blockState) {
+        if (blockState.is(BG2BlockTags.NO_MOVE)) return false;
+        return true;
     }
 
     public ArrayList<TagPos> collectTileData(Player player) {
@@ -104,6 +109,11 @@ public class Cut extends BaseMode {
         if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return;
 
         AABB area = new AABB(cutStart, cutEnd);
-        BuildingUtils.remove(level, player, BlockPos.betweenClosedStream(area).map(BlockPos::immutable).collect(Collectors.toList()), false, false, heldItem);
+        ArrayList<BlockPos> removeList = new ArrayList<>();
+        BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
+            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos)))
+                removeList.add(pos);
+        });
+        BuildingUtils.remove(level, player, removeList, false, false, heldItem);
     }
 }
