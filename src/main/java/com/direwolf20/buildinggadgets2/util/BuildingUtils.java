@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.util;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
@@ -76,19 +77,21 @@ public class BuildingUtils {
         if (itemStacks.isEmpty() || itemStacks.contains(Items.AIR.getDefaultInstance())) return false;
         ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
         //Check curious slots first:
-        LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-        if (curiosOpt.isPresent()) {
-            curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                for (int j = 0; j < stackHandler.getSlots(); j++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
-                    LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                    if (itemStackCapability.isPresent()) {
-                        ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
-                        checkHandlerForItems(slotHandler, testArray, simulate);
-                        if (testArray.isEmpty()) break;
+        if (CuriosIntegration.isLoaded()) {
+            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
+            if (curiosOpt.isPresent()) {
+                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
+                    for (int j = 0; j < stackHandler.getSlots(); j++) {
+                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
+                        LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+                        if (itemStackCapability.isPresent()) {
+                            ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                            checkHandlerForItems(slotHandler, testArray, simulate);
+                            if (testArray.isEmpty()) break;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
         if (testArray.isEmpty()) return true;
 
@@ -104,22 +107,24 @@ public class BuildingUtils {
         final int[] counter = {0};
 
         //Check curious slots first:
-        LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-        if (curiosOpt.isPresent()) {
-            curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                for (int i = 0; i < stackHandler.getSlots(); i++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                    LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                    if (itemStackCapability.isPresent()) {
-                        ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
-                        for (int j = 0; j < slotHandler.getSlots(); j++) {
-                            ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
-                            if (ItemStack.isSameItem(itemInBagSlot, itemStack))
-                                counter[0] += itemInBagSlot.getCount();
+        if (CuriosIntegration.isLoaded()) {
+            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
+            if (curiosOpt.isPresent()) {
+                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
+                    for (int i = 0; i < stackHandler.getSlots(); i++) {
+                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
+                        LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+                        if (itemStackCapability.isPresent()) {
+                            ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                            for (int j = 0; j < slotHandler.getSlots(); j++) {
+                                ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
+                                if (ItemStack.isSameItem(itemInBagSlot, itemStack))
+                                    counter[0] += itemInBagSlot.getCount();
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
@@ -142,26 +147,27 @@ public class BuildingUtils {
 
     public static void giveItemToPlayer(Player player, ItemStack returnedItem) {
         //Look for matching itemstacks inside curios inventories first - if found, insert there!
-        LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-        if (curiosOpt.isPresent()) {
-            curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                for (int i = 0; i < stackHandler.getSlots(); i++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                    LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                    if (itemStackCapability.isPresent()) {
-                        ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
-                        for (int j = 0; j < slotHandler.getSlots(); j++) {
-                            ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
-                            if (ItemStack.isSameItem(itemInBagSlot, returnedItem))
-                                slotHandler.insertItem(j, returnedItem.split(itemInBagSlot.getMaxStackSize() - itemInBagSlot.getCount()), false);
-                            if (returnedItem.isEmpty()) return;
+        if (CuriosIntegration.isLoaded()) {
+            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
+            if (curiosOpt.isPresent()) {
+                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
+                    for (int i = 0; i < stackHandler.getSlots(); i++) {
+                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
+                        LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
+                        if (itemStackCapability.isPresent()) {
+                            ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                            for (int j = 0; j < slotHandler.getSlots(); j++) {
+                                ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
+                                if (ItemStack.isSameItem(itemInBagSlot, returnedItem))
+                                    slotHandler.insertItem(j, returnedItem.split(itemInBagSlot.getMaxStackSize() - itemInBagSlot.getCount()), false);
+                                if (returnedItem.isEmpty()) return;
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+            if (returnedItem.isEmpty()) return;
         }
-        if (returnedItem.isEmpty()) return;
-
         //Now look for bags inside the players inventory
         Inventory playerInventory = player.getInventory();
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
