@@ -1,6 +1,8 @@
 package com.direwolf20.buildinggadgets2.common.network.packets;
 
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
+import com.direwolf20.buildinggadgets2.common.items.GadgetExchanger;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -33,7 +35,7 @@ public class PacketRangeChange {
             }
 
             ItemStack gadget = BaseGadget.getGadget(sender);
-            if (gadget.isEmpty() || !(gadget.getItem() instanceof BaseGadget actualGadget)) {
+            if (gadget.isEmpty() || !((gadget.getItem() instanceof GadgetBuilding) || (gadget.getItem() instanceof GadgetExchanger))) {
                 return;
             }
 
