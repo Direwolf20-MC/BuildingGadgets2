@@ -22,7 +22,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
@@ -32,12 +31,12 @@ import java.util.Optional;
 
 public class BuildingUtils {
 
-    public static void checkHandlerForItems(ItemStackHandler handler, List<ItemStack> testArray, boolean simulate) {
+    public static void checkHandlerForItems(IItemHandler handler, List<ItemStack> testArray, boolean simulate) {
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack itemInSlot = handler.getStackInSlot(j);
             LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
             if (itemStackCapability.isPresent()) {
-                ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                 checkHandlerForItems(slotHandler, testArray, simulate);
                 if (testArray.isEmpty()) break;
             } else {
@@ -57,7 +56,7 @@ public class BuildingUtils {
             ItemStack itemInSlot = inventory.getItem(j);
             LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
             if (itemStackCapability.isPresent()) {
-                ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                 checkHandlerForItems(slotHandler, testArray, simulate);
                 if (testArray.isEmpty()) break;
             } else {
@@ -85,7 +84,7 @@ public class BuildingUtils {
                         ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
                         LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
                         if (itemStackCapability.isPresent()) {
-                            ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                             checkHandlerForItems(slotHandler, testArray, simulate);
                             if (testArray.isEmpty()) break;
                         }
@@ -115,7 +114,7 @@ public class BuildingUtils {
                         ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
                         LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
                         if (itemStackCapability.isPresent()) {
-                            ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                             for (int j = 0; j < slotHandler.getSlots(); j++) {
                                 ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
                                 if (ItemStack.isSameItem(itemInBagSlot, itemStack))
@@ -131,7 +130,7 @@ public class BuildingUtils {
             ItemStack slotStack = playerInventory.getItem(i);
             LazyOptional<IItemHandler> itemStackCapability = slotStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
             if (itemStackCapability.isPresent()) {
-                ItemStackHandler handler = (ItemStackHandler) itemStackCapability.resolve().get();
+                IItemHandler handler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                 for (int j = 0; j < handler.getSlots(); j++) {
                     ItemStack itemInSlot = handler.getStackInSlot(j);
                     if (ItemStack.isSameItem(itemInSlot, itemStack))
@@ -155,7 +154,7 @@ public class BuildingUtils {
                         ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
                         LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
                         if (itemStackCapability.isPresent()) {
-                            ItemStackHandler slotHandler = (ItemStackHandler) itemStackCapability.resolve().get();
+                            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                             for (int j = 0; j < slotHandler.getSlots(); j++) {
                                 ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
                                 if (ItemStack.isSameItem(itemInBagSlot, returnedItem))
@@ -174,7 +173,7 @@ public class BuildingUtils {
             ItemStack slotStack = playerInventory.getItem(i);
             LazyOptional<IItemHandler> itemStackCapability = slotStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
             if (itemStackCapability.isPresent()) {
-                ItemStackHandler handler = (ItemStackHandler) itemStackCapability.resolve().get();
+                IItemHandler handler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                 for (int j = 0; j < handler.getSlots(); j++) {
                     ItemStack itemInSlot = handler.getStackInSlot(j);
                     if (ItemStack.isSameItem(itemInSlot, returnedItem))
