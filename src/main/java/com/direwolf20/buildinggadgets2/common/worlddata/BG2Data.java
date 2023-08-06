@@ -63,7 +63,13 @@ public class BG2Data extends SavedData {
         return statePosListToNBTMapArray(getCopyPasteList(uuid, remove));
     }
 
-    public ArrayList<StatePos> getUndoList(UUID uuid) {
+    public ArrayList<StatePos> peekUndoList(UUID uuid) {
+        ArrayList<StatePos> posList = undoList.get(uuid);
+        this.setDirty();
+        return posList;
+    }
+
+    public ArrayList<StatePos> popUndoList(UUID uuid) {
         ArrayList<StatePos> posList = undoList.remove(uuid);
         this.setDirty();
         return posList;

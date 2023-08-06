@@ -84,8 +84,9 @@ public class GadgetExchanger extends BaseGadget {
      */
     @Override
     public void undo(Level level, Player player, ItemStack gadget) {
+        if (!canUndo(level, player, gadget)) return;
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
+        ArrayList<StatePos> undoList = bg2Data.popUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
         byte drawSize = 40;
 

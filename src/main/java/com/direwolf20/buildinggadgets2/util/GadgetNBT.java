@@ -218,6 +218,12 @@ public class GadgetNBT {
         setUndoList(gadget, undoList);
     }
 
+    public static UUID peekUndoList(ItemStack gadget) {
+        LinkedList<UUID> undoList = getUndoList(gadget);
+        if (undoList.isEmpty()) return null;
+        return undoList.getLast();
+    }
+
     public static UUID popUndoList(ItemStack gadget) {
         LinkedList<UUID> undoList = getUndoList(gadget);
         if (undoList.isEmpty()) return null;

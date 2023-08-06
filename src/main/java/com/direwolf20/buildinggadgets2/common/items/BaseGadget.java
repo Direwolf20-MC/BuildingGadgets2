@@ -188,9 +188,22 @@ public abstract class BaseGadget extends Item {
         return anchorPos.equals(GadgetNBT.nullPos) ? context.pos() : anchorPos;
     }
 
-    public void undo(Level level, Player player, ItemStack gadget) {
+    public boolean canUndo(Level level, Player player, ItemStack gadget) {
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        ArrayList<StatePos> undoList = bg2Data.getUndoList(GadgetNBT.popUndoList(gadget));
+        ArrayList<StatePos> undoList = bg2Data.peekUndoList(GadgetNBT.peekUndoList(gadget));
+        for (StatePos statePos : undoList) {
+            if (!level.isLoaded(statePos.pos)) {
+                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.undofailedunloaded", statePos.pos.toShortString()), true);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void undo(Level level, Player player, ItemStack gadget) {
+        if (!canUndo(level, player, gadget)) return;
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
+        ArrayList<StatePos> undoList = bg2Data.popUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
 
         ArrayList<BlockPos> todoList = new ArrayList<>();
