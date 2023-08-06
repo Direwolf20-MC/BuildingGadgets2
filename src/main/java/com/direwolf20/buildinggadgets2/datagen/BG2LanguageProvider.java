@@ -26,7 +26,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(Registration.CutPaste_Gadget.get(), "Cut Paste Gadget");
         add(Registration.Destruction_Gadget.get(), "Destruction Gadget");
 
-        //Musc
+        //Misc
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
         add("key.buildinggadgets2.category", "Building Gadgets 2");
         add("key.buildinggadgets2.anchor", "Anchor");
@@ -38,9 +38,13 @@ public class BG2LanguageProvider extends LanguageProvider {
         //Tooltips
         add("buildinggadgets2.tooltips.holdshift", "Hold Shift for details");
         add("buildinggadgets2.tooltips.energy", "Energy: %d/%d");
+        add("buildinggadgets2.tooltips.mode", "Mode: %s");
+        add("buildinggadgets2.tooltips.range", "Range: %d");
+        add("buildinggadgets2.tooltips.blockstate", "Block: %s");
 
         //Modes
         add("buildinggadgets2.modes.vertical_wall", "Vertical Wall");
+        add("buildinggadgets2.modes.grid", "Grid");
         add("buildinggadgets2.modes.horizontal_wall", "Horizontal Wall");
         add("buildinggadgets2.modes.stairs", "Stairs");
         add("buildinggadgets2.modes.build_to_me", "Build to Me");
