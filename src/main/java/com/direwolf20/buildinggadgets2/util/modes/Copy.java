@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -50,7 +51,7 @@ public class Copy extends BaseMode {
             return coordinates;
         }
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
+            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && !(level.getBlockState(pos).getBlock() instanceof RenderBlock))
                 coordinates.add(new StatePos(GadgetUtils.cleanBlockState(level.getBlockState(pos)), pos.subtract(copyStart)));
             else
                 coordinates.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(copyStart))); //We need to have a block in EVERY position, so write air if invalid

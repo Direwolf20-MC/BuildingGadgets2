@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -53,7 +54,7 @@ public class GadgetBuilding extends BaseGadget {
     @Override
     InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
         BlockState blockState = context.level().getBlockState(context.pos());
-        if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos())) {
+        if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos()) || blockState.getBlock() instanceof RenderBlock) {
             context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.invalidblock"), true);
             return super.onShiftAction(context);
         }

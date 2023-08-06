@@ -69,7 +69,7 @@ public class GadgetExchanger extends BaseGadget {
     @Override
     InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
         BlockState blockState = context.level().getBlockState(context.pos());
-        if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos())) {
+        if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos()) || blockState.getBlock() instanceof RenderBlock) {
             context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.invalidblock"), true);
             return super.onShiftAction(context);
         }
