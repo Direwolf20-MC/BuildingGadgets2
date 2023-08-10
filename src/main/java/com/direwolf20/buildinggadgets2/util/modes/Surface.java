@@ -36,7 +36,7 @@ public class Surface extends BaseMode {
 
         ArrayList<StatePos> coordinates = new ArrayList<>();
         BlockState lookingAtState = level.getBlockState(start);
-        BlockPos startAt = isExchanging ? start : start.above();
+        BlockPos startAt = isExchanging ? start : start.relative(hitSide);
         AABB box = GadgetUtils.getSquareArea(startAt, hitSide, bound);
 
         boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.CONNECTED_AREA.value);
@@ -49,7 +49,7 @@ public class Surface extends BaseMode {
                 BlockPos currentPos = blocksToVisit.poll(); //Get the current block to check
                 BlockState currentBlock = level.getBlockState(currentPos);
 
-                if (!visitedBlocks.contains(currentPos) && !currentBlock.isAir() && GadgetUtils.direContains(box, currentPos)) { //If we haven't added it already and its not air and its inside our bounding box add to the list to use
+                if (!visitedBlocks.contains(currentPos) && isPosValidCustom(level, currentPos, lookingAtState, gadget, hitSide) && GadgetUtils.direContains(box, currentPos)) { //If we haven't added it already and its not air and its inside our bounding box add to the list to use
                     visitedBlocks.add(currentPos);
 
                     for (Direction direction : Direction.stream().filter(e -> !e.getAxis().equals(hitSide.getAxis())).toList()) { //Grab all the blocks around this one based on hitSide and add to the list to check out
@@ -61,12 +61,12 @@ public class Surface extends BaseMode {
                 }
             }
             for (BlockPos pos : visitedBlocks) { //Of all the blocks we checked above, filter now based on validity
-                if (isPosValid(level, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget))
+                if (isPosValid(level, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
                     coordinates.add(new StatePos(state, pos.subtract(start)));
             }
         } else {
             BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
-                if (isPosValid(level, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget))
+                if (isPosValid(level, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
                     coordinates.add(new StatePos(state, pos.subtract(start)));
             });
         }
@@ -74,7 +74,7 @@ public class Surface extends BaseMode {
         return coordinates;
     }
 
-    public boolean isPosValidCustom(Level level, BlockPos pos, BlockState compareState, ItemStack gadget) {
+    public boolean isPosValidCustom(Level level, BlockPos pos, BlockState compareState, ItemStack gadget, Direction hitSide) {
         boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.FUZZY.value);
         if (isExchanging) {
             BlockState oldState = level.getBlockState(pos);
@@ -88,7 +88,7 @@ public class Surface extends BaseMode {
                 if (!oldState.equals(compareState)) return false;
             }
         } else {
-            BlockState belowState = level.getBlockState(pos.below());
+            BlockState belowState = level.getBlockState(pos.relative(hitSide.getOpposite()));
             if (fuzzy) {
                 if (belowState.isAir()) return false;
             } else {
