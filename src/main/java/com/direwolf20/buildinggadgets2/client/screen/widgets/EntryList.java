@@ -13,20 +13,12 @@ import net.minecraft.util.Mth;
 public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
 
     public static final int SCROLL_BAR_WIDTH = 6;
-    public static int scissor_left;
-    public static int scissor_top;
-    public static int scissor_right;
-    public static int scissor_bottom;
 
     public EntryList(int left, int top, int width, int height, int slotHeight) {
         super(Minecraft.getInstance(), width, height, top, top + height, slotHeight);
         // Set left x and right x, somehow MCP gave it a weird name
         this.setLeftPos(left);
         double guiScaleFactor = Minecraft.getInstance().getWindow().getGuiScale();
-        scissor_left = (int) (getLeft() * guiScaleFactor);
-        scissor_top = (int) (Minecraft.getInstance().getWindow().getHeight() - (getBottom() * guiScaleFactor));
-        scissor_right = (int) (width * guiScaleFactor);
-        scissor_bottom = (int) (height * guiScaleFactor);
     }
 
     @Override
