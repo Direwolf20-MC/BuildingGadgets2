@@ -65,6 +65,8 @@ public abstract class BaseMode implements Comparable<BaseMode> {
             return false;
         if (!blockState.canSurvive(level, blockPos)) return false;
         if (isExchanging) {
+            if (level.getBlockState(blockPos).isAir())
+                return false;
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos))
                 return false;
             return true;
