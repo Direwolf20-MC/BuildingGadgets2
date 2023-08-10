@@ -77,6 +77,12 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.screen.up", "Up");
         add("buildinggadgets2.screen.left", "Left");
         add("buildinggadgets2.screen.right", "Right");
+        add("buildinggadgets2.screen.sortaz", "Sort A-Z");
+        add("buildinggadgets2.screen.sortza", "Sort Z-A");
+        add("buildinggadgets2.screen.requiredasc", "Required Ascending");
+        add("buildinggadgets2.screen.requireddesc", "Required Descending");
+        add("buildinggadgets2.screen.missingasc", "Missing Ascending");
+        add("buildinggadgets2.screen.missingdesc", "Missing Descending");
 
 
         //Radial Menu
@@ -88,6 +94,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.radialmenu.anchor", "Anchor");
         add("buildinggadgets2.radialmenu.copypastemenu", "Settings Menu");
         add("buildinggadgets2.radialmenu.raytracefluids", "Raytrace Fluids");
+        add("buildinggadgets2.radialmenu.materiallist", "Materials List");
 
         //Messages to Player
         add("buildinggadgets2.messages.invalidblock", "Invalid Block");

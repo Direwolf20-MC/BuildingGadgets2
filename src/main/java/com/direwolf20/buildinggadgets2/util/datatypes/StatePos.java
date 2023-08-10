@@ -1,5 +1,8 @@
 package com.direwolf20.buildinggadgets2.util.datatypes;
 
+import com.direwolf20.buildinggadgets2.util.GadgetUtils;
+import com.direwolf20.buildinggadgets2.util.ItemStackKey;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -8,6 +11,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class StatePos {
     public BlockState state;
@@ -57,6 +61,18 @@ public class StatePos {
                 blockStateMap.add(statePos.state);
         }
         return blockStateMap;
+    }
+
+    public static Map<ItemStackKey, Integer> getItemList(ArrayList<StatePos> list) {
+        Map<ItemStackKey, Integer> itemList = new Object2IntOpenHashMap<>();
+        for (StatePos statePos : list) {
+            ItemStackKey itemStackKey = new ItemStackKey(GadgetUtils.getItemForBlock(statePos.state), true);
+            if (!itemList.containsKey(itemStackKey)) //Todo Slabs, etc
+                itemList.put(itemStackKey, 1);
+            else
+                itemList.put(itemStackKey, itemList.get(itemStackKey) + 1);
+        }
+        return itemList;
     }
 
     public static ListTag getBlockStateNBT(ArrayList<BlockState> blockStateMap) {

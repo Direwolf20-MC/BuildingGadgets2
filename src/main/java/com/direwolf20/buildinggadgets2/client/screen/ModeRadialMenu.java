@@ -154,6 +154,22 @@ public class ModeRadialMenu extends Screen {
             }));
         }
 
+        //Copy Paste Gadget Only
+        if (tool.getItem() instanceof GadgetCopyPaste) {
+            Button materialList = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.materiallist"), "copypaste_materiallist", ScreenPosition.RIGHT, false, send -> {
+                if (send) {
+                    var mode = GadgetNBT.getMode(tool);
+                    if (GadgetNBT.hasCopyUUID(tool) && mode.getId().getPath().equals("paste")) {
+                        getMinecraft().setScreen(new MaterialListGUI(tool));
+                    }
+                }
+
+                return false;
+            });
+            addRenderableWidget(materialList);
+            conditionalButtons.add(materialList);
+        }
+
         //Cut Paste or Copy Paste Gadget Only
         if (tool.getItem() instanceof GadgetCutPaste || tool.getItem() instanceof GadgetCopyPaste) {
             Button pastereplace = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.paste_replace"), "paste_replace", ScreenPosition.RIGHT, true, send -> {
@@ -432,14 +448,14 @@ public class ModeRadialMenu extends Screen {
         boolean showButton = true;
         boolean changed = false;
         for (Button button : this.conditionalButtons) {
-            if (tool.getItem() instanceof GadgetBuilding) {
-                showButton = mode.getId().getPath().equals("surface");
-            } else if (tool.getItem() instanceof GadgetExchanger) {
-                showButton = true;
-            } else {
-                showButton = false;
+            if (button.getMessage().equals(Component.translatable("buildinggadgets2.radialmenu.fuzzy")) || button.getMessage().equals(Component.translatable("buildinggadgets2.radialmenu.connected_area"))) {
+                if (tool.getItem() instanceof GadgetBuilding)
+                    showButton = mode.getId().getPath().equals("surface");
+                else
+                    showButton = tool.getItem() instanceof GadgetExchanger;
+            } else if (button.getMessage().equals(Component.translatable("buildinggadgets2.radialmenu.materiallist"))) {
+                showButton = mode.getId().getPath().equals("paste");
             }
-
             if (button.visible != showButton) {
                 button.visible = showButton;
                 changed = true;
