@@ -158,7 +158,7 @@ public class BuildingUtils {
                             for (int j = 0; j < slotHandler.getSlots(); j++) {
                                 ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
                                 if (ItemStack.isSameItem(itemInBagSlot, returnedItem))
-                                    slotHandler.insertItem(j, returnedItem.split(itemInBagSlot.getMaxStackSize() - itemInBagSlot.getCount()), false);
+                                    slotHandler.insertItem(j, returnedItem.split(slotHandler.getSlotLimit(i) - itemInBagSlot.getCount()), false);
                                 if (returnedItem.isEmpty()) return;
                             }
                         }
@@ -177,7 +177,7 @@ public class BuildingUtils {
                 for (int j = 0; j < handler.getSlots(); j++) {
                     ItemStack itemInSlot = handler.getStackInSlot(j);
                     if (ItemStack.isSameItem(itemInSlot, returnedItem))
-                        handler.insertItem(j, returnedItem.split(itemInSlot.getMaxStackSize() - itemInSlot.getCount()), false);
+                        handler.insertItem(j, returnedItem.split(handler.getSlotLimit(i) - itemInSlot.getCount()), false);
                     if (returnedItem.isEmpty()) break;
                 }
             }
