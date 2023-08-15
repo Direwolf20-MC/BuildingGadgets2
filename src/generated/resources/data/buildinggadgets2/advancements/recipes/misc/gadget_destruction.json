@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_diamond": {
+    "has_ender_pearl": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:diamond"
+              "minecraft:ender_pearl"
             ]
           }
         ]
@@ -22,7 +22,7 @@
   },
   "requirements": [
     [
-      "has_diamond",
+      "has_ender_pearl",
       "has_the_recipe"
     ]
   ],

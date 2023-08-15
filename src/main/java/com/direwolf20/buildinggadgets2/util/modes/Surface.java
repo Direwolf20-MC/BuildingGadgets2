@@ -61,12 +61,12 @@ public class Surface extends BaseMode {
                 }
             }
             for (BlockPos pos : visitedBlocks) { //Of all the blocks we checked above, filter now based on validity
-                if (isPosValid(level, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
+                if (isPosValid(level, player, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
                     coordinates.add(new StatePos(state, pos.subtract(start)));
             }
         } else {
             BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
-                if (isPosValid(level, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
+                if (isPosValid(level, player, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
                     coordinates.add(new StatePos(state, pos.subtract(start)));
             });
         }

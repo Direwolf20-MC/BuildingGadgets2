@@ -119,7 +119,7 @@ public class VBORenderer {
                         updateTimer++;
                         return;
                     }
-                    PacketHandler.sendToServer(new PacketRequestCopyData(GadgetNBT.getUUID(gadget)));
+                    PacketHandler.sendToServer(new PacketRequestCopyData(gadgetUUID, copyUUID));
                     awaitingUpdate = true;
                     updateTimer = 0;
                     return;

@@ -1,0 +1,23 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "buildinggadgets2:block/template_manager"
+  },
+  "variants": {
+    "facing=north": {
+      "model": "buildinggadgets2:block/template_manager"
+    },
+    "facing=south": {
+      "y": 180,
+      "model": "buildinggadgets2:block/template_manager"
+    },
+    "facing=west": {
+      "y": 270,
+      "model": "buildinggadgets2:block/template_manager"
+    },
+    "facing=east": {
+      "y": 90,
+      "model": "buildinggadgets2:block/template_manager"
+    }
+  }
+}

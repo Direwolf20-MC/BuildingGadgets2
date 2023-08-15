@@ -14,6 +14,7 @@ public class BG2LootTables extends VanillaBlockLoot {
     @Override
     protected void generate() {
         add(Registration.RenderBlock.get(), noDrop());
+        dropSelf(Registration.TemplateManager.get());
     }
 
     @Override

@@ -78,7 +78,7 @@ public class GadgetCutPaste extends BaseGadget {
 
             // This should go through some translation based process
             // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-            ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), context.player(), buildList, getHitPos(context).above(), tagList, gadget);
+            ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), tagList, gadget);
             if (!actuallyBuiltList.isEmpty())
                 GadgetNBT.clearAnchorPos(gadget);
             GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
@@ -112,7 +112,7 @@ public class GadgetCutPaste extends BaseGadget {
     }
 
     public void cutAndStore(Player player, ItemStack gadget) {
-        //TODO Avoid iterating the blocks 3x
+        //TODO Avoid iterating the blocks 3x and solve dupe bug at spawn protection!
         ArrayList<StatePos> buildList = new Cut().collect(Direction.UP, player, BlockPos.ZERO, Blocks.AIR.defaultBlockState());
         ArrayList<TagPos> teData = new Cut().collectTileData(player);
         if (buildList.isEmpty()) return;

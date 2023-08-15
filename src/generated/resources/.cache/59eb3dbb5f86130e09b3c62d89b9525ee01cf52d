@@ -1,2 +1,3 @@
-// 1.20.1	2023-07-28T14:55:57.8184459	Loot Tables
+// 1.20.1	2023-08-11T13:35:32.0771752	Loot Tables
 3c6bd3521c3512e88387114cbc80a37097808d2b data/buildinggadgets2/loot_tables/blocks/render_block.json
+59a8017d43025bc63bc45e56fbe4ea3b7a39eaf2 data/buildinggadgets2/loot_tables/blocks/template_manager.json

@@ -5,6 +5,8 @@ import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.blockentityrenders.RenderBlockBER;
 import com.direwolf20.buildinggadgets2.client.events.EventKeyInput;
 import com.direwolf20.buildinggadgets2.client.events.RenderLevelLast;
+import com.direwolf20.buildinggadgets2.client.screen.TemplateManagerGUI;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
@@ -30,9 +32,9 @@ public class ClientSetup {
         //MinecraftForge.EVENT_BUS.register(EventTooltip.class);
 
         //Screens
-        /*event.enqueueWork(() -> {
-            MenuScreens.register(Registration.LaserNode_Container.get(), LaserNodeScreen::new);           // Attach our container to the screen
-        });*/
+        event.enqueueWork(() -> {
+            MenuScreens.register(Registration.TemplateManager_Container.get(), TemplateManagerGUI::new); // Attach our container to the screen
+        });
 
         //Item Properties -- For giving the Cards an Insert/Extract on the itemstack
         /*event.enqueueWork(() -> {

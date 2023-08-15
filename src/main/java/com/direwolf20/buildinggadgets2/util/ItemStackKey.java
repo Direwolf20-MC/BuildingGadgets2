@@ -9,7 +9,7 @@ import java.util.Objects;
 public class ItemStackKey {
     public final Item item;
     public final CompoundTag nbt;
-    private final int hash;
+    public final int hash;
 
 
     public ItemStackKey(ItemStack stack, boolean compareNBT) {

@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class StatePos {
     public BlockState state;
@@ -65,6 +66,8 @@ public class StatePos {
 
     public static Map<ItemStackKey, Integer> getItemList(ArrayList<StatePos> list) {
         Map<ItemStackKey, Integer> itemList = new Object2IntOpenHashMap<>();
+        if (list == null || list.isEmpty())
+            return itemList;
         for (StatePos statePos : list) {
             ItemStackKey itemStackKey = new ItemStackKey(GadgetUtils.getItemForBlock(statePos.state), true);
             if (!itemList.containsKey(itemStackKey)) //Todo Slabs, etc
@@ -98,5 +101,10 @@ public class StatePos {
             return ((StatePos) obj).state.equals(this.state) && ((StatePos) obj).pos.equals(this.pos);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(state, pos);
     }
 }

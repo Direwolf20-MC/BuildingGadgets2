@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_diamond": {
+    "has_shear": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:diamond"
+              "minecraft:shears"
             ]
           }
         ]
@@ -22,7 +22,7 @@
   },
   "requirements": [
     [
-      "has_diamond",
+      "has_shear",
       "has_the_recipe"
     ]
   ],

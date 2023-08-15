@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.util;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -232,7 +233,9 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos.offset(lookingAt);
-            if (needItems && !pos.state.canSurvive(level, blockPos)) continue;
+            if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
+            if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
+                continue; //Don't do this validation for copy/paste
             boolean foundStacks = false;
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
             if (!player.isCreative() && needItems) {
@@ -264,8 +267,10 @@ public class BuildingUtils {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
+            if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             //if (pos.state.isAir()) continue; //Since we store air now
-            if (needItems && !pos.state.canSurvive(level, blockPos)) continue;
+            if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
+                continue;  //Don't do this validation for copy/paste
             boolean foundStacks = false;
             List<ItemStack> neededItems = new ArrayList<>();
             if (!player.isCreative() && needItems) {
@@ -326,6 +331,7 @@ public class BuildingUtils {
         ArrayList<StatePos> affectedBlocks = new ArrayList<>();
         byte drawSize = 40;
         for (BlockPos pos : blockPosList) {
+            if (!level.mayInteract(player, pos)) continue; //Chunk Protection like spawn and FTB Utils
             if (!player.isCreative()) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
             }

@@ -18,6 +18,7 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //Blocks
         add(Registration.RenderBlock.get(), "Render Block (DO NOT USE)");
+        add(Registration.TemplateManager.get(), "Template Manager");
 
         //Items
         add(Registration.Building_Gadget.get(), "Building Gadget");
@@ -25,6 +26,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(Registration.CopyPaste_Gadget.get(), "Copy Paste Gadget");
         add(Registration.CutPaste_Gadget.get(), "Cut Paste Gadget");
         add(Registration.Destruction_Gadget.get(), "Destruction Gadget");
+        add(Registration.Template.get(), "Template");
 
         //Misc
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
@@ -83,7 +85,14 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.screen.requireddesc", "Required Descending");
         add("buildinggadgets2.screen.missingasc", "Missing Ascending");
         add("buildinggadgets2.screen.missingdesc", "Missing Descending");
+        add("buildinggadgets2.screen.templateplaceholder", "Template name");
+        add("buildinggadgets2.screen.namefieldtext", "name?");
 
+        //Buttons
+        add("buildinggadgets2.buttons.save", "Save");
+        add("buildinggadgets2.buttons.load", "Load");
+        add("buildinggadgets2.buttons.copy", "Copy");
+        add("buildinggadgets2.buttons.paste", "Paste");
 
         //Radial Menu
         add("buildinggadgets2.radialmenu.fuzzy", "Fuzzy");

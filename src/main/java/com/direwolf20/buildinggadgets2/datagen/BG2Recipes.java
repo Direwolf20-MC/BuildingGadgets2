@@ -66,7 +66,7 @@ public class BG2Recipes extends RecipeProvider {
                 .define('e', Tags.Items.ENDER_PEARLS)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .unlockedBy("has_ender_pearl", InventoryChangeTrigger.TriggerInstance.hasItems(Items.ENDER_PEARL))
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CutPaste_Gadget.get())
@@ -75,10 +75,23 @@ public class BG2Recipes extends RecipeProvider {
                 .pattern("ili")
                 .define('r', Tags.Items.DUSTS_REDSTONE)
                 .define('i', Tags.Items.INGOTS_IRON)
-                .define('s', Tags.Items.SHEARS)
+                .define('s', Items.SHEARS)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .unlockedBy("has_shear", InventoryChangeTrigger.TriggerInstance.hasItems(Items.SHEARS))
+                .save(consumer);
+
+        //Blocks
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.TemplateManager.get())
+                .pattern("iri")
+                .pattern("prp")
+                .pattern("ili")
+                .define('r', Tags.Items.DUSTS_REDSTONE)
+                .define('i', Tags.Items.INGOTS_IRON)
+                .define('p', Items.PAPER)
+                .define('l', Tags.Items.GEMS_LAPIS)
+                .group("buildinggadgets2")
+                .unlockedBy("has_paper", InventoryChangeTrigger.TriggerInstance.hasItems(Items.PAPER))
                 .save(consumer);
     }
 }

@@ -60,10 +60,11 @@ public abstract class BaseMode implements Comparable<BaseMode> {
         return new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
     }
 
-    public boolean isPosValid(Level level, BlockPos blockPos, BlockState blockState) {
+    public boolean isPosValid(Level level, Player player, BlockPos blockPos, BlockState blockState) {
         if ((blockPos.getY() >= level.getMaxBuildHeight() || blockPos.getY() < level.getMinBuildHeight()))
             return false;
-        if (!blockState.canSurvive(level, blockPos)) return false;
+        if (!blockState.canSurvive(level, blockPos)) return false; //Seeds on tilled earth, cactus, sugarcane, etc
+        if (!level.mayInteract(player, blockPos)) return false; //Chunk Protection like spawn and FTB Utils
         if (isExchanging) {
             if (level.getBlockState(blockPos).isAir())
                 return false;

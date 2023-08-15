@@ -38,6 +38,8 @@ public class PacketHandler {
         HANDLER.registerMessage(id++, PacketCopyCoords.class, PacketCopyCoords::encode, PacketCopyCoords::decode, PacketCopyCoords::handle);
         HANDLER.registerMessage(id++, PacketRelativePaste.class, PacketRelativePaste::encode, PacketRelativePaste::decode, PacketRelativePaste::handle);
         HANDLER.registerMessage(id++, PacketDestructionRanges.class, PacketDestructionRanges::encode, PacketDestructionRanges::decode, PacketDestructionRanges::handle);
+        HANDLER.registerMessage(id++, PacketUpdateTemplateManager.class, PacketUpdateTemplateManager::encode, PacketUpdateTemplateManager::decode, PacketUpdateTemplateManager::handle);
+        HANDLER.registerMessage(id++, PacketSendCopyDataToServer.class, PacketSendCopyDataToServer::encode, PacketSendCopyDataToServer::decode, PacketSendCopyDataToServer::handle);
 
         //Client Side
         HANDLER.registerMessage(id++, PacketSendCopyData.class, PacketSendCopyData::encode, PacketSendCopyData::decode, PacketSendCopyData.Handler::handle);

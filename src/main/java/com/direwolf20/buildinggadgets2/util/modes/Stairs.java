@@ -46,7 +46,7 @@ public class Stairs extends BaseMode {
                         placeOnTop ? -i : -(i + 1), // If place on top is on, we should place aside the block, otherwise, in the current one
                         mutateZAxis ? shiftAxis : 0 // If we're hitting at the Z axis we should shift the Z axis of the block.
                 );
-                if (isPosValid(player.level(), coord, state))
+                if (isPosValid(player.level(), player, coord, state))
                     coordinates.add(new StatePos(state, coord.subtract(start)));
 
                 continue;
@@ -61,7 +61,7 @@ public class Stairs extends BaseMode {
                     (start.getY() > (player.getY() + 1) ? i * -1 : i) + (placeOnTop ? 1 : 0), // Check to see if we should build up or down from the player
                     side.getAxis() == Direction.Axis.Z ? shiftAxis : 0
             );
-            if (isPosValid(player.level(), coord, state))
+            if (isPosValid(player.level(), player, coord, state))
                 coordinates.add(new StatePos(state, coord.subtract(start)));
         }
 

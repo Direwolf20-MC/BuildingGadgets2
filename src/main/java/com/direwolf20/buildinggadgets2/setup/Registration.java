@@ -2,14 +2,19 @@ package com.direwolf20.buildinggadgets2.setup;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
+import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.blocks.TemplateManager;
+import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
 import com.direwolf20.buildinggadgets2.common.items.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -38,10 +43,12 @@ public class Registration {
 
     //Blocks
     public static final RegistryObject<Block> RenderBlock = BLOCKS.register("render_block", RenderBlock::new);
-    //public static final RegistryObject<Item> RenderBlock_ITEM = ITEMS.register("render_block", () -> new BlockItem(RenderBlock.get(), new Item.Properties()));
+    public static final RegistryObject<Block> TemplateManager = BLOCKS.register("template_manager", TemplateManager::new);
+    public static final RegistryObject<Item> TemplateManager_ITEM = ITEMS.register("template_manager", () -> new BlockItem(TemplateManager.get(), new Item.Properties()));
 
     //BlockEntities (Not TileEntities - Honest)
     public static final RegistryObject<BlockEntityType<RenderBlockBE>> RenderBlock_BE = BLOCK_ENTITIES.register("renderblock", () -> BlockEntityType.Builder.of(RenderBlockBE::new, RenderBlock.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TemplateManagerBE>> TemplateManager_BE = BLOCK_ENTITIES.register("templatemanager", () -> BlockEntityType.Builder.of(TemplateManagerBE::new, TemplateManager.get()).build(null));
     //public static final RegistryObject<BlockEntityType<LaserConnectorBE>> LaserConnector_BE = BLOCK_ENTITIES.register("laserconnector", () -> BlockEntityType.Builder.of(LaserConnectorBE::new, LaserConnector.get()).build(null));
 
     //Items
@@ -50,8 +57,9 @@ public class Registration {
     public static final RegistryObject<Item> CopyPaste_Gadget = ITEMS.register("gadget_copy_paste", GadgetCopyPaste::new);
     public static final RegistryObject<Item> CutPaste_Gadget = ITEMS.register("gadget_cut_paste", GadgetCutPaste::new);
     public static final RegistryObject<Item> Destruction_Gadget = ITEMS.register("gadget_destruction", GadgetDestruction::new);
+    public static final RegistryObject<Item> Template = ITEMS.register("template", TemplateItem::new);
 
     //Containers
-    //public static final RegistryObject<MenuType<LaserNodeContainer>> LaserNode_Container = CONTAINERS.register("lasernode",
-    //        () -> IForgeMenuType.create((windowId, inv, data) -> new LaserNodeContainer(windowId, inv, inv.player, data)));
+    public static final RegistryObject<MenuType<TemplateManagerContainer>> TemplateManager_Container = CONTAINERS.register("templatemanager",
+            () -> IForgeMenuType.create((windowId, inv, data) -> new TemplateManagerContainer(windowId, inv, data)));
 }

@@ -83,7 +83,7 @@ public class BG2Data extends SavedData {
 
     public static CompoundTag statePosListToNBTMapArray(ArrayList<StatePos> list) {
         CompoundTag tag = new CompoundTag();
-        if (list.isEmpty()) return tag;
+        if (list == null || list.isEmpty()) return tag;
         ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMap(list);
         ListTag blockStateMapList = StatePos.getBlockStateNBT(blockStateMap);
         int[] blocklist = new int[list.size()];

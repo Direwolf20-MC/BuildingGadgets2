@@ -1,0 +1,8 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "": {
+      "model": "buildinggadgets:block/construction_block_powder"
+    }
+  }
+}
