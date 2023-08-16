@@ -47,6 +47,10 @@ public class GuiIncrementer extends AbstractWidget {
         this(x, y, Integer.MIN_VALUE, Integer.MAX_VALUE, null);
     }
 
+    public GuiIncrementer(int x, int y, @Nullable IIncrementerChanged onChange) {
+        this(x, y, Integer.MIN_VALUE, Integer.MAX_VALUE, onChange);
+    }
+
     public int getValue() {
         return this.value;
     }
@@ -69,6 +73,15 @@ public class GuiIncrementer extends AbstractWidget {
         this.field.setValue(String.valueOf(this.value));
 
         if (this.onChange != null)
+            this.onChange.onChange(value);
+    }
+
+    public void setValue(int value, boolean onChange) {
+        // We don't want to fire events for no reason
+        this.value = Mth.clamp(value, this.min, this.max);
+        this.field.setValue(String.valueOf(this.value));
+
+        if (onChange)
             this.onChange.onChange(value);
     }
 

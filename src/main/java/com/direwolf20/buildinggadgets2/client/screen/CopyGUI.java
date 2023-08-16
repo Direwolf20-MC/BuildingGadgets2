@@ -49,27 +49,17 @@ public class CopyGUI extends Screen {
 
         int incrementerWidth = GuiIncrementer.WIDTH + (GuiIncrementer.WIDTH / 2);
 
-        fields.add(startX = new GuiIncrementer(x - incrementerWidth - 35, y - 40));
-        fields.add(startY = new GuiIncrementer(x - GuiIncrementer.WIDTH / 2, y - 40));
-        fields.add(startZ = new GuiIncrementer(x + (GuiIncrementer.WIDTH / 2) + 35, y - 40));
-        fields.add(endX = new GuiIncrementer(x - incrementerWidth - 35, y - 15));
-        fields.add(endY = new GuiIncrementer(x - GuiIncrementer.WIDTH / 2, y - 15));
-        fields.add(endZ = new GuiIncrementer(x + (GuiIncrementer.WIDTH / 2) + 35, y - 15));
+        fields.add(startX = new GuiIncrementer(x - incrementerWidth - 35, y - 40, this::onChange));
+        fields.add(startY = new GuiIncrementer(x - GuiIncrementer.WIDTH / 2, y - 40, this::onChange));
+        fields.add(startZ = new GuiIncrementer(x + (GuiIncrementer.WIDTH / 2) + 35, y - 40, this::onChange));
+        fields.add(endX = new GuiIncrementer(x - incrementerWidth - 35, y - 15, this::onChange));
+        fields.add(endY = new GuiIncrementer(x - GuiIncrementer.WIDTH / 2, y - 15, this::onChange));
+        fields.add(endZ = new GuiIncrementer(x + (GuiIncrementer.WIDTH / 2) + 35, y - 15, this::onChange));
         fields.forEach(this::addRenderableWidget);
 
         List<AbstractButton> buttons = new ArrayList<AbstractButton>() {{
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.confirm"), (button) -> {
-                if (absoluteCoords) {
-                    startPos = new BlockPos(startX.getValue(), startY.getValue(), startZ.getValue());
-                    endPos = new BlockPos(endX.getValue(), endY.getValue(), endZ.getValue());
-                } else {
-                    startPos = new BlockPos(startPos.getX() + startX.getValue(), startPos.getY() + startY.getValue(), startPos.getZ() + startZ.getValue());
-                    endPos = new BlockPos(startPos.getX() + endX.getValue(), startPos.getY() + endY.getValue(), startPos.getZ() + endZ.getValue());
-                    startX.setValue(0);
-                    startY.setValue(0);
-                    startZ.setValue(0);
-                }
-                PacketHandler.sendToServer(new PacketCopyCoords(startPos, endPos));
+                sendPacket();
             }));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.close"), (button) -> onClose()));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.clear"), (button) -> {
@@ -93,6 +83,25 @@ public class CopyGUI extends Screen {
         guiGraphics.drawString(font, name, this.x + x, this.y + y, 0xFFFFFF);
     }
 
+    private void onChange(int value) {
+        sendPacket();
+    }
+
+    private void sendPacket() {
+        if (absoluteCoords) {
+            startPos = new BlockPos(startX.getValue(), startY.getValue(), startZ.getValue());
+            endPos = new BlockPos(endX.getValue(), endY.getValue(), endZ.getValue());
+        } else {
+            startPos = new BlockPos(startPos.getX() + startX.getValue(), startPos.getY() + startY.getValue(), startPos.getZ() + startZ.getValue());
+            endPos = new BlockPos(startPos.getX() + endX.getValue(), startPos.getY() + endY.getValue(), startPos.getZ() + endZ.getValue());
+            startX.setValue(0, false);
+            startY.setValue(0, false);
+            startZ.setValue(0, false);
+        }
+        //System.out.println("Firing Packet!");
+        PacketHandler.sendToServer(new PacketCopyCoords(startPos, endPos));
+    }
+
     private void coordsModeSwitch() {
         absoluteCoords = !absoluteCoords;
     }
@@ -103,20 +112,20 @@ public class CopyGUI extends Screen {
             BlockPos start = startX.getValue() != 0 ? new BlockPos(startPos.getX() + startX.getValue(), startPos.getY() + startY.getValue(), startPos.getZ() + startZ.getValue()) : startPos;
             BlockPos end = endX.getValue() != 0 ? new BlockPos(startPos.getX() + endX.getValue(), startPos.getY() + endY.getValue(), startPos.getZ() + endZ.getValue()) : endPos;
 
-            startX.setValue(start.getX());
-            startY.setValue(start.getY());
-            startZ.setValue(start.getZ());
-            endX.setValue(end.getX());
-            endY.setValue(end.getY());
-            endZ.setValue(end.getZ());
+            startX.setValue(start.getX(), false);
+            startY.setValue(start.getY(), false);
+            startZ.setValue(start.getZ(), false);
+            endX.setValue(end.getX(), false);
+            endY.setValue(end.getY(), false);
+            endZ.setValue(end.getZ(), false);
         } else {
             absoluteButton.setMessage(Component.translatable("buildinggadgets2.screen.absolutecoords"));
-            startX.setValue(startX.getValue() != 0 ? startX.getValue() - startPos.getX() : 0);
-            startY.setValue(startY.getValue() != 0 ? startY.getValue() - startPos.getY() : 0);
-            startZ.setValue(startZ.getValue() != 0 ? startZ.getValue() - startPos.getZ() : 0);
-            endX.setValue(endX.getValue() != 0 ? endX.getValue() - startPos.getX() : endPos.getX() - startPos.getX());
-            endY.setValue(endY.getValue() != 0 ? endY.getValue() - startPos.getY() : endPos.getY() - startPos.getY());
-            endZ.setValue(endZ.getValue() != 0 ? endZ.getValue() - startPos.getZ() : endPos.getZ() - startPos.getZ());
+            startX.setValue(startX.getValue() != 0 ? startX.getValue() - startPos.getX() : 0, false);
+            startY.setValue(startY.getValue() != 0 ? startY.getValue() - startPos.getY() : 0, false);
+            startZ.setValue(startZ.getValue() != 0 ? startZ.getValue() - startPos.getZ() : 0, false);
+            endX.setValue(endX.getValue() != 0 ? endX.getValue() - startPos.getX() : endPos.getX() - startPos.getX(), false);
+            endY.setValue(endY.getValue() != 0 ? endY.getValue() - startPos.getY() : endPos.getY() - startPos.getY(), false);
+            endZ.setValue(endZ.getValue() != 0 ? endZ.getValue() - startPos.getZ() : endPos.getZ() - startPos.getZ(), false);
         }
     }
 
