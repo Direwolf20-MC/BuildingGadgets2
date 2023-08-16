@@ -63,7 +63,7 @@ public class Cut extends BaseMode {
         }
 
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos)))
+            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos), level, player, pos))
                 coordinates.add(new StatePos(level.getBlockState(pos), pos.subtract(copyStart)));
             else
                 coordinates.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(copyStart))); //We need to have a block in EVERY position, so write air if invalid
@@ -71,35 +71,54 @@ public class Cut extends BaseMode {
         return coordinates;
     }
 
-    public boolean customCutValidation(BlockState blockState) {
+    public boolean customCutValidation(BlockState blockState, Level level, Player player, BlockPos blockPos) {
         if (blockState.is(BG2BlockTags.NO_MOVE)) return false;
+        if (!level.mayInteract(player, blockPos)) return false; //Chunk Protection like spawn and FTB Utils
         return true;
     }
 
-    public ArrayList<TagPos> collectTileData(Player player) {
-        ArrayList<TagPos> teData = new ArrayList<>();
+    public void collectWithTileData(Player player, ArrayList<StatePos> buildList, ArrayList<TagPos> teData) {
         ItemStack heldItem = BaseGadget.getGadget(player);
-        if (!(heldItem.getItem() instanceof GadgetCutPaste)) return teData; //Impossible....right?
+        if (!(heldItem.getItem() instanceof GadgetCutPaste gadgetCutPaste)) return; //Impossible....right?
         Level level = player.level();
         BlockPos cutStart = GadgetNBT.getCopyStartPos(heldItem);
         BlockPos cutEnd = GadgetNBT.getCopyEndPos(heldItem);
 
-        if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return teData;
+        if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return;
 
         AABB area = new AABB(cutStart, cutEnd);
 
+        Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
+        long size = areaStream.count();
+        int maxSize = 100000; //Todo Config?
+        if (size > maxSize) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.areatoolarge", maxSize, size), false);
+            return;
+        }
+
+        int totalCost = gadgetCutPaste.getEnergyCost() * (int) size;
+        if (!player.isCreative() && !BuildingUtils.hasEnoughEnergy(heldItem, totalCost)) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.notenoughenergy", totalCost, BuildingUtils.getEnergyStored(heldItem)), false);
+            return;
+        }
+        ArrayList<BlockPos> removeList = new ArrayList<>();
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity != null) {
-                CompoundTag blockTag = blockEntity.saveWithFullMetadata();
-                TagPos tagPos = new TagPos(blockTag, pos.subtract(cutStart));
-                teData.add(tagPos);
+            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos), level, player, pos)) {
+                buildList.add(new StatePos(level.getBlockState(pos), pos.subtract(cutStart)));
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity != null) {
+                    CompoundTag blockTag = blockEntity.saveWithFullMetadata();
+                    TagPos tagPos = new TagPos(blockTag, pos.subtract(cutStart));
+                    teData.add(tagPos);
+                }
+            } else {
+                buildList.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(cutStart))); //We need to have a block in EVERY position, so write air if invalid
             }
         });
-        return teData;
+        BuildingUtils.remove(level, player, removeList, false, false, heldItem);
     }
 
-    public void removeBlocks(Player player) {
+    /*public void removeBlocks(Player player) {
         ItemStack heldItem = BaseGadget.getGadget(player);
         if (!(heldItem.getItem() instanceof GadgetCutPaste gadgetCutPaste)) return; //Impossible....right?
         Level level = player.level();
@@ -111,9 +130,9 @@ public class Cut extends BaseMode {
         AABB area = new AABB(cutStart, cutEnd);
         ArrayList<BlockPos> removeList = new ArrayList<>();
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos)))
+            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos), level, player, pos))
                 removeList.add(pos);
         });
         BuildingUtils.remove(level, player, removeList, false, false, heldItem);
-    }
+    }*/
 }
