@@ -139,7 +139,7 @@ public class GadgetDestruction extends BaseGadget {
                 BlockEntity blockEntity = level.getBlockEntity(pos.pos);
                 if (blockEntity instanceof RenderBlockBE renderBlockBE) {
                     drawSize = renderBlockBE.drawSize;
-                    renderBlockBE.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
+                    renderBlockBE.setRenderData(Blocks.AIR.defaultBlockState(), pos.state, GadgetNBT.getRenderTypeByte(gadget));
                     renderBlockBE.drawSize = drawSize;
                 }
             } else {
@@ -150,7 +150,7 @@ public class GadgetDestruction extends BaseGadget {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
                 }
-                be.setRenderData(oldState, pos.state);
+                be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
             }
         }
     }

@@ -30,6 +30,7 @@ public class PacketHandler {
         // Server side
         HANDLER.registerMessage(id++, PacketModeSwitch.class, PacketModeSwitch::encode, PacketModeSwitch::decode, PacketModeSwitch::handle);
         HANDLER.registerMessage(id++, PacketRangeChange.class, PacketRangeChange::encode, PacketRangeChange::decode, PacketRangeChange::handle);
+        HANDLER.registerMessage(id++, PacketRenderChange.class, PacketRenderChange::encode, PacketRenderChange::decode, PacketRenderChange::handle);
         HANDLER.registerMessage(id++, PacketAnchor.class, PacketAnchor::encode, PacketAnchor::decode, PacketAnchor::handle);
         HANDLER.registerMessage(id++, PacketUndo.class, PacketUndo::encode, PacketUndo::decode, PacketUndo::handle);
         HANDLER.registerMessage(id++, PacketCut.class, PacketCut::encode, PacketCut::decode, PacketCut::handle);

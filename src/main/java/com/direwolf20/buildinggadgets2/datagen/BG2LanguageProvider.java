@@ -30,6 +30,10 @@ public class BG2LanguageProvider extends LanguageProvider {
 
         //Misc
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
+        add("buildinggadgets2.grow", "Grow");
+        add("buildinggadgets2.fade", "Fade");
+
+        //Keys
         add("key.buildinggadgets2.category", "Building Gadgets 2");
         add("key.buildinggadgets2.anchor", "Anchor");
         add("key.buildinggadgets2.range", "Range");
@@ -113,6 +117,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.messages.copyblocks", "Copied %d blocks");
         add("buildinggadgets2.messages.cutblocks", "Cut %d blocks");
         add("buildinggadgets2.messages.range_set", "Range set to: %d");
+        add("buildinggadgets2.messages.render_set", "Render Type set to: %s");
         add("buildinggadgets2.messages.relativepaste", "Relative Paste set to: [%s]");
         add("buildinggadgets2.messages.areatoolarge", "Area too large! Max size is: %d. Size was: %d");
         add("buildinggadgets2.messages.notenoughenergy", "Not enough energy for cut, need: %d. Have: %d");

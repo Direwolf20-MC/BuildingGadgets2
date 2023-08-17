@@ -28,6 +28,7 @@ public class RenderBlockBE extends BlockEntity {
     public CompoundTag blockEntityData;
     public boolean shrinking;
     public boolean exchanging;
+    public byte renderType;
 
     public RenderBlockBE(BlockPos pos, BlockState state) {
         super(Registration.RenderBlock_BE.get(), pos, state);
@@ -93,9 +94,10 @@ public class RenderBlockBE extends BlockEntity {
         return (byte) (drawSize + 1);
     }
 
-    public void setRenderData(BlockState sourceBlock, BlockState targetBlock) {
+    public void setRenderData(BlockState sourceBlock, BlockState targetBlock, byte renderType) {
         this.sourceBlock = sourceBlock;
         this.targetBlock = targetBlock;
+        this.renderType = renderType;
         if (sourceBlock.equals(Blocks.AIR.defaultBlockState())) { //If Source is air, we must be BUILDING!
             exchanging = false;
             shrinking = false;
@@ -131,6 +133,7 @@ public class RenderBlockBE extends BlockEntity {
         this.shrinking = tag.getBoolean("shrinking");
         this.exchanging = tag.getBoolean("exchanging");
         this.drawSize = tag.getByte("drawSize");
+        this.renderType = tag.getByte("renderType");
         if (tag.contains("blockEntityData"))
             this.blockEntityData = tag.getCompound("blockEntityData");
     }
@@ -150,6 +153,7 @@ public class RenderBlockBE extends BlockEntity {
         tag.putBoolean("shrinking", shrinking);
         tag.putBoolean("exchanging", exchanging);
         tag.putByte("drawSize", this.drawSize);
+        tag.putByte("renderType", this.renderType);
         if (blockEntityData != null)
             tag.put("blockEntityData", this.blockEntityData);
     }

@@ -153,9 +153,9 @@ public class GadgetExchanger extends BaseGadget {
                     BuildingUtils.giveItemToPlayer(player, returnedItem);
             }
             if (oldRenderState.equals(pos.state))
-                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
+                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state, GadgetNBT.getRenderTypeByte(gadget));
             else
-                be.setRenderData(oldState, pos.state);
+                be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
             be.drawSize = drawSize;
         }
     }

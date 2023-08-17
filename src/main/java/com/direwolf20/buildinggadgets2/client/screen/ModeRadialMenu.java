@@ -57,6 +57,8 @@ public class ModeRadialMenu extends Screen {
     private ArrayList<BaseMode> arrayOfModes = new ArrayList();
     private boolean cutForSure = false;
     private BaseMode mode;
+    private Button renderTypeButton;
+    private GadgetNBT.RenderTypes renderType;
 
     public ModeRadialMenu(ItemStack stack) {
         super(Component.literal(""));
@@ -86,6 +88,7 @@ public class ModeRadialMenu extends Screen {
     @Override
     public void init() {
         ItemStack tool = this.getGadget();
+        renderType = GadgetNBT.getRenderType(tool);
         if (tool.getItem() instanceof BaseGadget actualGadget) {
             ImmutableSortedSet<BaseMode> modesForGadget = GadgetModes.INSTANCE.getModesForGadget(actualGadget.gadgetTarget());
             arrayOfModes = new ArrayList<>(modesForGadget); // This is required to work with index's
@@ -101,7 +104,6 @@ public class ModeRadialMenu extends Screen {
             return GadgetNBT.getSetting(tool, "raytracefluid");
         });
         this.addRenderableWidget(rayTrace);
-
 
         //Building Gadget Only
         if (tool.getItem() instanceof GadgetBuilding) {
@@ -232,6 +234,17 @@ public class ModeRadialMenu extends Screen {
 
             return !GadgetNBT.getAnchorPos(tool).equals(GadgetNBT.nullPos);
         }));
+
+        renderTypeButton = new PositionedIconActionable(Component.translatable(renderType.getLang()), "raytrace_fluid", ScreenPosition.LEFT, false, send -> {
+            if (send) {
+                renderType = renderType.next();
+                renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
+                PacketHandler.sendToServer(new PacketRenderChange(renderType.getPosition()));
+            }
+
+            return false;
+        });
+        this.addRenderableWidget(renderTypeButton);
 
 
         this.updateButtons();

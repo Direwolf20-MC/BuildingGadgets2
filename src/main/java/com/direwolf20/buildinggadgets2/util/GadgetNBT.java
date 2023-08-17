@@ -37,6 +37,34 @@ public class GadgetNBT {
         }
     }
 
+    public enum RenderTypes {
+        GROW("buildinggadgets2.grow"),
+        FADE("buildinggadgets2.fade");
+
+        private final String lang;
+
+        RenderTypes(String lang) {
+            this.lang = lang;
+        }
+
+        public RenderTypes next() {
+            // This will return the next value, wrapping around to the start if necessary
+            return values()[(this.ordinal() + 1) % values().length];
+        }
+
+        public byte getPosition() {
+            return (byte) this.ordinal();
+        }
+
+        public String getLang() {
+            return lang;
+        }
+
+        public static RenderTypes getByOrdinal(byte ordinal) {
+            return RenderTypes.values()[ordinal];
+        }
+    }
+
     public final static BlockPos nullPos = new BlockPos(-999, -999, -999);
     final static int undoListSize = 10;
 
@@ -44,6 +72,22 @@ public class GadgetNBT {
         CompoundTag tag = gadget.getOrCreateTag();
         tag.put("anchor", NbtUtils.writeBlockPos(blockPos));
         return blockPos;
+    }
+
+    public static byte setRenderType(ItemStack gadget, byte renderType) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        tag.putByte("rendertype", renderType);
+        return renderType;
+    }
+
+    public static byte getRenderTypeByte(ItemStack stack) {
+        CompoundTag tagCompound = stack.getTag();
+        if (tagCompound == null || !tagCompound.contains("rendertype")) return 0;
+        return tagCompound.getByte("rendertype");
+    }
+
+    public static RenderTypes getRenderType(ItemStack stack) {
+        return RenderTypes.getByOrdinal(getRenderTypeByte(stack));
     }
 
     public static BlockPos getAnchorPos(ItemStack gadget) {
@@ -148,7 +192,7 @@ public class GadgetNBT {
         CompoundTag tag = gadget.getOrCreateTag();
         UUID uuid = UUID.randomUUID();
         tag.putUUID("copyuuid", uuid);
-        System.out.println("Setting copyUUID to: " + uuid + " for Itemstack: " + gadget);
+        //System.out.println("Setting copyUUID to: " + uuid + " for Itemstack: " + gadget);
         return uuid;
     }
 

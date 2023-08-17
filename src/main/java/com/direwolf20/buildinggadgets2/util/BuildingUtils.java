@@ -257,7 +257,7 @@ public class BuildingUtils {
                     removeStacksFromInventory(player, neededItems, false);
                 }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state);
+                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state, GadgetNBT.getRenderTypeByte(gadget));
             }
         }
         return actuallyBuiltList;
@@ -301,7 +301,7 @@ public class BuildingUtils {
                     giveItemToPlayer(player, returnedItem);
             }
             actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
-            be.setRenderData(oldState, pos.state);
+            be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
         }
         return actuallyBuiltList;
     }
@@ -361,7 +361,7 @@ public class BuildingUtils {
             boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
             if (placed && be != null) {
-                be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState());
+                be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState(), GadgetNBT.getRenderTypeByte(gadget));
                 be.drawSize = drawSize;
             }
         }

@@ -5,6 +5,8 @@
   "buildinggadgets2.buttons.load": "Load",
   "buildinggadgets2.buttons.paste": "Paste",
   "buildinggadgets2.buttons.save": "Save",
+  "buildinggadgets2.fade": "Fade",
+  "buildinggadgets2.grow": "Grow",
   "buildinggadgets2.gui.range": "Range",
   "buildinggadgets2.keymapping.mode-switch": "Switch Modes",
   "buildinggadgets2.messages.anchorcleared": "Anchor Cleared",

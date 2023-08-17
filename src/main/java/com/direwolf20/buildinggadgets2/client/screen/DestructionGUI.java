@@ -4,10 +4,7 @@ import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketAnchor;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketDestructionRanges;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketToggleSetting;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
+import com.direwolf20.buildinggadgets2.common.network.packets.*;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
@@ -45,10 +42,14 @@ public class DestructionGUI extends Screen {
 
     private final ItemStack destructionGadget;
 
+    private Button renderTypeButton;
+    private GadgetNBT.RenderTypes renderType;
+
     public DestructionGUI(ItemStack tool, boolean keyDown) {
         super(Component.empty());
         this.destructionGadget = tool;
         this.keyDown = keyDown;
+        renderType = GadgetNBT.getRenderType(tool);
     }
 
     @Override
@@ -109,6 +110,17 @@ public class DestructionGUI extends Screen {
             return GadgetNBT.getSetting(destructionGadget, "raytracefluid");
         });
         this.addRenderableWidget(rayTrace);
+
+        renderTypeButton = new GuiIconActionable(x + 65, y - 75, "raytrace_fluid", Component.translatable(renderType.getLang()), false, send -> {
+            if (send) {
+                renderType = renderType.next();
+                renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
+                PacketHandler.sendToServer(new PacketRenderChange(renderType.getPosition()));
+            }
+
+            return false;
+        });
+        this.addRenderableWidget(renderTypeButton);
 
         sliders.clear();
         sliders.add(depth = this.createSlider(x - (70 / 2), y - (14 / 2), Component.translatable("buildinggadgets2.screen.depth"), GadgetNBT.getToolValue(destructionGadget, "depth")));
