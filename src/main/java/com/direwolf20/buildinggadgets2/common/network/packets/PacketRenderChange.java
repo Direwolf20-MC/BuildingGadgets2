@@ -38,7 +38,7 @@ public class PacketRenderChange {
             }
 
             GadgetNBT.setRenderType(gadget, message.renderType);
-            sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.range_set", Component.translatable(GadgetNBT.getRenderType(gadget).getLang())), true);
+            sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.render_set", Component.translatable(GadgetNBT.getRenderType(gadget).getLang())), true);
         });
 
         context.get().setPacketHandled(true);

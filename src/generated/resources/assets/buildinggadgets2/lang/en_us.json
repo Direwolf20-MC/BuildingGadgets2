@@ -19,6 +19,7 @@
   "buildinggadgets2.messages.overwritecut": "Tool already has cut data stored - click again to OVERWRITE this data",
   "buildinggadgets2.messages.range_set": "Range set to: %d",
   "buildinggadgets2.messages.relativepaste": "Relative Paste set to: [%s]",
+  "buildinggadgets2.messages.render_set": "Render Type set to: %s",
   "buildinggadgets2.messages.undofailedunloaded": "Undo Failed: Chunks are not loaded (Too far away): %s",
   "buildinggadgets2.modes.build_to_me": "Build to Me",
   "buildinggadgets2.modes.copy": "Copy",
