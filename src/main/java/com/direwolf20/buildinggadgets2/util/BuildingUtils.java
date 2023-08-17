@@ -329,7 +329,7 @@ public class BuildingUtils {
 
     public static ArrayList<StatePos> remove(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
         ArrayList<StatePos> affectedBlocks = new ArrayList<>();
-        byte drawSize = 40;
+        byte drawSize = RenderBlockBE.getMaxSize();
         for (BlockPos pos : blockPosList) {
             if (!level.mayInteract(player, pos)) continue; //Chunk Protection like spawn and FTB Utils
             if (!player.isCreative()) {

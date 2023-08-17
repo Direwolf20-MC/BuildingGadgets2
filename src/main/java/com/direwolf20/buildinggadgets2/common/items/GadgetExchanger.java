@@ -116,7 +116,7 @@ public class GadgetExchanger extends BaseGadget {
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         ArrayList<StatePos> undoList = bg2Data.popUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
-        byte drawSize = 40;
+        byte drawSize = RenderBlockBE.getMaxSize();
 
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now

@@ -127,7 +127,7 @@ public class GadgetDestruction extends BaseGadget {
         ArrayList<StatePos> undoList = bg2Data.popUndoList(GadgetNBT.popUndoList(gadget));
         if (undoList.isEmpty()) return;
 
-        byte drawSize = 40;
+        byte drawSize = RenderBlockBE.getMaxSize();
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
 

@@ -38,8 +38,10 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         Level level = blockentity.getLevel();
         BlockPos pos = blockentity.getBlockPos();
         int drawSize = blockentity.drawSize;
-        float nowScale = (float) (drawSize) / (float) 40;
-        float nextScale = (float) (blockentity.nextDrawSize()) / (float) 40;
+        float nowScale = (float) (drawSize) / (float) RenderBlockBE.getMaxSize();
+        ;
+        float nextScale = (float) (blockentity.nextDrawSize()) / (float) RenderBlockBE.getMaxSize();
+        ;
         float scale = (Mth.lerp(partialTicks, nowScale, nextScale));
 
         if (scale >= 1.0f)

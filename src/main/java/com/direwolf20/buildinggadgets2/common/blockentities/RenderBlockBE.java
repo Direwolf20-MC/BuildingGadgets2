@@ -48,9 +48,13 @@ public class RenderBlockBE extends BlockEntity {
             } else {
                 setRealBlock(Blocks.AIR.defaultBlockState());
             }
-        } else if (drawSize >= 40) {
+        } else if (drawSize >= getMaxSize()) {
             setRealBlock(targetBlock);
         }
+    }
+
+    public static byte getMaxSize() {
+        return 40;
     }
 
     public void setRealBlock(BlockState realBlock) {
@@ -83,8 +87,8 @@ public class RenderBlockBE extends BlockEntity {
                 drawSize = 0;
         } else {
             drawSize++;
-            if (drawSize >= 40)
-                drawSize = 40;
+            if (drawSize >= getMaxSize())
+                drawSize = getMaxSize();
         }
     }
 
@@ -107,12 +111,12 @@ public class RenderBlockBE extends BlockEntity {
             exchanging = false;
             shrinking = true;
             this.renderBlock = sourceBlock;
-            drawSize = 40;
+            drawSize = getMaxSize();
         } else { //We must be EXCHANGING!
             exchanging = true;
             shrinking = true;
             this.renderBlock = sourceBlock;
-            drawSize = 40;
+            drawSize = getMaxSize();
         }
 
         markDirtyClient();
