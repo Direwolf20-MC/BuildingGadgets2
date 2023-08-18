@@ -8,10 +8,7 @@ import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestCopyData;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.setup.Registration;
-import com.direwolf20.buildinggadgets2.util.BuildingUtils;
-import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import com.direwolf20.buildinggadgets2.util.GadgetUtils;
-import com.direwolf20.buildinggadgets2.util.VectorHelper;
+import com.direwolf20.buildinggadgets2.util.*;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -21,6 +18,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -29,6 +27,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -52,6 +51,7 @@ public class VBORenderer {
     public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
     public static boolean awaitingUpdate = false;
     public static int updateTimer = 0;
+    private static FakeRenderingWorld fakeRenderingWorld;
 
     //Cached SortStates used for re-sorting every so often
     private static final Map<RenderType, BufferBuilder.SortState> sortStates = new HashMap<>();
@@ -84,8 +84,11 @@ public class VBORenderer {
             if (renderBlockState.isAir()) return;
             buildList = mode.collect(lookingAt.getDirection(), player, renderPos, renderBlockState);
 
-            if (buildList.equals(statePosCache))
+            FakeRenderingWorld tempWorld = new FakeRenderingWorld(player.level(), buildList, renderPos);
+            if (fakeRenderingWorld != null && fakeRenderingWorld.positions.equals(tempWorld.positions))
                 return;
+            //if (buildList.equals(statePosCache))
+            //    return;
 
             statePosCache = buildList;
             copyPasteUUIDCache = UUID.randomUUID(); //In case theres an existing copy/Paste render saved, nullify it
@@ -131,31 +134,35 @@ public class VBORenderer {
 
         //Start drawing the Render and cache it, used for both Building and Copy/Paste
         Level level = player.level();
+        fakeRenderingWorld = new FakeRenderingWorld(level, statePosCache, renderPos);
         PoseStack matrix = new PoseStack(); //Create a new matrix stack for use in the buffer building process
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         ModelBlockRenderer modelBlockRenderer = dispatcher.getModelRenderer();
         final RandomSource random = RandomSource.create();
         for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state) || !pos.state.getFluidState().isEmpty()).toList()) {
-            if (pos.state.isAir()) continue;
-            BakedModel ibakedmodel = dispatcher.getBlockModel(pos.state);
+            BlockState renderState = fakeRenderingWorld.getBlockStateWithoutReal(pos.pos);
+            if (renderState.isAir()) continue;
+
+            BakedModel ibakedmodel = dispatcher.getBlockModel(renderState);
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
             if (mode.isExchanging) {
                 matrix.translate(-0.0005f, -0.0005f, -0.0005f); //For Exchanger
                 matrix.scale(1.001f, 1.001f, 1.001f); //For Exchanger
             }
-            for (RenderType renderType : ibakedmodel.getRenderTypes(pos.state, random, ModelData.EMPTY)) {
+
+            for (RenderType renderType : ibakedmodel.getRenderTypes(renderState, random, ModelData.EMPTY)) {
                 //Flowers render weirdly so we use a custom renderer to make them look better. Glass and Flowers are both cutouts, so we only want this for non-cube blocks
-                if (renderType.equals(RenderType.cutout()) && pos.state.getShape(level, pos.pos.offset(renderPos)).equals(Shapes.block()))
+                if (renderType.equals(RenderType.cutout()) && renderState.getShape(level, pos.pos.offset(renderPos)).equals(Shapes.block()))
                     renderType = RenderType.translucent();
                 DireVertexConsumer direVertexConsumer = new DireVertexConsumer(getBuffer(renderType), 0.5f);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
-                if (pos.state.getFluidState().isEmpty())
-                    //modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, pos.state.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
-                    modelBlockRenderer.tesselateBlock(level, ibakedmodel, pos.state, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, pos.state.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ibakedmodel.getModelData(level, pos.pos.offset(renderPos), pos.state, ModelData.EMPTY), renderType);
+                if (renderState.getFluidState().isEmpty())
+                    //modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, renderState.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
+                    modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, renderState.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ibakedmodel.getModelData(level, pos.pos.offset(renderPos), renderState, ModelData.EMPTY), renderType);
                 else
-                    dispatcher.renderLiquid(pos.pos, player.level(), direVertexConsumer, pos.state, pos.state.getFluidState());
-                //dispatcher.renderBatched(pos.state, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
+                    dispatcher.renderLiquid(pos.pos, player.level(), direVertexConsumer, renderState, renderState.getFluidState());
+                //dispatcher.renderBatched(renderState, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
 
             }
             matrix.popPose();
@@ -273,13 +280,21 @@ public class VBORenderer {
         matrix.popPose();
 
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 0.5f);
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
+        fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, renderPos);
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             matrix.pushPose();
             matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
             matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
-            MyRenderMethods.renderBETransparent(pos.state, matrix, buffersource, 15728640, 655360, 0.5f);
+            //MyRenderMethods.renderBETransparent(mockBuilderWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
+            BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
+            BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
+            if (blockEntity != null)
+                blockEntityRenderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer);
+            else
+                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
             matrix.popPose();
         }
 

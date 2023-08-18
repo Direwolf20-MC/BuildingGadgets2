@@ -230,6 +230,7 @@ public class BuildingUtils {
 
     public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
+        FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos.offset(lookingAt);
@@ -257,7 +258,7 @@ public class BuildingUtils {
                     removeStacksFromInventory(player, neededItems, false);
                 }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state, GadgetNBT.getRenderTypeByte(gadget));
+                be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
             }
         }
         return actuallyBuiltList;
@@ -265,6 +266,7 @@ public class BuildingUtils {
 
     public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
+        FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
@@ -301,7 +303,7 @@ public class BuildingUtils {
                     giveItemToPlayer(player, returnedItem);
             }
             actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
-            be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
+            be.setRenderData(oldState, fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
         }
         return actuallyBuiltList;
     }
