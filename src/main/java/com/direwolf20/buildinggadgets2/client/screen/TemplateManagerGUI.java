@@ -20,7 +20,6 @@ import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.Template;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Camera;
@@ -30,7 +29,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -39,7 +37,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -150,137 +147,32 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         int x2 = (int) Math.round(panel.getWidth() * scale);
         int y2 = (int) Math.round(panel.getHeight() * scale);
 
-        RenderSystem.viewport(x1, y1, x2, y2);
+        RenderSystem.viewport(x1, y1, x2, y2); //The viewport is like a mini world where things get drawn
         RenderSystem.backupProjectionMatrix();
 
         float fov = 60.0F;  // or whatever field of view you want
         float aspectRatio = (float) width / height;  // width and height of your GUI or the "viewport" you want to use
         float near = 0.1F;
         float far = 1000.0F;
-        getMinecraft().getTextureManager().bindForSetup(TextureAtlas.LOCATION_BLOCKS);
 
         Matrix4f projectionMatrix = new Matrix4f();
         projectionMatrix.setPerspective((float) Math.toRadians(fov), aspectRatio, near, far);
-        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.ORTHOGRAPHIC_Z);
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableCull();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.ORTHOGRAPHIC_Z); //This is needed to switch to 3d rendering instead of 2d for the screen
 
         PoseStack poseStack = new PoseStack();
-        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         poseStack.pushPose();
-        poseStack.translate(-lengthZ / 2, -2, -lengthZ - 5);
-        poseStack.mulPose(new Quaternionf().setAngleAxis(25f / 180 * (float) Math.PI, 1, 0, 0));
-        poseStack.mulPose(new Quaternionf().setAngleAxis(90f / 180 * (float) Math.PI, 0, 1, 0));
-        poseStack.pushPose();
-        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false);
-
-        VBORenderer.drawRender2(poseStack, BlockPos.ZERO, Minecraft.getInstance().player, container.getSlot(0).getItem());
-
-        /*RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false);
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        BlockState renderState = Blocks.OAK_LOG.defaultBlockState();
-        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(renderState);
-        ModelData modelData = model.getModelData(Minecraft.getInstance().level, new BlockPos(0, 2, 0), renderState, ModelData.EMPTY);
-        for (RenderType renderType : model.getRenderTypes(renderState, RandomSource.create(42), modelData))
-            Minecraft.getInstance().getBlockRenderer().getModelRenderer().tesselateBlock(Minecraft.getInstance().level, model, renderState, new BlockPos(0, 0, 0), poseStack, bufferSource.getBuffer(renderType), false, RandomSource.create(42), 42, OverlayTexture.NO_OVERLAY, modelData, renderType);
-        bufferSource.endBatch();*/
+        poseStack.translate(-lengthZ / 2, -2, -lengthZ); //Move the objects in the world being drawn inside the viewport around
+        poseStack.mulPose(new Quaternionf().setAngleAxis(0f / 180 * (float) Math.PI, 1, 0, 0)); //Rotate
+        poseStack.mulPose(new Quaternionf().setAngleAxis(90f / 180 * (float) Math.PI, 0, 1, 0)); //Rotate
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
+        VBORenderer.drawRender2(poseStack, BlockPos.ZERO, Minecraft.getInstance().player, container.getSlot(0).getItem()); //Draw VBO
 
         poseStack.popPose();
-        poseStack.popPose();
-
-
-        Tesselator tesselator = Tesselator.getInstance();
-
-
-        //guiGraphics.pose().translate(0, 0, 100);
-        /*BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        buffer.vertex(x1/scale, (topPos + panel.getY() + panel.getHeight()), 0.0D).color(255, 255, 255, 255).endVertex();
-        buffer.vertex(x1/scale + x2/scale, (topPos + panel.getY() + panel.getHeight()), 0.0D).color(255, 255, 255, 255).endVertex();
-        buffer.vertex(x1/scale + x2/scale, (topPos + panel.getY()), 0.0D).color(255, 255, 255, 255).endVertex();
-        buffer.vertex(x1/scale, (topPos + panel.getY()), 0.0D).color(255, 255, 255, 255).endVertex();
-        BufferUploader.drawWithShader(buffer.end());*/
-
-        //RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, true);
-        //RenderSystem.setProjectionMatrix(matrix4f,  VertexSorting.ORTHOGRAPHIC_Z);
-
-        /*buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        buffer.vertex(220, 185, 0.0D).color(0, 0, 0, 255).endVertex();
-        buffer.vertex(330, 185, 0.0D).color(0, 0, 0, 255).endVertex();
-        buffer.vertex(330, 105, 0.0D).color(0, 0, 0, 255).endVertex();
-        buffer.vertex(220, 105, 0.0D).color(0, 0, 0, 255).endVertex();*/
-        //newPose.translate(0, -1, -3);
-        // Minecraft.getInstance().gameRenderer.renderLevel(1f, 0, newPose);
-        //buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
-
-        /*GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-        GuiCamera mainCamera = new GuiCamera();
-
-        double d0 = 70;
-        poseStack.mulPoseMatrix(gameRenderer.getProjectionMatrix(d0));
-        Matrix4f matrix4f = poseStack.last().pose();
-        RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.DISTANCE_TO_ORIGIN);
-        mainCamera.setup(this.minecraft.level, this.minecraft.player, !this.minecraft.options.getCameraType().isFirstPerson(), this.minecraft.options.getCameraType().isMirrored(), 1f);
-        mainCamera.setPosition(0,0,0);
-        net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles cameraSetup = net.minecraftforge.client.ForgeHooksClient.onCameraSetup(gameRenderer, mainCamera, 1f);
-
-        mainCamera.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
-        newPose.mulPose(Axis.ZP.rotationDegrees(cameraSetup.getRoll()));
-
-        newPose.mulPose(Axis.XP.rotationDegrees(mainCamera.getXRot()));
-        newPose.mulPose(Axis.YP.rotationDegrees(mainCamera.getYRot() + 180.0F));
-        Matrix3f matrix3f = (new Matrix3f(newPose.last().normal())).invert();
-        RenderSystem.setInverseViewRotationMatrix(matrix3f);
-
-        VBORenderer.drawRender2(new PoseStack(), new BlockPos(0,0,0), Minecraft.getInstance().player, container.getSlot(0).getItem());*/
-        //poseStack.pushPose();
-        //poseStack.scale(20, 20, 20);
-        //poseStack.translate(0, 1, -3);
-        //blockRenderDispatcher.getModelRenderer().renderModel(newPose.last(), buffer, renderState, ibakedmodel, f, f1, f2, 0,0,net.minecraftforge.client.model.data.ModelData.EMPTY, null);
-        //blockRenderDispatcher.getModelRenderer().tesselateBlock(Minecraft.getInstance().level, ibakedmodel, renderState, new BlockPos(0,1,0), poseStack, buffer, false, RandomSource.create(), renderState.getSeed(new BlockPos(0,0,0)), 0, ModelData.EMPTY, null);
-        //BufferUploader.drawWithShader(buffer.end());
-
-        //poseStack.pushPose();
-        //poseStack.scale(4, 4, 4);
-        //poseStack.translate(0, 1, 3);
-        //blockRenderDispatcher.getModelRenderer().renderModel(poseStack.last(), bufferbuilder, renderState, ibakedmodel, f, f1, f2, 0,0,net.minecraftforge.client.model.data.ModelData.EMPTY, null);
-        //MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-        //VertexConsumer builder = buffersource.getBuffer(OurRenderTypes.MissingBlockOverlay);
-        //MyRenderMethods.renderBoxSolid(poseStack.last().pose(), bufferbuilder, new BlockPos(0,0,-3), 1, 0, 0, 1f);
-        //tesselator.end();
         RenderSystem.viewport(0, 0, getMinecraft().getWindow().getWidth(), getMinecraft().getWindow().getHeight());
         RenderSystem.restoreProjectionMatrix();
-        //poseStack.pushPose();
-        //RenderSystem.matrixMode(GL11.GL_PROJECTION);
-        //RenderSystem.pushMatrix();
-        //RenderSystem.loadIdentity();
 
-        //RenderSystem.multMatrix(Matrix4f.perspective(60, (float) panel.getWidth() / panel.getHeight(), 0.01F, 4000));
-        //RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-        /*RenderSystem.viewport((int) Math.round((leftPos + panel.getX()) * scale),
-                (int) Math.round(getMinecraft().getWindow().getHeight() - (topPos + panel.getY() + panel.getHeight()) * scale),
-                (int) Math.round(panel.getWidth() * scale),
-                (int) Math.round(panel.getHeight() * scale));*/
-        /*RenderSystem.viewport(0,0,40,40);
-        //RenderSystem.applyModelViewMatrix();
-        RenderSystem.backupProjectionMatrix();
-        float fovY = (float) Math.toRadians(45);   // Convert 45 degrees to radians.
-        float aspectRatio = (float) 40 / 40; // Assuming width and height are the dimensions of your viewport.
-        float zNear = 0.1f;
-        float zFar = 1000.0f;
-
-        Matrix4f projectionMatrix = new Matrix4f();
-        projectionMatrix.setPerspective(fovY, aspectRatio, zNear, zFar);
-        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.ORTHOGRAPHIC_Z);
-        BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
-        poseStack.pushPose();
-        poseStack.scale(3,3,3);
-        blockRenderDispatcher.renderBatched(Blocks.STONE.defaultBlockState(), new BlockPos(0,0,0), Minecraft.getInstance().level, poseStack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.solid()), true,
-                Minecraft.getInstance().level.random);
-        poseStack.popPose();
-        RenderSystem.viewport(0, 0, getMinecraft().getWindow().getWidth(), getMinecraft().getWindow().getHeight());
-        //RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, true);*/
-
+        //*****************Ignore for now
         sc = (293 * sc) + zoom / zoomScale;
         //RenderSystem.scaled(sc, sc, sc);
         int moveX = startPos.getX() - endPos.getX();
@@ -288,23 +180,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         //RenderSystem.rotatef(30, 0, 1, 0);
         if (startPos.getX() >= endPos.getX())
             moveX--;
-
-        //RenderSystem.translated((moveX) / 1.75, -Math.abs(startPos.getY() - endPos.getY()) / 1.75, 0);
-        //RenderSystem.translated(panX, -panY, 0);
-        //RenderSystem.translated(((startPos.getX() - endPos.getX()) / 2f) * -1, ((startPos.getY() - endPos.getY()) / 2f) * -1, ((startPos.getZ() - endPos.getZ()) / 2f) * -1);
-        //RenderSystem.rotatef(-rotX, 1, 0, 0);
-        //RenderSystem.rotatef(rotY, 0, 1, 0);
-        //RenderSystem.translated(((startPos.getX() - endPos.getX()) / 2f), ((startPos.getY() - endPos.getY()) / 2f), ((startPos.getZ() - endPos.getZ()) / 2f));
-
-        //getMinecraft().getTextureManager().(InventoryMenu.BLOCK_ATLAS);
-//        RenderSystem.callList(displayList);
-
-        //RenderSystem.popMatrix();
-        //RenderSystem.matrixMode(GL11.GL_PROJECTION);
-        //RenderSystem.popMatrix();
-        //RenderSystem.matrixMode(GL11.GL_MODELVIEW);
-        //poseStack.popPose();
-
     }
 
     @Override
