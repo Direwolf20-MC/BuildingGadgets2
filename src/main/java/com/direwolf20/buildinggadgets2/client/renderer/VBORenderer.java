@@ -356,8 +356,8 @@ public class VBORenderer {
         }
 
         matrix.pushPose();
-        matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
-        matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+        //matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+        //matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
 
         //Draw the renders in the specified order
         ArrayList<RenderType> drawSet = new ArrayList<>();
@@ -390,24 +390,26 @@ public class VBORenderer {
 
         matrix.pushPose();
 
+        PoseStack tempPose = RenderSystem.getModelViewStack();
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 1f);
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
         fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, renderPos);
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             if (pos.state.isAir()) continue;
-            matrix.pushPose();
-            matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
-            matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
-            matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
+            tempPose.pushPose();
+            tempPose.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+            tempPose.translate(0, 0, -5);
+            //tempPose.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+            tempPose.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
             //MyRenderMethods.renderBETransparent(mockBuilderWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
             BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
             BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
             if (blockEntity != null)
-                blockEntityRenderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer);
+                blockEntityRenderer.render(blockEntity, 0, tempPose, multiplyAlphaRenderTypeBuffer);
             else
-                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
-            matrix.popPose();
+                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), tempPose, buffersource, 15728640, 655360, 0.5f);
+            tempPose.popPose();
         }
         matrix.popPose();
     }

@@ -6,7 +6,6 @@
 package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
-import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.VBORenderer;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
@@ -16,13 +15,13 @@ import com.direwolf20.buildinggadgets2.common.network.packets.PacketSendCopyData
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketUpdateTemplateManager;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
-import com.direwolf20.buildinggadgets2.util.FakeRenderingWorld;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.Template;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -30,36 +29,24 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
-import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.UUID;
-
-import static com.direwolf20.buildinggadgets2.client.renderer.VBORenderer.isModelRender;
 
 public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerContainer> {
     private static final ResourceLocation background = new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/template_manager.png");
@@ -163,69 +150,49 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         int x2 = (int) Math.round(panel.getWidth() * scale);
         int y2 = (int) Math.round(panel.getHeight() * scale);
 
-        //RenderSystem.viewport(x1,y1,x2, y2);
+        RenderSystem.viewport(x1, y1, x2, y2);
         RenderSystem.backupProjectionMatrix();
 
-        PoseStack poseStack = RenderSystem.getModelViewStack();
+        float fov = 60.0F;  // or whatever field of view you want
+        float aspectRatio = (float) width / height;  // width and height of your GUI or the "viewport" you want to use
+        float near = 0.1F;
+        float far = 1000.0F;
+        getMinecraft().getTextureManager().bindForSetup(TextureAtlas.LOCATION_BLOCKS);
+
+        Matrix4f projectionMatrix = new Matrix4f();
+        projectionMatrix.setPerspective((float) Math.toRadians(fov), aspectRatio, near, far);
+        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.disableDepthTest();
+        RenderSystem.disableCull();
+
+        PoseStack poseStack = new PoseStack();
         Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-
-        PoseStack newPose = new PoseStack();
-
         poseStack.pushPose();
-        poseStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
-        poseStack.translate(120, 220, 350);
-        poseStack.mulPoseMatrix(new Matrix4f().scaling(1.0F, -1.0F, 1.0F));
-        poseStack.scale((float) 30, (float) 30, (float) 30);
-        poseStack.mulPose(new Quaternionf().setAngleAxis(45f / 180 * (float) Math.PI, 1, 0, 0));
+        poseStack.translate(-lengthZ / 2, -2, -lengthZ - 5);
+        poseStack.mulPose(new Quaternionf().setAngleAxis(25f / 180 * (float) Math.PI, 1, 0, 0));
         poseStack.mulPose(new Quaternionf().setAngleAxis(90f / 180 * (float) Math.PI, 0, 1, 0));
-        //RenderSystem.setProjectionMatrix(poseStack.last().pose(), VertexSorting.ORTHOGRAPHIC_Z);
         poseStack.pushPose();
-        poseStack.translate(0 - 0.5, 0 - 0.5, 0 - 0.5);
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false);
 
+        VBORenderer.drawRender2(poseStack, BlockPos.ZERO, Minecraft.getInstance().player, container.getSlot(0).getItem());
 
-        FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(Minecraft.getInstance().level, statePosCache, BlockPos.ZERO);
-
+        /*RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         BlockState renderState = Blocks.OAK_LOG.defaultBlockState();
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(renderState);
-        ModelData modelData = model.getModelData(Minecraft.getInstance().level, new BlockPos(0, 1000, 0), renderState, ModelData.EMPTY);
+        ModelData modelData = model.getModelData(Minecraft.getInstance().level, new BlockPos(0, 2, 0), renderState, ModelData.EMPTY);
         for (RenderType renderType : model.getRenderTypes(renderState, RandomSource.create(42), modelData))
-            Minecraft.getInstance().getBlockRenderer().getModelRenderer().tesselateBlock(Minecraft.getInstance().level, model, renderState, new BlockPos(0, 100, 0), poseStack, bufferSource.getBuffer(renderType), false, RandomSource.create(42), 42, OverlayTexture.NO_OVERLAY, modelData, renderType);
-        bufferSource.endBatch();
-
-        VBORenderer.drawRender2(poseStack, container.getTe().getBlockPos().above(), Minecraft.getInstance().player, container.getSlot(0).getItem());
-        poseStack.popPose();
-
-        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-        MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(bufferSource, 1f);
-        //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
-        BlockPos renderPos = container.getTe().getBlockPos().above();
-        fakeRenderingWorld = new FakeRenderingWorld(Minecraft.getInstance().player.level(), statePosCache, renderPos);
-        for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
-            if (pos.state.isAir()) continue;
-            poseStack.pushPose();
-            poseStack.translate(0 - 0.5, 0 - 0.5, 0 - 0.5);
-            poseStack.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
-            poseStack.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
-            poseStack.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
-            //MyRenderMethods.renderBETransparent(mockBuilderWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
-            BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
-            BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
-            if (blockEntity != null)
-                blockEntityRenderer.render(blockEntity, 0, poseStack, multiplyAlphaRenderTypeBuffer);
-            else
-                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), poseStack, bufferSource, 15728640, 655360, 0.5f);
-            poseStack.popPose();
-        }
-
+            Minecraft.getInstance().getBlockRenderer().getModelRenderer().tesselateBlock(Minecraft.getInstance().level, model, renderState, new BlockPos(0, 0, 0), poseStack, bufferSource.getBuffer(renderType), false, RandomSource.create(42), 42, OverlayTexture.NO_OVERLAY, modelData, renderType);
+        bufferSource.endBatch();*/
 
         poseStack.popPose();
+        poseStack.popPose();
 
-        getMinecraft().getTextureManager().bindForSetup(TextureAtlas.LOCATION_BLOCKS);
+
         Tesselator tesselator = Tesselator.getInstance();
 
 
-        guiGraphics.pose().translate(0, 0, 100);
+        //guiGraphics.pose().translate(0, 0, 100);
         /*BufferBuilder buffer = tessellator.getBuilder();
         buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         buffer.vertex(x1/scale, (topPos + panel.getY() + panel.getHeight()), 0.0D).color(255, 255, 255, 255).endVertex();
