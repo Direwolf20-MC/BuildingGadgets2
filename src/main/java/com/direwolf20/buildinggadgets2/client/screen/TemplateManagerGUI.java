@@ -151,6 +151,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         int x2 = (int) Math.round(panel.getWidth() * scale);
         int y2 = (int) Math.round(panel.getHeight() * scale);
 
+
         RenderSystem.viewport(x1, y1, x2, y2); //The viewport is like a mini world where things get drawn
         RenderSystem.backupProjectionMatrix();
 
@@ -166,8 +167,8 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
         poseStack.setIdentity();
-        poseStack.translate(-lengthZ / 2, -2, -lengthZ); //Move the objects in the world being drawn inside the viewport around
-        poseStack.mulPose(new Quaternionf().setAngleAxis(0f / 180 * (float) Math.PI, 1, 0, 0)); //Rotate
+        poseStack.translate(-lengthZ / 2, -lengthY / 2, -lengthZ); //Move the objects in the world being drawn inside the viewport around
+        poseStack.mulPose(new Quaternionf().setAngleAxis(40f / 180 * (float) Math.PI, 1, 0, 0)); //Rotate
         poseStack.mulPose(new Quaternionf().setAngleAxis(90f / 180 * (float) Math.PI, 0, 1, 0)); //Rotate
         RenderSystem.applyModelViewMatrix();
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
@@ -182,7 +183,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         poseStack.popPose();
         RenderSystem.viewport(0, 0, getMinecraft().getWindow().getWidth(), getMinecraft().getWindow().getHeight());
         RenderSystem.restoreProjectionMatrix();
-
         //*****************Ignore for now
         sc = (293 * sc) + zoom / zoomScale;
         //RenderSystem.scaled(sc, sc, sc);
