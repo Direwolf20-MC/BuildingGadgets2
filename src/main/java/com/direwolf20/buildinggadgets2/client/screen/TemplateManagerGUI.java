@@ -28,7 +28,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -37,6 +39,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -157,15 +161,22 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
         Matrix4f projectionMatrix = new Matrix4f();
         projectionMatrix.setPerspective((float) Math.toRadians(fov), aspectRatio, near, far);
-        RenderSystem.applyModelViewMatrix();
         RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.ORTHOGRAPHIC_Z); //This is needed to switch to 3d rendering instead of 2d for the screen
 
-        PoseStack poseStack = new PoseStack();
+        PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
+        poseStack.setIdentity();
         poseStack.translate(-lengthZ / 2, -2, -lengthZ); //Move the objects in the world being drawn inside the viewport around
         poseStack.mulPose(new Quaternionf().setAngleAxis(0f / 180 * (float) Math.PI, 1, 0, 0)); //Rotate
         poseStack.mulPose(new Quaternionf().setAngleAxis(90f / 180 * (float) Math.PI, 0, 1, 0)); //Rotate
+        RenderSystem.applyModelViewMatrix();
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
+
+        BlockState renderState = Blocks.OAK_LOG.defaultBlockState();
+        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+        //dispatcher.renderSingleBlock(renderState, new PoseStack(), buffersource, 15728640, 655360, ModelData.EMPTY, RenderType.solid());
+
         VBORenderer.drawRender2(poseStack, BlockPos.ZERO, Minecraft.getInstance().player, container.getSlot(0).getItem()); //Draw VBO
 
         poseStack.popPose();

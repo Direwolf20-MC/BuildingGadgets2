@@ -36,6 +36,7 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -384,26 +385,29 @@ public class VBORenderer {
 
 
         matrix.pushPose();
-
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
+        PoseStack testPose = new PoseStack();
         //This isn't working and i have no idea why
         MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 1f);
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
         fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, renderPos);
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             if (pos.state.isAir()) continue;
-            matrix.pushPose();
-            //matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
-            matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
-            MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
+            testPose.pushPose();
+            testPose.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
             BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
             BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
-            if (blockEntity != null)
-                blockEntityRenderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer);
-            else
+
+            if (blockEntity != null) {
+                var renderer = blockEntityRenderer.getRenderer(blockEntity);
+                renderer.render(blockEntity, 0, testPose, multiplyAlphaRenderTypeBuffer, 15728640, OverlayTexture.NO_OVERLAY);
+                //blockEntityRenderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer);
+            } else
                 MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
-            matrix.popPose();
+            testPose.popPose();
         }
         matrix.popPose();
+        buffersource.endLastBatch();
     }
 
     //Sort all the RenderTypes
