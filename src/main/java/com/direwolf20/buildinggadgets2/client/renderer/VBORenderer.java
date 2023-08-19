@@ -284,6 +284,7 @@ public class VBORenderer {
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
         fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, renderPos);
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
+            if (pos.state.isAir()) continue;
             matrix.pushPose();
             matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
             matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
@@ -331,6 +332,84 @@ public class VBORenderer {
                 energyStored -= energyCost;
             }
         }
+    }
+
+    //Draw what we've cached
+    public static void drawRender2(PoseStack matrix, BlockPos renderPos, Player player, ItemStack gadget) {
+        if (vertexBuffers == null || statePosCache == null) {
+            return;
+        }
+        MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
+
+        ArrayList<StatePos> buildList = new ArrayList<>();
+        if (!GadgetNBT.hasCopyUUID(gadget) || !copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(gadget)))
+            return;
+
+        //Sort every <X> Frames to prevent screendoor effect
+        if (sortCounter > 20) {
+            sortAll(renderPos);
+            sortCounter = 0;
+        } else {
+            sortCounter++;
+        }
+
+        matrix.pushPose();
+        matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+        matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+
+        //Draw the renders in the specified order
+        ArrayList<RenderType> drawSet = new ArrayList<>();
+        drawSet.add(RenderType.solid());
+        drawSet.add(RenderType.cutout());
+        drawSet.add(RenderType.cutoutMipped());
+        drawSet.add(RenderType.translucent());
+        drawSet.add(RenderType.tripwire());
+        try {
+            for (RenderType renderType : drawSet) {
+                RenderType drawRenderType;
+                if (renderType.equals(RenderType.cutout()))
+                    drawRenderType = OurRenderTypes.RenderBlock;
+                else
+                    drawRenderType = RenderType.translucent();
+                VertexBuffer vertexBuffer = vertexBuffers.get(renderType);
+                if (vertexBuffer.getFormat() == null)
+                    continue; //IDE says this is never null, but if we remove this check we crash because its null so....
+                drawRenderType.setupRenderState();
+                vertexBuffer.bind();
+                vertexBuffer.drawWithShader(matrix.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+                VertexBuffer.unbind();
+                drawRenderType.clearRenderState();
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        matrix.popPose();
+
+
+        matrix.pushPose();
+
+        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 1f);
+        //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
+        fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, renderPos);
+        for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
+            if (pos.state.isAir()) continue;
+            matrix.pushPose();
+            matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+            matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+            matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
+            //MyRenderMethods.renderBETransparent(mockBuilderWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
+            BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
+            BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
+            if (blockEntity != null)
+                blockEntityRenderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer);
+            else
+                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
+            matrix.popPose();
+        }
+        matrix.popPose();
     }
 
     //Sort all the RenderTypes
