@@ -339,6 +339,7 @@ public class VBORenderer {
         if (vertexBuffers == null || statePosCache == null) {
             return;
         }
+
         MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
         if (!GadgetNBT.hasCopyUUID(gadget) || !copyPasteUUIDCache.equals(GadgetNBT.getCopyUUID(gadget)))
             return;
@@ -382,30 +383,30 @@ public class VBORenderer {
         }
         matrix.popPose();
 
+        //if (true) return; //Remove this will render Tiles (Like chests) but remove tooltips - can't figure out how to fix tooltips!
 
         matrix.pushPose();
-        PoseStack testPose = new PoseStack();
-        //This isn't working and i have no idea why
+        matrix.setIdentity();
         MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 1f);
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
         fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, renderPos);
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             if (pos.state.isAir()) continue;
-            testPose.pushPose();
-            testPose.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
+            matrix.pushPose();
+            matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
             BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
             BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
-
             if (blockEntity != null) {
                 var renderer = blockEntityRenderer.getRenderer(blockEntity);
-                renderer.render(blockEntity, 0, testPose, multiplyAlphaRenderTypeBuffer, 15728640, OverlayTexture.NO_OVERLAY);
-                //blockEntityRenderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer);
+                renderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer, 15728640, OverlayTexture.NO_OVERLAY);
+                //blockEntityRenderer.render(blockEntity, 0, matrix, buffersource);
             } else
                 MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
-            testPose.popPose();
+            matrix.popPose();
         }
         matrix.popPose();
-        buffersource.endLastBatch();
+
+        buffersource.endLastBatch(); //Needed to draw the tiles at this point in the render pipeline or whatever - only for screens
     }
 
     //Sort all the RenderTypes
