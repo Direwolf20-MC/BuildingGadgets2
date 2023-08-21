@@ -57,6 +57,6 @@ public class DestructionRenderer {
 
         stack.popPose();
         //RenderSystem.disableDepthTest();
-        //buffer.endBatch(); // @mcp: draw = finish
+        buffer.endBatch(); // @mcp: draw = finish
     }
 }
