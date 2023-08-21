@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -57,9 +58,12 @@ public class FakeRenderingWorld implements LevelAccessor {
             this.setBlock(statePos.pos, statePos.state, 0);
         }
         for (StatePos statePos : coordinates) {
-            BlockState adjustedState = Block.updateFromNeighbourShapes(statePos.state, this, statePos.pos);
-            ;
-            this.setBlock(statePos.pos, adjustedState, 0);
+            try {
+                BlockState adjustedState = Block.updateFromNeighbourShapes(statePos.state, this, statePos.pos);
+                this.setBlock(statePos.pos, adjustedState, 0);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
     }
 
@@ -82,6 +86,11 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     public BlockState getBlockStateWithoutReal(BlockPos pos) {
         return positions.containsKey(pos) ? positions.get(pos) : Blocks.AIR.defaultBlockState();
+    }
+
+    @Override
+    public void scheduleTick(BlockPos p_186461_, Block p_186462_, int p_186463_) {
+        //noOp
     }
 
     @Override
@@ -229,7 +238,7 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     @Override
     public LevelLightEngine getLightEngine() {
-        return null;
+        return Minecraft.getInstance().level.getLightEngine();
     }
 
     @Override
