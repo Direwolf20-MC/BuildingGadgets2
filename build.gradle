@@ -137,22 +137,34 @@ repositories {
         dir file(extraModsDir)
     }
 
-    maven { // JEI
-        url "https://dvs1.progwml6.com/files/maven"
-    }
     maven { // TOP
         url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
     }
 
     maven { //Patchouli
         url 'https://maven.blamejared.com'
+        content {
+            includeGroup "vazkii.patchouli"
+            includeGroup "mezz.jei"
+        }
     }
 
     maven { //Curios
         url = "https://maven.theillusivec4.top/"
+        content {
+            includeGroup "vazkii.patchouli"
+        }
     }
 
-    maven { url = 'https://modmaven.dev/' } // mek
+    maven { // mek
+        url = 'https://modmaven.dev/'
+        content {
+            includeGroup "top.theillusivec4.curios"
+        }
+    }
     maven { url = "https://www.cursemaven.com" } // curse mods
 }
 

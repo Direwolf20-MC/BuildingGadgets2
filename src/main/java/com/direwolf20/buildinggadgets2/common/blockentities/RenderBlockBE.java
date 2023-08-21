@@ -58,6 +58,10 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     public void setRealBlock(BlockState realBlock) {
+        if (realBlock == null) { //This should never happen in theory, defensive coding
+            level.setBlockAndUpdate(this.getBlockPos(), Blocks.AIR.defaultBlockState());
+            return;
+        }
         if (!realBlock.canSurvive(level, getBlockPos())) {
             List<ItemStack> drops = GadgetUtils.getDropsForBlockState((ServerLevel) level, getBlockPos(), realBlock);
             for (ItemStack returnedItem : drops) {
