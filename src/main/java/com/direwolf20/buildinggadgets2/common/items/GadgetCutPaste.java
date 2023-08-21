@@ -12,6 +12,7 @@ import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import com.direwolf20.buildinggadgets2.util.modes.Cut;
 import com.direwolf20.buildinggadgets2.util.modes.Paste;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -60,6 +61,9 @@ public class GadgetCutPaste extends BaseGadget {
         if (level == null || mc.player == null) {
             return;
         }
+
+        if (GadgetNBT.getPasteReplace(stack))
+            tooltip.add(Component.translatable("buildinggadgets2.voidwarning").withStyle(ChatFormatting.RED));
 
         boolean sneakPressed = Screen.hasShiftDown();
 

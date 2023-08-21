@@ -270,7 +270,7 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos.offset(lookingAt);
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
-            //if (pos.state.isAir()) continue; //Since we store air now
+            if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos)) continue;
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
                 continue;  //Don't do this validation for copy/paste
             boolean foundStacks = false;
@@ -316,7 +316,7 @@ public class BuildingUtils {
         if (!replace)
             actuallyBuiltList = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, false);
         else
-            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, true);
+            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, false);
 
         for (TagPos tagPos : teData) {
             BlockPos blockPos = tagPos.pos.offset(lookingAt);

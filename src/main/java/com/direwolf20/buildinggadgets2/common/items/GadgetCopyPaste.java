@@ -10,6 +10,7 @@ import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.Copy;
 import com.direwolf20.buildinggadgets2.util.modes.Paste;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -52,6 +53,9 @@ public class GadgetCopyPaste extends BaseGadget {
             return;
         }
 
+        if (GadgetNBT.getPasteReplace(stack))
+            tooltip.add(Component.translatable("buildinggadgets2.voidwarning").withStyle(ChatFormatting.RED));
+
         boolean sneakPressed = Screen.hasShiftDown();
 
         if (sneakPressed) {
@@ -79,7 +83,7 @@ public class GadgetCopyPaste extends BaseGadget {
             if (!replace)
                 actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
             else
-                actuallyBuiltList = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, true);
+                actuallyBuiltList = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, false);
             if (!actuallyBuiltList.isEmpty()) {
                 GadgetNBT.clearAnchorPos(gadget);
                 GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList

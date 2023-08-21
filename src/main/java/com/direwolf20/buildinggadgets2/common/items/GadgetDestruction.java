@@ -13,6 +13,7 @@ import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -60,6 +61,9 @@ public class GadgetDestruction extends BaseGadget {
         if (level == null || mc.player == null) {
             return;
         }
+
+        tooltip.add(Component.translatable("buildinggadgets2.voidwarning")
+                .withStyle(ChatFormatting.RED));
 
         boolean sneakPressed = Screen.hasShiftDown();
 

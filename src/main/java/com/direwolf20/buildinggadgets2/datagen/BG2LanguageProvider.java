@@ -32,6 +32,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
         add("buildinggadgets2.grow", "Grow");
         add("buildinggadgets2.fade", "Fade");
+        add("buildinggadgets2.voidwarning", "WARNING: Voids Drops of removed blocks!!");
 
         //Keys
         add("key.buildinggadgets2.category", "Building Gadgets 2");
@@ -73,7 +74,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.screen.relativecoords", "Relative");
         add("buildinggadgets2.screen.start", "Start");
         add("buildinggadgets2.screen.end", "End");
-        add("buildinggadgets2.screen.paste_replace", "Replace Blocks");
+        add("buildinggadgets2.screen.paste_replace", "Replace Blocks (WARNING: Voids Drops)");
         add("buildinggadgets2.screen.copyheading", "Adjust selection");
         add("buildinggadgets2.screen.pasteheading", "Adjust placement");
         add("buildinggadgets2.screen.copysubheading", "Use absolute mode to switch to block coordinates");
