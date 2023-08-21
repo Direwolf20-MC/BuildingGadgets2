@@ -6,20 +6,25 @@
 package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
+import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.renderer.VBORenderer;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.TemplateItem;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestCopyData;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketSendCopyDataToServer;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketUpdateTemplateManager;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
+import com.direwolf20.buildinggadgets2.util.FakeRenderingWorld;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.Template;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Camera;
@@ -28,22 +33,32 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.direwolf20.buildinggadgets2.client.renderer.VBORenderer.isModelRender;
 
 public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerContainer> {
     private static final ResourceLocation background = new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/template_manager.png");
@@ -59,8 +74,14 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     private EditBox nameField;
     private Button buttonSave, buttonLoad, buttonCopy, buttonPaste;
 
+    private int renderSlot = 0;
+    public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
+    private static ArrayList<StatePos> statePosCache;
+
     private final TemplateManagerBE be;
     private final TemplateManagerContainer container;
+
+    private static Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
     public TemplateManagerGUI(TemplateManagerContainer container, Inventory playerInventory, Component title) {
         super(container, playerInventory, Component.literal(""));
@@ -86,28 +107,36 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         this.nameField.setMaxLength(50);
         this.nameField.setVisible(true);
         addRenderableWidget(nameField);
-        updateClientData(0);
-        updateClientData(1);
-    }
-
-    public void updateClientData(int slot) {
-        ItemStack itemStack = container.getSlot(slot).getItem();
-        if (itemStack.isEmpty() || !GadgetNBT.hasCopyUUID(itemStack))
-            return; //If the gadget hasn't copied anything yet, lets just bail out now!
-        UUID itemUUID = GadgetNBT.getUUID(itemStack);
-        UUID copyUUID = GadgetNBT.getCopyUUID(itemStack);
-        UUID dataClientUUID = BG2DataClient.getCopyUUID(itemUUID);
-        if (dataClientUUID != null && dataClientUUID.equals(copyUUID)) //If the Cache'd UUID of the copy/paste matches whats on the item, we don't need to request an update
-            return;
-        //Request an update for this item from the server, it'll be stored in the BG2DataClient class
-        PacketHandler.sendToServer(new PacketRequestCopyData(itemUUID, copyUUID));
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+        updatePanelIfNeeded();
         this.renderPanel(guiGraphics);
+    }
+
+    public boolean updatePanelIfNeeded() {
+        ItemStack gadget = container.getSlot(renderSlot).getItem();
+        UUID gadgetUUID = GadgetNBT.getUUID(gadget);
+        if (gadget.isEmpty() || !(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof TemplateItem)) {
+            vertexBuffers = null; //Clear vertex buffers when player removes item from the slot we're rendering
+            copyPasteUUIDCache = UUID.randomUUID(); //Randomize the cached UUID so it rebuilds for next time
+            resetViewport();
+            return false;
+        }
+        if (!BG2DataClient.isClientUpToDate(gadget)) { //Have the BG2DataClient class check if its up to date
+            return false; //If not up to date, we need to return false, since theres no need to regen the render if its out of date! We'll check again next draw frame
+        }
+        UUID BG2ClientUUID = BG2DataClient.getCopyUUID(gadgetUUID);
+        if (BG2ClientUUID != null && copyPasteUUIDCache.equals(BG2ClientUUID)) //If the cache this class has matches the client cache for this gadget, no need to rebuild
+            return false;
+        //If we get here, the copy paste we have stored here differs from whats in the client AND the client is up to date, so rebuild!
+        copyPasteUUIDCache = BG2ClientUUID; //Cache the new copyPasteUUID for next cycle
+        statePosCache = BG2DataClient.getLookupFromUUID(gadgetUUID);
+        vertexBuffers = VBORenderer.generateRender(getMinecraft().level, BlockPos.ZERO, gadget, 1f, statePosCache);
+        return true; //Need a render update!
     }
 
     private void renderPanel(GuiGraphics guiGraphics) {
@@ -168,7 +197,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         RenderSystem.applyModelViewMatrix();
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
 
-        VBORenderer.drawRender2(poseStack, BlockPos.ZERO, Minecraft.getInstance().player, container.getSlot(0).getItem()); //Draw VBO
+        drawRenderScreen(poseStack, Minecraft.getInstance().player, statePosCache); //Draw VBO
 
         poseStack.popPose();
 
@@ -177,6 +206,67 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         RenderSystem.restoreProjectionMatrix();
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
         RenderSystem.applyModelViewMatrix();
+    }
+
+    public static void drawRenderScreen(PoseStack matrix, Player player, ArrayList<StatePos> statePosCache) {
+        if (vertexBuffers == null) {
+            return;
+        }
+
+        MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+
+        //Draw the renders in the specified order
+        ArrayList<RenderType> drawSet = new ArrayList<>();
+        drawSet.add(RenderType.solid());
+        drawSet.add(RenderType.cutout());
+        drawSet.add(RenderType.cutoutMipped());
+        drawSet.add(RenderType.translucent());
+        drawSet.add(RenderType.tripwire());
+        try {
+            for (RenderType renderType : drawSet) {
+                RenderType drawRenderType;
+                if (renderType.equals(RenderType.cutout()))
+                    drawRenderType = OurRenderTypes.RenderBlock;
+                else
+                    drawRenderType = RenderType.translucent();
+                VertexBuffer vertexBuffer = vertexBuffers.get(renderType);
+                if (vertexBuffer.getFormat() == null)
+                    continue; //IDE says this is never null, but if we remove this check we crash because its null so....
+                drawRenderType.setupRenderState();
+                vertexBuffer.bind();
+                vertexBuffer.drawWithShader(matrix.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+                VertexBuffer.unbind();
+                drawRenderType.clearRenderState();
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+
+        //if (true) return; //Remove this will render Tiles (Like chests) but remove tooltips - can't figure out how to fix tooltips!
+
+        matrix.pushPose();
+        matrix.setIdentity();
+        MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 1f);
+        //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
+        FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, BlockPos.ZERO);
+        for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
+            if (pos.state.isAir()) continue;
+            matrix.pushPose();
+            matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
+            BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
+            BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
+            if (blockEntity != null) {
+                var renderer = blockEntityRenderer.getRenderer(blockEntity);
+                renderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer, 15728640, OverlayTexture.NO_OVERLAY);
+                //blockEntityRenderer.render(blockEntity, 0, matrix, buffersource);
+            } else
+                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
+            matrix.popPose();
+        }
+        matrix.popPose();
+
+        buffersource.endLastBatch(); //Needed to draw the tiles at this point in the render pipeline or whatever - only for screens
     }
 
     @Override
