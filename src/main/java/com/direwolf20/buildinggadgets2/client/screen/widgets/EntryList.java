@@ -80,6 +80,14 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
     }
 
     @Override
+    protected void renderSelection(GuiGraphics p_283589_, int p_240142_, int p_240143_, int p_240144_, int p_240145_, int p_240146_) {
+        int i = this.x0 + 3;
+        int j = this.x0 + (this.width + p_240143_) / 2;
+        p_283589_.fill(i, p_240142_ - 2, j, p_240142_ + p_240144_ + 2, p_240145_);
+        p_283589_.fill(i + 1, p_240142_ - 1, j - 1, p_240142_ + p_240144_ + 1, p_240146_);
+    }
+
+    @Override
     protected void renderBackground(GuiGraphics guiGraphics) {
         super.renderBackground(guiGraphics);
     }

@@ -107,12 +107,14 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         buttonPaste = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.paste"), b -> onPaste()).pos(x, topPos + 89).size(60, 20).build());
         buttonPaste = addRenderableWidget(Button.builder(Component.translatable("temp"), b -> this.showMaterialList = !this.showMaterialList).pos(x, topPos + 109).size(60, 20).build());
 
+        this.renderSlot = 1;
+
         addRenderableWidget(buttonSave);
         this.nameField.setMaxLength(50);
         this.nameField.setVisible(true);
         addRenderableWidget(nameField);
 
-        this.scrollingList = new ScrollingMaterialList(this, leftPos + panel.getX(), (topPos + panel.getY()), panel.getWidth(), panel.getHeight(), container.getSlot(0).getItem());
+        this.scrollingList = new ScrollingMaterialList(this, leftPos + panel.getX(), (topPos + panel.getY()), panel.getWidth(), panel.getHeight(), container.getSlot(renderSlot).getItem());
         //this.setFocused(scrollingList);
         //this.addRenderableWidget(scrollingList);
     }
@@ -158,7 +160,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
     private void renderPanel(GuiGraphics guiGraphics) {
         double scale = getMinecraft().getWindow().getGuiScale();
-        ItemStack gadget = container.getSlot(0).getItem();
+        ItemStack gadget = container.getSlot(renderSlot).getItem();
         if (gadget.isEmpty()) return;
         ArrayList<StatePos> statePosCache = BG2DataClient.getLookupFromUUID(GadgetNBT.getUUID(gadget));
         if (statePosCache == null || statePosCache.isEmpty()) return;

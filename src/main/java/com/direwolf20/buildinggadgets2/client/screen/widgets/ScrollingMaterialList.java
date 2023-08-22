@@ -71,6 +71,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
     private void updateEntries() {
         this.lastUpdate = System.currentTimeMillis();
         this.clearEntries();
+        this.setScrollAmount(0);
 
         //Get the statePos list - since this screen can only be called from 'paste' mode, the client side should always be up to date in theory?
         if (statePosArrayList == null || statePosArrayList.isEmpty()) {
@@ -258,10 +259,10 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         @Override
         public boolean mouseClicked(double x, double y, int button) {
             // TODO add replacement function and make entries selectable
-//            if (isMouseOver(x, y)) {
-//                parent.setSelected(this);
-//                return true;
-//            }
+            if (isMouseOver(x, y)) {
+                parent.setSelected(this);
+                return true;
+            }
             return false;
         }
 
@@ -271,7 +272,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
 
         @Override
         public Component getNarration() {
-            return null;
+            return Component.empty();
         }
 
         public void setTaskHoveringText(int x, int y, List<Component> text) {
