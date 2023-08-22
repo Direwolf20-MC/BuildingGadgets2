@@ -522,7 +522,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         PacketSendCopyDataToServer.encode(packet, buffer);
         int packetSize = buffer.writerIndex();
-        System.out.println(packetSize);
         if (packetSize > 32000)
             return;
         PacketHandler.sendToServer(packet);
