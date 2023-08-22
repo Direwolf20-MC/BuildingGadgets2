@@ -92,6 +92,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.screen.missingdesc", "Missing Descending");
         add("buildinggadgets2.screen.templateplaceholder", "Template name");
         add("buildinggadgets2.screen.namefieldtext", "name?");
+        add("buildinggadgets2.screen.invalidjson", "Invalid Pasted JSON");
 
         //Buttons
         add("buildinggadgets2.buttons.save", "Save");

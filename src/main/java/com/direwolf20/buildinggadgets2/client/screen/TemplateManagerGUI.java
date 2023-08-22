@@ -26,7 +26,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -429,16 +428,16 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         ArrayList<StatePos> statePosArrayList = new ArrayList<>();
         try {
             Template template = new Template(CBString);
-            if (template.statePosArrayList.equals("")) return;
+            if (template.statePosArrayList == null || template.statePosArrayList.equals("")) return;
             CompoundTag deserializedNBT = TagParser.parseTag(template.statePosArrayList);
             statePosArrayList = BG2Data.statePosListFromNBTMapArray(deserializedNBT);
-        } catch (CommandSyntaxException e) {
+        } catch (Exception e) {
+            getMinecraft().player.displayClientMessage(Component.translatable("buildinggadgets2.screen.invalidjson"), true);
             // Handle the exception if the string isn't a valid NBT
             return;
         }
         if (statePosArrayList.isEmpty())
             return;
-        //Todo JSON validations, Older JSON Versions
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
         PacketHandler.sendToServer(new PacketSendCopyDataToServer(serverTag));
     }

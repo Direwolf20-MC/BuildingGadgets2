@@ -52,6 +52,7 @@
   "buildinggadgets2.screen.destructiontoolarge": "Destruction Area too large",
   "buildinggadgets2.screen.down": "Down",
   "buildinggadgets2.screen.end": "End",
+  "buildinggadgets2.screen.invalidjson": "Invalid Pasted JSON",
   "buildinggadgets2.screen.left": "Left",
   "buildinggadgets2.screen.missingasc": "Missing Ascending",
   "buildinggadgets2.screen.missingdesc": "Missing Descending",
