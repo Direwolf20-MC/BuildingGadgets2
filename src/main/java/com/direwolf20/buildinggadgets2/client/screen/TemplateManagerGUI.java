@@ -129,7 +129,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         if (showMaterialList) {
             if (!renderables.contains(scrollingList))
                 this.addRenderableWidget(scrollingList);
-            this.setFocused(scrollingList);
         } else {
             this.removeWidget(scrollingList);
             this.renderPanel(guiGraphics);
@@ -351,14 +350,17 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
-        if (!showMaterialList) {
-            if (panel.contains((int) mouseX - leftPos, (int) mouseY - topPos)) {
+        if (panel.contains((int) mouseX - leftPos, (int) mouseY - topPos)) {
+            if (showMaterialList)
+                this.setFocused(scrollingList);
+            else {
                 clickButton = mouseButton;
                 panelClicked = true;
                 clickX = (int) getMinecraft().mouseHandler.xpos();
                 clickY = (int) getMinecraft().mouseHandler.ypos();
             }
         }
+
         if (!panel.contains((int) mouseX - leftPos, (int) mouseY - topPos)) {
             this.scrollingList.setSelected(null);
         }
