@@ -128,7 +128,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
     /**
      * This class defines what each entry in the list looks like and how it behaves
      */
-    static class Entry extends ObjectSelectionList.Entry<Entry> {
+    public static class Entry extends ObjectSelectionList.Entry<Entry> {
 
         private ScrollingMaterialList parent;
         private int required;

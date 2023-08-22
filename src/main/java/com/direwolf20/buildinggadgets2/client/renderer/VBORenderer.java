@@ -133,7 +133,7 @@ public class VBORenderer {
      */
     public static Map<RenderType, VertexBuffer> generateRender(Level level, BlockPos renderPos, ItemStack gadget, float transparency, ArrayList<StatePos> statePosCache) {
         Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
-        //BaseMode mode = GadgetNBT.getMode(gadget);
+        boolean isExchanging = gadget.getItem() instanceof BaseGadget && GadgetNBT.getMode(gadget).isExchanging;
         if (statePosCache == null || statePosCache.isEmpty()) return vertexBuffers;
         fakeRenderingWorld = new FakeRenderingWorld(level, statePosCache, renderPos);
         PoseStack matrix = new PoseStack(); //Create a new matrix stack for use in the buffer building process
@@ -148,7 +148,7 @@ public class VBORenderer {
             BakedModel ibakedmodel = dispatcher.getBlockModel(renderState);
             matrix.pushPose();
             matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
-            if ((gadget.getItem() instanceof BaseGadget) && GadgetNBT.getMode(gadget).isExchanging) {
+            if (isExchanging) {
                 matrix.translate(-0.0005f, -0.0005f, -0.0005f); //For Exchanger
                 matrix.scale(1.001f, 1.001f, 1.001f); //For Exchanger
             }

@@ -47,6 +47,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -71,7 +72,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     private float panX = 0, panY = 0;
 
     private EditBox nameField;
-    private Button buttonSave, buttonLoad, buttonCopy, buttonPaste;
+    private Button buttonSave, buttonLoad, buttonCopy, buttonPaste, buttonToggleViewport;
 
     private int renderSlot = 0;
     public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
@@ -99,13 +100,13 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         this.nameField = new EditBox(this.font, (this.leftPos - 20) + 8, topPos - 5, imageWidth - 16, this.font.lineHeight + 3, Component.translatable("buildinggadgets2.screen.namefieldtext"));
 
         int x = (leftPos - 20) + 180;
-        buttonSave = new ExtendedButton(x, topPos + 17, 60, 20, Component.translatable("buildinggadgets2.buttons.save"), (button) -> {
+        buttonSave = new ExtendedButton(x, topPos + 15, 60, 15, Component.translatable("buildinggadgets2.buttons.save"), (button) -> {
             onSave();
         });
-        buttonLoad = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.load"), b -> onLoad()).pos(x, topPos + 39).size(60, 20).build());
-        buttonCopy = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.copy"), b -> onCopy()).pos(x, topPos + 66).size(60, 20).build());
-        buttonPaste = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.paste"), b -> onPaste()).pos(x, topPos + 89).size(60, 20).build());
-        buttonPaste = addRenderableWidget(Button.builder(Component.translatable("temp"), b -> this.showMaterialList = !this.showMaterialList).pos(x, topPos + 109).size(60, 20).build());
+        buttonLoad = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.load"), b -> onLoad()).pos(x, topPos + 32).size(60, 15).build());
+        buttonCopy = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.copy"), b -> onCopy()).pos(x, topPos + 50).size(60, 15).build());
+        buttonPaste = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.paste"), b -> onPaste()).pos(x, topPos + 67).size(60, 15).build());
+        buttonToggleViewport = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.render"), b -> onToggleViewport()).pos(x, topPos + 85).size(60, 15).build());
 
         this.renderSlot = 1;
 
@@ -115,8 +116,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         addRenderableWidget(nameField);
 
         this.scrollingList = new ScrollingMaterialList(this, leftPos + panel.getX(), (topPos + panel.getY()), panel.getWidth(), panel.getHeight(), container.getSlot(renderSlot).getItem());
-        //this.setFocused(scrollingList);
-        //this.addRenderableWidget(scrollingList);
     }
 
     @Override
@@ -325,6 +324,9 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
                 clickY = (int) getMinecraft().mouseHandler.ypos();
             }
         }
+        if (!panel.contains((int) mouseX - leftPos, (int) mouseY - topPos)) {
+            this.scrollingList.setSelected(null);
+        }
 
         return super.mouseClicked(mouseX, mouseY, mouseButton);
     }
@@ -427,6 +429,14 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         //TODO Implement Naming
     }
 
+    private void onToggleViewport() {
+        this.showMaterialList = !this.showMaterialList;
+        if (showMaterialList)
+            buttonToggleViewport.setMessage(Component.translatable("buildinggadgets2.buttons.materials"));
+        else
+            buttonToggleViewport.setMessage(Component.translatable("buildinggadgets2.buttons.render"));
+    }
+
     private void onSave() {
         PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 0));
     }
@@ -435,13 +445,20 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 1));
     }
 
-    private void onCopy() {
+    private Template getTemplate() {
         ItemStack templateStack = container.getSlot(1).getItem();
-        if (templateStack.isEmpty()) return; //Todo messaging
+        Template template = new Template("", new ArrayList<>());
+        if (templateStack.isEmpty()) return template;
         UUID templateUUID = GadgetNBT.getUUID(templateStack);
         ArrayList<StatePos> statePosCache = BG2DataClient.getLookupFromUUID(templateUUID);
-        if (statePosCache == null || statePosCache.isEmpty()) return;
-        Template template = new Template(nameField.getValue(), statePosCache);
+        if (statePosCache == null || statePosCache.isEmpty()) return template;
+        template = new Template(nameField.getValue(), statePosCache);
+        return template;
+    }
+
+    private void onCopy() {
+        Template template = getTemplate();
+        if (template.statePosArrayList.isEmpty()) return;
         try {
             String json = template.toJson();
             getMinecraft().keyboardHandler.setClipboard(json);
@@ -469,5 +486,22 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             return;
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
         PacketHandler.sendToServer(new PacketSendCopyDataToServer(serverTag));
+    }
+
+    //TODO WIP
+    private void onReplace(BlockState targetState) {
+        if (!showMaterialList || this.scrollingList.getSelected() == null)
+            return;
+
+        //doReplace(this.scrollingList.getSelected().getStack(), targetState);
+        //System.out.println(this.scrollingList.getSelected().getItemName());
+    }
+
+    private void doReplace(BlockState sourceState, BlockState targetState) {
+        Template template = getTemplate();
+        if (template.statePosArrayList.isEmpty()) return;
+
+        template.replaceBlocks(sourceState, targetState);
+
     }
 }

@@ -99,6 +99,8 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.buttons.load", "Load");
         add("buildinggadgets2.buttons.copy", "Copy");
         add("buildinggadgets2.buttons.paste", "Paste");
+        add("buildinggadgets2.buttons.render", "Render");
+        add("buildinggadgets2.buttons.materials", "Materials");
 
         //Radial Menu
         add("buildinggadgets2.radialmenu.fuzzy", "Fuzzy");
