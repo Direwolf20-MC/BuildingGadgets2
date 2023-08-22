@@ -9,6 +9,7 @@ import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.renderer.VBORenderer;
+import com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
@@ -26,7 +27,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -80,6 +80,9 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     private final TemplateManagerBE be;
     private final TemplateManagerContainer container;
 
+    private ScrollingMaterialList scrollingList;
+    private boolean showMaterialList = false;
+
     private static Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
     public TemplateManagerGUI(TemplateManagerContainer container, Inventory playerInventory, Component title) {
@@ -87,6 +90,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
         this.container = container;
         this.be = container.getTe();
+
     }
 
     @Override
@@ -101,11 +105,16 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         buttonLoad = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.load"), b -> onLoad()).pos(x, topPos + 39).size(60, 20).build());
         buttonCopy = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.copy"), b -> onCopy()).pos(x, topPos + 66).size(60, 20).build());
         buttonPaste = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.paste"), b -> onPaste()).pos(x, topPos + 89).size(60, 20).build());
+        buttonPaste = addRenderableWidget(Button.builder(Component.translatable("temp"), b -> this.showMaterialList = !this.showMaterialList).pos(x, topPos + 109).size(60, 20).build());
 
         addRenderableWidget(buttonSave);
         this.nameField.setMaxLength(50);
         this.nameField.setVisible(true);
         addRenderableWidget(nameField);
+
+        this.scrollingList = new ScrollingMaterialList(this, leftPos + panel.getX(), (topPos + panel.getY()), panel.getWidth(), panel.getHeight(), container.getSlot(0).getItem());
+        //this.setFocused(scrollingList);
+        //this.addRenderableWidget(scrollingList);
     }
 
     @Override
@@ -113,7 +122,14 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         updatePanelIfNeeded();
-        this.renderPanel(guiGraphics);
+        if (showMaterialList) {
+            if (!renderables.contains(scrollingList))
+                this.addRenderableWidget(scrollingList);
+            this.setFocused(scrollingList);
+        } else {
+            this.removeWidget(scrollingList);
+            this.renderPanel(guiGraphics);
+        }
     }
 
     public boolean updatePanelIfNeeded() {
@@ -123,6 +139,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             vertexBuffers = null; //Clear vertex buffers when player removes item from the slot we're rendering
             copyPasteUUIDCache = UUID.randomUUID(); //Randomize the cached UUID so it rebuilds for next time
             resetViewport();
+            scrollingList.setTemplateItem(gadget);
             return false;
         }
         if (!BG2DataClient.isClientUpToDate(gadget)) { //Have the BG2DataClient class check if its up to date
@@ -135,6 +152,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         copyPasteUUIDCache = BG2ClientUUID; //Cache the new copyPasteUUID for next cycle
         statePosCache = BG2DataClient.getLookupFromUUID(gadgetUUID);
         vertexBuffers = VBORenderer.generateRender(getMinecraft().level, BlockPos.ZERO, gadget, 1f, statePosCache);
+        scrollingList.setTemplateItem(gadget);
         return true; //Need a render update!
     }
 
@@ -297,11 +315,13 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
-        if (panel.contains((int) mouseX - leftPos, (int) mouseY - topPos)) {
-            clickButton = mouseButton;
-            panelClicked = true;
-            clickX = (int) getMinecraft().mouseHandler.xpos();
-            clickY = (int) getMinecraft().mouseHandler.ypos();
+        if (!showMaterialList) {
+            if (panel.contains((int) mouseX - leftPos, (int) mouseY - topPos)) {
+                clickButton = mouseButton;
+                panelClicked = true;
+                clickX = (int) getMinecraft().mouseHandler.xpos();
+                clickY = (int) getMinecraft().mouseHandler.ypos();
+            }
         }
 
         return super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -317,6 +337,13 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         initZoom = zoom;
 
         return super.mouseReleased(mouseX, mouseY, state);
+    }
+
+    @Override
+    public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
+        if (showMaterialList)
+            return this.getFocused() != null && this.isDragging() && button == 0 ? this.getFocused().mouseDragged(x, y, button, dx, dy) : false;
+        return super.mouseDragged(x, y, button, dx, dy);
     }
 
     @Override
@@ -440,15 +467,5 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             return;
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
         PacketHandler.sendToServer(new PacketSendCopyDataToServer(serverTag));
-    }
-
-    public class GuiCamera extends Camera {
-        public GuiCamera() {
-        }
-
-        @Override
-        public void setPosition(double p_90585_, double p_90586_, double p_90587_) {
-            super.setPosition(p_90585_, p_90586_, p_90587_);
-        }
     }
 }

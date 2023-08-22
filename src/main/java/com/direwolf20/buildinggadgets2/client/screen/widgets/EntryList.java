@@ -113,4 +113,9 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
     public final int getMaxScroll() {
         return Math.max(0, this.getMaxPosition() - (this.getBottom() - this.getTop() - 4));
     }
+
+    @Override
+    public int getRowWidth() {
+        return getWidth() - 30;
+    }
 }

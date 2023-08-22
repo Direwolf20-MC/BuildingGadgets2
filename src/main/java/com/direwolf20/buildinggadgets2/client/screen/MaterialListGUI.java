@@ -15,8 +15,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.List;
-
 public class MaterialListGUI extends Screen {
 
     public static final int BUTTON_HEIGHT = 20;
@@ -44,9 +42,7 @@ public class MaterialListGUI extends Screen {
     private Button buttonSortingModes;
     private Button buttonCopyList;
 
-    private int hoveringTextX;
-    private int hoveringTextY;
-    private List<Component> hoveringText;
+
 
     public MaterialListGUI(ItemStack itemStack) {
         super(Component.translatable("buildinggadgets2.screen.componentslist"));
@@ -64,7 +60,7 @@ public class MaterialListGUI extends Screen {
 
         // Make it receive mouse scroll events, so that the player can use his mouse wheel at the start
 
-        this.scrollingList = new ScrollingMaterialList(this);
+        this.scrollingList = new ScrollingMaterialList(this, getWindowLeftX(), getWindowTopY() + 16, getWindowWidth(), getWindowHeight() - 16 - 32, gadget);
         this.setFocused(scrollingList);
         this.addRenderableWidget(scrollingList);
 
@@ -112,11 +108,11 @@ public class MaterialListGUI extends Screen {
             guiGraphics.renderTooltip(font, Lists.transform(ImmutableList.of(MaterialListTranslation.HELP_COPY_LIST.componentTranslation()), Component::getVisualOrderText), mouseX, mouseY);
 //            GuiUtils.drawHoveringText(matrices, ImmutableList.of(MaterialListTranslation.HELP_COPY_LIST.componentTranslation()), mouseX, mouseY, width, height, Integer.MAX_VALUE, textRenderer);
         } else */
-        if (hoveringText != null) {
-            guiGraphics.renderTooltip(font, Lists.transform(hoveringText, Component::getVisualOrderText), mouseX, mouseY);
+        if (scrollingList.hoveringText != null) {
+            guiGraphics.renderTooltip(font, Lists.transform(scrollingList.hoveringText, Component::getVisualOrderText), mouseX, mouseY);
 
 //            GuiUtils.drawHoveringText(matrices, hoveringText, hoveringTextX, hoveringTextY, width, height, Integer.MAX_VALUE, textRenderer);
-            hoveringText = null;
+            scrollingList.hoveringText = null;
         }
 
     }
@@ -139,12 +135,6 @@ public class MaterialListGUI extends Screen {
                 nextX += buttonWidth + BUTTONS_PADDING;
             }
         }
-    }
-
-    public void setTaskHoveringText(int x, int y, List<Component> text) {
-        hoveringTextX = x;
-        hoveringTextY = y;
-        hoveringText = text;
     }
 
     @Override

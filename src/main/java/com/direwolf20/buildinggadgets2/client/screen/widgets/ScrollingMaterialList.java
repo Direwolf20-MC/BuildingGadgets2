@@ -1,7 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
 
-import com.direwolf20.buildinggadgets2.client.screen.MaterialListGUI;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -13,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +22,7 @@ import org.lwjgl.glfw.GLFW;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import static com.direwolf20.buildinggadgets2.client.screen.MaterialListGUI.*;
@@ -39,23 +40,31 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
     private static final int ENTRY_HEIGHT = Math.max(SLOT_SIZE + MARGIN * 2, Minecraft.getInstance().font.lineHeight * 2 + MARGIN * 3);
     private static final int LINE_SIDE_MARGIN = 8;
 
-    private MaterialListGUI gui;
+    private Screen gui;
 
     private SortingModes sortingMode;
     private long lastUpdate;
     private ArrayList<StatePos> statePosArrayList;
     private Map<ItemStackKey, Integer> itemCountsMap;
+    private ItemStack templateItem;
+    public List<Component> hoveringText;
 
     /**
      * This class draws a list of entries, which is an object overriden and defined below. Each entry draws the icon and text, etc
      * Extended from the MC Base class that handles things like the server select screen
      */
-    public ScrollingMaterialList(MaterialListGUI gui) {
-        super(gui.getWindowLeftX(), gui.getWindowTopY() + TOP, gui.getWindowWidth(), gui.getWindowHeight() - TOP - BOTTOM, ENTRY_HEIGHT);
+    public ScrollingMaterialList(Screen gui, int windowLeftX, int windowTopY, int windowWidth, int windowHeight, ItemStack templateItem) {
+        super(windowLeftX, windowTopY, windowWidth, windowHeight, ENTRY_HEIGHT);
 
         this.gui = gui;
         this.setSortingMode(SortingModes.NAME);
+        setTemplateItem(templateItem);
+        updateEntries();
+    }
 
+    public void setTemplateItem(ItemStack templateItem) {
+        this.templateItem = templateItem;
+        statePosArrayList = new ArrayList<>();
         updateEntries();
     }
 
@@ -65,7 +74,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
 
         //Get the statePos list - since this screen can only be called from 'paste' mode, the client side should always be up to date in theory?
         if (statePosArrayList == null || statePosArrayList.isEmpty()) {
-            statePosArrayList = BG2DataClient.getLookupFromUUID(GadgetNBT.getUUID(gui.getTemplateItem()));
+            statePosArrayList = BG2DataClient.getLookupFromUUID(GadgetNBT.getUUID(templateItem));
         }
 
         Player player = Minecraft.getInstance().player;
@@ -105,8 +114,8 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        if (lastUpdate + UPDATE_MILLIS < System.currentTimeMillis())
-            updateEntries();
+        //if (lastUpdate + UPDATE_MILLIS < System.currentTimeMillis())
+        //    updateEntries();  //Why?
 
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
@@ -131,6 +140,9 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
 
         private int widthItemName;
         private int widthAmount;
+
+        private int hoveringTextX;
+        private int hoveringTextY;
 
         public Entry(ScrollingMaterialList parent, ItemStack item, int required, int available) {
             this.parent = parent;
@@ -197,7 +209,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
 
         private void drawHoveringText(ItemStack item, int slotX, int slotY, int mouseX, int mouseY) {
             if (isPointInBox(mouseX, mouseY, slotX, slotY, 18, 18))
-                parent.gui.setTaskHoveringText(mouseX, mouseY, parent.gui.getTooltipFromItem(Minecraft.getInstance(), item));
+                setTaskHoveringText(mouseX, mouseY, getTooltipFromItem(Minecraft.getInstance(), item));
         }
 
         private void drawIcon(GuiGraphics guiGraphics, ItemStack item, int slotX, int slotY) {
@@ -261,7 +273,14 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         public Component getNarration() {
             return null;
         }
+
+        public void setTaskHoveringText(int x, int y, List<Component> text) {
+            hoveringTextX = x;
+            hoveringTextY = y;
+            parent.hoveringText = text;
+        }
     }
+
 
     public SortingModes getSortingMode() {
         return sortingMode;
