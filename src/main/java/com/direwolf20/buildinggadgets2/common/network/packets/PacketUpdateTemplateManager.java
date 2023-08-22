@@ -23,19 +23,22 @@ import java.util.function.Supplier;
 public class PacketUpdateTemplateManager {
     BlockPos blockPos;
     int mode;
+    String templateName;
 
-    public PacketUpdateTemplateManager(BlockPos blockPos, int mode) {
+    public PacketUpdateTemplateManager(BlockPos blockPos, int mode, String templateName) {
         this.blockPos = blockPos;
         this.mode = mode;
+        this.templateName = templateName;
     }
 
     public static PacketUpdateTemplateManager decode(FriendlyByteBuf buf) {
-        return new PacketUpdateTemplateManager(buf.readBlockPos(), buf.readInt());
+        return new PacketUpdateTemplateManager(buf.readBlockPos(), buf.readInt(), buf.readUtf());
     }
 
     public static void encode(PacketUpdateTemplateManager message, FriendlyByteBuf buf) {
         buf.writeBlockPos(message.blockPos);
         buf.writeInt(message.mode);
+        buf.writeUtf(message.templateName);
     }
 
     public static void copyData(ServerPlayer sender, ItemStack sourceStack, ItemStack targetStack) {
@@ -67,25 +70,28 @@ public class PacketUpdateTemplateManager {
             ItemStack gadgetStack = container.getSlot(0).getItem();
             ItemStack templateStack = container.getSlot(1).getItem();
             if (message.mode == 0) { //Save
-                if (templateStack.isEmpty())
+                if (templateStack.isEmpty()) { //Save the templateName to the Gadget if theres no paper in the slot
+                    GadgetNBT.setTemplateName(gadgetStack, message.templateName);
                     return;
+                }
 
                 if (templateStack.is(Items.PAPER)) {
                     container.setItem(1, container.getStateId(), new ItemStack(Registration.Template.get()));
                     templateStack = container.getSlot(1).getItem();
                 }
 
-                //Todo Template Name
+                GadgetNBT.setTemplateName(templateStack, message.templateName);
 
                 if (gadgetStack.isEmpty())
                     return;
 
                 copyData(sender, gadgetStack, templateStack);
+
             } else if (message.mode == 1) { //Load
                 if (templateStack.isEmpty() || gadgetStack.isEmpty())
                     return;
-
                 copyData(sender, templateStack, gadgetStack);
+                GadgetNBT.setTemplateName(gadgetStack, GadgetNBT.getTemplateName(templateStack)); //Set gadget template name to templatestack name
             }
         });
 

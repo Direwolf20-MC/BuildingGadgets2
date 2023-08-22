@@ -56,6 +56,11 @@ public class GadgetCopyPaste extends BaseGadget {
         if (GadgetNBT.getPasteReplace(stack))
             tooltip.add(Component.translatable("buildinggadgets2.voidwarning").withStyle(ChatFormatting.RED));
 
+        String templateName = GadgetNBT.getTemplateName(stack);
+
+        if (!templateName.isEmpty())
+            tooltip.add(Component.translatable("buildinggadgets2.templatename", templateName).withStyle(ChatFormatting.AQUA));
+
         boolean sneakPressed = Screen.hasShiftDown();
 
         if (sneakPressed) {

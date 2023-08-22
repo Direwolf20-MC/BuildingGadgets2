@@ -318,6 +318,16 @@ public class GadgetNBT {
         return stack.getOrCreateTag().getInt(valueName);
     }
 
+    public static void setTemplateName(ItemStack stack, String name) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putString("templatename", name);
+    }
+
+    public static String getTemplateName(ItemStack stack) {
+        CompoundTag tag = stack.getOrCreateTag();
+        return tag.getString("templatename"); //GetString returns "" is the tag doesn't exist
+    }
+
     public static boolean getFuzzy(ItemStack stack) {
         return getSetting(stack, "fuzzy");
     }

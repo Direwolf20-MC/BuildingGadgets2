@@ -75,6 +75,8 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     private Button buttonSave, buttonLoad, buttonCopy, buttonPaste, buttonToggleViewport;
 
     private int renderSlot = 0;
+    public static UUID gadgetUUID = UUID.randomUUID(); //Cached version of whatevers in slot 0
+    public static UUID templateUUID = UUID.randomUUID(); //Cached version of whatevers in slot 1
     public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
     private static ArrayList<StatePos> statePosCache;
 
@@ -98,6 +100,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     public void init() {
         super.init();
         this.nameField = new EditBox(this.font, (this.leftPos - 20) + 8, topPos - 5, imageWidth - 16, this.font.lineHeight + 3, Component.translatable("buildinggadgets2.screen.namefieldtext"));
+        updateNameField();
 
         int x = (leftPos - 20) + 180;
         buttonSave = new ExtendedButton(x, topPos + 15, 60, 15, Component.translatable("buildinggadgets2.buttons.save"), (button) -> {
@@ -122,7 +125,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-        updatePanelIfNeeded();
+        updateAsNeeded();
         if (showMaterialList) {
             if (!renderables.contains(scrollingList))
                 this.addRenderableWidget(scrollingList);
@@ -131,6 +134,38 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             this.removeWidget(scrollingList);
             this.renderPanel(guiGraphics);
         }
+    }
+
+    public void updateNameField() {
+        ItemStack gadgetStack = container.getSlot(0).getItem();
+        ItemStack templateStack = container.getSlot(1).getItem();
+
+        String gadgetName = GadgetNBT.getTemplateName(gadgetStack);
+        String templateName = GadgetNBT.getTemplateName(templateStack);
+
+        this.nameField.setValue(templateName.isEmpty() ? gadgetName : templateName);
+    }
+
+    public void updateAsNeeded() {
+        ItemStack gadgetStack = container.getSlot(0).getItem();
+        ItemStack templateStack = container.getSlot(1).getItem();
+        boolean updatePanel = false;
+
+        UUID gadgetStackUUID = GadgetNBT.getUUID(gadgetStack);
+        UUID templateStackUUID = GadgetNBT.getUUID(templateStack);
+
+        if (!gadgetStackUUID.equals(gadgetUUID)) {
+            gadgetUUID = gadgetStackUUID;
+            updatePanel = true;
+        }
+        if (!templateStackUUID.equals(templateUUID)) {
+            templateUUID = templateStackUUID;
+            updatePanel = true;
+        }
+
+        if (updatePanel) //Only update the panel if the stacks were changed
+            updateNameField();
+        updatePanelIfNeeded();
     }
 
     public boolean updatePanelIfNeeded() {
@@ -423,12 +458,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         }
     }
 
-    private void rename(ItemStack stack) {
-        if (nameField.getValue().isEmpty())
-            return;
-        //TODO Implement Naming
-    }
-
     private void onToggleViewport() {
         this.showMaterialList = !this.showMaterialList;
         if (showMaterialList)
@@ -438,11 +467,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     private void onSave() {
-        PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 0));
+        PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 0, nameField.getValue()));
     }
 
     private void onLoad() {
-        PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 1));
+        PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 1, nameField.getValue()));
     }
 
     private Template getTemplate() {
