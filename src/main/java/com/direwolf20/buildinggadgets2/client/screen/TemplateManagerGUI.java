@@ -27,6 +27,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -40,6 +41,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -516,7 +518,14 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         if (statePosArrayList.isEmpty())
             return;
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
-        PacketHandler.sendToServer(new PacketSendCopyDataToServer(serverTag));
+        PacketSendCopyDataToServer packet = new PacketSendCopyDataToServer(serverTag);
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        PacketSendCopyDataToServer.encode(packet, buffer);
+        int packetSize = buffer.writerIndex();
+        System.out.println(packetSize);
+        if (packetSize > 32000)
+            return;
+        PacketHandler.sendToServer(packet);
     }
 
     //TODO WIP
