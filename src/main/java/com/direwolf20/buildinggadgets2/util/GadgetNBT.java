@@ -192,7 +192,12 @@ public class GadgetNBT {
         CompoundTag tag = gadget.getOrCreateTag();
         UUID uuid = UUID.randomUUID();
         tag.putUUID("copyuuid", uuid);
-        //System.out.println("Setting copyUUID to: " + uuid + " for Itemstack: " + gadget);
+        return uuid;
+    }
+
+    public static UUID setCopyUUID(ItemStack gadget, UUID uuid) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        tag.putUUID("copyuuid", uuid);
         return uuid;
     }
 

@@ -15,19 +15,18 @@ import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContaine
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.common.items.TemplateItem;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketSendCopyDataToServer;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketUpdateTemplateManager;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.FakeRenderingWorld;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import com.direwolf20.buildinggadgets2.util.datatypes.PasteData;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.Template;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
-import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -41,7 +40,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -517,13 +515,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         if (statePosArrayList.isEmpty())
             return;
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
-        PacketSendCopyDataToServer packet = new PacketSendCopyDataToServer(serverTag);
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        PacketSendCopyDataToServer.encode(packet, buffer);
-        int packetSize = buffer.writerIndex();
-        if (packetSize > 32000)
-            return;
-        PacketHandler.sendToServer(packet);
+        PasteData.sendCompoundTag(serverTag);
     }
 
     //TODO WIP

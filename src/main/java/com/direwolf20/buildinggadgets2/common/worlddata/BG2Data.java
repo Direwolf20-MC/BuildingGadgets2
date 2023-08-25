@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
+import com.direwolf20.buildinggadgets2.util.datatypes.PasteData;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
@@ -7,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,14 +22,29 @@ import java.util.UUID;
 
 public class BG2Data extends SavedData {
     private static final String NAME = "buildinggadgets2";
-    private final HashMap<UUID, ArrayList<StatePos>> undoList;
-    private final HashMap<UUID, ArrayList<StatePos>> copyPasteLookup;
-    private final HashMap<UUID, ArrayList<TagPos>> teMap;
+    private final HashMap<UUID, ArrayList<StatePos>> undoList; //GadgetUUID -> UndoList StatePosData
+    private final HashMap<UUID, ArrayList<StatePos>> copyPasteLookup; //GadgetUUID -> StatePosData
+    private final HashMap<UUID, ArrayList<TagPos>> teMap; //GadgetUUID -> Tile Entity Data
+    private final HashMap<UUID, PasteData> pasteChunks = new HashMap<>(); //CopyUUID -> PasteData (Assembled from multiple chunks) - Not stored in NBT because its transient
 
     public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup, HashMap<UUID, ArrayList<TagPos>> teMap) {
         this.undoList = undoList;
         this.copyPasteLookup = copyPasteLookup;
         this.teMap = teMap;
+    }
+
+    public boolean addToPasteChunks(UUID copyUUID, int position, int totalChunks, FriendlyByteBuf pasteChunk) {
+        PasteData data = pasteChunks.computeIfAbsent(copyUUID, k -> new PasteData(totalChunks));
+        data.addChunk(position, pasteChunk);
+        return data.isComplete();
+    }
+
+    public CompoundTag getAssembledTag(UUID copyUUID) {
+        PasteData pasteData = pasteChunks.get(copyUUID);
+        FriendlyByteBuf assembledData = pasteData.assembleData();
+        CompoundTag compoundTag = assembledData.readNbt();
+        pasteChunks.remove(copyUUID);
+        return compoundTag;
     }
 
     public void addToUndoList(UUID uuid, ArrayList<StatePos> list, Level level) {

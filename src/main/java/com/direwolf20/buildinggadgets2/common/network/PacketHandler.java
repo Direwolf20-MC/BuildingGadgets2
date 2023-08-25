@@ -41,6 +41,7 @@ public class PacketHandler {
         HANDLER.registerMessage(id++, PacketDestructionRanges.class, PacketDestructionRanges::encode, PacketDestructionRanges::decode, PacketDestructionRanges::handle);
         HANDLER.registerMessage(id++, PacketUpdateTemplateManager.class, PacketUpdateTemplateManager::encode, PacketUpdateTemplateManager::decode, PacketUpdateTemplateManager::handle);
         HANDLER.registerMessage(id++, PacketSendCopyDataToServer.class, PacketSendCopyDataToServer::encode, PacketSendCopyDataToServer::decode, PacketSendCopyDataToServer::handle);
+        HANDLER.registerMessage(id++, PacketSendPasteBatches.class, PacketSendPasteBatches::encode, PacketSendPasteBatches::decode, PacketSendPasteBatches::handle);
 
         //Client Side
         HANDLER.registerMessage(id++, PacketSendCopyData.class, PacketSendCopyData::encode, PacketSendCopyData::decode, PacketSendCopyData.Handler::handle);
