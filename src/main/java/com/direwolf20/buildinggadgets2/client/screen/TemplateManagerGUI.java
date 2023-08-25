@@ -133,6 +133,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
                 this.addRenderableWidget(scrollingList);
         } else {
             this.removeWidget(scrollingList);
+            guiGraphics.flush(); //Calling this forces tooltips to be drawn since they are batched, tooltips render in the panel
             this.renderPanel(guiGraphics);
         }
     }
@@ -253,13 +254,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
         drawRenderScreen(poseStack, Minecraft.getInstance().player, statePosCache); //Draw VBO
 
-        poseStack.popPose();
+        poseStack.popPose(); //This should reset the view properly, but doesn't, hence the guiGraphics.flush() call before this method
 
         RenderSystem.applyModelViewMatrix();
         RenderSystem.viewport(0, 0, getMinecraft().getWindow().getWidth(), getMinecraft().getWindow().getHeight());
         RenderSystem.restoreProjectionMatrix();
-        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
-        RenderSystem.applyModelViewMatrix();
     }
 
     public static void drawRenderScreen(PoseStack matrix, Player player, ArrayList<StatePos> statePosCache) {
