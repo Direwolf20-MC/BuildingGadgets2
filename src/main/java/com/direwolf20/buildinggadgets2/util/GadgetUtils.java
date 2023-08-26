@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -60,15 +61,23 @@ public class GadgetUtils {
         return true;
     }
 
-    public static ItemStack getItemForBlock(BlockState blockState) {
+    public static ItemStack getSimpleItemForBlock(BlockState blockState) {
         return new ItemStack(blockState.getBlock());
     }
 
-    public static List<ItemStack> getDropsForBlockState(ServerLevel level, BlockPos blockPos, BlockState blockState) {
+    public static ItemStack getItemForBlock(BlockState blockState, Level level, BlockPos blockPos, Player player) {
+        return blockState.getCloneItemStack(new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false), level, blockPos, player);
+    }
+
+    public static List<ItemStack> getDropsForBlockState(ServerLevel level, BlockPos blockPos, BlockState blockState, Player player) {
         ItemStack tempStack = new ItemStack(Registration.Exchanging_Gadget.get());
         tempStack.enchant(Enchantments.SILK_TOUCH, 1);
-        List<ItemStack> drops = new ArrayList<>(getDropsForBlockState(level, blockPos, blockState, tempStack));
-        ItemStack baseItem = getItemForBlock(blockState);
+        List<ItemStack> drops = new ArrayList<>(getDropsForBlockStateGadget(level, blockPos, blockState, tempStack));
+        ItemStack baseItem;
+        if (player != null)
+            baseItem = getItemForBlock(blockState, level, blockPos, player); //Sometimes we have the player, sometimes not!
+        else
+            baseItem = getSimpleItemForBlock(blockState);
         if (drops.stream().filter(e -> ItemStack.isSameItem(e, baseItem)).toList().isEmpty()) { //If the item we expect to find isn't in the drops list, something weird happened, like wheat seeds from tall grass
             drops = new ArrayList<>();
             if (!baseItem.isEmpty())
@@ -78,7 +87,7 @@ public class GadgetUtils {
         return drops;
     }
 
-    public static List<ItemStack> getDropsForBlockState(ServerLevel level, BlockPos blockPos, BlockState blockState, ItemStack gadget) {
+    public static List<ItemStack> getDropsForBlockStateGadget(ServerLevel level, BlockPos blockPos, BlockState blockState, ItemStack gadget) {
         LootParams.Builder builder = (new LootParams.Builder(level))
                 .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos))
                 .withParameter(LootContextParams.TOOL, gadget);

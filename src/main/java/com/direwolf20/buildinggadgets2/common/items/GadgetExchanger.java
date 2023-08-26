@@ -122,7 +122,7 @@ public class GadgetExchanger extends BaseGadget {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!pos.state.canSurvive(level, pos.pos)) continue;
             boolean foundStacks = false;
-            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
+            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player);
             if (!player.isCreative()) {
                 foundStacks = BuildingUtils.removeStacksFromInventory(player, neededItems, true);
                 if (!foundStacks) continue;
@@ -148,7 +148,7 @@ public class GadgetExchanger extends BaseGadget {
             }
             if (!player.isCreative()) {
                 BuildingUtils.removeStacksFromInventory(player, neededItems, false);
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, oldState, gadget);
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, pos.pos, oldState, gadget);
                 for (ItemStack returnedItem : returnedItems)
                     BuildingUtils.giveItemToPlayer(player, returnedItem);
             }

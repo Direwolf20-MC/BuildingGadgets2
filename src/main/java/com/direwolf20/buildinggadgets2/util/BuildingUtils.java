@@ -238,7 +238,7 @@ public class BuildingUtils {
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
                 continue; //Don't do this validation for copy/paste
             boolean foundStacks = false;
-            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state);
+            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player);
             if (!player.isCreative() && needItems) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 foundStacks = removeStacksFromInventory(player, neededItems, true);
@@ -278,7 +278,7 @@ public class BuildingUtils {
             if (!player.isCreative() && needItems) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
                 if (!pos.state.isAir()) {
-                    neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state));
+                    neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player));
                     foundStacks = removeStacksFromInventory(player, neededItems, true);
                     if (!foundStacks) continue;
                 }
@@ -298,7 +298,7 @@ public class BuildingUtils {
                 }
             }
             if (!player.isCreative() && returnItems && !oldState.isAir()) {
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, gadget);
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, gadget);
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
             }
@@ -353,7 +353,7 @@ public class BuildingUtils {
             if (!player.isCreative())
                 useEnergy(gadget);
             if (giveItem) {
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos, oldState);
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos, oldState, player);
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
             }

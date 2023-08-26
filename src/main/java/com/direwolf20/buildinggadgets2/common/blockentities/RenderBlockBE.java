@@ -63,7 +63,7 @@ public class RenderBlockBE extends BlockEntity {
             return;
         }
         if (!realBlock.canSurvive(level, getBlockPos())) {
-            List<ItemStack> drops = GadgetUtils.getDropsForBlockState((ServerLevel) level, getBlockPos(), realBlock);
+            List<ItemStack> drops = GadgetUtils.getDropsForBlockState((ServerLevel) level, getBlockPos(), realBlock, null);
             for (ItemStack returnedItem : drops) {
                 ItemEntity itementity = new ItemEntity(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), returnedItem);
                 itementity.setPickUpDelay(40);
