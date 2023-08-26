@@ -250,7 +250,9 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         RenderSystem.applyModelViewMatrix();
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
 
-        drawRenderScreen(poseStack, Minecraft.getInstance().player, statePosCache); //Draw VBO
+        RenderSystem.runAsFancy(() -> {
+            drawRenderScreen(poseStack, Minecraft.getInstance().player, statePosCache); //Draw VBO
+        });
 
         poseStack.popPose(); //This should reset the view properly, but doesn't, hence the guiGraphics.flush() call before this method
 
