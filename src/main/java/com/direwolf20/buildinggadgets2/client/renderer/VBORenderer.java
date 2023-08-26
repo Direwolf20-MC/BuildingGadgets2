@@ -318,7 +318,7 @@ public class VBORenderer {
         //Red Overlay for missing Items
         if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative()) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
-            ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState);
+            ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState, player.level(), BlockPos.ZERO, player);
             int availableItems = BuildingUtils.countItemStacks(player, findStack);
             int energyStored = BuildingUtils.getEnergyStored(gadget);
             int energyCost = BuildingUtils.getEnergyCost(gadget);
