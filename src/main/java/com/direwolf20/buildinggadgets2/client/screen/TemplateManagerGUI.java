@@ -86,7 +86,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     private ScrollingMaterialList scrollingList;
     private boolean showMaterialList = false;
 
-    private static Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
+    private static final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
     public TemplateManagerGUI(TemplateManagerContainer container, Inventory playerInventory, Component title) {
         super(container, playerInventory, Component.literal(""));
