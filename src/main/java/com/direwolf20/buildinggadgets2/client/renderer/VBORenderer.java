@@ -187,7 +187,6 @@ public class VBORenderer {
             vertexBuffer.bind();
             vertexBuffer.upload(direBufferBuilder.end());
             VertexBuffer.unbind();
-            vertexBuffers.put(renderType, vertexBuffer);
         }
     }
 
