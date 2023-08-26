@@ -96,7 +96,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
     }
 
     public void renderFade(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
-        VertexConsumer builder = bufferIn.getBuffer(OurRenderTypes.RenderBlock);
+        VertexConsumer builder = bufferIn.getBuffer(OurRenderTypes.RenderBlockFade);
         scale = Mth.lerp(scale, 0.0f, 1f);
         DireVertexConsumer direVertexConsumer = new DireVertexConsumer(builder, scale);
         float[] afloat = new float[Direction.values().length * 2];
