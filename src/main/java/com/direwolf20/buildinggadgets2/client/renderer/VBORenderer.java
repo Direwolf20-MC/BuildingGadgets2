@@ -52,7 +52,7 @@ public class VBORenderer {
     //A map of RenderType -> DireBufferBuilder, so we can draw the different render types in proper order later
     private static final Map<RenderType, DireBufferBuilder> builders = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new DireBufferBuilder(type.bufferSize())));
     //A map of RenderType -> Vertex Buffer to buffer the different render types.
-    private static Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
+    private static final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
     //Get the buffer from the map, and ensure its building
     public static DireBufferBuilder getBuffer(RenderType renderType) {
@@ -61,6 +61,12 @@ public class VBORenderer {
             buffer.begin(renderType.mode(), renderType.format());
         }
         return buffer;
+    }
+
+    public static void clearBuffers() { //Prevents leaks
+        for (Map.Entry<RenderType, VertexBuffer> entry : vertexBuffers.entrySet()) {
+            entry.getValue().close();
+        }
     }
 
     //Start rendering - this is the most expensive part, so we render it, then cache it, and draw it over and over (much cheaper)
@@ -81,7 +87,7 @@ public class VBORenderer {
 
         //Start drawing the Render and cache it, used for both Building and Copy/Paste
         if (shouldUpdateRender(player, gadget))
-            vertexBuffers = generateRender(player.level(), renderPos, gadget, 0.5f, statePosCache);
+            generateRender(player.level(), renderPos, gadget, 0.5f, statePosCache, vertexBuffers);
     }
 
     public static boolean shouldUpdateRender(Player player, ItemStack gadget) {
@@ -131,10 +137,9 @@ public class VBORenderer {
     /**
      * This method creates a Map<RenderType, VertexBuffer> when given an ArrayList<StatePos> statePosCache - its used both here to draw in-game AND in the TemplateManagerGUI.java class
      */
-    public static Map<RenderType, VertexBuffer> generateRender(Level level, BlockPos renderPos, ItemStack gadget, float transparency, ArrayList<StatePos> statePosCache) {
-        Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
+    public static void generateRender(Level level, BlockPos renderPos, ItemStack gadget, float transparency, ArrayList<StatePos> statePosCache, Map<RenderType, VertexBuffer> vertexBuffers) {
         boolean isExchanging = gadget.getItem() instanceof BaseGadget && GadgetNBT.getMode(gadget).isExchanging;
-        if (statePosCache == null || statePosCache.isEmpty()) return vertexBuffers;
+        if (statePosCache == null || statePosCache.isEmpty()) return;
         fakeRenderingWorld = new FakeRenderingWorld(level, statePosCache, renderPos);
         PoseStack matrix = new PoseStack(); //Create a new matrix stack for use in the buffer building process
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
@@ -178,13 +183,12 @@ public class VBORenderer {
             DireBufferBuilder direBufferBuilder = getBuffer(renderType);
             direBufferBuilder.setQuadSorting(VertexSorting.byDistance(sortPos));
             sortStates.put(renderType, direBufferBuilder.getSortState());
-            VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+            VertexBuffer vertexBuffer = vertexBuffers.get(entry.getKey());
             vertexBuffer.bind();
             vertexBuffer.upload(direBufferBuilder.end());
             VertexBuffer.unbind();
             vertexBuffers.put(renderType, vertexBuffer);
         }
-        return vertexBuffers;
     }
 
     public static void drawCopyBox(PoseStack matrix, ItemStack gadget, String mode) {

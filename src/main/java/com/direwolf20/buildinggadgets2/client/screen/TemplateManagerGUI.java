@@ -172,7 +172,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         ItemStack gadget = container.getSlot(renderSlot).getItem();
         UUID gadgetUUID = GadgetNBT.getUUID(gadget);
         if (gadget.isEmpty() || !(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof TemplateItem)) {
-            vertexBuffers = null; //Clear vertex buffers when player removes item from the slot we're rendering
+            //vertexBuffers = null; //Clear vertex buffers when player removes item from the slot we're rendering
             copyPasteUUIDCache = UUID.randomUUID(); //Randomize the cached UUID so it rebuilds for next time
             resetViewport();
             scrollingList.setTemplateItem(gadget);
@@ -187,7 +187,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         //If we get here, the copy paste we have stored here differs from whats in the client AND the client is up to date, so rebuild!
         copyPasteUUIDCache = BG2ClientUUID; //Cache the new copyPasteUUID for next cycle
         statePosCache = BG2DataClient.getLookupFromUUID(gadgetUUID);
-        vertexBuffers = VBORenderer.generateRender(getMinecraft().level, BlockPos.ZERO, gadget, 1f, statePosCache);
+        VBORenderer.generateRender(getMinecraft().level, BlockPos.ZERO, gadget, 1f, statePosCache, vertexBuffers);
         scrollingList.setTemplateItem(gadget);
         return true; //Need a render update!
     }
@@ -261,8 +261,8 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         RenderSystem.restoreProjectionMatrix();
     }
 
-    public static void drawRenderScreen(PoseStack matrix, Player player, ArrayList<StatePos> statePosCache) {
-        if (vertexBuffers == null) {
+    public void drawRenderScreen(PoseStack matrix, Player player, ArrayList<StatePos> statePosCache) {
+        if (container.getSlot(1).getItem().isEmpty()) {
             return;
         }
 
