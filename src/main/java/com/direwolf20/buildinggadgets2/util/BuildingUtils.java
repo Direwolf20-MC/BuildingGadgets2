@@ -233,7 +233,6 @@ public class BuildingUtils {
     public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         UUID buildUUID = UUID.randomUUID();
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
-        System.out.println(blockPosList.size());
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
