@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
@@ -29,6 +30,7 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class BuildingUtils {
 
@@ -229,7 +231,9 @@ public class BuildingUtils {
     }
 
     public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
+        UUID buildUUID = UUID.randomUUID();
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
+        System.out.println(blockPosList.size());
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
@@ -246,19 +250,20 @@ public class BuildingUtils {
             }
 
             if (level.getBlockState(blockPos).canBeReplaced()) {
-                boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
+                /*boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
                 RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
                 if (!placed || be == null) {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
-                }
+                }*/
                 if (!player.isCreative() && needItems) {
                     useEnergy(gadget);
                     removeStacksFromInventory(player, neededItems, false);
                 }
                 actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
+                //be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
+                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player);
             }
         }
         return actuallyBuiltList;
