@@ -195,6 +195,13 @@ public class ModeRadialMenu extends Screen {
                     getMinecraft().setScreen(new CopyGUI(tool));
                 return true;
             }));
+
+            addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.rotate"), "rotate", ScreenPosition.LEFT, false, send -> {
+                if (send)
+                    PacketHandler.sendToServer(new PacketRotate());
+
+                return false;
+            }));
         }
 
         //Everything but Cut and Paste Gadget

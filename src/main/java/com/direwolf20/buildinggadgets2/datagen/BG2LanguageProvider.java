@@ -113,6 +113,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.radialmenu.copypastemenu", "Settings Menu");
         add("buildinggadgets2.radialmenu.raytracefluids", "Raytrace Fluids");
         add("buildinggadgets2.radialmenu.materiallist", "Materials List");
+        add("buildinggadgets2.radialmenu.rotate", "Rotate");
 
         //Messages to Player
         add("buildinggadgets2.messages.invalidblock", "Invalid Block");

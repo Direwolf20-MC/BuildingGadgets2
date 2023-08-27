@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BG2Data extends SavedData {
     private static final String NAME = "buildinggadgets2";
@@ -92,6 +93,11 @@ public class BG2Data extends SavedData {
         return posList;
     }
 
+    public ArrayList<TagPos> peekTEMap(UUID uuid) {
+        ArrayList<TagPos> tagList = teMap.get(uuid);
+        return tagList;
+    }
+
     public ArrayList<TagPos> getTEMap(UUID uuid) {
         ArrayList<TagPos> tagList = teMap.remove(uuid);
         this.setDirty();
@@ -104,13 +110,24 @@ public class BG2Data extends SavedData {
         ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMap(list);
         ListTag blockStateMapList = StatePos.getBlockStateNBT(blockStateMap);
         int[] blocklist = new int[list.size()];
-        int k = 0;
-        for (StatePos statePos : list) {
+        final int[] counter = {0};
+        BlockPos start = list.get(0).pos;
+        BlockPos end = list.get(list.size() - 1).pos;
+        AABB aabb = new AABB(start, end);
+
+        Map<BlockPos, BlockState> blockStateByPos = list.stream()
+                .collect(Collectors.toMap(e -> e.pos, e -> e.state));
+
+        BlockPos.betweenClosedStream(aabb).map(BlockPos::immutable).forEach(pos -> {
+            BlockState blockState = blockStateByPos.get(pos);
+            blocklist[counter[0]++] = blockStateMap.indexOf(blockState);
+        });
+        /*for (StatePos statePos : list) {
             blocklist[k] = blockStateMap.indexOf(statePos.state);
             k++;
-        }
-        tag.put("startpos", NbtUtils.writeBlockPos(list.get(0).pos));
-        tag.put("endpos", NbtUtils.writeBlockPos(list.get(list.size() - 1).pos));
+        }*/
+        tag.put("startpos", NbtUtils.writeBlockPos(start));
+        tag.put("endpos", NbtUtils.writeBlockPos(end));
         tag.put("blockstatemap", blockStateMapList);
         tag.putIntArray("statelist", blocklist); //Todo - Short Array?
         return tag;

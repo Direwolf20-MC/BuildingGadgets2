@@ -9,13 +9,16 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class StatePos {
     public BlockState state;
@@ -65,6 +68,41 @@ public class StatePos {
                 blockStateMap.add(statePos.state);
         }
         return blockStateMap;
+    }
+
+    public static ArrayList<StatePos> rotate90Degrees(ArrayList<StatePos> list, ArrayList<TagPos> tagListMutable) {
+        ArrayList<StatePos> rotatedList = new ArrayList<>();
+        if (list == null || list.isEmpty()) {
+            return rotatedList;
+        }
+        boolean tags = !(tagListMutable == null || tagListMutable.isEmpty()); //If not empty or null, it has tags!
+
+        Map<BlockPos, CompoundTag> tagMap = new HashMap<>();
+        if (tags)
+            tagMap = tagListMutable.stream().collect(Collectors.toMap(e -> e.pos, e -> e.tag));
+
+        for (StatePos statePos : list) {
+            BlockPos oldPos = statePos.pos;
+            BlockState oldState = statePos.state;
+            BlockState newState = oldState.rotate(Rotation.CLOCKWISE_90);
+            BlockPos newPos = new BlockPos(-oldPos.getZ(), oldPos.getY(), oldPos.getX());
+
+            if (tags && tagMap.get(statePos.pos) != null) {
+                CompoundTag tempTag = tagMap.get(statePos.pos);
+                tagMap.remove(statePos.pos);
+                tagMap.put(newPos, tempTag);
+            }
+
+            rotatedList.add(new StatePos(newState, newPos));
+        }
+
+        if (tags) {
+            tagListMutable.clear();
+            for (Map.Entry<BlockPos, CompoundTag> entry : tagMap.entrySet())
+                tagListMutable.add(new TagPos(entry.getValue(), entry.getKey()));
+        }
+
+        return rotatedList;
     }
 
     @OnlyIn(Dist.CLIENT)
