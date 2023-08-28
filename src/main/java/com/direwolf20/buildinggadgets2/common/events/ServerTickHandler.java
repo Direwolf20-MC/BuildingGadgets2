@@ -1,19 +1,23 @@
 package com.direwolf20.buildinggadgets2.common.events;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Registration;
+import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
+
+import static com.direwolf20.buildinggadgets2.util.BuildingUtils.removeStacksFromInventory;
 
 public class ServerTickHandler {
 
@@ -24,27 +28,38 @@ public class ServerTickHandler {
         if (event.phase != TickEvent.Phase.END || buildMap.isEmpty()) return;
 
         for (UUID uuid : buildMap.keySet()) {
-            int min = buildMap.get(uuid).originalSize < 25 ? 1 : 5;
-            int amountPerTick = Math.max((int) Math.floor(buildMap.get(uuid).originalSize / 300), min);
+            ServerBuildList serverBuildList = buildMap.get(uuid);
+            Player player = event.getServer().getPlayerList().getPlayer(serverBuildList.playerUUID);
+            if (player == null) {
+                stopBuilding(uuid); //Clear the remaining list of things to build, removing it after this loop in removeEmptyLists
+                continue;
+            }
+            int min = serverBuildList.originalSize < 25 ? 1 : 5;
+            int amountPerTick = Math.max((int) Math.floor(serverBuildList.originalSize / 300), min);
             for (int i = 0; i < amountPerTick; i++)
-                build(uuid);
+                build(serverBuildList, player);
         }
 
         removeEmptyLists();
     }
 
-    public static void addToMap(UUID buildUUID, StatePos statePos, Level level, byte buildType, Player player) {
-        ServerBuildList serverBuildList = buildMap.computeIfAbsent(buildUUID, k -> new ServerBuildList(level, new ArrayList<>(), buildType, player));
+    public static void addToMap(UUID buildUUID, StatePos statePos, Level level, byte buildType, Player player, boolean neededItems) {
+        ServerBuildList serverBuildList = buildMap.computeIfAbsent(buildUUID, k -> new ServerBuildList(level, new ArrayList<>(), buildType, player.getUUID(), neededItems, buildUUID));
         serverBuildList.statePosList.add(statePos);
         serverBuildList.originalSize = serverBuildList.statePosList.size();
+    }
+
+    public static void stopBuilding(UUID buildUUID) {
+        if (!buildMap.containsKey(buildUUID)) return;
+        ServerBuildList serverBuildList = buildMap.get(buildUUID);
+        serverBuildList.statePosList.clear();
     }
 
     public static void removeEmptyLists() {
         buildMap.entrySet().removeIf(entry -> entry.getValue().statePosList.isEmpty());
     }
 
-    public static void build(UUID buildUUID) {
-        ServerBuildList serverBuildList = buildMap.get(buildUUID);
+    public static void build(ServerBuildList serverBuildList, Player player) {
         Level level = serverBuildList.level;
 
         ArrayList<StatePos> statePosList = serverBuildList.statePosList;
@@ -59,6 +74,15 @@ public class ServerTickHandler {
             return;
         }
 
+        if (!level.getBlockState(blockPos).canBeReplaced()) return; //Return without placing the block
+
+        boolean foundStacks = false;
+        List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player);
+        if (!player.isCreative() && serverBuildList.needItems) {
+            foundStacks = removeStacksFromInventory(player, neededItems, true);
+            if (!foundStacks) return; //Return without placing the block
+        }
+
         boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
         RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
@@ -66,6 +90,13 @@ public class ServerTickHandler {
             // this can happen when another mod rejects the set block state (fixes #120)
             return;
         }
+
+        if (!player.isCreative() && serverBuildList.needItems) {
+            removeStacksFromInventory(player, neededItems, false);
+        }
+        serverBuildList.addToBuiltList(new StatePos(blockState, blockPos));
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
+        bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
         be.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.buildType);
     }
 }

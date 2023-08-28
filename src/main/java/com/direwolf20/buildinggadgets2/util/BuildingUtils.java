@@ -240,12 +240,12 @@ public class BuildingUtils {
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
                 continue; //Don't do this validation for copy/paste
-            boolean foundStacks = false;
-            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player);
+            //boolean foundStacks = false;
+            //List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player);
             if (!player.isCreative() && needItems) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
-                foundStacks = removeStacksFromInventory(player, neededItems, true);
-                if (!foundStacks) continue;
+                //foundStacks = removeStacksFromInventory(player, neededItems, true);
+                //if (!foundStacks) continue;
             }
 
             if (level.getBlockState(blockPos).canBeReplaced()) {
@@ -258,13 +258,15 @@ public class BuildingUtils {
                 }*/
                 if (!player.isCreative() && needItems) {
                     useEnergy(gadget);
-                    removeStacksFromInventory(player, neededItems, false);
+                    //removeStacksFromInventory(player, neededItems, false);
                 }
-                actuallyBuiltList.add(new StatePos(pos.state, blockPos));
+                //actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 //be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
-                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player);
+                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems);
             }
         }
+        GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
+        GadgetNBT.clearAnchorPos(gadget);
         return actuallyBuiltList;
     }
 
@@ -347,7 +349,7 @@ public class BuildingUtils {
                 BlockEntity blockEntity = level.getBlockEntity(pos);
                 if (blockEntity instanceof RenderBlockBE renderBlockBE) {
                     oldState = renderBlockBE.renderBlock;
-                    drawSize = renderBlockBE.drawSize;
+                    //drawSize = renderBlockBE.drawSize;
                 }
             }
             if (!dropContents)

@@ -105,11 +105,14 @@ public class GadgetUtils {
         return placeState;
     }
 
-    public static void addToUndoList(Level level, ItemStack gadget, ArrayList<StatePos> buildList) {
+    public static void addToUndoList(Level level, ItemStack gadget, ArrayList<StatePos> buildList, UUID uuid) {
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        UUID uuid = UUID.randomUUID();
         bg2Data.addToUndoList(uuid, buildList, level);
         GadgetNBT.addToUndoList(gadget, uuid, bg2Data);
+    }
+
+    public static void addToUndoList(Level level, ItemStack gadget, ArrayList<StatePos> buildList) {
+        addToUndoList(level, gadget, buildList, UUID.randomUUID());
     }
 
     private static <T extends Comparable<T>> BlockState applyProperty(BlockState state, BlockState from, Property<T> prop) {

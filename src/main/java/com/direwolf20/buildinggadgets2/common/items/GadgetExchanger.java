@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.common.items;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.Registration;
@@ -35,6 +36,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class GadgetExchanger extends BaseGadget {
     public GadgetExchanger() {
@@ -114,7 +116,9 @@ public class GadgetExchanger extends BaseGadget {
     public void undo(Level level, Player player, ItemStack gadget) {
         if (!canUndo(level, player, gadget)) return;
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        ArrayList<StatePos> undoList = bg2Data.popUndoList(GadgetNBT.popUndoList(gadget));
+        UUID buildUUID = GadgetNBT.popUndoList(gadget);
+        ServerTickHandler.stopBuilding(buildUUID);
+        ArrayList<StatePos> undoList = bg2Data.popUndoList(buildUUID);
         if (undoList.isEmpty()) return;
         byte drawSize = RenderBlockBE.getMaxSize();
 
