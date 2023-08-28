@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.events;
 
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -14,9 +15,12 @@ public class ServerBuildList {
     public int originalSize;
     public ArrayList<StatePos> actuallyBuildList = new ArrayList<>();
     public boolean needItems;
+    public boolean returnItems;
+    public ItemStack gadget;
     public UUID buildUUID;
+    public boolean isExchange;
 
-    public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte buildType, UUID playerUUID, boolean needItems, UUID buildUUID) {
+    public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte buildType, UUID playerUUID, boolean needItems, boolean returnItems, UUID buildUUID, ItemStack gadget, boolean isExchange) {
         this.level = level;
         this.statePosList = statePosList;
         this.buildType = buildType;
@@ -24,6 +28,9 @@ public class ServerBuildList {
         this.originalSize = statePosList.size();
         this.needItems = needItems;
         this.buildUUID = buildUUID;
+        this.returnItems = returnItems;
+        this.gadget = gadget.copy();
+        this.isExchange = isExchange;
     }
 
     public void addToBuiltList(StatePos statePos) {

@@ -262,7 +262,7 @@ public class BuildingUtils {
                 }
                 //actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 //be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
-                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems);
+                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, false);
             }
         }
         GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
@@ -271,6 +271,7 @@ public class BuildingUtils {
     }
 
     public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
+        UUID buildUUID = UUID.randomUUID();
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
@@ -279,38 +280,41 @@ public class BuildingUtils {
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos)) continue;
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
                 continue;  //Don't do this validation for copy/paste
-            boolean foundStacks = false;
-            List<ItemStack> neededItems = new ArrayList<>();
+            //boolean foundStacks = false;
+            //List<ItemStack> neededItems = new ArrayList<>();
             if (!player.isCreative() && needItems) {
                 if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
-                if (!pos.state.isAir()) {
+                /*if (!pos.state.isAir()) {
                     neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player));
                     foundStacks = removeStacksFromInventory(player, neededItems, true);
                     if (!foundStacks) continue;
-                }
+                }*/
             }
-            BlockState oldState = level.getBlockState(blockPos);
-            boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
-            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
+            //BlockState oldState = level.getBlockState(blockPos);
+            //boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
+            //RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
-            if (!placed || be == null) {
-                // this can happen when another mod rejects the set block state (fixes #120)
-                continue;
-            }
+            //if (!placed || be == null) {
+            // this can happen when another mod rejects the set block state (fixes #120)
+            //    continue;
+            //}
             if (!player.isCreative() && needItems) {
                 useEnergy(gadget);
-                if (!pos.state.isAir()) {
-                    removeStacksFromInventory(player, neededItems, false);
-                }
+                //if (!pos.state.isAir()) {
+                //    removeStacksFromInventory(player, neededItems, false);
+                //}
             }
-            if (!player.isCreative() && returnItems && !oldState.isAir()) {
+            /*if (!player.isCreative() && returnItems && !oldState.isAir()) {
                 List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, gadget);
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
-            }
-            actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
-            be.setRenderData(oldState, fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
+            }*/
+            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, true, gadget, true);
+            //actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
+            //be.setRenderData(oldState, fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
         }
+        GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
+        GadgetNBT.clearAnchorPos(gadget);
         return actuallyBuiltList;
     }
 
