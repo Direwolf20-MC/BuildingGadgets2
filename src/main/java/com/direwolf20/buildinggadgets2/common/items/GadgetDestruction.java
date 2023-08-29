@@ -2,12 +2,11 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.client.screen.ScreenOpener;
-import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Config;
-import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -27,17 +26,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class GadgetDestruction extends BaseGadget {
     public GadgetDestruction() {
@@ -107,11 +102,11 @@ public class GadgetDestruction extends BaseGadget {
         ArrayList<StatePos> destroyList = GadgetUtils.getDestructionArea(context.level(), startBlock, facing, context.player(), gadget);
         ArrayList<BlockPos> destroyPosList = new ArrayList<>();
         destroyList.forEach(e -> destroyPosList.add(e.pos));
-        ArrayList<StatePos> actuallyDestroyedList = BuildingUtils.remove(context.level(), context.player(), destroyPosList, false, true, gadget);
-        if (!actuallyDestroyedList.isEmpty()) {
-            GadgetUtils.addToUndoList(context.level(), gadget, actuallyDestroyedList); //If we placed anything at all, add to the undoList
-            GadgetNBT.clearAnchorPos(gadget);
-        }
+        ArrayList<StatePos> actuallyDestroyedList = BuildingUtils.removeTickHandler(context.level(), context.player(), destroyPosList, false, true, gadget);
+        //if (!actuallyDestroyedList.isEmpty()) {
+        //    GadgetUtils.addToUndoList(context.level(), gadget, actuallyDestroyedList); //If we placed anything at all, add to the undoList
+        //    GadgetNBT.clearAnchorPos(gadget);
+        //}
         return InteractionResultHolder.success(gadget);
     }
 
@@ -131,35 +126,37 @@ public class GadgetDestruction extends BaseGadget {
         if (!canUndo(level, player, gadget)) return;
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         UUID buildUUID = GadgetNBT.popUndoList(gadget);
+        UUID newBuildUUID = UUID.randomUUID(); //Use a new build UUID for the undo-building process
         ServerTickHandler.stopBuilding(buildUUID);
         ArrayList<StatePos> undoList = bg2Data.popUndoList(buildUUID);
         if (undoList.isEmpty()) return;
+        Collections.reverse(undoList); //Undo backwards :)
+        //byte drawSize = RenderBlockBE.getMaxSize();
+        for (StatePos statePos : undoList) {
+            if (statePos.state.isAir()) continue; //Since we store air now
 
-        byte drawSize = RenderBlockBE.getMaxSize();
-        for (StatePos pos : undoList) {
-            if (pos.state.isAir()) continue; //Since we store air now
-
-            BlockState oldState = level.getBlockState(pos.pos);
+            BlockState oldState = level.getBlockState(statePos.pos);
             if (!oldState.canBeReplaced() && !(oldState.getBlock() instanceof RenderBlock))
                 continue; //Don't overwrite any blocks that have been placed since destroying - only air or replacables like grass/water.
 
-            if ((oldState.getBlock() instanceof RenderBlock)) {
-                BlockEntity blockEntity = level.getBlockEntity(pos.pos);
+            /*if ((oldState.getBlock() instanceof RenderBlock)) {
+                BlockEntity blockEntity = level.getBlockEntity(statePos.statePos);
                 if (blockEntity instanceof RenderBlockBE renderBlockBE) {
                     drawSize = renderBlockBE.drawSize;
-                    renderBlockBE.setRenderData(Blocks.AIR.defaultBlockState(), pos.state, GadgetNBT.getRenderTypeByte(gadget));
+                    renderBlockBE.setRenderData(Blocks.AIR.defaultBlockState(), statePos.state, GadgetNBT.getRenderTypeByte(gadget));
                     renderBlockBE.drawSize = drawSize;
                 }
             } else {
-                boolean placed = level.setBlockAndUpdate(pos.pos, Registration.RenderBlock.get().defaultBlockState());
-                RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(pos.pos);
+                boolean placed = level.setBlockAndUpdate(statePos.statePos, Registration.RenderBlock.get().defaultBlockState());
+                RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(statePos.statePos);
 
                 if (!placed || be == null) {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
                 }
-                be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
-            }
+                be.setRenderData(oldState, statePos.state, GadgetNBT.getRenderTypeByte(gadget));
+            }*/
+            ServerTickHandler.addToMap(newBuildUUID, statePos, level, GadgetNBT.getRenderTypeByte(gadget), player, false, false, gadget, ServerBuildList.BuildType.UNDO_DESTROY, false);
         }
     }
 

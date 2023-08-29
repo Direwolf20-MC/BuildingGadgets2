@@ -8,9 +8,16 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class ServerBuildList {
+    public enum BuildType {
+        BUILD,
+        EXCHANGE,
+        DESTROY,
+        UNDO_DESTROY
+    }
+
     public Level level;
     public ArrayList<StatePos> statePosList;
-    public byte buildType;
+    public byte renderType;
     public UUID playerUUID;
     public int originalSize;
     public ArrayList<StatePos> actuallyBuildList = new ArrayList<>();
@@ -18,19 +25,21 @@ public class ServerBuildList {
     public boolean returnItems;
     public ItemStack gadget;
     public UUID buildUUID;
-    public boolean isExchange;
+    public BuildType buildType;
+    public boolean dropContents;
 
-    public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte buildType, UUID playerUUID, boolean needItems, boolean returnItems, UUID buildUUID, ItemStack gadget, boolean isExchange) {
+    public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte renderType, UUID playerUUID, boolean needItems, boolean returnItems, UUID buildUUID, ItemStack gadget, BuildType buildType, boolean dropContents) {
         this.level = level;
         this.statePosList = statePosList;
-        this.buildType = buildType;
+        this.renderType = renderType;
         this.playerUUID = playerUUID;
         this.originalSize = statePosList.size();
         this.needItems = needItems;
         this.buildUUID = buildUUID;
         this.returnItems = returnItems;
         this.gadget = gadget.copy();
-        this.isExchange = isExchange;
+        this.buildType = buildType;
+        this.dropContents = dropContents;
     }
 
     public void addToBuiltList(StatePos statePos) {

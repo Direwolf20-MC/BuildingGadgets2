@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
@@ -262,7 +263,7 @@ public class BuildingUtils {
                 }
                 //actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 //be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
-                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, false);
+                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, ServerBuildList.BuildType.BUILD, true);
             }
         }
         GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
@@ -309,7 +310,7 @@ public class BuildingUtils {
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
             }*/
-            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, true, gadget, true);
+            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, returnItems, gadget, ServerBuildList.BuildType.EXCHANGE, true);
             //actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
             //be.setRenderData(oldState, fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
         }
@@ -377,6 +378,52 @@ public class BuildingUtils {
                 be.drawSize = drawSize;
             }
         }
+        return affectedBlocks;
+    }
+
+    public static ArrayList<StatePos> removeTickHandler(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
+        ArrayList<StatePos> affectedBlocks = new ArrayList<>();
+        UUID buildUUID = UUID.randomUUID();
+        //byte drawSize = RenderBlockBE.getMaxSize();
+        //Collections.reverse(blockPosList);
+        for (BlockPos pos : blockPosList) {
+            if (!level.mayInteract(player, pos)) continue; //Chunk Protection like spawn and FTB Utils
+            if (!player.isCreative()) {
+                if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
+            }
+            BlockState oldState = level.getBlockState(pos);
+            if (oldState.isAir() || !GadgetUtils.isValidBlockState(oldState, level, pos)) continue;
+            /*if (oldState.getBlock() instanceof RenderBlock) {
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof RenderBlockBE renderBlockBE) {
+                    oldState = renderBlockBE.renderBlock;
+                    //drawSize = renderBlockBE.drawSize;
+                }
+            }*/
+            //if (!dropContents)
+            //    level.removeBlockEntity(pos); //Calling this prevents chests from dropping their contents, so only do it if we don't care about the drops (Like cut)
+            //level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
+            //affectedBlocks.add(new StatePos(oldState, pos));
+            if (!player.isCreative())
+                useEnergy(gadget);
+            /*if (giveItem) {
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos, oldState, player);
+                for (ItemStack returnedItem : returnedItems)
+                    giveItemToPlayer(player, returnedItem);
+            }*/
+            ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, giveItem, gadget, ServerBuildList.BuildType.DESTROY, dropContents);
+        }
+
+        /*for (StatePos affectedBlock : affectedBlocks) {
+            boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
+            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
+            if (placed && be != null) {
+                be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState(), GadgetNBT.getRenderTypeByte(gadget));
+                be.drawSize = drawSize;
+            }
+        }*/
+        GadgetUtils.addToUndoList(level, gadget, affectedBlocks, buildUUID); //If we placed anything at all, add to the undoList
+        GadgetNBT.clearAnchorPos(gadget);
         return affectedBlocks;
     }
 }
