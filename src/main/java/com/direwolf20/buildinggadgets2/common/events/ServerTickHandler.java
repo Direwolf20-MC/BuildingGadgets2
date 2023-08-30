@@ -148,7 +148,7 @@ public class ServerTickHandler {
         BlockPos blockPos = statePos.pos;
         BlockState blockState = statePos.state;
         BlockState oldState = level.getBlockState(blockPos);
-        byte drawSize = RenderBlockBE.getMaxSize();
+        byte drawSize = -1;
 
         if (oldState.equals(blockState)) return; //No need to replace blocks if they match!
 
@@ -210,7 +210,8 @@ public class ServerTickHandler {
             be.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.renderType);
         else
             be.setRenderData(oldState, blockState, serverBuildList.renderType);
-        be.drawSize = drawSize;
+        if (drawSize != -1) //Only if changed from default
+            be.drawSize = drawSize;
 
         serverBuildList.addToBuiltList(new StatePos(oldState, blockPos));
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
