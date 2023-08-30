@@ -121,6 +121,7 @@ public class ServerTickHandler {
         BlockPos blockPos = statePos.pos;
         BlockState blockState = statePos.state;
         BlockState oldState = level.getBlockState(blockPos);
+        byte drawSize = RenderBlockBE.getMaxSize();
 
         if (oldState.equals(blockState)) return; //No need to replace blocks if they match!
 
@@ -140,7 +141,22 @@ public class ServerTickHandler {
         }
 
 
-        boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
+        boolean placed = false;
+
+        //Handles situations where we are undoing an exchange
+        BlockState oldRenderState = level.getBlockState(blockPos);
+        if (oldState.getBlock() instanceof RenderBlock) {
+            BlockEntity blockEntity = level.getBlockEntity(blockPos);
+            if (blockEntity instanceof RenderBlockBE renderBlockBE) {
+                oldState = renderBlockBE.targetBlock;
+                oldRenderState = renderBlockBE.renderBlock;
+                drawSize = renderBlockBE.drawSize;
+                placed = true;
+            }
+        } else {
+            placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
+        }
+
         RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
         if (!placed || be == null) {
@@ -160,10 +176,17 @@ public class ServerTickHandler {
                 giveItemToPlayer(player, returnedItem);
         }
 
+        if (oldRenderState.equals(blockState))
+            be.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.renderType);
+        else
+            be.setRenderData(oldState, blockState, serverBuildList.renderType);
+        be.drawSize = drawSize;
+
         serverBuildList.addToBuiltList(new StatePos(oldState, blockPos));
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
-        be.setRenderData(oldState, blockState, serverBuildList.renderType);
+        if (bg2Data.containsUndoList(serverBuildList.buildUUID))
+            bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
+        //be.setRenderData(oldState, blockState, serverBuildList.renderType);
     }
 
     public static void remove(ServerBuildList serverBuildList, Player player) {

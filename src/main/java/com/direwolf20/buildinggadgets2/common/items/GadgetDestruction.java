@@ -102,6 +102,12 @@ public class GadgetDestruction extends BaseGadget {
         ArrayList<StatePos> destroyList = GadgetUtils.getDestructionArea(context.level(), startBlock, facing, context.player(), gadget);
         ArrayList<BlockPos> destroyPosList = new ArrayList<>();
         destroyList.forEach(e -> destroyPosList.add(e.pos));
+        //TODO Sorting List?
+        //destroyPosList.sort(Comparator.comparingDouble(blockPos -> blockPos.distSqr(context.player().blockPosition())));
+        /*destroyPosList.sort(Comparator.comparingInt(Vec3i::getY).reversed()
+                .thenComparingInt(Vec3i::getX)
+                .thenComparingInt(Vec3i::getZ));*/
+
         ArrayList<StatePos> actuallyDestroyedList = BuildingUtils.removeTickHandler(context.level(), context.player(), destroyPosList, false, true, gadget);
         //if (!actuallyDestroyedList.isEmpty()) {
         //    GadgetUtils.addToUndoList(context.level(), gadget, actuallyDestroyedList); //If we placed anything at all, add to the undoList

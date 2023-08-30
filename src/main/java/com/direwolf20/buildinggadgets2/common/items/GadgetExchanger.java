@@ -1,12 +1,11 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
-import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Config;
-import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -17,7 +16,6 @@ import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -26,17 +24,12 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class GadgetExchanger extends BaseGadget {
     public GadgetExchanger() {
@@ -120,12 +113,13 @@ public class GadgetExchanger extends BaseGadget {
         ServerTickHandler.stopBuilding(buildUUID);
         ArrayList<StatePos> undoList = bg2Data.popUndoList(buildUUID);
         if (undoList.isEmpty()) return;
-        byte drawSize = RenderBlockBE.getMaxSize();
+        //byte drawSize = RenderBlockBE.getMaxSize();
+        Collections.reverse(undoList);
 
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!pos.state.canSurvive(level, pos.pos)) continue;
-            boolean foundStacks = false;
+            /*boolean foundStacks = false;
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player);
             if (!player.isCreative()) {
                 foundStacks = BuildingUtils.removeStacksFromInventory(player, neededItems, true);
@@ -160,7 +154,8 @@ public class GadgetExchanger extends BaseGadget {
                 be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state, GadgetNBT.getRenderTypeByte(gadget));
             else
                 be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
-            be.drawSize = drawSize;
+            be.drawSize = drawSize;*/
+            ServerTickHandler.addToMap(buildUUID, new StatePos(pos.state, pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, true, true, gadget, ServerBuildList.BuildType.EXCHANGE, true);
         }
     }
 
