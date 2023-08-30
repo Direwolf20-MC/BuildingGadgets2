@@ -35,6 +35,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -106,7 +107,7 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     @Override
     public FluidState getFluidState(BlockPos pos) {
-        return null;
+        return Fluids.EMPTY.defaultFluidState();
     }
 
     @Override

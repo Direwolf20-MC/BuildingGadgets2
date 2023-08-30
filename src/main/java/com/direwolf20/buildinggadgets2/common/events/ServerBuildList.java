@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.events;
 
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -27,6 +28,7 @@ public class ServerBuildList {
     public UUID buildUUID;
     public BuildType buildType;
     public boolean dropContents;
+    public ArrayList<BlockPos> retryList = new ArrayList<>();
 
     public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte renderType, UUID playerUUID, boolean needItems, boolean returnItems, UUID buildUUID, ItemStack gadget, BuildType buildType, boolean dropContents) {
         this.level = level;

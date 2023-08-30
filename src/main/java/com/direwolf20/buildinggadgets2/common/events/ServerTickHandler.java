@@ -81,7 +81,10 @@ public class ServerTickHandler {
         BlockState blockState = statePos.state;
 
         if (!blockState.canSurvive(level, blockPos)) {
+            if (serverBuildList.retryList.contains(blockPos))
+                return; //Don't retry if this is already retried
             statePosList.add(statePos);
+            serverBuildList.retryList.add(blockPos); //Only retry once!
             return;
         }
 
@@ -126,7 +129,10 @@ public class ServerTickHandler {
         if (oldState.equals(blockState)) return; //No need to replace blocks if they match!
 
         if (!blockState.canSurvive(level, blockPos)) {
+            if (serverBuildList.retryList.contains(blockPos))
+                return; //Don't retry if this is already retried
             statePosList.add(statePos);
+            serverBuildList.retryList.add(blockPos); //Only retry once!
             return;
         }
 
