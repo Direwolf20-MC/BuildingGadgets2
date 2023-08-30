@@ -15,6 +15,7 @@ import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -78,11 +79,11 @@ public class GadgetExchanger extends BaseGadget {
 
         // This should go through some translation based process
         // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context), gadget, true, true);
-        if (!actuallyBuiltList.isEmpty()) {
-            GadgetNBT.clearAnchorPos(gadget);
-            GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
-        }
+        UUID buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context), gadget, true, true);
+        //if (!actuallyBuiltList.isEmpty()) {
+        //    GadgetNBT.clearAnchorPos(gadget);
+        //    GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
+        //}
         return InteractionResultHolder.success(gadget);
     }
 
@@ -155,7 +156,7 @@ public class GadgetExchanger extends BaseGadget {
             else
                 be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
             be.drawSize = drawSize;*/
-            ServerTickHandler.addToMap(buildUUID, new StatePos(pos.state, pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, true, true, gadget, ServerBuildList.BuildType.EXCHANGE, true);
+            ServerTickHandler.addToMap(buildUUID, new StatePos(pos.state, pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, true, true, gadget, ServerBuildList.BuildType.EXCHANGE, true, BlockPos.ZERO);
         }
     }
 

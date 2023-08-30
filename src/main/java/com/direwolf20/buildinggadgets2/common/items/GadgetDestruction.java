@@ -162,7 +162,7 @@ public class GadgetDestruction extends BaseGadget {
                 }
                 be.setRenderData(oldState, statePos.state, GadgetNBT.getRenderTypeByte(gadget));
             }*/
-            ServerTickHandler.addToMap(newBuildUUID, statePos, level, GadgetNBT.getRenderTypeByte(gadget), player, false, false, gadget, ServerBuildList.BuildType.UNDO_DESTROY, false);
+            ServerTickHandler.addToMap(newBuildUUID, statePos, level, GadgetNBT.getRenderTypeByte(gadget), player, false, false, gadget, ServerBuildList.BuildType.UNDO_DESTROY, false, BlockPos.ZERO);
         }
     }
 

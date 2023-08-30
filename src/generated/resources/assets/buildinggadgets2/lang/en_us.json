@@ -16,6 +16,7 @@
   "buildinggadgets2.messages.areatoolarge": "Area too large! Max size is: %d. Size was: %d",
   "buildinggadgets2.messages.copyblocks": "Copied %d blocks",
   "buildinggadgets2.messages.cutblocks": "Cut %d blocks",
+  "buildinggadgets2.messages.cutinprogress": "Cut in progress - Please Wait!",
   "buildinggadgets2.messages.invalidblock": "Invalid Block",
   "buildinggadgets2.messages.notenoughenergy": "Not enough energy for cut, need: %d. Have: %d",
   "buildinggadgets2.messages.overwritecut": "Tool already has cut data stored - click again to OVERWRITE this data",

@@ -231,7 +231,7 @@ public class BuildingUtils {
         }
     }
 
-    public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
+    public static UUID build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         UUID buildUUID = UUID.randomUUID();
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
@@ -263,15 +263,15 @@ public class BuildingUtils {
                 }
                 //actuallyBuiltList.add(new StatePos(pos.state, blockPos));
                 //be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
-                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, ServerBuildList.BuildType.BUILD, true);
+                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, ServerBuildList.BuildType.BUILD, true, lookingAt);
             }
         }
         GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
         GadgetNBT.clearAnchorPos(gadget);
-        return actuallyBuiltList;
+        return buildUUID;
     }
 
-    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
+    public static UUID exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
         UUID buildUUID = UUID.randomUUID();
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
@@ -310,33 +310,34 @@ public class BuildingUtils {
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
             }*/
-            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, returnItems, gadget, ServerBuildList.BuildType.EXCHANGE, true);
+            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, returnItems, gadget, ServerBuildList.BuildType.EXCHANGE, true, lookingAt);
             //actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
             //be.setRenderData(oldState, fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
         }
         GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
         GadgetNBT.clearAnchorPos(gadget);
-        return actuallyBuiltList;
+        return buildUUID;
     }
 
     public static ArrayList<StatePos> buildWithTileData(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ArrayList<TagPos> teData, ItemStack gadget) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         if (teData == null) return actuallyBuiltList;
-
+        UUID buildUUID;
         boolean replace = GadgetNBT.getPasteReplace(gadget);
         if (!replace)
-            actuallyBuiltList = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, false);
+            buildUUID = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, false);
         else
-            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, false);
+            buildUUID = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, false);
 
-        for (TagPos tagPos : teData) {
+        ServerTickHandler.addTEData(buildUUID, teData);
+        /*for (TagPos tagPos : teData) {
             BlockPos blockPos = tagPos.pos.offset(lookingAt);
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
             if (be == null) {
                 continue; //Shouldn't Happen!
             }
             be.setBlockEntityData(tagPos.tag);
-        }
+        }*/
         return actuallyBuiltList;
     }
 
@@ -411,7 +412,7 @@ public class BuildingUtils {
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
             }*/
-            ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, giveItem, gadget, ServerBuildList.BuildType.DESTROY, dropContents);
+            ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, giveItem, gadget, ServerBuildList.BuildType.DESTROY, dropContents, BlockPos.ZERO);
         }
 
         /*for (StatePos affectedBlock : affectedBlocks) {

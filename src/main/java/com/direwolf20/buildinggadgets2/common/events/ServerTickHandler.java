@@ -4,9 +4,12 @@ import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Registration;
+import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +22,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
 
+import static com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste.customCutValidation;
 import static com.direwolf20.buildinggadgets2.util.BuildingUtils.giveItemToPlayer;
 import static com.direwolf20.buildinggadgets2.util.BuildingUtils.removeStacksFromInventory;
 
@@ -48,16 +52,33 @@ public class ServerTickHandler {
                     remove(serverBuildList, player);
                 else if (serverBuildList.buildType.equals(ServerBuildList.BuildType.UNDO_DESTROY))
                     undoDestroy(serverBuildList, player);
+                else if (serverBuildList.buildType.equals(ServerBuildList.BuildType.CUT))
+                    cut(serverBuildList, player);
             }
         }
 
         removeEmptyLists();
     }
 
-    public static void addToMap(UUID buildUUID, StatePos statePos, Level level, byte renderType, Player player, boolean neededItems, boolean returnItems, ItemStack gadget, ServerBuildList.BuildType buildType, boolean dropContents) {
-        ServerBuildList serverBuildList = buildMap.computeIfAbsent(buildUUID, k -> new ServerBuildList(level, new ArrayList<>(), renderType, player.getUUID(), neededItems, returnItems, buildUUID, gadget, buildType, dropContents));
+    public static void addToMap(UUID buildUUID, StatePos statePos, Level level, byte renderType, Player player, boolean neededItems, boolean returnItems, ItemStack gadget, ServerBuildList.BuildType buildType, boolean dropContents, BlockPos lookingAt) {
+        ServerBuildList serverBuildList = buildMap.computeIfAbsent(buildUUID, k -> new ServerBuildList(level, new ArrayList<>(), renderType, player.getUUID(), neededItems, returnItems, buildUUID, gadget, buildType, dropContents, lookingAt));
         serverBuildList.statePosList.add(statePos);
         serverBuildList.originalSize = serverBuildList.statePosList.size();
+    }
+
+    public static void addTEData(UUID buildUUID, ArrayList<TagPos> teData) {
+        ServerBuildList serverBuildList = buildMap.get(buildUUID);
+        if (serverBuildList == null) return;
+        serverBuildList.teData = teData;
+    }
+
+    public static boolean gadgetWorking(UUID gadgetUUID) {
+        return buildMap.values().stream().anyMatch(e -> GadgetNBT.getUUID(e.gadget).equals(gadgetUUID));
+    }
+
+    public static void setCutStart(UUID buildUUID, BlockPos cutStart) {
+        ServerBuildList serverBuildList = buildMap.get(buildUUID);
+        serverBuildList.cutStart = cutStart;
     }
 
     public static void stopBuilding(UUID buildUUID) {
@@ -112,6 +133,9 @@ public class ServerTickHandler {
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
         be.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.renderType);
+        CompoundTag compoundTag = serverBuildList.getTagForPos(blockPos);
+        if (!compoundTag.isEmpty())
+            be.setBlockEntityData(compoundTag);
     }
 
     public static void exchange(ServerBuildList serverBuildList, Player player) {
@@ -275,6 +299,50 @@ public class ServerTickHandler {
             }
             be.setRenderData(oldState, blockState, serverBuildList.renderType);
         }
+    }
 
+    public static void cut(ServerBuildList serverBuildList, Player player) {
+        Level level = serverBuildList.level;
+
+        ArrayList<StatePos> statePosList = serverBuildList.statePosList;
+        if (statePosList.isEmpty()) return;
+        StatePos statePos = statePosList.remove(0);
+
+        BlockPos blockPos = statePos.pos;
+        BlockState blockState = level.getBlockState(blockPos);
+        boolean doRemove = false;
+
+        if (GadgetUtils.isValidBlockState(blockState, level, blockPos) && customCutValidation(blockState, level, player, blockPos)) {
+            serverBuildList.actuallyBuildList.add(new StatePos(blockState, blockPos.subtract(serverBuildList.cutStart)));
+            BlockEntity blockEntity = level.getBlockEntity(blockPos);
+            if (!blockState.isAir()) //Don't remove air - also used to detect how many blocks are actually removed
+                doRemove = true;
+            if (blockEntity != null) {
+                CompoundTag blockTag = blockEntity.saveWithFullMetadata();
+                TagPos tagPos = new TagPos(blockTag, blockPos.subtract(serverBuildList.cutStart));
+                serverBuildList.teData.add(tagPos);
+            }
+        } else {
+            serverBuildList.actuallyBuildList.add(new StatePos(Blocks.AIR.defaultBlockState(), blockPos.subtract(serverBuildList.cutStart))); //We need to have a block in EVERY position, so write air if invalid
+        }
+
+        //Update world data
+        UUID uuid = GadgetNBT.getUUID(serverBuildList.gadget);
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(player.level().getServer()).overworld());
+        bg2Data.addToCopyPaste(uuid, serverBuildList.actuallyBuildList);
+        bg2Data.addToTEMap(uuid, serverBuildList.teData);
+
+        //Remove blocks from world if appropriate (Not air!)
+        if (doRemove) {
+            level.removeBlockEntity(blockPos); //Calling this prevents chests from dropping their contents, so only do it if we don't care about the drops (Like cut)
+            level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 48);
+            StatePos affectedBlock = new StatePos(blockState, blockPos);
+
+            boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
+            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
+            if (placed && be != null) {
+                be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState(), serverBuildList.renderType);
+            }
+        }
     }
 }
