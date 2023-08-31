@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
-import java.util.*;
+import java.util.ArrayList;
 
 public class Surface extends BaseMode {
     public Surface(boolean isExchanging) {
@@ -37,39 +37,14 @@ public class Surface extends BaseMode {
         BlockState lookingAtState = level.getBlockState(start);
         BlockPos startAt = isExchanging ? start : start.relative(hitSide);
         AABB box = GadgetUtils.getSquareArea(startAt, hitSide, bound);
+        BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
+            if (isPosValid(level, player, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
+                coordinates.add(new StatePos(state, pos.subtract(start)));
+        });
 
         boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.CONNECTED_AREA.value);
-        if (connected) {
-            Set<BlockPos> visitedBlocks = new HashSet<>(); //Blocks we've checked
-            Queue<BlockPos> blocksToVisit = new LinkedList<>(); //Blocks we need to check
-            blocksToVisit.offer(startAt); //Add the starting block to 'need to check'
-
-            while (!blocksToVisit.isEmpty()) {
-                BlockPos currentPos = blocksToVisit.poll(); //Get the current block to check
-                BlockState currentBlock = level.getBlockState(currentPos);
-
-                if (!visitedBlocks.contains(currentPos) && isPosValid(level, player, currentPos, state) && isPosValidCustom(level, currentPos, lookingAtState, gadget, hitSide) && GadgetUtils.direContains(box, currentPos)) { //If we haven't added it already and its not air and its inside our bounding box add to the list to use
-                    visitedBlocks.add(currentPos);
-
-                    for (Direction direction : Direction.stream().filter(e -> !e.getAxis().equals(hitSide.getAxis())).toList()) { //Grab all the blocks around this one based on hitSide and add to the list to check out
-                        BlockPos nextPos = currentPos.relative(direction);
-                        if (GadgetUtils.direContains(box, nextPos)) { //Only if its inside our AABB box.
-                            blocksToVisit.offer(nextPos);
-                        }
-                    }
-                }
-            }
-            for (BlockPos pos : visitedBlocks) { //Of all the blocks we checked above, filter now based on validity
-                if (isPosValid(level, player, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
-                    coordinates.add(new StatePos(state, pos.subtract(start)));
-            }
-        } else {
-            BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(pos -> {
-                if (isPosValid(level, player, pos, state) && isPosValidCustom(level, pos, lookingAtState, gadget, hitSide))
-                    coordinates.add(new StatePos(state, pos.subtract(start)));
-            });
-        }
-
+        if (isExchanging && connected)
+            return removeUnConnected(level, player, startAt.subtract(start), coordinates, hitSide);
         return coordinates;
     }
 

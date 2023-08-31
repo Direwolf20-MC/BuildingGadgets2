@@ -17,7 +17,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class BaseMode implements Comparable<BaseMode> {
     public boolean isExchanging;
@@ -75,6 +76,30 @@ public abstract class BaseMode implements Comparable<BaseMode> {
                 return false;
         }
         return true;
+    }
+
+    public ArrayList<StatePos> removeUnConnected(Level level, Player player, BlockPos startAt, ArrayList<StatePos> coordinates, Direction hitSide) {
+        if (coordinates.isEmpty()) return coordinates;
+        Map<BlockPos, BlockState> coordinatesPositions = coordinates.stream().collect(Collectors.toMap(e -> e.pos, e -> e.state));
+        Set<StatePos> visitedBlocks = new HashSet<>(); //Blocks we've checked
+        Queue<BlockPos> blocksToVisit = new LinkedList<>(); //Blocks we need to check
+        blocksToVisit.offer(startAt); //Add the starting block to 'need to check'
+
+        while (!blocksToVisit.isEmpty()) {
+            BlockPos currentPos = blocksToVisit.poll(); //Get the current block to check
+
+            if (!visitedBlocks.contains(new StatePos(coordinatesPositions.get(currentPos), currentPos)) && coordinatesPositions.containsKey(currentPos)) { //If we haven't added it already its in our list of coords we might place in
+                visitedBlocks.add(new StatePos(coordinatesPositions.get(currentPos), currentPos)); //This is a list of blocks that we considered valid
+
+                for (Direction direction : Direction.stream().filter(e -> !e.getAxis().equals(hitSide.getAxis())).toList()) { //Grab all the blocks around this one based on hitSide and add to the list to check out
+                    BlockPos nextPos = currentPos.relative(direction);
+                    if (coordinatesPositions.containsKey(nextPos)) { //Only if its inside our list of coords to check.
+                        blocksToVisit.offer(nextPos);
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(visitedBlocks);
     }
 
     public boolean isExchangingValid(Level level, Player player, BlockPos pos, ItemStack gadget) {
