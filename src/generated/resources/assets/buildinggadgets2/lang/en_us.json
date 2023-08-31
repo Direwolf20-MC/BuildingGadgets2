@@ -19,6 +19,7 @@
   "buildinggadgets2.messages.cutinprogress": "Cut in progress - Please Wait!",
   "buildinggadgets2.messages.invalidblock": "Invalid Block",
   "buildinggadgets2.messages.notenoughenergy": "Not enough energy for cut, need: %d. Have: %d",
+  "buildinggadgets2.messages.outofpower": "Gadget out of power!",
   "buildinggadgets2.messages.overwritecut": "Tool already has cut data stored - click again to OVERWRITE this data",
   "buildinggadgets2.messages.range_set": "Range set to: %d",
   "buildinggadgets2.messages.relativepaste": "Relative Paste set to: [%s]",

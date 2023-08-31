@@ -89,12 +89,10 @@ public class GadgetCutPaste extends BaseGadget {
             ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false); //Don't remove the data just yet
             ArrayList<TagPos> tagList = bg2Data.peekTEMap(uuid);
 
-            // This should go through some translation based process
-            // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
             ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), tagList, gadget);
             if (!actuallyBuiltList.isEmpty())
                 GadgetNBT.clearAnchorPos(gadget);
-            //GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
+            GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
             GadgetNBT.setMode(gadget, new Cut()); // Set it back to cut mode - no need to stay in paste since the paste is gone :)
             return InteractionResultHolder.success(gadget);
         } else {
@@ -114,7 +112,6 @@ public class GadgetCutPaste extends BaseGadget {
         var mode = GadgetNBT.getMode(gadget);
         if (mode.getId().getPath().equals("cut")) {
             GadgetNBT.setCopyEndPos(gadget, context.pos());
-            //buildAndStore(context, gadget);
         } else if (mode.equals(new Paste())) {
             //Paste
         } else {
@@ -154,37 +151,19 @@ public class GadgetCutPaste extends BaseGadget {
             return;
         }
 
-        //ArrayList<BlockPos> removeList = new ArrayList<>();
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
             ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, false, gadget, ServerBuildList.BuildType.CUT, false, BlockPos.ZERO);
-            /*if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && customCutValidation(level.getBlockState(pos), level, player, pos)) {
-                buildList.add(new StatePos(level.getBlockState(pos), pos.subtract(cutStart)));
-                BlockEntity blockEntity = level.getBlockEntity(pos);
-                if (!level.getBlockState(pos).isAir()) //Don't remove air - also used to detect how many blocks are actually removed
-                    removeList.add(pos);
-                if (blockEntity != null) {
-                    CompoundTag blockTag = blockEntity.saveWithFullMetadata();
-                    TagPos tagPos = new TagPos(blockTag, pos.subtract(cutStart));
-                    teData.add(tagPos);
-                }
-            } else {
-                buildList.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(cutStart))); //We need to have a block in EVERY position, so write air if invalid
-            //}*/
         });
         ServerTickHandler.setCutStart(buildUUID, cutStart);
         GadgetNBT.setCopyStartPos(gadget, GadgetNBT.nullPos);
         GadgetNBT.setCopyEndPos(gadget, GadgetNBT.nullPos);
         player.displayClientMessage(Component.translatable("buildinggadgets2.messages.cutblocks", size), true);
-        //if (removeList.isEmpty())
-        //    return; //The remove list is how many blocks we're removing (Not air) so validate on that
-        //BuildingUtils.remove(level, player, removeList, false, false, heldItem);
 
         UUID uuid = GadgetNBT.getUUID(gadget);
         GadgetNBT.setCopyUUID(gadget, buildUUID); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(player.level().getServer()).overworld());
         bg2Data.addToCopyPaste(uuid, buildList);
         bg2Data.addToTEMap(uuid, teData);
-        //new Cut().removeBlocks(player);
     }
 
     public static boolean customCutValidation(BlockState blockState, Level level, Player player, BlockPos blockPos) {

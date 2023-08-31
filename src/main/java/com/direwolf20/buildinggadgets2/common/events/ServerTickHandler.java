@@ -41,7 +41,7 @@ public class ServerTickHandler {
                 stopBuilding(uuid); //Clear the remaining list of things to build, removing it after this loop in removeEmptyLists
                 continue;
             }
-            int min = serverBuildList.originalSize < 25 ? 1 : 5;
+            int min = serverBuildList.originalSize < 60 ? 1 : 5;
             int amountPerTick = Math.max((int) Math.floor(serverBuildList.originalSize / 300), min);
             for (int i = 0; i < amountPerTick; i++) {
                 if (serverBuildList.buildType.equals(ServerBuildList.BuildType.BUILD))
@@ -81,7 +81,7 @@ public class ServerTickHandler {
         serverBuildList.cutStart = cutStart;
         if (serverBuildList.buildType.equals(ServerBuildList.BuildType.CUT)) { // should always be the case!
             for (StatePos statePos : serverBuildList.statePosList)
-                serverBuildList.actuallyBuildList.add(new StatePos(Blocks.VOID_AIR.defaultBlockState(), statePos.pos.subtract(serverBuildList.cutStart))); //Fill the actually built list with void air, in case the cut gets interupted by player logoff
+                serverBuildList.actuallyBuildList.add(new StatePos(Blocks.VOID_AIR.defaultBlockState(), statePos.pos.subtract(serverBuildList.cutStart))); //Fill the actually built list with void air, in case the cut gets interrupted by player logoff
         }
     }
 
@@ -117,7 +117,7 @@ public class ServerTickHandler {
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         StatePos statePos = statePosList.remove(0);
         if (statePos.state.equals(Blocks.VOID_AIR.defaultBlockState()))
-            return; //Void_AIR is used for blocks we wanna skip
+            return; //Void_AIR is used for blocks we want to skip
         ArrayList<StatePos> undoList = bg2Data.peekUndoList(GadgetNBT.getUUID(serverBuildList.gadget));
         if (undoList != null && undoList.contains(statePos))
             return; //This really only happens if a cut/paste got interrupted mid-build by a server stop or player logoff
@@ -128,18 +128,17 @@ public class ServerTickHandler {
         if (!blockState.canSurvive(level, blockPos)) {
             if (serverBuildList.retryList.contains(blockPos))
                 return; //Don't retry if this is already retried
-            statePosList.add(statePos);
+            statePosList.add(statePos); //Retry placing this after all other blocks are placed - in case torches are placed before their supporting block for example
             serverBuildList.retryList.add(blockPos); //Only retry once!
             return;
         }
 
         if (!level.getBlockState(blockPos).canBeReplaced()) return; //Return without placing the block
 
-        boolean foundStacks = false;
         List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player);
         if (!player.isCreative() && serverBuildList.needItems) {
-            foundStacks = removeStacksFromInventory(player, neededItems, true);
-            if (!foundStacks) return; //Return without placing the block
+            if (!removeStacksFromInventory(player, neededItems, true))
+                return; //Return without placing the block
         }
 
         boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
@@ -188,7 +187,9 @@ public class ServerTickHandler {
             return; //This really only happens if a cut/paste got interrupted mid-build by a server stop or player logoff
 
 
-        BlockPos blockPos = statePos.pos.offset(serverBuildList.lookingAt);
+        BlockPos blockPos = statePos.pos;
+        if (!serverBuildList.lookingAt.equals(GadgetNBT.nullPos)) //This only happens when undoing an exchange - we don't wanna offset in this case
+            blockPos = statePos.pos.offset(serverBuildList.lookingAt);
         BlockState blockState = statePos.state;
         BlockState oldState = level.getBlockState(blockPos);
         byte drawSize = -1;
@@ -203,13 +204,12 @@ public class ServerTickHandler {
             return;
         }
 
-        boolean foundStacks = false;
         List<ItemStack> neededItems = new ArrayList<>();
         if (!player.isCreative() && serverBuildList.needItems) {
             if (!blockState.isAir()) {
                 neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player));
-                foundStacks = removeStacksFromInventory(player, neededItems, true);
-                if (!foundStacks) return; //Return without placing the block
+                if (!removeStacksFromInventory(player, neededItems, true))
+                    return; //Return without placing the block
             }
         }
 
@@ -217,7 +217,7 @@ public class ServerTickHandler {
         boolean placed = false;
 
         //Handles situations where we are undoing an exchange
-        BlockState oldRenderState = level.getBlockState(blockPos);
+        BlockState oldRenderState = oldState;
         if (oldState.getBlock() instanceof RenderBlock) {
             BlockEntity blockEntity = level.getBlockEntity(blockPos);
             if (blockEntity instanceof RenderBlockBE renderBlockBE) {
@@ -269,8 +269,6 @@ public class ServerTickHandler {
                 be.setBlockEntityData(compoundTag);
                 bg2Data.addToTEMap(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.teData); //If the server crashes mid-build you'll maybe dupe blocks but at least not dupe TE data? TODO Improve
             }
-            //bg2Data.addToCopyPaste(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.statePosList); //Update the world map data - this is in case the server stops (Single player exit) mid build
-
         }
     }
 
@@ -329,7 +327,6 @@ public class ServerTickHandler {
 
         BlockPos blockPos = statePos.pos;
         BlockState blockState = statePos.state;
-        byte drawSize = RenderBlockBE.getMaxSize();
 
         if (blockState.isAir()) return; //Do nothing if the old state was Air
 
@@ -340,7 +337,7 @@ public class ServerTickHandler {
         if ((oldState.getBlock() instanceof RenderBlock)) {
             BlockEntity blockEntity = level.getBlockEntity(blockPos);
             if (blockEntity instanceof RenderBlockBE renderBlockBE) {
-                drawSize = renderBlockBE.drawSize;
+                byte drawSize = renderBlockBE.drawSize;
                 renderBlockBE.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.renderType);
                 renderBlockBE.drawSize = drawSize;
             }
@@ -379,7 +376,7 @@ public class ServerTickHandler {
                 TagPos tagPos = new TagPos(blockTag, blockPos.subtract(serverBuildList.cutStart));
                 serverBuildList.teData.add(tagPos);
             }
-        } else {
+        } else { //All blocks in a cut-paste area need to be populated, so fill in air for blocks we skip.
             serverBuildList.updateActuallyBuiltList(new StatePos(Blocks.AIR.defaultBlockState(), blockPos.subtract(serverBuildList.cutStart))); //We need to have a block in EVERY position, so write air if invalid
         }
 

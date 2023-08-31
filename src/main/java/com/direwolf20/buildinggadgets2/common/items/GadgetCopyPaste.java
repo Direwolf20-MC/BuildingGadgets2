@@ -81,10 +81,7 @@ public class GadgetCopyPaste extends BaseGadget {
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
             ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false);
             UUID buildUUID;
-            // This should go through some translation based process
-            // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
             boolean replace = GadgetNBT.getPasteReplace(gadget);
-            ArrayList<StatePos> actuallyBuiltList;
             if (!replace)
                 buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
             else
@@ -92,11 +89,6 @@ public class GadgetCopyPaste extends BaseGadget {
 
             GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
             GadgetNBT.clearAnchorPos(gadget);
-
-            //if (!actuallyBuiltList.isEmpty()) {
-            //GadgetNBT.clearAnchorPos(gadget);
-            //    GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
-            //}
             return InteractionResultHolder.success(gadget);
         } else {
             return InteractionResultHolder.pass(gadget);

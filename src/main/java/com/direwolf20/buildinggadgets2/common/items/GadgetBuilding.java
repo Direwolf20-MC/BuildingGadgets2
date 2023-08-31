@@ -74,10 +74,6 @@ public class GadgetBuilding extends BaseGadget {
         UUID buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context), gadget, true);
         GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
         GadgetNBT.clearAnchorPos(gadget);
-        //if (!actuallyBuiltList.isEmpty()) {
-        //GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
-        //GadgetNBT.clearAnchorPos(gadget);
-        //}
         return InteractionResultHolder.success(gadget);
     }
 

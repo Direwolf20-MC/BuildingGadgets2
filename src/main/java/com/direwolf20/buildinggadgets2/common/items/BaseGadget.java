@@ -210,10 +210,7 @@ public abstract class BaseGadget extends Item {
 
         ArrayList<BlockPos> todoList = new ArrayList<>();
         for (StatePos statePos : undoList) {
-            //BlockState currentState = level.getBlockState(statePos.pos);
-            //if (currentState.getBlock().equals(statePos.state.getBlock()) || currentState.getBlock() instanceof RenderBlock) {
-            todoList.add(statePos.pos);
-            //}
+             todoList.add(statePos.pos);
         }
         boolean giveItemsBack = !player.isCreative(); //Might want more conditions later?
         BuildingUtils.removeTickHandler(level, player, todoList, giveItemsBack, giveItemsBack, gadget);
