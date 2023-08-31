@@ -44,7 +44,6 @@ public class ServerTickHandler {
             int min = serverBuildList.originalSize < 60 ? 1 : 5;
             int max = 50;
             int amountPerTick = Math.min(Math.max((int) Math.floor(serverBuildList.originalSize / 300), min), max);
-            System.out.println(amountPerTick);
             for (int i = 0; i < amountPerTick; i++) {
                 if (serverBuildList.buildType.equals(ServerBuildList.BuildType.BUILD))
                     build(serverBuildList, player);
