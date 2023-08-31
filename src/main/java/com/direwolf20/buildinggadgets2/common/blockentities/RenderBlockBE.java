@@ -54,7 +54,7 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     public static byte getMaxSize() {
-        return 40;
+        return 20;
     }
 
     public void setRealBlock(BlockState realBlock) {

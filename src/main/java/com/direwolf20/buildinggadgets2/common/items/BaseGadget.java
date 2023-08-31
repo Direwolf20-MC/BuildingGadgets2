@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.common.items;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.capabilities.CapabilityEnergyProvider;
+import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -36,9 +37,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class BaseGadget extends Item {
 
@@ -203,17 +202,17 @@ public abstract class BaseGadget extends Item {
     public void undo(Level level, Player player, ItemStack gadget) {
         if (!canUndo(level, player, gadget)) return;
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        ArrayList<StatePos> undoList = bg2Data.popUndoList(GadgetNBT.popUndoList(gadget));
+        UUID buildUUID = GadgetNBT.popUndoList(gadget);
+        ServerTickHandler.stopBuilding(buildUUID);
+        ArrayList<StatePos> undoList = bg2Data.popUndoList(buildUUID);
         if (undoList.isEmpty()) return;
+        Collections.reverse(undoList);
 
         ArrayList<BlockPos> todoList = new ArrayList<>();
         for (StatePos statePos : undoList) {
-            //BlockState currentState = level.getBlockState(statePos.pos);
-            //if (currentState.getBlock().equals(statePos.state.getBlock()) || currentState.getBlock() instanceof RenderBlock) {
-            todoList.add(statePos.pos);
-            //}
+             todoList.add(statePos.pos);
         }
         boolean giveItemsBack = !player.isCreative(); //Might want more conditions later?
-        BuildingUtils.remove(level, player, todoList, giveItemsBack, giveItemsBack, gadget);
+        BuildingUtils.removeTickHandler(level, player, todoList, giveItemsBack, giveItemsBack, gadget);
     }
 }

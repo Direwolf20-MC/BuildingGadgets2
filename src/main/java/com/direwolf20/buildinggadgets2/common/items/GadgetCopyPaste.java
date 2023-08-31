@@ -80,19 +80,15 @@ public class GadgetCopyPaste extends BaseGadget {
             UUID uuid = GadgetNBT.getUUID(gadget);
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
             ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false);
-
-            // This should go through some translation based process
-            // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
+            UUID buildUUID;
             boolean replace = GadgetNBT.getPasteReplace(gadget);
-            ArrayList<StatePos> actuallyBuiltList;
             if (!replace)
-                actuallyBuiltList = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
+                buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
             else
-                actuallyBuiltList = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, false);
-            if (!actuallyBuiltList.isEmpty()) {
-                GadgetNBT.clearAnchorPos(gadget);
-                GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
-            }
+                buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, false);
+
+            GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
+            GadgetNBT.clearAnchorPos(gadget);
             return InteractionResultHolder.success(gadget);
         } else {
             return InteractionResultHolder.pass(gadget);

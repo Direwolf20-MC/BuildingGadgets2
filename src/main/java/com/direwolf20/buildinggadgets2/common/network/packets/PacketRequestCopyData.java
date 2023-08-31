@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network.packets;
 
+import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import net.minecraft.nbt.CompoundTag;
@@ -42,6 +43,11 @@ public class PacketRequestCopyData {
             }
             if (!GadgetNBT.getUUID(gadget).equals(message.gadgetUUID)) //This should almost never happen but lets confirm?
                 return;*/
+
+            if (ServerTickHandler.gadgetWorking(message.gadgetUUID)) { //Todo Cut and Paste gadget only
+                //System.out.println("Gadget still working!");
+                return; //If the gadget is mid cut, don't sync data
+            }
 
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(sender.level().getServer()).overworld());
             CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(message.gadgetUUID, false);

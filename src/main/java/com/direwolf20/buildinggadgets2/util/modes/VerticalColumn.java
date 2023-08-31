@@ -52,7 +52,9 @@ public class VerticalColumn extends BaseMode {
                     coordinates.add(new StatePos(state, BlockPos.ZERO.relative(Direction.UP, i)));
             }
         }
-
+        boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.CONNECTED_AREA.value);
+        if (isExchanging && connected)
+            return removeUnConnected(player.level(), player, start.subtract(start), coordinates, hitSide);
         return coordinates;
     }
 }

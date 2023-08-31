@@ -48,6 +48,10 @@ public class BG2Data extends SavedData {
         return compoundTag;
     }
 
+    public boolean containsUndoList(UUID uuid) {
+        return undoList.containsKey(uuid);
+    }
+
     public void addToUndoList(UUID uuid, ArrayList<StatePos> list, Level level) {
         undoList.put(uuid, list);
         this.setDirty();

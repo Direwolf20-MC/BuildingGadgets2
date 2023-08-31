@@ -60,6 +60,7 @@ public class CopyGUI extends Screen {
         List<AbstractButton> buttons = new ArrayList<AbstractButton>() {{
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.confirm"), (button) -> {
                 sendPacket();
+                onClose();
             }));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.close"), (button) -> onClose()));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.clear"), (button) -> {
