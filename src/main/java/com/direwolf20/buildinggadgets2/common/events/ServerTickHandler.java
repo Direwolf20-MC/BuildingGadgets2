@@ -57,7 +57,7 @@ public class ServerTickHandler {
             }
         }
 
-        removeEmptyLists();
+        removeEmptyLists(event);
     }
 
     public static void addToMap(UUID buildUUID, StatePos statePos, Level level, byte renderType, Player player, boolean neededItems, boolean returnItems, ItemStack gadget, ServerBuildList.BuildType buildType, boolean dropContents, BlockPos lookingAt) {
@@ -79,6 +79,10 @@ public class ServerTickHandler {
     public static void setCutStart(UUID buildUUID, BlockPos cutStart) {
         ServerBuildList serverBuildList = buildMap.get(buildUUID);
         serverBuildList.cutStart = cutStart;
+        if (serverBuildList.buildType.equals(ServerBuildList.BuildType.CUT)) { // should always be the case!
+            for (StatePos statePos : serverBuildList.statePosList)
+                serverBuildList.actuallyBuildList.add(new StatePos(Blocks.VOID_AIR.defaultBlockState(), statePos.pos.subtract(serverBuildList.cutStart))); //Fill the actually built list with void air, in case the cut gets interupted by player logoff
+        }
     }
 
     public static void stopBuilding(UUID buildUUID) {
@@ -87,8 +91,22 @@ public class ServerTickHandler {
         serverBuildList.statePosList.clear();
     }
 
-    public static void removeEmptyLists() {
-        buildMap.entrySet().removeIf(entry -> entry.getValue().statePosList.isEmpty());
+    public static void removeEmptyLists(TickEvent.ServerTickEvent event) {
+        Iterator<Map.Entry<UUID, ServerBuildList>> iterator = buildMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, ServerBuildList> entry = iterator.next();
+            ServerBuildList serverBuildList = entry.getValue();
+            if (entry.getValue().statePosList.isEmpty()) {
+                Player player = event.getServer().getPlayerList().getPlayer(serverBuildList.playerUUID); //We check for the player - if they exist, they finished building - if not they logged off. Remove data from map only if finished building
+                if (serverBuildList.teData != null && !serverBuildList.buildType.equals(ServerBuildList.BuildType.CUT) && player != null) { //If we had teData this was from a cut-Paste, so remove the data from world data if we're not cutting
+                    BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(serverBuildList.level.getServer()).overworld());
+                    bg2Data.getCopyPasteList(GadgetNBT.getUUID(serverBuildList.gadget), true); //Remove the data
+                    bg2Data.getTEMap(GadgetNBT.getUUID(serverBuildList.gadget)); //Remove the TE data
+                    bg2Data.popUndoList(GadgetNBT.getUUID(serverBuildList.gadget)); //Remove the undo list, which tracks partial placements
+                }
+                iterator.remove();
+            }
+        }
     }
 
     public static void build(ServerBuildList serverBuildList, Player player) {
@@ -96,9 +114,15 @@ public class ServerTickHandler {
 
         ArrayList<StatePos> statePosList = serverBuildList.statePosList;
         if (statePosList.isEmpty()) return;
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
         StatePos statePos = statePosList.remove(0);
+        if (statePos.state.equals(Blocks.VOID_AIR.defaultBlockState()))
+            return; //Void_AIR is used for blocks we wanna skip
+        ArrayList<StatePos> undoList = bg2Data.peekUndoList(GadgetNBT.getUUID(serverBuildList.gadget));
+        if (undoList != null && undoList.contains(statePos))
+            return; //This really only happens if a cut/paste got interrupted mid-build by a server stop or player logoff
 
-        BlockPos blockPos = statePos.pos;
+        BlockPos blockPos = statePos.pos.offset(serverBuildList.lookingAt);
         BlockState blockState = statePos.state;
 
         if (!blockState.canSurvive(level, blockPos)) {
@@ -129,13 +153,24 @@ public class ServerTickHandler {
         if (!player.isCreative() && serverBuildList.needItems) {
             removeStacksFromInventory(player, neededItems, false);
         }
-        serverBuildList.addToBuiltList(new StatePos(blockState, blockPos));
-        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
+
         be.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.renderType);
-        CompoundTag compoundTag = serverBuildList.getTagForPos(blockPos);
-        if (!compoundTag.isEmpty())
-            be.setBlockEntityData(compoundTag);
+
+        if (serverBuildList.teData == null && bg2Data.containsUndoList(serverBuildList.buildUUID)) { //Only track 'real undos' for non cut-pasted data
+            serverBuildList.addToBuiltList(new StatePos(blockState, blockPos));
+            bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
+        }
+
+        if (serverBuildList.teData != null) { //If theres ANY TE data (even an empty list), we are doing a cut paste
+            serverBuildList.addToBuiltList(new StatePos(blockState, statePos.pos)); //Add the non-adjust blockpos to the list for reference later
+            bg2Data.addToUndoList(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.actuallyBuildList, level);
+
+            CompoundTag compoundTag = serverBuildList.getTagForPos(blockPos); //First check if theres TE data for this block
+            if (!compoundTag.isEmpty()) {
+                be.setBlockEntityData(compoundTag);
+                bg2Data.addToTEMap(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.teData); //If the server crashes mid-build you'll maybe dupe blocks but at least not dupe TE data? TODO Improve
+            }
+        }
     }
 
     public static void exchange(ServerBuildList serverBuildList, Player player) {
@@ -144,8 +179,16 @@ public class ServerTickHandler {
         ArrayList<StatePos> statePosList = serverBuildList.statePosList;
         if (statePosList.isEmpty()) return;
         StatePos statePos = statePosList.remove(0);
+        if (statePos.state.equals(Blocks.VOID_AIR.defaultBlockState()))
+            return; //Void_AIR is used for blocks we wanna skip
 
-        BlockPos blockPos = statePos.pos;
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
+        ArrayList<StatePos> undoList = bg2Data.peekUndoList(GadgetNBT.getUUID(serverBuildList.gadget));
+        if (undoList != null && undoList.contains(statePos))
+            return; //This really only happens if a cut/paste got interrupted mid-build by a server stop or player logoff
+
+
+        BlockPos blockPos = statePos.pos.offset(serverBuildList.lookingAt);
         BlockState blockState = statePos.state;
         BlockState oldState = level.getBlockState(blockPos);
         byte drawSize = -1;
@@ -213,11 +256,22 @@ public class ServerTickHandler {
         if (drawSize != -1) //Only if changed from default
             be.drawSize = drawSize;
 
-        serverBuildList.addToBuiltList(new StatePos(oldState, blockPos));
-        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        if (bg2Data.containsUndoList(serverBuildList.buildUUID))
+        if (serverBuildList.teData == null && bg2Data.containsUndoList(serverBuildList.buildUUID)) {
+            serverBuildList.addToBuiltList(new StatePos(oldState, blockPos));
             bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
-        //be.setRenderData(oldState, blockState, serverBuildList.renderType);
+        }
+        if (serverBuildList.teData != null) { //If theres ANY TE data (even an empty list), we are doing a cut paste
+            serverBuildList.addToBuiltList(new StatePos(blockState, statePos.pos)); //Add the non-adjust blockpos to the list for reference later
+            bg2Data.addToUndoList(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.actuallyBuildList, level);
+
+            CompoundTag compoundTag = serverBuildList.getTagForPos(blockPos); //First check if theres TE data for this block
+            if (!compoundTag.isEmpty()) {
+                be.setBlockEntityData(compoundTag);
+                bg2Data.addToTEMap(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.teData); //If the server crashes mid-build you'll maybe dupe blocks but at least not dupe TE data? TODO Improve
+            }
+            //bg2Data.addToCopyPaste(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.statePosList); //Update the world map data - this is in case the server stops (Single player exit) mid build
+
+        }
     }
 
     public static void remove(ServerBuildList serverBuildList, Player player) {
@@ -304,6 +358,8 @@ public class ServerTickHandler {
 
     public static void cut(ServerBuildList serverBuildList, Player player) {
         Level level = serverBuildList.level;
+        if (serverBuildList.teData == null)
+            serverBuildList.teData = new ArrayList<>(); //Initialize the list since it isn't done in the ServerBuildList class
 
         ArrayList<StatePos> statePosList = serverBuildList.statePosList;
         if (statePosList.isEmpty()) return;
@@ -314,9 +370,9 @@ public class ServerTickHandler {
         boolean doRemove = false;
 
         if (GadgetUtils.isValidBlockState(blockState, level, blockPos) && customCutValidation(blockState, level, player, blockPos)) {
-            serverBuildList.actuallyBuildList.add(new StatePos(blockState, blockPos.subtract(serverBuildList.cutStart)));
+            serverBuildList.updateActuallyBuiltList(new StatePos(blockState, blockPos.subtract(serverBuildList.cutStart)));
             BlockEntity blockEntity = level.getBlockEntity(blockPos);
-            if (!blockState.isAir()) //Don't remove air - also used to detect how many blocks are actually removed
+            if (!blockState.isAir()) //Don't remove air
                 doRemove = true;
             if (blockEntity != null) {
                 CompoundTag blockTag = blockEntity.saveWithFullMetadata();
@@ -324,7 +380,7 @@ public class ServerTickHandler {
                 serverBuildList.teData.add(tagPos);
             }
         } else {
-            serverBuildList.actuallyBuildList.add(new StatePos(Blocks.AIR.defaultBlockState(), blockPos.subtract(serverBuildList.cutStart))); //We need to have a block in EVERY position, so write air if invalid
+            serverBuildList.updateActuallyBuiltList(new StatePos(Blocks.AIR.defaultBlockState(), blockPos.subtract(serverBuildList.cutStart))); //We need to have a block in EVERY position, so write air if invalid
         }
 
         //Update world data

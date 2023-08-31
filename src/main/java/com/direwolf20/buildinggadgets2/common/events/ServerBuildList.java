@@ -8,9 +8,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ServerBuildList {
     public enum BuildType {
@@ -18,13 +17,12 @@ public class ServerBuildList {
         EXCHANGE,
         DESTROY,
         UNDO_DESTROY,
-        CUT,
-        CUTPASTE
+        CUT
     }
 
     public Level level;
     public ArrayList<StatePos> statePosList;
-    public ArrayList<TagPos> teData = new ArrayList<>();
+    public ArrayList<TagPos> teData;
     public byte renderType;
     public UUID playerUUID;
     public int originalSize;
@@ -58,13 +56,28 @@ public class ServerBuildList {
         this.actuallyBuildList.add(statePos);
     }
 
+    public void updateActuallyBuiltList(StatePos statePos) {
+        for (StatePos entry : actuallyBuildList) {
+            if (entry.pos.equals(statePos.pos)) {
+                entry.state = statePos.state;
+                break;
+            }
+        }
+    }
+
     public CompoundTag getTagForPos(BlockPos pos) {
         CompoundTag compoundTag = new CompoundTag();
-        if (teData.isEmpty()) return compoundTag;
+        if (teData == null || teData.isEmpty()) return compoundTag;
         BlockPos blockPos = pos.subtract(lookingAt);
-        Map<BlockPos, CompoundTag> teMap = teData.stream().collect(Collectors.toMap(e -> e.pos, e -> e.tag));
-        if (teMap.containsKey(blockPos))
-            return teMap.get(blockPos);
+        Iterator<TagPos> iterator = teData.iterator();
+        while (iterator.hasNext()) {
+            TagPos data = iterator.next();
+            if (data.pos.equals(blockPos)) {
+                compoundTag = data.tag;
+                iterator.remove();
+                break;
+            }
+        }
         return compoundTag;
     }
 }

@@ -108,7 +108,9 @@ public class GadgetDestruction extends BaseGadget {
                 .thenComparingInt(Vec3i::getX)
                 .thenComparingInt(Vec3i::getZ));*/
 
-        ArrayList<StatePos> actuallyDestroyedList = BuildingUtils.removeTickHandler(context.level(), context.player(), destroyPosList, false, true, gadget);
+        UUID buildUUID = BuildingUtils.removeTickHandler(context.level(), context.player(), destroyPosList, false, true, gadget);
+        GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID); //If we placed anything at all, add to the undoList
+        GadgetNBT.clearAnchorPos(gadget);
         //if (!actuallyDestroyedList.isEmpty()) {
         //    GadgetUtils.addToUndoList(context.level(), gadget, actuallyDestroyedList); //If we placed anything at all, add to the undoList
         //    GadgetNBT.clearAnchorPos(gadget);

@@ -5,6 +5,7 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.Copy;
@@ -88,6 +89,10 @@ public class GadgetCopyPaste extends BaseGadget {
                 buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
             else
                 buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, false);
+
+            GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
+            GadgetNBT.clearAnchorPos(gadget);
+
             //if (!actuallyBuiltList.isEmpty()) {
             //GadgetNBT.clearAnchorPos(gadget);
             //    GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList

@@ -6,6 +6,7 @@ import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -28,10 +29,7 @@ import net.minecraftforge.items.IItemHandler;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class BuildingUtils {
 
@@ -237,7 +235,7 @@ public class BuildingUtils {
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
-            BlockPos blockPos = pos.pos.offset(lookingAt);
+            BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
                 continue; //Don't do this validation for copy/paste
@@ -249,7 +247,7 @@ public class BuildingUtils {
                 //if (!foundStacks) continue;
             }
 
-            if (level.getBlockState(blockPos).canBeReplaced()) {
+            //if (level.getBlockState(blockPos).canBeReplaced()) {
                 /*boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
                 RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
@@ -257,17 +255,15 @@ public class BuildingUtils {
                     // this can happen when another mod rejects the set block state (fixes #120)
                     continue;
                 }*/
-                if (!player.isCreative() && needItems) {
-                    useEnergy(gadget);
-                    //removeStacksFromInventory(player, neededItems, false);
-                }
-                //actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                //be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
-                ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, ServerBuildList.BuildType.BUILD, true, lookingAt);
+            if (!player.isCreative() && needItems) {
+                useEnergy(gadget);
+                //removeStacksFromInventory(player, neededItems, false);
             }
+            //actuallyBuiltList.add(new StatePos(pos.state, blockPos));
+            //be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
+            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, ServerBuildList.BuildType.BUILD, true, lookingAt);
+            //}
         }
-        GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
-        GadgetNBT.clearAnchorPos(gadget);
         return buildUUID;
     }
 
@@ -276,7 +272,7 @@ public class BuildingUtils {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
-            BlockPos blockPos = pos.pos.offset(lookingAt);
+            BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos)) continue;
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
@@ -310,12 +306,10 @@ public class BuildingUtils {
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem);
             }*/
-            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), blockPos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, returnItems, gadget, ServerBuildList.BuildType.EXCHANGE, true, lookingAt);
+            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, returnItems, gadget, ServerBuildList.BuildType.EXCHANGE, true, lookingAt);
             //actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
             //be.setRenderData(oldState, fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
         }
-        GadgetUtils.addToUndoList(level, gadget, actuallyBuiltList, buildUUID);
-        GadgetNBT.clearAnchorPos(gadget);
         return buildUUID;
     }
 
@@ -330,6 +324,9 @@ public class BuildingUtils {
             buildUUID = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, false);
 
         ServerTickHandler.addTEData(buildUUID, teData);
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
+        if (!bg2Data.containsUndoList(GadgetNBT.getUUID(gadget))) //Only if theres not already an undo list for this gadget, otherwise it'll clear it (Duh dire)
+            GadgetUtils.addToUndoList(level, gadget, new ArrayList<>(), GadgetNBT.getUUID(gadget)); //For cut gadget, undo list will be a tracker of whats been built so far! Only 1 per gadget, so use gadgetUUID
         /*for (TagPos tagPos : teData) {
             BlockPos blockPos = tagPos.pos.offset(lookingAt);
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
@@ -382,7 +379,7 @@ public class BuildingUtils {
         return affectedBlocks;
     }
 
-    public static ArrayList<StatePos> removeTickHandler(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
+    public static UUID removeTickHandler(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
         ArrayList<StatePos> affectedBlocks = new ArrayList<>();
         UUID buildUUID = UUID.randomUUID();
         //byte drawSize = RenderBlockBE.getMaxSize();
@@ -423,8 +420,6 @@ public class BuildingUtils {
                 be.drawSize = drawSize;
             }
         }*/
-        GadgetUtils.addToUndoList(level, gadget, affectedBlocks, buildUUID); //If we placed anything at all, add to the undoList
-        GadgetNBT.clearAnchorPos(gadget);
-        return affectedBlocks;
+        return buildUUID;
     }
 }

@@ -45,7 +45,7 @@ public class PacketRequestCopyData {
                 return;*/
 
             if (ServerTickHandler.gadgetWorking(message.gadgetUUID)) { //Todo Cut and Paste gadget only
-                System.out.println("Gadget still working!");
+                //System.out.println("Gadget still working!");
                 return; //If the gadget is mid cut, don't sync data
             }
 

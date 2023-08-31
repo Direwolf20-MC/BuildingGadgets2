@@ -86,15 +86,15 @@ public class GadgetCutPaste extends BaseGadget {
                 return InteractionResultHolder.pass(gadget); // Do nothing if this gadget is already doing stuff!
             }
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
-            ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, true);
-            ArrayList<TagPos> tagList = bg2Data.getTEMap(uuid);
+            ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false); //Don't remove the data just yet
+            ArrayList<TagPos> tagList = bg2Data.peekTEMap(uuid);
 
             // This should go through some translation based process
             // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
             ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), tagList, gadget);
             if (!actuallyBuiltList.isEmpty())
                 GadgetNBT.clearAnchorPos(gadget);
-            GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
+            //GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
             GadgetNBT.setMode(gadget, new Cut()); // Set it back to cut mode - no need to stay in paste since the paste is gone :)
             return InteractionResultHolder.success(gadget);
         } else {
@@ -169,7 +169,7 @@ public class GadgetCutPaste extends BaseGadget {
                 }
             } else {
                 buildList.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(cutStart))); //We need to have a block in EVERY position, so write air if invalid
-            }*/
+            //}*/
         });
         ServerTickHandler.setCutStart(buildUUID, cutStart);
         GadgetNBT.setCopyStartPos(gadget, GadgetNBT.nullPos);

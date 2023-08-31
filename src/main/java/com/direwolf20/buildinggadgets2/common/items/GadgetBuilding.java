@@ -72,6 +72,8 @@ public class GadgetBuilding extends BaseGadget {
         ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), getHitPos(context), setState);
 
         UUID buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context), gadget, true);
+        GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
+        GadgetNBT.clearAnchorPos(gadget);
         //if (!actuallyBuiltList.isEmpty()) {
         //GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
         //GadgetNBT.clearAnchorPos(gadget);
