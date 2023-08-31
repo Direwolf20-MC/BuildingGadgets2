@@ -1,7 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
-import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -49,7 +48,7 @@ public class Surface extends BaseMode {
                 BlockPos currentPos = blocksToVisit.poll(); //Get the current block to check
                 BlockState currentBlock = level.getBlockState(currentPos);
 
-                if (!visitedBlocks.contains(currentPos) && isPosValidCustom(level, currentPos, lookingAtState, gadget, hitSide) && GadgetUtils.direContains(box, currentPos)) { //If we haven't added it already and its not air and its inside our bounding box add to the list to use
+                if (!visitedBlocks.contains(currentPos) && isPosValid(level, player, currentPos, state) && isPosValidCustom(level, currentPos, lookingAtState, gadget, hitSide) && GadgetUtils.direContains(box, currentPos)) { //If we haven't added it already and its not air and its inside our bounding box add to the list to use
                     visitedBlocks.add(currentPos);
 
                     for (Direction direction : Direction.stream().filter(e -> !e.getAxis().equals(hitSide.getAxis())).toList()) { //Grab all the blocks around this one based on hitSide and add to the list to check out
@@ -75,26 +74,15 @@ public class Surface extends BaseMode {
     }
 
     public boolean isPosValidCustom(Level level, BlockPos pos, BlockState compareState, ItemStack gadget, Direction hitSide) {
+        if (isExchanging) return true; //Handled by isExchangingValid
         boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.FUZZY.value);
-        if (isExchanging) {
-            BlockState oldState = level.getBlockState(pos);
-            if (oldState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
-                return false;
-            if (fuzzy) {
-                if (oldState.isAir()) return false;
-                if (oldState.equals(GadgetNBT.getGadgetBlockState(gadget))) return false;
-                if (oldState.getBlock() instanceof RenderBlock) return false;
-            } else {
-                if (!oldState.equals(compareState)) return false;
-            }
+        BlockState belowState = level.getBlockState(pos.relative(hitSide.getOpposite()));
+        if (fuzzy) {
+            if (belowState.isAir()) return false;
         } else {
-            BlockState belowState = level.getBlockState(pos.relative(hitSide.getOpposite()));
-            if (fuzzy) {
-                if (belowState.isAir()) return false;
-            } else {
-                if (!belowState.equals(compareState)) return false;
-            }
+            if (!belowState.equals(compareState)) return false;
         }
+
         return true;
     }
 }

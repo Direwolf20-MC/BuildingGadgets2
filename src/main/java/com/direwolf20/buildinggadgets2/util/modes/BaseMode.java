@@ -1,9 +1,11 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
+import com.direwolf20.buildinggadgets2.util.VectorHelper;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -61,21 +64,39 @@ public abstract class BaseMode implements Comparable<BaseMode> {
     }
 
     public boolean isPosValid(Level level, Player player, BlockPos blockPos, BlockState blockState) {
+        ItemStack gadget = BaseGadget.getGadget(player);
+        if (!isExchangingValid(level, player, blockPos, gadget)) return false;
         if ((blockPos.getY() >= level.getMaxBuildHeight() || blockPos.getY() < level.getMinBuildHeight()))
             return false;
         if (!blockState.canSurvive(level, blockPos)) return false; //Seeds on tilled earth, cactus, sugarcane, etc
         if (!level.mayInteract(player, blockPos)) return false; //Chunk Protection like spawn and FTB Utils
-        if (isExchanging) {
-            if (level.getBlockState(blockPos).isAir())
-                return false;
-            if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos))
-                return false;
-            return true;
-        } else {
+        if (!isExchanging) {
             if (!level.getBlockState(blockPos).canBeReplaced())
                 return false;
-            return true;
         }
+        return true;
+    }
+
+    public boolean isExchangingValid(Level level, Player player, BlockPos pos, ItemStack gadget) {
+        if (!isExchanging) return true; //Don't do these checks if we're not exchanging
+        if (level.getBlockState(pos).isAir())
+            return false;
+        if (!GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
+            return false;
+        boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.FUZZY.value);
+        BlockState oldState = level.getBlockState(pos);
+        if (oldState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
+            return false;
+        if (fuzzy) {
+            if (oldState.isAir()) return false;
+            if (oldState.equals(GadgetNBT.getGadgetBlockState(gadget))) return false;
+            if (oldState.getBlock() instanceof RenderBlock) return false;
+        } else {
+            BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
+            BlockState compareState = level.getBlockState(lookingAt.getBlockPos());
+            if (!oldState.equals(compareState)) return false;
+        }
+        return true;
     }
 
     // TODO: implement the correct comparator
