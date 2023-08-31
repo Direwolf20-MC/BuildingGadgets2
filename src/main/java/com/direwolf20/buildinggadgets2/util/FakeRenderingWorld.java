@@ -39,6 +39,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 
 import javax.annotation.Nullable;
@@ -178,17 +179,17 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     @Override
     public LevelTickAccess<Block> getBlockTicks() {
-        return null;
+        return BlackholeTickAccess.emptyLevelList();
     }
 
     @Override
     public LevelTickAccess<Fluid> getFluidTicks() {
-        return null;
+        return BlackholeTickAccess.emptyLevelList();
     }
 
     @Override
     public LevelData getLevelData() {
-        return null;
+        return this.realWorld.getLevelData();
     }
 
     @Override
