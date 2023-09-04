@@ -1,11 +1,11 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
-import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
+import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Config;
-import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
@@ -16,7 +16,6 @@ import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -25,16 +24,15 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static com.direwolf20.buildinggadgets2.util.BuildingUtils.hasEnoughEnergy;
+import static com.direwolf20.buildinggadgets2.util.BuildingUtils.useEnergy;
 
 public class GadgetExchanger extends BaseGadget {
     public GadgetExchanger() {
@@ -81,13 +79,9 @@ public class GadgetExchanger extends BaseGadget {
         var mode = GadgetNBT.getMode(gadget);
         ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), getHitPos(context), setState);
 
-        // This should go through some translation based process
-        // mode -> beforeBuild (validation) -> scheduleBuild / Build -> afterBuild (cleanup & use of items etc)
-        ArrayList<StatePos> actuallyBuiltList = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context), gadget, true, true);
-        if (!actuallyBuiltList.isEmpty()) {
-            GadgetNBT.clearAnchorPos(gadget);
-            GadgetUtils.addToUndoList(context.level(), gadget, actuallyBuiltList); //If we placed anything at all, add to the undoList
-        }
+        UUID buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context), gadget, true, true);
+        GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
+        GadgetNBT.clearAnchorPos(gadget);
         return InteractionResultHolder.success(gadget);
     }
 
@@ -114,49 +108,23 @@ public class GadgetExchanger extends BaseGadget {
     public void undo(Level level, Player player, ItemStack gadget) {
         if (!canUndo(level, player, gadget)) return;
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        ArrayList<StatePos> undoList = bg2Data.popUndoList(GadgetNBT.popUndoList(gadget));
+        UUID buildUUID = GadgetNBT.popUndoList(gadget);
+        ServerTickHandler.stopBuilding(buildUUID);
+        ArrayList<StatePos> undoList = bg2Data.popUndoList(buildUUID);
         if (undoList.isEmpty()) return;
-        byte drawSize = RenderBlockBE.getMaxSize();
+        Collections.reverse(undoList);
+        UUID newBuildUUID = UUID.randomUUID();
 
         for (StatePos pos : undoList) {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!pos.state.canSurvive(level, pos.pos)) continue;
-            boolean foundStacks = false;
-            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player);
-            if (!player.isCreative()) {
-                foundStacks = BuildingUtils.removeStacksFromInventory(player, neededItems, true);
-                if (!foundStacks) continue;
+            if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
+                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
+                break; //Break out if we're out of power
             }
-            boolean placed = false;
-            BlockState oldState = level.getBlockState(pos.pos);
-            BlockState oldRenderState = level.getBlockState(pos.pos);
-            if (oldState.getBlock() instanceof RenderBlock) {
-                BlockEntity blockEntity = level.getBlockEntity(pos.pos);
-                if (blockEntity instanceof RenderBlockBE renderBlockBE) {
-                    oldState = renderBlockBE.targetBlock;
-                    oldRenderState = renderBlockBE.renderBlock;
-                    drawSize = renderBlockBE.drawSize;
-                    placed = true;
-                }
-            } else {
-                placed = level.setBlockAndUpdate(pos.pos, Registration.RenderBlock.get().defaultBlockState());
-            }
-            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(pos.pos);
-            if (!placed || be == null) {
-                // this can happen when another mod rejects the set block state (fixes #120)
-                continue;
-            }
-            if (!player.isCreative()) {
-                BuildingUtils.removeStacksFromInventory(player, neededItems, false);
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, pos.pos, oldState, gadget);
-                for (ItemStack returnedItem : returnedItems)
-                    BuildingUtils.giveItemToPlayer(player, returnedItem);
-            }
-            if (oldRenderState.equals(pos.state))
-                be.setRenderData(Blocks.AIR.defaultBlockState(), pos.state, GadgetNBT.getRenderTypeByte(gadget));
-            else
-                be.setRenderData(oldState, pos.state, GadgetNBT.getRenderTypeByte(gadget));
-            be.drawSize = drawSize;
+            if (!player.isCreative())
+                useEnergy(gadget);
+            ServerTickHandler.addToMap(newBuildUUID, new StatePos(pos.state, pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, true, true, gadget, ServerBuildList.BuildType.EXCHANGE, true, GadgetNBT.nullPos);
         }
     }
 

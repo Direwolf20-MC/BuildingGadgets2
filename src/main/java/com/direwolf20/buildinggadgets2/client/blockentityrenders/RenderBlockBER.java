@@ -4,7 +4,6 @@ import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumer;
 import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
-import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -22,6 +21,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 
@@ -96,8 +96,8 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
     }
 
     public void renderFade(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
-        VertexConsumer builder = bufferIn.getBuffer(OurRenderTypes.RenderBlockFade);
-        scale = Mth.lerp(scale, 0.0f, 1f);
+        VertexConsumer builder = renderState.isSolidRender(level, pos) ? bufferIn.getBuffer(OurRenderTypes.RenderBlockFade) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
+        scale = Mth.lerp(scale, 0.25f, 1f);
         DireVertexConsumer direVertexConsumer = new DireVertexConsumer(builder, scale);
         float[] afloat = new float[Direction.values().length * 2];
         BitSet bitset = new BitSet(3);
@@ -110,7 +110,13 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
                 List<BakedQuad> list = ibakedmodel.getQuads(renderState, direction, randomSource, ModelData.EMPTY, null);
                 if (!list.isEmpty()) {
                     blockpos$mutableblockpos.setWithOffset(pos, direction);
-                    if (!(level.getBlockState(pos.relative(direction)).getBlock() instanceof RenderBlock)) {
+                    BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
+                    boolean renderAdjacent = true;
+                    if (blockEntity instanceof RenderBlockBE renderBlockBE) {
+                        if (renderBlockBE.renderBlock != null && renderBlockBE.renderBlock.isSolidRender(level, pos))
+                            renderAdjacent = false;
+                    }
+                    if (renderAdjacent) {
                         modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, direVertexConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
                     }
                 }

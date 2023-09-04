@@ -1,15 +1,15 @@
 package com.direwolf20.buildinggadgets2.util;
 
-import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
-import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
+import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
+import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
+import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
-import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -26,9 +25,7 @@ import net.minecraftforge.items.IItemHandler;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class BuildingUtils {
 
@@ -228,145 +225,79 @@ public class BuildingUtils {
         }
     }
 
-    public static ArrayList<StatePos> build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
-        ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
+    public static UUID build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
+        UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
-            BlockPos blockPos = pos.pos.offset(lookingAt);
+            BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
                 continue; //Don't do this validation for copy/paste
-            boolean foundStacks = false;
-            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player);
-            if (!player.isCreative() && needItems) {
-                if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
-                foundStacks = removeStacksFromInventory(player, neededItems, true);
-                if (!foundStacks) continue;
+            if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
+                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
+                break; //Break out if we're out of power
             }
-
-            if (level.getBlockState(blockPos).canBeReplaced()) {
-                boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
-                RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
-
-                if (!placed || be == null) {
-                    // this can happen when another mod rejects the set block state (fixes #120)
-                    continue;
-                }
-                if (!player.isCreative() && needItems) {
-                    useEnergy(gadget);
-                    removeStacksFromInventory(player, neededItems, false);
-                }
-                actuallyBuiltList.add(new StatePos(pos.state, blockPos));
-                be.setRenderData(Blocks.AIR.defaultBlockState(), fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
+            if (!player.isCreative()) {
+                useEnergy(gadget);
             }
+            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, false, gadget, ServerBuildList.BuildType.BUILD, true, lookingAt);
         }
-        return actuallyBuiltList;
+        return buildUUID;
     }
 
-    public static ArrayList<StatePos> exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
-        ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
+    public static UUID exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
+        UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
         for (StatePos pos : blockPosList) {
-            BlockPos blockPos = pos.pos.offset(lookingAt);
+            BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos)) continue;
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
                 continue;  //Don't do this validation for copy/paste
-            boolean foundStacks = false;
-            List<ItemStack> neededItems = new ArrayList<>();
-            if (!player.isCreative() && needItems) {
-                if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
-                if (!pos.state.isAir()) {
-                    neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, pos.pos, pos.state, player));
-                    foundStacks = removeStacksFromInventory(player, neededItems, true);
-                    if (!foundStacks) continue;
-                }
+            if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
+                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
+                break; //Break out if we're out of power
             }
-            BlockState oldState = level.getBlockState(blockPos);
-            boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
-            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
-
-            if (!placed || be == null) {
-                // this can happen when another mod rejects the set block state (fixes #120)
-                continue;
-            }
-            if (!player.isCreative() && needItems) {
+            if (!player.isCreative()) {
                 useEnergy(gadget);
-                if (!pos.state.isAir()) {
-                    removeStacksFromInventory(player, neededItems, false);
-                }
             }
-            if (!player.isCreative() && returnItems && !oldState.isAir()) {
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, gadget);
-                for (ItemStack returnedItem : returnedItems)
-                    giveItemToPlayer(player, returnedItem);
-            }
-            actuallyBuiltList.add(new StatePos(oldState, blockPos)); //For undo purposes we track what the OLD state was here, so we can put it back with Undo
-            be.setRenderData(oldState, fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), GadgetNBT.getRenderTypeByte(gadget));
+            ServerTickHandler.addToMap(buildUUID, new StatePos(fakeRenderingWorld.getBlockStateWithoutReal(pos.pos), pos.pos), level, GadgetNBT.getRenderTypeByte(gadget), player, needItems, returnItems, gadget, ServerBuildList.BuildType.EXCHANGE, true, lookingAt);
         }
-        return actuallyBuiltList;
+        return buildUUID;
     }
 
     public static ArrayList<StatePos> buildWithTileData(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ArrayList<TagPos> teData, ItemStack gadget) {
         ArrayList<StatePos> actuallyBuiltList = new ArrayList<>();
         if (teData == null) return actuallyBuiltList;
-
+        UUID buildUUID;
         boolean replace = GadgetNBT.getPasteReplace(gadget);
         if (!replace)
-            actuallyBuiltList = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, false);
+            buildUUID = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, false);
         else
-            actuallyBuiltList = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, false);
+            buildUUID = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, false, false);
 
-        for (TagPos tagPos : teData) {
-            BlockPos blockPos = tagPos.pos.offset(lookingAt);
-            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
-            if (be == null) {
-                continue; //Shouldn't Happen!
-            }
-            be.setBlockEntityData(tagPos.tag);
-        }
+        ServerTickHandler.addTEData(buildUUID, teData);
+        BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
+        if (!bg2Data.containsUndoList(GadgetNBT.getUUID(gadget))) //Only if theres not already an undo list for this gadget, otherwise it'll clear it (Duh dire)
+            GadgetUtils.addToUndoList(level, gadget, new ArrayList<>(), GadgetNBT.getUUID(gadget)); //For cut gadget, undo list will be a tracker of whats been built so far! Only 1 per gadget, so use gadgetUUID
         return actuallyBuiltList;
     }
 
-    public static ArrayList<StatePos> remove(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
-        ArrayList<StatePos> affectedBlocks = new ArrayList<>();
-        byte drawSize = RenderBlockBE.getMaxSize();
+    public static UUID removeTickHandler(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
+        UUID buildUUID = UUID.randomUUID();
         for (BlockPos pos : blockPosList) {
             if (!level.mayInteract(player, pos)) continue; //Chunk Protection like spawn and FTB Utils
-            if (!player.isCreative()) {
-                if (!hasEnoughEnergy(gadget)) break; //Break out if we're out of power
+            if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
+                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
+                break; //Break out if we're out of power
             }
             BlockState oldState = level.getBlockState(pos);
             if (oldState.isAir() || !GadgetUtils.isValidBlockState(oldState, level, pos)) continue;
-            if (oldState.getBlock() instanceof RenderBlock) {
-                BlockEntity blockEntity = level.getBlockEntity(pos);
-                if (blockEntity instanceof RenderBlockBE renderBlockBE) {
-                    oldState = renderBlockBE.renderBlock;
-                    drawSize = renderBlockBE.drawSize;
-                }
-            }
-            if (!dropContents)
-                level.removeBlockEntity(pos); //Calling this prevents chests from dropping their contents, so only do it if we don't care about the drops (Like cut)
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
-            affectedBlocks.add(new StatePos(oldState, pos));
             if (!player.isCreative())
                 useEnergy(gadget);
-            if (giveItem) {
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, pos, oldState, player);
-                for (ItemStack returnedItem : returnedItems)
-                    giveItemToPlayer(player, returnedItem);
-            }
+            ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, giveItem, gadget, ServerBuildList.BuildType.DESTROY, dropContents, BlockPos.ZERO);
         }
-
-        for (StatePos affectedBlock : affectedBlocks) {
-            boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
-            RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
-            if (placed && be != null) {
-                be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState(), GadgetNBT.getRenderTypeByte(gadget));
-                be.drawSize = drawSize;
-            }
-        }
-        return affectedBlocks;
+        return buildUUID;
     }
 }

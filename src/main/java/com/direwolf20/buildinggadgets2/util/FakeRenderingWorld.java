@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -35,9 +36,11 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
 
 import javax.annotation.Nullable;
@@ -106,7 +109,7 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     @Override
     public FluidState getFluidState(BlockPos pos) {
-        return null;
+        return Fluids.EMPTY.defaultFluidState();
     }
 
     @Override
@@ -142,7 +145,7 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     @Override
     public BiomeManager getBiomeManager() {
-        return null;
+        return realWorld.getBiomeManager();
     }
 
     @Override
@@ -177,17 +180,17 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     @Override
     public LevelTickAccess<Block> getBlockTicks() {
-        return null;
+        return BlackholeTickAccess.emptyLevelList();
     }
 
     @Override
     public LevelTickAccess<Fluid> getFluidTicks() {
-        return null;
+        return BlackholeTickAccess.emptyLevelList();
     }
 
     @Override
     public LevelData getLevelData() {
-        return null;
+        return this.realWorld.getLevelData();
     }
 
     @Override
@@ -232,8 +235,27 @@ public class FakeRenderingWorld implements LevelAccessor {
     }
 
     @Override
-    public float getShade(Direction p_45522_, boolean p_45523_) {
-        return 0;
+    public float getShade(Direction pDirection, boolean pShade) {
+        ClientLevel clientLevel = (ClientLevel) realWorld;
+        boolean flag = clientLevel.effects().constantAmbientLight();
+        if (!pShade) {
+            return flag ? 0.9F : 1.0F;
+        } else {
+            switch (pDirection) {
+                case DOWN:
+                    return flag ? 0.9F : 0.5F;
+                case UP:
+                    return flag ? 0.9F : 1.0F;
+                case NORTH:
+                case SOUTH:
+                    return 0.8F;
+                case WEST:
+                case EAST:
+                    return 0.6F;
+                default:
+                    return 1.0F;
+            }
+        }
     }
 
     @Override

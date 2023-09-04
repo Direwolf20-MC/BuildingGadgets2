@@ -1,11 +1,14 @@
 package com.direwolf20.buildinggadgets2.common.network.packets;
 
+import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
@@ -40,6 +43,15 @@ public class PacketRotate {
             }
 
             UUID gadgetUUID = GadgetNBT.getUUID(gadget);
+
+            if (gadget.getItem() instanceof GadgetCutPaste) {
+                if (ServerTickHandler.gadgetWorking(gadgetUUID)) {
+                    sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.cutinprogress"), true);
+                    return; //If the gadget is mid cut, don't sync data
+                }
+            }
+
+
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(sender.level().getServer()).overworld());
 
             ArrayList<StatePos> currentPosList = bg2Data.getCopyPasteList(gadgetUUID, false);
