@@ -193,6 +193,8 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:chipped-456956:4634856")
     runtimeOnly fg.deobf("curse.maven:athena-841890:4686264")
     runtimeOnly fg.deobf("curse.maven:resourceful-lib-570073:4681831")
+    runtimeOnly fg.deobf("curse.maven:connected-glass-383129:4629023")
+    runtimeOnly fg.deobf("curse.maven:supermartijn642s-core-lib-454372:4663719")
 
     // Locally sourced extra mods for runtime (i.e. testing)
     for (extraModJar in fileTree(dir: extraModsDir, include: '*.jar')) {
