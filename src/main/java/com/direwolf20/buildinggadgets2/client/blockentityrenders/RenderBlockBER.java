@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.client.blockentityrenders;
 
 import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumer;
+import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumerChunks;
 import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
@@ -74,6 +75,8 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             renderGrow(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender);
         else if (blockentity.renderType == 1)
             renderFade(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender);
+        else if (blockentity.renderType == 2)
+            renderSquished(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender);
         else
             renderGrow(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender); //Fallback in case something weird happens!
 
@@ -92,6 +95,42 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             blockrendererdispatcher.renderSingleBlock(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, ModelData.EMPTY, null);
 
 
+        matrixStackIn.popPose();
+    }
+
+    public void renderSquished(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, BlockRenderDispatcher blockrendererdispatcher, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
+        matrixStackIn.pushPose();
+        VertexConsumer builder = bufferIn.getBuffer(RenderType.cutout());
+
+        scale = Mth.lerp(scale, 0f, 1f);
+        DireVertexConsumerChunks chunksConsumer = new DireVertexConsumerChunks(builder, 0, 0, 0, 1, scale, 1);
+
+        float[] afloat = new float[Direction.values().length * 2];
+        BitSet bitset = new BitSet(3);
+        RandomSource randomSource = RandomSource.create();
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = pos.mutable();
+        if (isNormalRender) {
+            ModelBlockRenderer.AmbientOcclusionFace modelblockrenderer$ambientocclusionface = new ModelBlockRenderer.AmbientOcclusionFace();
+            for (Direction direction : Direction.values()) {
+                randomSource.setSeed(renderState.getSeed(pos));
+                List<BakedQuad> list = ibakedmodel.getQuads(renderState, direction, randomSource, ModelData.EMPTY, null);
+                if (!list.isEmpty()) {
+                    blockpos$mutableblockpos.setWithOffset(pos, direction);
+                    modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
+                }
+            }
+            randomSource.setSeed(renderState.getSeed(pos));
+            List<BakedQuad> list = ibakedmodel.getQuads(renderState, null, randomSource, ModelData.EMPTY, null);
+            if (!list.isEmpty()) {
+                modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
+            }
+        } else {
+            //MyRenderMethods.renderBESquished(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
+            //Fallback to grow until i can figure this out (if ever)
+            matrixStackIn.translate((1 - scale) / 2, (1 - scale) / 2, (1 - scale) / 2);
+            matrixStackIn.scale(scale, scale, scale);
+            blockrendererdispatcher.renderSingleBlock(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, ModelData.EMPTY, null);
+        }
         matrixStackIn.popPose();
     }
 
@@ -129,6 +168,5 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         } else {
             MyRenderMethods.renderBETransparent(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
         }
-
     }
 }

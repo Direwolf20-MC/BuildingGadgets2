@@ -32,6 +32,19 @@ public class OurRenderTypes extends RenderType {
                     .setCullState(CULL)
                     .setWriteMaskState(COLOR_DEPTH_WRITE)
                     .createCompositeState(false));
+    public static final RenderType RenderBlockBackface = create("GadgetRenderBlockBackface",
+            DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
+            RenderType.CompositeState.builder()
+//                    .setShadeModelState(SMOOTH_SHADE)
+                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
+                    .setLightmapState(LIGHTMAP)
+                    .setTextureState(BLOCK_SHEET_MIPPED)
+                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .setCullState(NO_CULL)
+                    .setWriteMaskState(COLOR_DEPTH_WRITE)
+                    .createCompositeState(false));
 
     public static final RenderType RenderBlockFadeNoCull = create("GadgetRenderBlockFadeNoCull",
             DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,

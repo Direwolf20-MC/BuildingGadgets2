@@ -60,6 +60,38 @@ public class MyRenderMethods {
         }
     }
 
+    public static void renderBESquished(BlockState pState, PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, float alpha) {
+        SquishedRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new SquishedRenderTypeBuffer(pBufferSource, alpha);
+        ItemStack stack = new ItemStack(pState.getBlock());
+        net.minecraftforge.client.extensions.common.IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, ItemDisplayContext.NONE, pPoseStack, multiplyAlphaRenderTypeBuffer, pPackedLight, pPackedOverlay);
+    }
+
+    public static class SquishedRenderTypeBuffer implements MultiBufferSource {
+        private final MultiBufferSource inner;
+        private final float squishAmt;
+
+        public SquishedRenderTypeBuffer(MultiBufferSource inner, float squishAmt) {
+            this.inner = inner;
+            this.squishAmt = squishAmt;
+        }
+
+        @Override
+        public VertexConsumer getBuffer(RenderType type) {
+            RenderType localType = type;
+            if (localType instanceof RenderType.CompositeRenderType) {
+                // all of this requires a lot of AT's so be aware of that on ports
+                ResourceLocation texture = ((RenderStateShard.TextureStateShard) ((RenderType.CompositeRenderType) localType).state.textureState).texture
+                        .orElse(InventoryMenu.BLOCK_ATLAS);
+
+                localType = entityTranslucentCull(texture);
+            } else if (localType.toString().equals(Sheets.translucentCullBlockSheet().toString())) {
+                localType = Sheets.translucentCullBlockSheet();
+            }
+
+            return new DireVertexConsumerChunks(this.inner.getBuffer(localType), 0, 0, 0, 1, squishAmt, 1);
+        }
+    }
+
     public static void renderCopy(PoseStack matrix, BlockPos startPos, BlockPos endPos, Color color) {
         if (startPos.equals(GadgetNBT.nullPos) || endPos.equals(GadgetNBT.nullPos))
             return;
