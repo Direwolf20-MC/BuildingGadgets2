@@ -116,21 +116,15 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             ModelBlockRenderer.AmbientOcclusionFace modelblockrenderer$ambientocclusionface = new ModelBlockRenderer.AmbientOcclusionFace();
             for (Direction direction : Direction.values()) {
                 //if (direction.equals(Direction.UP) && scale < 1.0f) continue;
-                if (!direction.getAxis().equals(Direction.Axis.Y))
-                    chunksConsumer.adjustUV = true;
-                else
+                chunksConsumer.adjustUV = true;
+                if (!renderState.isSolidRender(level, pos))
                     chunksConsumer.adjustUV = false;
-                //if (!renderState.isSolidRender(level, pos))
-                chunksConsumer.adjustUV = false;
                 randomSource.setSeed(renderState.getSeed(pos));
                 List<BakedQuad> list = ibakedmodel.getQuads(renderState, direction, randomSource, ModelData.EMPTY, null);
                 if (!list.isEmpty()) {
                     TextureAtlasSprite sprite = list.get(0).getSprite();
-                    float minU = sprite.getU0();
-                    float maxU = sprite.getU1();
-                    float minV = sprite.getV0();
-                    float maxV = sprite.getV1();
-                    chunksConsumer.setUV(minU, maxU, minV, maxV);
+                    chunksConsumer.setSprite(sprite);
+                    chunksConsumer.setDirection(direction);
                     blockpos$mutableblockpos.setWithOffset(pos, direction);
                     modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
                 }
@@ -138,6 +132,9 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             randomSource.setSeed(renderState.getSeed(pos));
             List<BakedQuad> list = ibakedmodel.getQuads(renderState, null, randomSource, ModelData.EMPTY, null);
             if (!list.isEmpty()) {
+                TextureAtlasSprite sprite = list.get(0).getSprite();
+                chunksConsumer.setSprite(sprite);
+                chunksConsumer.setDirection(null);
                 modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
             }
         } else {

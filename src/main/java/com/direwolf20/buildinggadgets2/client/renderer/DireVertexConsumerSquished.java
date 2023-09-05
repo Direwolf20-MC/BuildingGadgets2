@@ -1,19 +1,11 @@
 package com.direwolf20.buildinggadgets2.client.renderer;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraftforge.client.model.pipeline.VertexConsumerWrapper;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.lwjgl.system.MemoryStack;
-
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 public class DireVertexConsumerSquished extends VertexConsumerWrapper {
     private final float minX, minY, minZ, maxX, maxY, maxZ;
@@ -24,6 +16,7 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
     float maxV = 1;
     public boolean adjustUV = false;
     Direction direction = null;
+    TextureAtlasSprite sprite;
 
     public DireVertexConsumerSquished(VertexConsumer parent, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Matrix4f matrix4f) {
         super(parent);
@@ -40,12 +33,20 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
         this.direction = direction;
     }
 
-    public void setUV(float minU, float maxU, float minV, float maxV) {
+    public void setSprite(TextureAtlasSprite sprite) {
+        this.sprite = sprite;
+        minU = sprite.getU0();
+        maxU = sprite.getU1();
+        minV = sprite.getV0();
+        maxV = sprite.getV1();
+    }
+
+    /*public void setUV(float minU, float maxU, float minV, float maxV) {
         this.minU = minU;
         this.maxU = maxU;
         this.minV = minV;
         this.maxV = maxV;
-    }
+    }*/
 
     @Override
     public VertexConsumer vertex(double x, double y, double z) {
@@ -79,18 +80,21 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
             parent.uv(adjustedU, adjustedV);*/
 
             //Building above!
-            float vDistanceToEnd = maxV - v;      // How far is v from its end value?
-            float adjustedVDistance = vDistanceToEnd * (maxY); // Adjust for the block height
-            float adjustedV = maxV - adjustedVDistance; // Subtracting because we're adjusting from the end.
-
-            parent.uv(u, adjustedV);
+            if (!direction.getAxis().equals(Direction.Axis.Y)) {
+                float vDistanceToEnd = maxV - v;      // How far is v from its end value?
+                float adjustedVDistance = vDistanceToEnd * (maxY); // Adjust for the block height
+                float adjustedV = maxV - adjustedVDistance; // Subtracting because we're adjusting from the end.
+                parent.uv(u, adjustedV);
+            } else {
+                parent.uv(u, v);
+            }
         } else {
             parent.uv(u, v);
         }
         return this;
     }
 
-    @Override
+    /*@Override
     public void putBulkData(PoseStack.Pose pPoseEntry, BakedQuad pQuad, float[] pColorMuls, float pRed, float pGreen, float pBlue, float alpha, int[] pCombinedLights, int pCombinedOverlay, boolean pMulColor) {
         float[] afloat = new float[]{pColorMuls[0], pColorMuls[1], pColorMuls[2], pColorMuls[3]};
         int[] aint = new int[]{pCombinedLights[0], pCombinedLights[1], pCombinedLights[2], pCombinedLights[3]};
@@ -137,5 +141,5 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
             }
         }
 
-    }
+    }*/
 }
