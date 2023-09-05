@@ -61,7 +61,7 @@ public class MyRenderMethods {
     }
 
     public static void renderBESquished(BlockState pState, PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, float alpha) {
-        SquishedRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new SquishedRenderTypeBuffer(pBufferSource, alpha);
+        SquishedRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new SquishedRenderTypeBuffer(pBufferSource, alpha, pPoseStack.last().pose());
         ItemStack stack = new ItemStack(pState.getBlock());
         net.minecraftforge.client.extensions.common.IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, ItemDisplayContext.NONE, pPoseStack, multiplyAlphaRenderTypeBuffer, pPackedLight, pPackedOverlay);
     }
@@ -69,10 +69,12 @@ public class MyRenderMethods {
     public static class SquishedRenderTypeBuffer implements MultiBufferSource {
         private final MultiBufferSource inner;
         private final float squishAmt;
+        private final Matrix4f matrix4f;
 
-        public SquishedRenderTypeBuffer(MultiBufferSource inner, float squishAmt) {
+        public SquishedRenderTypeBuffer(MultiBufferSource inner, float squishAmt, Matrix4f matrix4f) {
             this.inner = inner;
             this.squishAmt = squishAmt;
+            this.matrix4f = matrix4f;
         }
 
         @Override
@@ -88,7 +90,7 @@ public class MyRenderMethods {
                 localType = Sheets.translucentCullBlockSheet();
             }
 
-            return new DireVertexConsumerChunks(this.inner.getBuffer(localType), 0, 0, 0, 1, squishAmt, 1);
+            return new DireVertexConsumerChunks(this.inner.getBuffer(localType), 0, 0, 0, 1, squishAmt, 1, matrix4f);
         }
     }
 

@@ -16,8 +16,9 @@ import java.nio.IntBuffer;
 
 public class DireVertexConsumerChunks extends VertexConsumerWrapper {
     private final float minX, minY, minZ, maxX, maxY, maxZ;
+    private final Matrix4f matrix4f;
 
-    public DireVertexConsumerChunks(VertexConsumer parent, float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+    public DireVertexConsumerChunks(VertexConsumer parent, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Matrix4f matrix4f) {
         super(parent);
         this.minX = minX;
         this.minY = minY;
@@ -25,11 +26,21 @@ public class DireVertexConsumerChunks extends VertexConsumerWrapper {
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
+        this.matrix4f = matrix4f;
     }
 
     @Override
     public VertexConsumer vertex(double x, double y, double z) {
-        return super.vertex(x, y, z);
+        Matrix4f inverseMatrix = new Matrix4f(matrix4f);
+        inverseMatrix.invert();
+
+        Vector4f originalVector = inverseMatrix.transform(new Vector4f((float) x, (float) y, (float) z, 1.0f));
+        float adjustedX = originalVector.x * (maxX - minX) + minX;
+        float adjustedY = originalVector.y * (maxY - minY) + minY;
+        float adjustedZ = originalVector.z * (maxZ - minZ) + minZ;
+
+        Vector4f vector4f = matrix4f.transform(new Vector4f(adjustedX, adjustedY, adjustedZ, 1.0F));
+        return super.vertex(vector4f.x, vector4f.y, vector4f.z);
     }
 
     @Override
@@ -50,9 +61,9 @@ public class DireVertexConsumerChunks extends VertexConsumerWrapper {
             for (int k = 0; k < j; ++k) {
                 intbuffer.clear();
                 intbuffer.put(aint1, k * 8, 8);
-                float f = bytebuffer.getFloat(0) * (maxX - minX) + minX;
-                float f1 = bytebuffer.getFloat(4) * (maxY - minY) + minY;
-                float f2 = bytebuffer.getFloat(8) * (maxZ - minZ) + minZ;
+                float f = bytebuffer.getFloat(0);// * (maxX - minX) + minX;
+                float f1 = bytebuffer.getFloat(4);// * (maxY - minY) + minY;
+                float f2 = bytebuffer.getFloat(8);// * (maxZ - minZ) + minZ;
                 float f3;
                 float f4;
                 float f5;

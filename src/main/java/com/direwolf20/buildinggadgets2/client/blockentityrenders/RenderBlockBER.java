@@ -103,7 +103,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         VertexConsumer builder = bufferIn.getBuffer(RenderType.cutout());
 
         scale = Mth.lerp(scale, 0f, 1f);
-        DireVertexConsumerChunks chunksConsumer = new DireVertexConsumerChunks(builder, 0, 0, 0, 1, scale, 1);
+        DireVertexConsumerChunks chunksConsumer = new DireVertexConsumerChunks(builder, 0, 0, 0, 1, scale, 1, matrixStackIn.last().pose());
 
         float[] afloat = new float[Direction.values().length * 2];
         BitSet bitset = new BitSet(3);
@@ -125,11 +125,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
                 modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
             }
         } else {
-            //MyRenderMethods.renderBESquished(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
-            //Fallback to grow until i can figure this out (if ever)
-            matrixStackIn.translate((1 - scale) / 2, (1 - scale) / 2, (1 - scale) / 2);
-            matrixStackIn.scale(scale, scale, scale);
-            blockrendererdispatcher.renderSingleBlock(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, ModelData.EMPTY, null);
+            MyRenderMethods.renderBESquished(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
         }
         matrixStackIn.popPose();
     }
