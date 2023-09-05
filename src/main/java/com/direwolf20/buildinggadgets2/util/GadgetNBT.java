@@ -40,7 +40,9 @@ public class GadgetNBT {
     public enum RenderTypes {
         GROW("buildinggadgets2.grow"),
         FADE("buildinggadgets2.fade"),
-        SQUISH("buildinggadgets2.squish");
+        SQUISH("buildinggadgets2.squish"),
+        GROWUP("buildinggadgets2.growup"),
+        RISEUP("buildinggadgets2.riseup");
 
         private final String lang;
 
