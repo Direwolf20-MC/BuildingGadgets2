@@ -90,7 +90,7 @@ public class MyRenderMethods {
                 localType = Sheets.translucentCullBlockSheet();
             }
 
-            return new DireVertexConsumerChunks(this.inner.getBuffer(localType), 0, 0, 0, 1, squishAmt, 1, matrix4f);
+            return new DireVertexConsumerSquished(this.inner.getBuffer(localType), 0, 0, 0, 1, squishAmt, 1, matrix4f);
         }
     }
 

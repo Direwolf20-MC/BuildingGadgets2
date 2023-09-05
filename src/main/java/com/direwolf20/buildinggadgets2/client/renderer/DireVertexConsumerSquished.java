@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraftforge.client.model.pipeline.VertexConsumerWrapper;
 import org.joml.Matrix4f;
@@ -14,11 +15,17 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class DireVertexConsumerChunks extends VertexConsumerWrapper {
+public class DireVertexConsumerSquished extends VertexConsumerWrapper {
     private final float minX, minY, minZ, maxX, maxY, maxZ;
     private final Matrix4f matrix4f;
+    float minU = 0;
+    float maxU = 1;
+    float minV = 0;
+    float maxV = 1;
+    public boolean adjustUV = false;
+    Direction direction = null;
 
-    public DireVertexConsumerChunks(VertexConsumer parent, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Matrix4f matrix4f) {
+    public DireVertexConsumerSquished(VertexConsumer parent, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Matrix4f matrix4f) {
         super(parent);
         this.minX = minX;
         this.minY = minY;
@@ -27,6 +34,17 @@ public class DireVertexConsumerChunks extends VertexConsumerWrapper {
         this.maxY = maxY;
         this.maxZ = maxZ;
         this.matrix4f = matrix4f;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public void setUV(float minU, float maxU, float minV, float maxV) {
+        this.minU = minU;
+        this.maxU = maxU;
+        this.minV = minV;
+        this.maxV = maxV;
     }
 
     @Override
@@ -40,7 +58,36 @@ public class DireVertexConsumerChunks extends VertexConsumerWrapper {
         float adjustedZ = originalVector.z * (maxZ - minZ) + minZ;
 
         Vector4f vector4f = matrix4f.transform(new Vector4f(adjustedX, adjustedY, adjustedZ, 1.0F));
-        return super.vertex(vector4f.x, vector4f.y, vector4f.z);
+        parent.vertex(vector4f.x, vector4f.y, vector4f.z);
+        return this;
+    }
+
+    @Override
+    public VertexConsumer uv(float u, float v) {
+        if (adjustUV) {
+            //Growing up from ground!
+            /*
+            float uDistanceFromStart = u - minU;  // How far is u from its starting value?
+            float vDistanceFromStart = v - minV;  // How far is v from its starting value?
+
+            float adjustedUDistance = uDistanceFromStart; // Adjust for the block width
+            float adjustedVDistance = vDistanceFromStart * (maxY);    // Adjust for the block height
+
+            float adjustedU = minU + adjustedUDistance;
+            float adjustedV = minV + adjustedVDistance;
+
+            parent.uv(adjustedU, adjustedV);*/
+
+            //Building above!
+            float vDistanceToEnd = maxV - v;      // How far is v from its end value?
+            float adjustedVDistance = vDistanceToEnd * (maxY); // Adjust for the block height
+            float adjustedV = maxV - adjustedVDistance; // Subtracting because we're adjusting from the end.
+
+            parent.uv(u, adjustedV);
+        } else {
+            parent.uv(u, v);
+        }
+        return this;
     }
 
     @Override

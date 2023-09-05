@@ -1,7 +1,7 @@
 package com.direwolf20.buildinggadgets2.client.blockentityrenders;
 
 import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumer;
-import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumerChunks;
+import com.direwolf20.buildinggadgets2.client.renderer.DireVertexConsumerSquished;
 import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -100,10 +101,12 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
 
     public void renderSquished(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, BlockRenderDispatcher blockrendererdispatcher, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
         matrixStackIn.pushPose();
-        VertexConsumer builder = bufferIn.getBuffer(RenderType.cutout());
+        OurRenderTypes.updateRenders();
+        VertexConsumer builder = renderState.isSolidRender(level, pos) ? bufferIn.getBuffer(OurRenderTypes.RenderBlockBackface) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
+
 
         scale = Mth.lerp(scale, 0f, 1f);
-        DireVertexConsumerChunks chunksConsumer = new DireVertexConsumerChunks(builder, 0, 0, 0, 1, scale, 1, matrixStackIn.last().pose());
+        DireVertexConsumerSquished chunksConsumer = new DireVertexConsumerSquished(builder, 0, 0, 0, 1, scale, 1, matrixStackIn.last().pose());
 
         float[] afloat = new float[Direction.values().length * 2];
         BitSet bitset = new BitSet(3);
@@ -112,9 +115,22 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         if (isNormalRender) {
             ModelBlockRenderer.AmbientOcclusionFace modelblockrenderer$ambientocclusionface = new ModelBlockRenderer.AmbientOcclusionFace();
             for (Direction direction : Direction.values()) {
+                //if (direction.equals(Direction.UP) && scale < 1.0f) continue;
+                if (!direction.getAxis().equals(Direction.Axis.Y))
+                    chunksConsumer.adjustUV = true;
+                else
+                    chunksConsumer.adjustUV = false;
+                //if (!renderState.isSolidRender(level, pos))
+                chunksConsumer.adjustUV = false;
                 randomSource.setSeed(renderState.getSeed(pos));
                 List<BakedQuad> list = ibakedmodel.getQuads(renderState, direction, randomSource, ModelData.EMPTY, null);
                 if (!list.isEmpty()) {
+                    TextureAtlasSprite sprite = list.get(0).getSprite();
+                    float minU = sprite.getU0();
+                    float maxU = sprite.getU1();
+                    float minV = sprite.getV0();
+                    float maxV = sprite.getV1();
+                    chunksConsumer.setUV(minU, maxU, minV, maxV);
                     blockpos$mutableblockpos.setWithOffset(pos, direction);
                     modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
                 }
