@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.setup;
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
+import com.direwolf20.buildinggadgets2.integration.AE2Integration;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -18,6 +19,9 @@ public class ModSetup {
     public static void init(final FMLCommonSetupEvent event) {
         PacketHandler.register();
         MinecraftForge.EVENT_BUS.register(ServerTickHandler.class);
+        if (AE2Integration.isLoaded()) {
+            AE2Integration.registerItems();
+        }
     }
 
     public static final String TAB_NAME = "buildinggadgets2";

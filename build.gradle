@@ -156,6 +156,7 @@ repositories {
         url = 'https://modmaven.dev/'
         content {
             includeGroup "mekanism"
+            includeGroup "appeng"
         }
     }
 
@@ -176,6 +177,9 @@ dependencies {
     // Examples using mod jars from ./libs
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
 
+    //AE2
+    compileOnly "appeng:appliedenergistics2-forge:${ae2_version}:api"
+    runtimeOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
     //JEI
     // compile against the JEI API but do not include it at runtime
     //compileOnly fg.deobf("mezz.jei:jei-1.19.2-common-api:${jei_version}")

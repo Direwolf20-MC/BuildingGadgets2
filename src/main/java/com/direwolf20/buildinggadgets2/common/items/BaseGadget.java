@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
+import appeng.api.features.IGridLinkableHandler;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.capabilities.CapabilityEnergyProvider;
@@ -14,6 +15,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -45,6 +47,8 @@ public abstract class BaseGadget extends Item {
         super(new Properties()
                 .stacksTo(1));
     }
+
+    public static final IGridLinkableHandler LINKABLE_HANDLER = new LinkableHandler();
 
     /**
      * Forge Energy Storage methods
@@ -243,9 +247,27 @@ public abstract class BaseGadget extends Item {
 
         ArrayList<BlockPos> todoList = new ArrayList<>();
         for (StatePos statePos : undoList) {
-             todoList.add(statePos.pos);
+            todoList.add(statePos.pos);
         }
         boolean giveItemsBack = !player.isCreative(); //Might want more conditions later?
         BuildingUtils.removeTickHandler(level, player, todoList, giveItemsBack, giveItemsBack, gadget);
+    }
+
+
+    private static class LinkableHandler implements IGridLinkableHandler {
+        @Override
+        public boolean canLink(ItemStack stack) {
+            return stack.getItem() instanceof BaseGadget;
+        }
+
+        @Override
+        public void link(ItemStack itemStack, GlobalPos pos) {
+            GadgetNBT.setBoundPos(itemStack, new DimBlockPos(pos.dimension(), pos.pos()));
+        }
+
+        @Override
+        public void unlink(ItemStack itemStack) {
+            GadgetNBT.clearBoundPos(itemStack);
+        }
     }
 }

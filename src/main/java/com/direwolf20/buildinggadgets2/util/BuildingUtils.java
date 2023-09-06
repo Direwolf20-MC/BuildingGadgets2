@@ -1,10 +1,17 @@
 package com.direwolf20.buildinggadgets2.util;
 
+import appeng.api.config.Actionable;
+import appeng.api.implementations.blockentities.IWirelessAccessPoint;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.security.IActionSource;
+import appeng.api.stacks.AEItemKey;
+import appeng.api.storage.MEStorage;
 import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
+import com.direwolf20.buildinggadgets2.integration.AE2Integration;
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
@@ -32,6 +39,29 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import java.util.*;
 
 public class BuildingUtils {
+
+    public static void checkAE2ForItems(DimBlockPos boundInventory, Player player, List<ItemStack> testArray, boolean simulate) {
+        Level level = boundInventory.getLevel(player.getServer());
+        if (level == null) return;
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        if (blockEntity == null) return;
+        if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
+            IGrid grid = accessPoint.getGrid();
+            if (grid == null) return;
+            MEStorage networkInv = grid.getStorageService().getInventory();
+            Iterator<ItemStack> iterator = testArray.iterator();
+            while (iterator.hasNext()) {
+                ItemStack itemStack = iterator.next();
+                AEItemKey itemKey = AEItemKey.of(itemStack);
+                long amountExtracted = networkInv.extract(itemKey, itemStack.getCount(), Actionable.SIMULATE, IActionSource.ofPlayer(player));
+                if (amountExtracted == itemStack.getCount()) { //Todo Partial removes
+                    if (!simulate)
+                        networkInv.extract(itemKey, itemStack.getCount(), Actionable.MODULATE, IActionSource.ofPlayer(player));
+                    iterator.remove();
+                }
+            }
+        }
+    }
 
     public static void checkHandlerForItems(IItemHandler handler, List<ItemStack> testArray, boolean simulate) {
         for (int j = 0; j < handler.getSlots(); j++) {
@@ -91,6 +121,10 @@ public class BuildingUtils {
         ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
         //Check Bound Inventory First
         if (boundInventory != null) {
+            if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
+                checkAE2ForItems(boundInventory, player, testArray, simulate);
+                if (testArray.isEmpty()) return true;
+            }
             IItemHandler boundHandler = getHandlerFromBound(player, boundInventory, direction);
             if (boundHandler != null) {
                 checkHandlerForItems(boundHandler, testArray, simulate);
@@ -171,6 +205,21 @@ public class BuildingUtils {
         //Check Bound Inventory First
         ItemStack tempReturnedItem = returnedItem.copy();
         if (boundInventory != null) {
+            if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
+                Level level = boundInventory.getLevel(player.getServer());
+                if (level == null) return;
+                BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+                if (blockEntity == null) return;
+                if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
+                    IGrid grid = accessPoint.getGrid();
+                    if (grid == null) return;
+                    MEStorage networkInv = grid.getStorageService().getInventory();
+                    AEItemKey itemKey = AEItemKey.of(tempReturnedItem);
+                    long amountInserted = networkInv.insert(itemKey, tempReturnedItem.getCount(), Actionable.MODULATE, IActionSource.ofPlayer(player));
+                    tempReturnedItem.shrink((int) amountInserted);
+                    if (tempReturnedItem.isEmpty()) return;
+                }
+            }
             IItemHandler boundHandler = getHandlerFromBound(player, boundInventory, direction);
             if (boundHandler != null) {
                 tempReturnedItem = ItemHandlerHelper.insertItemStacked(boundHandler, returnedItem, false);
