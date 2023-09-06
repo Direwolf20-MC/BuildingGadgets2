@@ -32,6 +32,9 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
         add("buildinggadgets2.grow", "Grow");
         add("buildinggadgets2.fade", "Fade");
+        add("buildinggadgets2.squish", "Squish");
+        add("buildinggadgets2.riseup", "Rise Up");
+        add("buildinggadgets2.growup", "Grow Up");
         add("buildinggadgets2.voidwarning", "WARNING: Voids Drops of removed blocks!!");
         add("buildinggadgets2.templatename", "Name: %s");
 

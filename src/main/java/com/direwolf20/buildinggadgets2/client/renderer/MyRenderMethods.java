@@ -60,6 +60,40 @@ public class MyRenderMethods {
         }
     }
 
+    public static void renderBESquished(BlockState pState, PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, float alpha) {
+        SquishedRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new SquishedRenderTypeBuffer(pBufferSource, alpha, pPoseStack.last().pose());
+        ItemStack stack = new ItemStack(pState.getBlock());
+        net.minecraftforge.client.extensions.common.IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, ItemDisplayContext.NONE, pPoseStack, multiplyAlphaRenderTypeBuffer, pPackedLight, pPackedOverlay);
+    }
+
+    public static class SquishedRenderTypeBuffer implements MultiBufferSource {
+        private final MultiBufferSource inner;
+        private final float squishAmt;
+        private final Matrix4f matrix4f;
+
+        public SquishedRenderTypeBuffer(MultiBufferSource inner, float squishAmt, Matrix4f matrix4f) {
+            this.inner = inner;
+            this.squishAmt = squishAmt;
+            this.matrix4f = matrix4f;
+        }
+
+        @Override
+        public VertexConsumer getBuffer(RenderType type) {
+            RenderType localType = type;
+            if (localType instanceof RenderType.CompositeRenderType) {
+                // all of this requires a lot of AT's so be aware of that on ports
+                ResourceLocation texture = ((RenderStateShard.TextureStateShard) ((RenderType.CompositeRenderType) localType).state.textureState).texture
+                        .orElse(InventoryMenu.BLOCK_ATLAS);
+
+                localType = entityTranslucentCull(texture);
+            } else if (localType.toString().equals(Sheets.translucentCullBlockSheet().toString())) {
+                localType = Sheets.translucentCullBlockSheet();
+            }
+
+            return new DireVertexConsumerSquished(this.inner.getBuffer(localType), 0, 0, 0, 1, squishAmt, 1, matrix4f);
+        }
+    }
+
     public static void renderCopy(PoseStack matrix, BlockPos startPos, BlockPos endPos, Color color) {
         if (startPos.equals(GadgetNBT.nullPos) || endPos.equals(GadgetNBT.nullPos))
             return;

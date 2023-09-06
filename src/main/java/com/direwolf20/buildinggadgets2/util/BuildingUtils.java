@@ -232,7 +232,7 @@ public class BuildingUtils {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
-            if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
+            if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue; //Don't do this validation for copy/paste
             if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
@@ -253,7 +253,7 @@ public class BuildingUtils {
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos)) continue;
-            if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos))
+            if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue;  //Don't do this validation for copy/paste
             if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);

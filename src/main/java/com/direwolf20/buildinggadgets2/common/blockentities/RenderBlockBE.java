@@ -85,6 +85,7 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     public void increaseDrawSize() {
+        //if (drawSize == 10) return;
         if (shrinking) {
             drawSize--;
             if (drawSize <= 0)
