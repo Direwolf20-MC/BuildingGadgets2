@@ -84,6 +84,7 @@
   "buildinggadgets2.squish": "Squish",
   "buildinggadgets2.templatename": "Name: %s",
   "buildinggadgets2.tooltips.blockstate": "Block: %s",
+  "buildinggadgets2.tooltips.boundto": "Bound to: %s:%s",
   "buildinggadgets2.tooltips.energy": "Energy: %d/%d",
   "buildinggadgets2.tooltips.holdshift": "Hold Shift for details",
   "buildinggadgets2.tooltips.mode": "Mode: %s",

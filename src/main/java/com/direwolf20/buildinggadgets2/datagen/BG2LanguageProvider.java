@@ -52,6 +52,8 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.tooltips.mode", "Mode: %s");
         add("buildinggadgets2.tooltips.range", "Range: %d");
         add("buildinggadgets2.tooltips.blockstate", "Block: %s");
+        add("buildinggadgets2.tooltips.boundto", "Bound to: %s:%s");
+
 
         //Modes
         add("buildinggadgets2.modes.vertical_wall", "Vertical Wall");

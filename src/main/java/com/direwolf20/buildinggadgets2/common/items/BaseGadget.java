@@ -102,7 +102,10 @@ public abstract class BaseGadget extends Item {
                             "shift")
                     .withStyle(ChatFormatting.GRAY));
         } else {
-
+            DimBlockPos boundTo = GadgetNBT.getBoundPos(stack);
+            if (boundTo != null) {
+                tooltip.add(Component.translatable("buildinggadgets2.tooltips.boundto", boundTo.levelKey.location().getPath(), "[" + boundTo.blockPos.toShortString() + "]").setStyle(Styles.GOLD));
+            }
         }
 
         stack.getCapability(ForgeCapabilities.ENERGY, null)
