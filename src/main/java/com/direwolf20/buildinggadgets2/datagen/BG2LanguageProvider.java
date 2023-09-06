@@ -112,6 +112,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.radialmenu.cut", "Cut");
         add("buildinggadgets2.radialmenu.connected_area", "Connected Area");
         add("buildinggadgets2.radialmenu.undo", "Undo");
+        add("buildinggadgets2.radialmenu.bind", "Bind Inventory");
         add("buildinggadgets2.radialmenu.anchor", "Anchor");
         add("buildinggadgets2.radialmenu.copypastemenu", "Settings Menu");
         add("buildinggadgets2.radialmenu.raytracefluids", "Raytrace Fluids");
@@ -133,5 +134,8 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.messages.outofpower", "Gadget out of power!");
         add("buildinggadgets2.messages.notenoughenergy", "Not enough energy for cut, need: %d. Have: %d");
         add("buildinggadgets2.messages.undofailedunloaded", "Undo Failed: Chunks are not loaded (Too far away): %s");
+        add("buildinggadgets2.messages.bindfailed", "Bind Failed: Invalid block");
+        add("buildinggadgets2.messages.bindsuccess", "Bind Succeeded to: %s");
+        add("buildinggadgets2.messages.bindremoved", "Bind Removed");
     }
 }

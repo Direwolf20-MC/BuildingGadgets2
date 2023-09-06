@@ -9,7 +9,9 @@ import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -17,11 +19,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
@@ -70,10 +74,31 @@ public class BuildingUtils {
         }
     }
 
-    public static boolean removeStacksFromInventory(Player player, List<ItemStack> itemStacks, boolean simulate) {
+    public static IItemHandler getHandlerFromBound(Player player, DimBlockPos boundInventory, Direction direction) {
+        Level level = boundInventory.getLevel(player.getServer());
+        if (level == null) return null;
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        if (blockEntity == null) return null;
+        LazyOptional<IItemHandler> handler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction);
+        if (handler.isPresent()) {
+            return handler.resolve().get();
+        }
+        return null;
+    }
+
+    public static boolean removeStacksFromInventory(Player player, List<ItemStack> itemStacks, boolean simulate, DimBlockPos boundInventory, Direction direction) {
         if (itemStacks.isEmpty() || itemStacks.contains(Items.AIR.getDefaultInstance())) return false;
         ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
-        //Check curious slots first:
+        //Check Bound Inventory First
+        if (boundInventory != null) {
+            IItemHandler boundHandler = getHandlerFromBound(player, boundInventory, direction);
+            if (boundHandler != null) {
+                checkHandlerForItems(boundHandler, testArray, simulate);
+            }
+        }
+
+        if (testArray.isEmpty()) return true;
+        //Check curious slots second:
         if (CuriosIntegration.isLoaded()) {
             LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
             if (curiosOpt.isPresent()) {
@@ -142,8 +167,19 @@ public class BuildingUtils {
         return counter[0];
     }
 
-    public static void giveItemToPlayer(Player player, ItemStack returnedItem) {
-        //Look for matching itemstacks inside curios inventories first - if found, insert there!
+    public static void giveItemToPlayer(Player player, ItemStack returnedItem, DimBlockPos boundInventory, Direction direction) {
+        //Check Bound Inventory First
+        ItemStack tempReturnedItem = returnedItem.copy();
+        if (boundInventory != null) {
+            IItemHandler boundHandler = getHandlerFromBound(player, boundInventory, direction);
+            if (boundHandler != null) {
+                tempReturnedItem = ItemHandlerHelper.insertItemStacked(boundHandler, returnedItem, false);
+            }
+        }
+        if (tempReturnedItem.isEmpty()) return;
+        ItemStack realReturnedItem = tempReturnedItem.copy();
+
+        //Look for matching itemstacks inside curios inventories second - if found, insert there!
         if (CuriosIntegration.isLoaded()) {
             LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
             if (curiosOpt.isPresent()) {
@@ -155,15 +191,15 @@ public class BuildingUtils {
                             IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                             for (int j = 0; j < slotHandler.getSlots(); j++) {
                                 ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
-                                if (ItemStack.isSameItem(itemInBagSlot, returnedItem))
-                                    slotHandler.insertItem(j, returnedItem.split(slotHandler.getSlotLimit(i) - itemInBagSlot.getCount()), false);
-                                if (returnedItem.isEmpty()) return;
+                                if (ItemStack.isSameItem(itemInBagSlot, realReturnedItem))
+                                    slotHandler.insertItem(j, realReturnedItem.split(slotHandler.getSlotLimit(i) - itemInBagSlot.getCount()), false);
+                                if (realReturnedItem.isEmpty()) return;
                             }
                         }
                     }
                 });
             }
-            if (returnedItem.isEmpty()) return;
+            if (realReturnedItem.isEmpty()) return;
         }
         //Now look for bags inside the players inventory
         Inventory playerInventory = player.getInventory();
@@ -174,18 +210,18 @@ public class BuildingUtils {
                 IItemHandler handler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
                 for (int j = 0; j < handler.getSlots(); j++) {
                     ItemStack itemInSlot = handler.getStackInSlot(j);
-                    if (ItemStack.isSameItem(itemInSlot, returnedItem))
-                        handler.insertItem(j, returnedItem.split(handler.getSlotLimit(i) - itemInSlot.getCount()), false);
-                    if (returnedItem.isEmpty()) break;
+                    if (ItemStack.isSameItem(itemInSlot, realReturnedItem))
+                        handler.insertItem(j, realReturnedItem.split(handler.getSlotLimit(i) - itemInSlot.getCount()), false);
+                    if (realReturnedItem.isEmpty()) break;
                 }
             }
         }
-        if (returnedItem.isEmpty()) return;
+        if (realReturnedItem.isEmpty()) return;
 
         //Finally just give it to the player already!
-        if (!player.addItem(returnedItem)) {
+        if (!player.addItem(realReturnedItem)) {
             BlockPos dropPos = player.getOnPos();
-            ItemEntity itementity = new ItemEntity(player.level(), dropPos.getX(), dropPos.getY(), dropPos.getZ(), returnedItem);
+            ItemEntity itementity = new ItemEntity(player.level(), dropPos.getX(), dropPos.getY(), dropPos.getZ(), realReturnedItem);
             itementity.setPickUpDelay(40);
             player.level().addFreshEntity(itementity);
         }
@@ -228,12 +264,20 @@ public class BuildingUtils {
     public static UUID build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
+        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue; //Don't do this validation for copy/paste
+            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos.offset(lookingAt), pos.state, player);
+            if (!player.isCreative() && needItems) { //Check if player has needed items before using energy -- a real check happens again in ServerTicks
+                if (!removeStacksFromInventory(player, neededItems, true, boundPos, direction))
+                    continue; //Continue to the next position
+            }
             if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
                 break; //Break out if we're out of power
@@ -249,12 +293,20 @@ public class BuildingUtils {
     public static UUID exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
         UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
+        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos)) continue;
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue;  //Don't do this validation for copy/paste
+            List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos.offset(lookingAt), pos.state, player);
+            if (!player.isCreative() && needItems) {  //Check if player has needed items before using energy -- a real check happens again in ServerTicks
+                if (!removeStacksFromInventory(player, neededItems, true, boundPos, direction))
+                    continue; //Continue to the next position
+            }
             if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
                 break; //Break out if we're out of power

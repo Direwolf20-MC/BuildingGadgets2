@@ -213,6 +213,14 @@ public class ModeRadialMenu extends Screen {
                 return false;
             });
             addRenderableWidget(undo_button);
+
+            Button bind_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.bind"), "building_place_atop", ScreenPosition.LEFT, true, send -> {
+                if (send)
+                    PacketHandler.sendToServer(new PacketToggleSetting("bind"));
+
+                return GadgetNBT.getSetting(tool, "bind");
+            });
+            addRenderableWidget(bind_button);
         }
 
         Button fuzzy_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.fuzzy"), "fuzzy", ScreenPosition.RIGHT, send -> {

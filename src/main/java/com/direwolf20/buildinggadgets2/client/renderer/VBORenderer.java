@@ -324,6 +324,7 @@ public class VBORenderer {
 
         //Red Overlay for missing Items
         if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative()) {
+            boolean hasBound = GadgetNBT.getBoundPos(gadget) != null;
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState, player.level(), BlockPos.ZERO, player);
             int availableItems = BuildingUtils.countItemStacks(player, findStack);
@@ -335,7 +336,10 @@ public class VBORenderer {
                     matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
                     matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
                     VertexConsumer builder = buffersource.getBuffer(OurRenderTypes.MissingBlockOverlay);
-                    MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, statePos.pos, 1, 0, 0, 0.35f);
+                    if (hasBound)
+                        MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, statePos.pos, 1, 1, 0, 0.35f);
+                    else
+                        MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, statePos.pos, 1, 0, 0, 0.35f);
                     matrix.popPose();
                 }
                 availableItems--;
