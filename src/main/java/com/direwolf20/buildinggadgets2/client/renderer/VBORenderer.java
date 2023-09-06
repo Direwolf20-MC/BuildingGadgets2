@@ -76,6 +76,11 @@ public class VBORenderer {
         BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
         BaseMode mode = GadgetNBT.getMode(gadget);
 
+        DimBlockPos boundTo = GadgetNBT.getBoundPos(gadget);
+        if (boundTo != null && boundTo.levelKey.equals(player.level().dimension()))
+            drawBoundBox(evt.getPoseStack(), boundTo.blockPos);
+
+
         if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
             renderPos = renderPos.above();
             renderPos.offset(GadgetNBT.getRelativePaste(gadget));
@@ -202,6 +207,15 @@ public class VBORenderer {
         BlockPos end = GadgetNBT.getCopyEndPos(gadget);
         Color color = mode.equals("copy") ? Color.GREEN : Color.RED;
         MyRenderMethods.renderCopy(matrix, start, end, color);
+        matrix.popPose();
+    }
+
+    public static void drawBoundBox(PoseStack matrix, BlockPos blockPos) {
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        matrix.pushPose();
+        matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+        Color color = Color.BLUE;
+        MyRenderMethods.renderCopy(matrix, blockPos, blockPos, color);
         matrix.popPose();
     }
 
