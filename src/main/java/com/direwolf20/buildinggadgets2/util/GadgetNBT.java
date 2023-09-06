@@ -71,6 +71,24 @@ public class GadgetNBT {
     public final static BlockPos nullPos = new BlockPos(-999, -999, -999);
     final static int undoListSize = 10;
 
+    public static DimBlockPos setBoundPos(ItemStack gadget, DimBlockPos dimBlockPos) {
+        CompoundTag tag = gadget.getOrCreateTag();
+        tag.put("bound", dimBlockPos.toNBT());
+        return dimBlockPos;
+    }
+
+    public static DimBlockPos getBoundPos(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("bound")) return null;
+        return new DimBlockPos(tag.getCompound("bound"));
+    }
+
+    public static void clearBoundPos(ItemStack gadget) {
+        CompoundTag tag = gadget.getTag();
+        if (tag == null || !tag.contains("bound")) return;
+        tag.remove("bound");
+    }
+
     public static BlockPos setAnchorPos(ItemStack gadget, BlockPos blockPos) {
         CompoundTag tag = gadget.getOrCreateTag();
         tag.put("anchor", NbtUtils.writeBlockPos(blockPos));

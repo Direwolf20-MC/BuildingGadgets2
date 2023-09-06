@@ -4,6 +4,7 @@ import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Registration;
+import com.direwolf20.buildinggadgets2.util.DimBlockPos;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -62,7 +63,9 @@ public class ServerTickHandler {
     }
 
     public static void addToMap(UUID buildUUID, StatePos statePos, Level level, byte renderType, Player player, boolean neededItems, boolean returnItems, ItemStack gadget, ServerBuildList.BuildType buildType, boolean dropContents, BlockPos lookingAt) {
-        ServerBuildList serverBuildList = buildMap.computeIfAbsent(buildUUID, k -> new ServerBuildList(level, new ArrayList<>(), renderType, player.getUUID(), neededItems, returnItems, buildUUID, gadget, buildType, dropContents, lookingAt));
+        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int direction = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        ServerBuildList serverBuildList = buildMap.computeIfAbsent(buildUUID, k -> new ServerBuildList(level, new ArrayList<>(), renderType, player.getUUID(), neededItems, returnItems, buildUUID, gadget, buildType, dropContents, lookingAt, boundPos, direction));
         serverBuildList.statePosList.add(statePos);
         serverBuildList.originalSize = serverBuildList.statePosList.size();
     }
@@ -138,7 +141,7 @@ public class ServerTickHandler {
 
         List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player);
         if (!player.isCreative() && serverBuildList.needItems) {
-            if (!removeStacksFromInventory(player, neededItems, true))
+            if (!removeStacksFromInventory(player, neededItems, true, serverBuildList.boundPos, serverBuildList.getDirection()))
                 return; //Return without placing the block
         }
 
@@ -151,7 +154,7 @@ public class ServerTickHandler {
         }
 
         if (!player.isCreative() && serverBuildList.needItems) {
-            removeStacksFromInventory(player, neededItems, false);
+            removeStacksFromInventory(player, neededItems, false, serverBuildList.boundPos, serverBuildList.getDirection());
         }
 
         be.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.renderType);
@@ -209,7 +212,7 @@ public class ServerTickHandler {
         if (!player.isCreative() && serverBuildList.needItems) {
             if (!blockState.isAir()) {
                 neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player));
-                if (!removeStacksFromInventory(player, neededItems, true))
+                if (!removeStacksFromInventory(player, neededItems, true, serverBuildList.boundPos, serverBuildList.getDirection()))
                     return; //Return without placing the block
             }
         }
@@ -240,14 +243,14 @@ public class ServerTickHandler {
 
         if (!player.isCreative() && serverBuildList.needItems) {
             if (!blockState.isAir()) {
-                removeStacksFromInventory(player, neededItems, false);
+                removeStacksFromInventory(player, neededItems, false, serverBuildList.boundPos, serverBuildList.getDirection());
             }
         }
 
         if (!player.isCreative() && serverBuildList.returnItems && !oldState.isAir()) {
             List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, serverBuildList.gadget);
             for (ItemStack returnedItem : returnedItems)
-                giveItemToPlayer(player, returnedItem);
+                giveItemToPlayer(player, returnedItem, serverBuildList.boundPos, serverBuildList.getDirection());
         }
 
         if (oldRenderState.equals(blockState))
@@ -303,7 +306,7 @@ public class ServerTickHandler {
         if (serverBuildList.returnItems) {
             List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, player);
             for (ItemStack returnedItem : returnedItems)
-                giveItemToPlayer(player, returnedItem);
+                giveItemToPlayer(player, returnedItem, serverBuildList.boundPos, serverBuildList.getDirection());
         }
 
         boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);

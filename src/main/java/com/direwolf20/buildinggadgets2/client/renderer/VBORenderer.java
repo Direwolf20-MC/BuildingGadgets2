@@ -76,6 +76,11 @@ public class VBORenderer {
         BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
         BaseMode mode = GadgetNBT.getMode(gadget);
 
+        DimBlockPos boundTo = GadgetNBT.getBoundPos(gadget);
+        if (boundTo != null && boundTo.levelKey.equals(player.level().dimension()))
+            drawBoundBox(evt.getPoseStack(), boundTo.blockPos);
+
+
         if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
             renderPos = renderPos.above();
             renderPos.offset(GadgetNBT.getRelativePaste(gadget));
@@ -205,6 +210,15 @@ public class VBORenderer {
         matrix.popPose();
     }
 
+    public static void drawBoundBox(PoseStack matrix, BlockPos blockPos) {
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        matrix.pushPose();
+        matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+        Color color = Color.BLUE;
+        MyRenderMethods.renderCopy(matrix, blockPos, blockPos, color);
+        matrix.popPose();
+    }
+
     public static boolean isModelRender(BlockState state) {
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         BakedModel ibakedmodel = dispatcher.getBlockModel(state);
@@ -323,7 +337,8 @@ public class VBORenderer {
         }*/
 
         //Red Overlay for missing Items
-        if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative()) {
+        boolean hasBound = GadgetNBT.getBoundPos(gadget) != null;
+        if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative() && !hasBound) {
             BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
             ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState, player.level(), BlockPos.ZERO, player);
             int availableItems = BuildingUtils.countItemStacks(player, findStack);
@@ -335,6 +350,9 @@ public class VBORenderer {
                     matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
                     matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
                     VertexConsumer builder = buffersource.getBuffer(OurRenderTypes.MissingBlockOverlay);
+                    //if (hasBound)
+                    //    MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, statePos.pos, 1, 1, 0, 0.35f);
+                    //else
                     MyRenderMethods.renderBoxSolid(evt.getPoseStack().last().pose(), builder, statePos.pos, 1, 0, 0, 0.35f);
                     matrix.popPose();
                 }

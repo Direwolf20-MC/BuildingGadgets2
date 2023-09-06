@@ -1,14 +1,12 @@
 package com.direwolf20.buildinggadgets2.common.items;
 
+import appeng.api.features.IGridLinkableHandler;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.capabilities.CapabilityEnergyProvider;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
-import com.direwolf20.buildinggadgets2.util.BuildingUtils;
-import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import com.direwolf20.buildinggadgets2.util.MagicHelpers;
-import com.direwolf20.buildinggadgets2.util.VectorHelper;
+import com.direwolf20.buildinggadgets2.util.*;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
@@ -17,6 +15,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,12 +28,15 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -45,6 +47,8 @@ public abstract class BaseGadget extends Item {
         super(new Properties()
                 .stacksTo(1));
     }
+
+    public static final IGridLinkableHandler LINKABLE_HANDLER = new LinkableHandler();
 
     /**
      * Forge Energy Storage methods
@@ -102,7 +106,10 @@ public abstract class BaseGadget extends Item {
                             "shift")
                     .withStyle(ChatFormatting.GRAY));
         } else {
-
+            DimBlockPos boundTo = GadgetNBT.getBoundPos(stack);
+            if (boundTo != null) {
+                tooltip.add(Component.translatable("buildinggadgets2.tooltips.boundto", boundTo.levelKey.location().getPath(), "[" + boundTo.blockPos.toShortString() + "]").setStyle(Styles.GOLD));
+            }
         }
 
         stack.getCapability(ForgeCapabilities.ENERGY, null)
@@ -131,6 +138,14 @@ public abstract class BaseGadget extends Item {
         ItemActionContext context = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, player, level, hand, gadget);
 
         if (player.isShiftKeyDown()) {
+            if (GadgetNBT.getSetting(gadget, "bind")) {
+                if (bindToInventory(level, player, gadget, lookingAt)) {
+                    GadgetNBT.toggleSetting(gadget, "bind"); //Turn off bind
+                    return InteractionResultHolder.success(gadget);
+                } else {
+                    return InteractionResultHolder.fail(gadget);
+                }
+            }
             return this.onShiftAction(context);
         }
 
@@ -143,6 +158,28 @@ public abstract class BaseGadget extends Item {
 
     InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
         return InteractionResultHolder.pass(context.stack());
+    }
+
+    public boolean bindToInventory(Level level, Player player, ItemStack gadget, BlockHitResult lookingAt) {
+        BlockEntity blockEntity = level.getBlockEntity(lookingAt.getBlockPos());
+        if (blockEntity != null) {
+            LazyOptional<IItemHandler> handler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, lookingAt.getDirection());
+            if (handler.isPresent()) {
+                GadgetNBT.setBoundPos(gadget, new DimBlockPos(level, lookingAt.getBlockPos()));
+                GadgetNBT.setToolValue(gadget, lookingAt.getDirection().ordinal(), "binddirection");
+                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindsuccess", lookingAt.getBlockPos().toShortString()), true);
+                return true;
+            }
+        }
+        DimBlockPos existingBind = GadgetNBT.getBoundPos(gadget);
+        if (existingBind == null)
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindfailed"), true);
+        else {
+            GadgetNBT.clearBoundPos(gadget);
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindremoved"), true);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -210,9 +247,27 @@ public abstract class BaseGadget extends Item {
 
         ArrayList<BlockPos> todoList = new ArrayList<>();
         for (StatePos statePos : undoList) {
-             todoList.add(statePos.pos);
+            todoList.add(statePos.pos);
         }
         boolean giveItemsBack = !player.isCreative(); //Might want more conditions later?
         BuildingUtils.removeTickHandler(level, player, todoList, giveItemsBack, giveItemsBack, gadget);
+    }
+
+
+    private static class LinkableHandler implements IGridLinkableHandler {
+        @Override
+        public boolean canLink(ItemStack stack) {
+            return stack.getItem() instanceof BaseGadget;
+        }
+
+        @Override
+        public void link(ItemStack itemStack, GlobalPos pos) {
+            GadgetNBT.setBoundPos(itemStack, new DimBlockPos(pos.dimension(), pos.pos()));
+        }
+
+        @Override
+        public void unlink(ItemStack itemStack) {
+            GadgetNBT.clearBoundPos(itemStack);
+        }
     }
 }
