@@ -1,11 +1,5 @@
 package com.direwolf20.buildinggadgets2.util;
 
-import appeng.api.config.Actionable;
-import appeng.api.implementations.blockentities.IWirelessAccessPoint;
-import appeng.api.networking.IGrid;
-import appeng.api.networking.security.IActionSource;
-import appeng.api.stacks.AEItemKey;
-import appeng.api.storage.MEStorage;
 import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
@@ -38,45 +32,10 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
 import java.util.*;
 
+import static com.direwolf20.buildinggadgets2.integration.AE2Methods.checkAE2ForItems;
+import static com.direwolf20.buildinggadgets2.integration.AE2Methods.insertIntoAE2;
+
 public class BuildingUtils {
-
-    public static void checkAE2ForItems(DimBlockPos boundInventory, Player player, List<ItemStack> testArray, boolean simulate) {
-        Level level = boundInventory.getLevel(player.getServer());
-        if (level == null) return;
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
-        if (blockEntity == null) return;
-        if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
-            IGrid grid = accessPoint.getGrid();
-            if (grid == null) return;
-            MEStorage networkInv = grid.getStorageService().getInventory();
-            Iterator<ItemStack> iterator = testArray.iterator();
-            while (iterator.hasNext()) {
-                ItemStack itemStack = iterator.next();
-                AEItemKey itemKey = AEItemKey.of(itemStack);
-                long amountExtracted = networkInv.extract(itemKey, itemStack.getCount(), Actionable.SIMULATE, IActionSource.ofPlayer(player));
-                if (amountExtracted == itemStack.getCount()) { //I don't wanna do partial removes - because if you need 2 slabs and only have 1, i don't wanna place the half
-                    if (!simulate)
-                        networkInv.extract(itemKey, itemStack.getCount(), Actionable.MODULATE, IActionSource.ofPlayer(player));
-                    iterator.remove();
-                }
-            }
-        }
-    }
-
-    public static void insertIntoAE2(Player player, DimBlockPos boundInventory, ItemStack tempReturnedItem) {
-        Level level = boundInventory.getLevel(player.getServer());
-        if (level == null) return;
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
-        if (blockEntity == null) return;
-        if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
-            IGrid grid = accessPoint.getGrid();
-            if (grid == null) return;
-            MEStorage networkInv = grid.getStorageService().getInventory();
-            AEItemKey itemKey = AEItemKey.of(tempReturnedItem);
-            long amountInserted = networkInv.insert(itemKey, tempReturnedItem.getCount(), Actionable.MODULATE, IActionSource.ofPlayer(player));
-            tempReturnedItem.shrink((int) amountInserted);
-        }
-    }
 
     public static void checkHandlerForItems(IItemHandler handler, List<ItemStack> testArray, boolean simulate) {
         for (int j = 0; j < handler.getSlots(); j++) {

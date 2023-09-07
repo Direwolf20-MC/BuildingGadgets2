@@ -4,6 +4,7 @@ import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.integration.AE2Integration;
+import com.direwolf20.buildinggadgets2.integration.AE2Methods;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -20,7 +21,7 @@ public class ModSetup {
         PacketHandler.register();
         MinecraftForge.EVENT_BUS.register(ServerTickHandler.class);
         if (AE2Integration.isLoaded()) {
-            AE2Integration.registerItems();
+            AE2Methods.registerItems();
         }
     }
 
