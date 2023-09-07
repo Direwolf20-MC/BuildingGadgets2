@@ -282,7 +282,8 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos;
-            if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
+            if (!level.mayInteract(player, blockPos.offset(lookingAt)))
+                continue; //Chunk Protection like spawn and FTB Utils
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue; //Don't do this validation for copy/paste
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos.offset(lookingAt), pos.state, player);
@@ -310,8 +311,10 @@ public class BuildingUtils {
         Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos;
-            if (!level.mayInteract(player, blockPos)) continue; //Chunk Protection like spawn and FTB Utils
-            if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos), level, blockPos)) continue;
+            if (!level.mayInteract(player, blockPos.offset(lookingAt)))
+                continue; //Chunk Protection like spawn and FTB Utils
+            if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos.offset(lookingAt)), level, blockPos))
+                continue;
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue;  //Don't do this validation for copy/paste
             List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos.offset(lookingAt), pos.state, player);
