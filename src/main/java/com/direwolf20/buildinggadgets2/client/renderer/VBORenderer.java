@@ -338,8 +338,9 @@ public class VBORenderer {
 
         //Red Overlay for missing Items
         boolean hasBound = GadgetNBT.getBoundPos(gadget) != null;
-        if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative() && !hasBound) {
-            BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
+        BlockState renderBlockState = GadgetNBT.getGadgetBlockState(gadget);
+        if ((gadget.getItem() instanceof GadgetBuilding || gadget.getItem() instanceof GadgetExchanger) && !player.isCreative() && !hasBound && renderBlockState.getFluidState().isEmpty()) {
+
             ItemStack findStack = GadgetUtils.getItemForBlock(renderBlockState, player.level(), BlockPos.ZERO, player);
             int availableItems = BuildingUtils.countItemStacks(player, findStack);
             int energyStored = BuildingUtils.getEnergyStored(gadget);

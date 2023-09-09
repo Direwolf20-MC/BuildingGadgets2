@@ -6,6 +6,7 @@ import appeng.api.features.IGridLinkableHandler;
 import appeng.api.implementations.blockentities.IWirelessAccessPoint;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.security.IActionSource;
+import appeng.api.stacks.AEFluidKey;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.storage.MEStorage;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Iterator;
 import java.util.List;
@@ -71,6 +73,26 @@ public class AE2Methods {
         }
     }
 
+    public static void checkAE2ForFluids(DimBlockPos boundInventory, Player player, FluidStack fluidStack, boolean simulate) {
+        Level level = boundInventory.getLevel(player.getServer());
+        if (level == null) return;
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        if (blockEntity == null) return;
+        if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
+            IGrid grid = accessPoint.getGrid();
+            if (grid == null) return;
+            MEStorage networkInv = grid.getStorageService().getInventory();
+            AEFluidKey fluidKey = AEFluidKey.of(fluidStack);
+            long amountExtracted = networkInv.extract(fluidKey, fluidStack.getAmount(), Actionable.SIMULATE, IActionSource.ofPlayer(player));
+            if (amountExtracted == fluidStack.getAmount()) {
+                if (!simulate)
+                    networkInv.extract(fluidKey, fluidStack.getAmount(), Actionable.MODULATE, IActionSource.ofPlayer(player));
+                fluidStack.shrink(fluidStack.getAmount());
+            }
+
+        }
+    }
+
     public static void insertIntoAE2(Player player, DimBlockPos boundInventory, ItemStack tempReturnedItem) {
         Level level = boundInventory.getLevel(player.getServer());
         if (level == null) return;
@@ -83,6 +105,24 @@ public class AE2Methods {
             AEItemKey itemKey = AEItemKey.of(tempReturnedItem);
             long amountInserted = networkInv.insert(itemKey, tempReturnedItem.getCount(), Actionable.MODULATE, IActionSource.ofPlayer(player));
             tempReturnedItem.shrink((int) amountInserted);
+        }
+    }
+
+    public static void insertFluidIntoAE2(Player player, DimBlockPos boundInventory, FluidStack returnedFluid) {
+        Level level = boundInventory.getLevel(player.getServer());
+        if (level == null) return;
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        if (blockEntity == null) return;
+        if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
+            IGrid grid = accessPoint.getGrid();
+            if (grid == null) return;
+            MEStorage networkInv = grid.getStorageService().getInventory();
+            AEFluidKey fluidKey = AEFluidKey.of(returnedFluid);
+            long amountInserted = networkInv.insert(fluidKey, returnedFluid.getAmount(), Actionable.SIMULATE, IActionSource.ofPlayer(player));
+            if (amountInserted == returnedFluid.getAmount()) { //Only insert it all!
+                networkInv.insert(fluidKey, returnedFluid.getAmount(), Actionable.MODULATE, IActionSource.ofPlayer(player));
+                returnedFluid.shrink(returnedFluid.getAmount()); //Ensure it clears completely
+            }
         }
     }
 }

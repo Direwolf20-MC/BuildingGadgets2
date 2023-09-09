@@ -18,14 +18,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.*;
 
 import static com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste.customCutValidation;
-import static com.direwolf20.buildinggadgets2.util.BuildingUtils.giveItemToPlayer;
-import static com.direwolf20.buildinggadgets2.util.BuildingUtils.removeStacksFromInventory;
+import static com.direwolf20.buildinggadgets2.util.BuildingUtils.*;
 
 public class ServerTickHandler {
 
@@ -129,6 +131,16 @@ public class ServerTickHandler {
         BlockPos blockPos = statePos.pos.offset(serverBuildList.lookingAt);
         BlockState blockState = statePos.state;
 
+        if (!blockState.getFluidState().isEmpty()) {
+            FluidState fluidState = blockState.getFluidState();
+            if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                Fluid fluid = fluidState.getType();
+                FluidStack fluidStack = new FluidStack(fluid, 1000);
+                boolean canDestContainFluid = !fluid.getFluidType().isVaporizedOnPlacement(level, blockPos, fluidStack);
+                if (!canDestContainFluid) return; //Skip -- This is for like, water in the nether and stuff
+            }
+        }
+
         if (!blockState.canSurvive(level, blockPos)) {
             if (serverBuildList.retryList.contains(blockPos))
                 return; //Don't retry if this is already retried
@@ -140,9 +152,21 @@ public class ServerTickHandler {
         if (!level.getBlockState(blockPos).canBeReplaced()) return; //Return without placing the block
 
         List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player);
-        if (!player.isCreative() && serverBuildList.needItems) {
-            if (!removeStacksFromInventory(player, neededItems, true, serverBuildList.boundPos, serverBuildList.getDirection()))
-                return; //Return without placing the block
+        if (blockState.getFluidState().isEmpty()) { //Check for items
+            if (!player.isCreative() && serverBuildList.needItems) {
+                if (!removeStacksFromInventory(player, neededItems, true, serverBuildList.boundPos, serverBuildList.getDirection()))
+                    return; //Return without placing the block
+            }
+        } else {
+            FluidState fluidState = blockState.getFluidState();
+            if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                Fluid fluid = fluidState.getType();
+                FluidStack fluidStack = new FluidStack(fluid, 1000); //Sources are always 1000, right?
+                if (!player.isCreative() && serverBuildList.needItems) { //Check if player has needed items before using energy -- a real check happens again in ServerTicks
+                    if (!removeFluidStacksFromInventory(player, fluidStack, true, serverBuildList.boundPos, serverBuildList.getDirection()))
+                        return; //Return without placing the block
+                }
+            }
         }
 
         boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
@@ -152,9 +176,19 @@ public class ServerTickHandler {
             // this can happen when another mod rejects the set block state (fixes #120)
             return;
         }
-
-        if (!player.isCreative() && serverBuildList.needItems) {
-            removeStacksFromInventory(player, neededItems, false, serverBuildList.boundPos, serverBuildList.getDirection());
+        if (blockState.getFluidState().isEmpty()) { //Check for items
+            if (!player.isCreative() && serverBuildList.needItems) {
+                removeStacksFromInventory(player, neededItems, false, serverBuildList.boundPos, serverBuildList.getDirection());
+            }
+        } else {
+            FluidState fluidState = blockState.getFluidState();
+            if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                Fluid fluid = fluidState.getType();
+                FluidStack fluidStack = new FluidStack(fluid, 1000); //Sources are always 1000, right?
+                if (!player.isCreative() && serverBuildList.needItems) { //Check if player has needed items before using energy -- a real check happens again in ServerTicks
+                    removeFluidStacksFromInventory(player, fluidStack, false, serverBuildList.boundPos, serverBuildList.getDirection());
+                }
+            }
         }
 
         be.setRenderData(Blocks.AIR.defaultBlockState(), blockState, serverBuildList.renderType);
@@ -200,6 +234,16 @@ public class ServerTickHandler {
 
         if (oldState.equals(blockState)) return; //No need to replace blocks if they match!
 
+        if (!blockState.getFluidState().isEmpty()) {
+            FluidState fluidState = blockState.getFluidState();
+            if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                Fluid fluid = fluidState.getType();
+                FluidStack fluidStack = new FluidStack(fluid, 1000);
+                boolean canDestContainFluid = !fluid.getFluidType().isVaporizedOnPlacement(level, blockPos, fluidStack);
+                if (!canDestContainFluid) return; //Skip -- This is for like, water in the nether and stuff
+            }
+        }
+
         if (!blockState.canSurvive(level, blockPos)) {
             if (serverBuildList.retryList.contains(blockPos))
                 return; //Don't retry if this is already retried
@@ -209,11 +253,23 @@ public class ServerTickHandler {
         }
 
         List<ItemStack> neededItems = new ArrayList<>();
-        if (!player.isCreative() && serverBuildList.needItems) {
-            if (!blockState.isAir()) {
-                neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player));
-                if (!removeStacksFromInventory(player, neededItems, true, serverBuildList.boundPos, serverBuildList.getDirection()))
-                    return; //Return without placing the block
+        if (blockState.getFluidState().isEmpty()) { //Check for Items
+            if (!player.isCreative() && serverBuildList.needItems) {
+                if (!blockState.isAir()) {
+                    neededItems.addAll(GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player));
+                    if (!removeStacksFromInventory(player, neededItems, true, serverBuildList.boundPos, serverBuildList.getDirection()))
+                        return; //Return without placing the block
+                }
+            }
+        } else {
+            FluidState fluidState = blockState.getFluidState();
+            if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                Fluid fluid = fluidState.getType();
+                FluidStack fluidStack = new FluidStack(fluid, 1000); //Sources are always 1000, right?
+                if (!player.isCreative() && serverBuildList.needItems) { //Check if player has needed items before using energy -- a real check happens again in ServerTicks
+                    if (!removeFluidStacksFromInventory(player, fluidStack, true, serverBuildList.boundPos, serverBuildList.getDirection()))
+                        return; //Return without placing the block
+                }
             }
         }
 
@@ -241,16 +297,36 @@ public class ServerTickHandler {
             return;
         }
 
-        if (!player.isCreative() && serverBuildList.needItems) {
-            if (!blockState.isAir()) {
-                removeStacksFromInventory(player, neededItems, false, serverBuildList.boundPos, serverBuildList.getDirection());
+        if (blockState.getFluidState().isEmpty()) { //Check for Items
+            if (!player.isCreative() && serverBuildList.needItems) {
+                if (!blockState.isAir()) {
+                    removeStacksFromInventory(player, neededItems, false, serverBuildList.boundPos, serverBuildList.getDirection());
+                }
+            }
+        } else {
+            FluidState fluidState = blockState.getFluidState();
+            if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                Fluid fluid = fluidState.getType();
+                FluidStack fluidStack = new FluidStack(fluid, 1000); //Sources are always 1000, right?
+                if (!player.isCreative() && serverBuildList.needItems) { //Check if player has needed items before using energy -- a real check happens again in ServerTicks
+                    removeFluidStacksFromInventory(player, fluidStack, false, serverBuildList.boundPos, serverBuildList.getDirection());
+                }
             }
         }
 
         if (!player.isCreative() && serverBuildList.returnItems && !oldState.isAir()) {
-            List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, serverBuildList.gadget);
-            for (ItemStack returnedItem : returnedItems)
-                giveItemToPlayer(player, returnedItem, serverBuildList.boundPos, serverBuildList.getDirection());
+            if (!oldState.getFluidState().isEmpty()) {
+                FluidState fluidState = oldState.getFluidState();
+                if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                    Fluid fluid = fluidState.getType();
+                    FluidStack returnStack = new FluidStack(fluid, 1000); //Sources are always 1000, right?
+                    giveFluidToPlayer(player, returnStack, serverBuildList.boundPos, serverBuildList.getDirection());
+                }
+            } else {
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, serverBuildList.gadget);
+                for (ItemStack returnedItem : returnedItems)
+                    giveItemToPlayer(player, returnedItem, serverBuildList.boundPos, serverBuildList.getDirection());
+            }
         }
 
         if (oldRenderState.equals(blockState))
@@ -304,9 +380,18 @@ public class ServerTickHandler {
         StatePos affectedBlock = new StatePos(oldState, blockPos);
 
         if (serverBuildList.returnItems) {
-            List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, player);
-            for (ItemStack returnedItem : returnedItems)
-                giveItemToPlayer(player, returnedItem, serverBuildList.boundPos, serverBuildList.getDirection());
+            if (!oldState.getFluidState().isEmpty()) {
+                FluidState fluidState = oldState.getFluidState();
+                if (!fluidState.isEmpty() && fluidState.isSource()) { //This should always be true since we only copy sources
+                    Fluid fluid = fluidState.getType();
+                    FluidStack returnStack = new FluidStack(fluid, 1000); //Sources are always 1000, right?
+                    giveFluidToPlayer(player, returnStack, serverBuildList.boundPos, serverBuildList.getDirection());
+                }
+            } else {
+                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, player);
+                for (ItemStack returnedItem : returnedItems)
+                    giveItemToPlayer(player, returnedItem, serverBuildList.boundPos, serverBuildList.getDirection());
+            }
         }
 
         boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
