@@ -177,7 +177,8 @@ public class VBORenderer {
                         //System.out.println(e);
                     }
                 } else
-                    dispatcher.renderLiquid(pos.pos, level, direVertexConsumer, renderState, renderState.getFluidState());
+                    RenderFluidBlock.renderFluidBlock(renderState, level, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false);
+                //dispatcher.renderLiquid(pos.pos, level, direVertexConsumer, renderState, renderState.getFluidState());
                 //dispatcher.renderBatched(renderState, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
 
             }

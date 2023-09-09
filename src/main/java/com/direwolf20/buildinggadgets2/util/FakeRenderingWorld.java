@@ -165,7 +165,7 @@ public class FakeRenderingWorld implements LevelAccessor {
 
     @Override
     public DimensionType dimensionType() {
-        return null;
+        return realWorld.dimensionType();
     }
 
     @Override
