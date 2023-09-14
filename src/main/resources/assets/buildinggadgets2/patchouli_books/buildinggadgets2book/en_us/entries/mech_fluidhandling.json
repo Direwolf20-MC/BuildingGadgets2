@@ -1,0 +1,35 @@
+{
+  "name": "Fluid Handling",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "minecraft:water_bucket",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Gadgets can interact with Fluids! Make sure $(l:buildinggadgets2:mech_raytrace_fluids)Raytracing Fluids$(/l) is enabled to select a fluid with shift-rightclick. $(br2)To place fluids in the world, you'll need a bucket with the appropriate fluid in it. $(br2)Alternatively, mods that add tanks (like Mekanism) can be used, and the fluids will be removed/inserted into tanks."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Fluid Handling",
+      "images": [
+        "buildinggadgets2:textures/book/images/fluidhandling1.png",
+        "buildinggadgets2:textures/book/images/fluidhandling2.png"
+      ],
+      "border": true,
+      "text": "Switch the images above to see the different options"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The copy paste gadget, can of course, handle fluids as well!$(br2)When undoing or exchanging fluids, the gadget will try to find a place to put the fluid (Like an empty bucket or tank) but will void the fluid if one is not found."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Fluid Handling",
+      "images": [
+        "buildinggadgets2:textures/book/images/fluidhandling3.png"
+      ],
+      "border": true,
+      "text": "Copy Paste Fluids"
+    }
+  ]
+}

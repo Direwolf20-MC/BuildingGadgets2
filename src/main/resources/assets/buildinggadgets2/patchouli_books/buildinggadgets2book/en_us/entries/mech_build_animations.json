@@ -1,0 +1,12 @@
+{
+  "name": "Building Animations",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/raytrace_fluid.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Each gadget can be assigned a build animation, which defaults to 'grow'. Try them all out and see which you like best!$(br2)Changing the animation has NO affect on the functionality of the gadgets, it only makes the block building animations look different."
+    }
+  ]
+}

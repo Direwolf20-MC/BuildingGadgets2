@@ -1,0 +1,22 @@
+{
+  "name": "Place on Top",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/place_on_top.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Place on top works a little differently for each mode, and for some modes it won't have any affect at all.$(br2)In general, instead of placing around a block, it will place on top of it. Try it out and see what it does to the render!$(br2)Look at the two pictures on the right for an example."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Place on Top",
+      "images": [
+        "buildinggadgets2:textures/book/images/placeontop1.png",
+        "buildinggadgets2:textures/book/images/placeontop2.png"
+      ],
+      "border": true,
+      "text": "Switch the images above to see the different options"
+    }
+  ]
+}

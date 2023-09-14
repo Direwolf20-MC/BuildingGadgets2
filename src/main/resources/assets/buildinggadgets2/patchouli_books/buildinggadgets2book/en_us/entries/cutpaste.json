@@ -1,0 +1,42 @@
+{
+  "name": "Cut Paste Gadget",
+  "sortnum": 4,
+  "category": "buildinggadgets2:gadgets",
+  "icon": "buildinggadgets2:gadget_cut_paste{energy:50000000}",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The cut paste gadget makes moving structures a breeze, and works just like the $(l:buildinggadgets2:copypaste)Copy Paste Gadget$(/l)! To start, ensure you're in 'cut' mode in the settings menu. $(br2)Right click one corner of a structure,and then shift-right click an opposing corner.  If done correctly, a red outline will surround your structure."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Cutting",
+      "images": [
+        "buildinggadgets2:textures/book/images/cut.png"
+      ],
+      "border": true,
+      "text": "Cutting a structure"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The structure will not be removed until you click the 'cut' button in the settings menu. $(br2)Switch the gadget to 'paste' mode, and you'll see a ghostly preview of the structure you've copied. $(br2)To place the structure in world, simply right click! No items are necessary for this, as its using the blocks you removed earlier."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Paste Preview",
+      "images": [
+        "buildinggadgets2:textures/book/images/paste.png"
+      ],
+      "border": true,
+      "text": "Previewing a paste"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You can only have one structure stored on the gadget at a time. Placing it in the world will erased the stored information on the gadget.$(br2)Be careful when pasting the structure, you only get one chance, $(l:buildinggadgets2:exchangemode)exchange mode$(/l) is recommended! $(br2)If you attempt to cut a new area while data already exists, you'll be prompted to confirm. If you do this, the first set of data will be lost forever!"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "All block-entity data will be moved along with the structure, including the contents of chests and block configurations. $(br2)Much like the $(l:buildinggadgets2:copypaste)Copy Paste Gadget$(/l), you can modify the cut or paste positions with the appropriate settings menu option. See that chapter for details!"
+    }
+  ]
+}

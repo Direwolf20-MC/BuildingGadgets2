@@ -1,0 +1,26 @@
+{
+  "name": "Destruction Gadget",
+  "sortnum": 5,
+  "category": "buildinggadgets2:gadgets",
+  "icon": "buildinggadgets2:gadget_destruction{energy:1000000}",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The destruction gadget makes clearing a large area very easy. Any blocks cleared will be $(bold)voided!$(clear).$(br2)First, open the settings menu and adjust the area. This area is with respect to the block (and block face) you are looking at.$(br2)If you look at the top face of a block, 'up' will be relative to the player's screen."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Destruction Gadget",
+      "images": [
+        "buildinggadgets2:textures/book/images/destruction1.png",
+        "buildinggadgets2:textures/book/images/destruction2.png"
+      ],
+      "border": true,
+      "text": "Destroying an area, click the arrow to see diffent pictures!"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Once you're satisfied with the settings, right click on a block to void all the highlighted blocks. They will be removed from the world. $(br2)You may undo this action if you make a mistake. It will not remove items from your inventory to undo, as the gadget is just returning the voided blocks to the world."
+    }
+  ]
+}

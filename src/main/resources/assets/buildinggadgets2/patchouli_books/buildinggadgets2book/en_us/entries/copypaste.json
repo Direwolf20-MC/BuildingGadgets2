@@ -1,0 +1,73 @@
+{
+  "name": "Copy Paste Gadget",
+  "sortnum": 3,
+  "category": "buildinggadgets2:gadgets",
+  "icon": "buildinggadgets2:gadget_copy_paste{energy:1000000}",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The copy paste gadget makes replicating structures far easier! To start, ensure you're in 'copy' mode in the settings menu. $(br2)Right click one corner of a structure,and then shift-right click an opposing corner.  If done correctly, a green outline will surround your structure."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Copying",
+      "images": [
+        "buildinggadgets2:textures/book/images/copy.png"
+      ],
+      "border": true,
+      "text": "Copying a structure"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Switch the gadget to 'paste' mode, and you'll see a ghostly preview of the structure you've copied. The block you right clicked during copying is the starting point of the structure. $(br2)To place the structure in world, simply right click! All items necessary for building will be removed from your inventory, and any blocks you don't have items for will be skipped."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Paste Preview",
+      "images": [
+        "buildinggadgets2:textures/book/images/paste.png"
+      ],
+      "border": true,
+      "text": "Previewing a paste"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "To see a list of the items you need, open the settings menu and choose the 'material list' option. $(br2)This is a scrollable list showing what items you do or do not have, and can be sorted in multiple ways. Try it out!"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Material List",
+      "images": [
+        "buildinggadgets2:textures/book/images/materiallist.png"
+      ],
+      "border": true,
+      "text": "Needed items"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Its possible to make fine tuned adjustments to the copy area by opening the Adjust Placement window in the settings menu.$(br2)From here, you can adjust the position of the start block and end block. Click the plus and minus buttons to see the green box change in real time.$(br2)You can also swap to 'absolute' coordinates mode and enter in-game world coordinates instead."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Adjusting Copy",
+      "images": [
+        "buildinggadgets2:textures/book/images/copy_adjustment.png"
+      ],
+      "border": true,
+      "text": "Changing the area you are copying"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Theres a similar option for paste mode. $(br2)In this UI, you'll be adjusting the location of the starting block. Click the buttons and the render should update in-world in real time."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Adjusting Paste",
+      "images": [
+        "buildinggadgets2:textures/book/images/paste_adjustment.png"
+      ],
+      "border": true,
+      "text": "Changing the location of the paste"
+    }
+  ]
+}

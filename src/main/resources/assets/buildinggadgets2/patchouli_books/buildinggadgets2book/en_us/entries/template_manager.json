@@ -1,0 +1,60 @@
+{
+  "name": "Template Manager",
+  "sortnum": 1,
+  "category": "buildinggadgets2:templates",
+  "icon": "buildinggadgets2:template_manager",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The template manager allows you to save your favorite structures from the $(l:buildinggadgets2:copypaste)Copy Paste Gadget$(/l)!  $(br2)With this block, you can save the structures to items in your world, or even share them outside your world!$(br2)To get started, place a copy paste gadget in the top slot, and a piece of paper in the bottom."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Template Manager",
+      "images": [
+        "buildinggadgets2:textures/book/images/templatemanager1.png"
+      ],
+      "border": true,
+      "text": "Step 1"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Click 'Save' to convert the paper into a template. At the same time, a render of the structure will appear on your screen.$(br2)You can pan and spin the render with the mouse buttons, or zoom with the scroll wheel. $(br2)To copy the structure from a template back to the gadget, click the 'load' button."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Bind Inventory",
+      "images": [
+        "buildinggadgets2:textures/book/images/templatemanager2.png"
+      ],
+      "border": true,
+      "text": "Fancy render is fancy"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Click the 'Render' button to toggle it to Materials Mode, which will show a list of the needed materials for this structure, in much the same way the Material List does.$(br2)Click the materials button to toggle back to Render mode."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Material List",
+      "images": [
+        "buildinggadgets2:textures/book/images/templatemanager3.png"
+      ],
+      "border": true,
+      "text": "So many items"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Templates can be named. The name will appear on the template item.$(br2)Clicking 'copy' will create a json string and put it on your computers clipboard. You can share this will friends outside of minecraft. If they copy the same string to their clipboard and click the 'paste' button in this GUI it'll replicate your structure for them!$(br2)Make sure theres paper in the bottom slot when you click paste."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Naming",
+      "images": [
+        "buildinggadgets2:textures/book/images/templatemanager4.png"
+      ],
+      "border": true,
+      "text": "It really is a nice house though."
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Exchanging Gadget",
+  "sortnum": 2,
+  "category": "buildinggadgets2:gadgets",
+  "icon": "buildinggadgets2:gadget_exchanging{energy:500000}",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The exchanging gadget can swap one set of blocks for another! It cannot, however, replace air blocks. Use a $(l:buildinggadgets2:buildinggadget)Building Gadget$(/l) for that! $(br2)First, ensure the gadget has some energy. $(br2)Second, Shift right-click a block in the world to specify the block to exchange to."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You can choose your $(l:buildinggadgets2:modes)Exchanging Mode$(/l) by holding the settings key. Each mode is described in its appropriate entry in this book. The default mode is $(l:buildinggadgets2:mode_surface)Surface$(/l). $(br2)When looking at a block in the world, you'll see a ghostly image of the blocks that will be placed over top of existing blocks.  If you're missing the required items or energy to place these blocks, they will have a red overlay. Right click to exchange the blocks as shown."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Exchange Preview",
+      "images": [
+        "buildinggadgets2:textures/book/images/ghost_render_exchange.png"
+      ],
+      "border": true,
+      "text": "Seeing a preview of what will be exchanged"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When you right click, exchanging will begin. Items will be taken out of your inventory to be placed into the world, and any blocks you don't have the necessary item for will be skipped. $(br2)Items for the removed blocks will be returned to you. $(br2)Note: You can enchant this tool with silk touch. Without it grass will return dirt, etc."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You can $(l:buildinggadgets2:undo)undo$(/l) with the exchanging gadget, but you must have the necessary items.$(br2)For example, if you exchanged grass into stone bricks, you must have grass in your inventory to undo this exchange. Don't forget to apply silk touch if desired!"
+    }
+  ]
+}

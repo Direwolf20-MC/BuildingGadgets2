@@ -1,0 +1,21 @@
+{
+  "name": "Anchor",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/anchor.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Anchor allows you to 'lock in' the block you're looking at, so you can freely move or look around. There is a hotkey for this, or you can access it from the settings menu. $(br2)You can right click at any time to build the structure when it is anchored.$(br2)Note: Changing range may not take effect until you remove and replace the anchor."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Anchor",
+      "images": [
+        "buildinggadgets2:textures/book/images/anchor1.png"
+      ],
+      "border": true,
+      "text": "Anchor your render!"
+    }
+  ]
+}
