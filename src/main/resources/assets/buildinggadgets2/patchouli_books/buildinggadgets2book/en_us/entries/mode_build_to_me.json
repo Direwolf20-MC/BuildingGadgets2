@@ -1,0 +1,21 @@
+{
+  "name": "Build To Me",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/build_to_me.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Build to me mode will build a row of blocks from the blockface you're looking at to the player. This can be horizontal or vertical, depending on the blockface you're looking at.$(br2)The range setting is ignored in this mode.$(br2)Toggling 'place on top' will build to the player's head rather than feet."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Build to Me",
+      "images": [
+        "buildinggadgets2:textures/book/images/ghost_render.png"
+      ],
+      "border": true,
+      "text": "Building to the player"
+    }
+  ]
+}

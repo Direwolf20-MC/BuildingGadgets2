@@ -1,0 +1,22 @@
+{
+  "name": "Stairs",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/stairs.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Stairs will either build up and away from you, or up and towards you, depending on whether you're above or below the block you're looking at.$(br2)Honestly its pretty derpy and confusing and could use a rewrite."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Stairs",
+      "images": [
+        "buildinggadgets2:textures/book/images/stairs1.png",
+        "buildinggadgets2:textures/book/images/stairs2.png"
+      ],
+      "border": true,
+      "text": "Switch the images above to see the different options"
+    }
+  ]
+}

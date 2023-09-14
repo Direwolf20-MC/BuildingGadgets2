@@ -1,0 +1,29 @@
+{
+  "name": "Building Gadget",
+  "sortnum": 1,
+  "category": "buildinggadgets2:gadgets",
+  "icon": "buildinggadgets2:gadget_building{energy:500000}",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The building gadget makes building a large number of blocks all at once extremely easy! $(br2)First, ensure the gadget has some energy. $(br2)Second, Shift right-click a block in the world to specify the block to build with."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You can choose your $(l:buildinggadgets2:modes)Building Mode$(/l) by holding the settings key. Each mode is described in its appropriate entry in this book. The default mode is $(l:buildinggadgets2:mode_build_to_me)Build to Me$(/l). $(br2)When looking at a block in the world, you'll see a ghostly image of the blocks that will be placed.  If you're missing the required items or energy to place these blocks, they will have a red overlay. Right click to place the blocks as shown."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Build Preview",
+      "images": [
+        "buildinggadgets2:textures/book/images/ghost_render.png"
+      ],
+      "border": true,
+      "text": "Seeing a preview of what will be built"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When you right click, building will begin. Items will be taken out of your inventory to be placed into the world, and any blocks you don't have the necessary item for will be skipped. $(br2)Don't forget you can $(l:buildinggadgets2:undo)undo$(/l) if you make a mistake!"
+    }
+  ]
+}

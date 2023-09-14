@@ -1,0 +1,6 @@
+{
+  "name": "Building Modes",
+  "description": "Different building modes for the gadgets",
+  "icon": "minecraft:bricks",
+  "sortnum": 1
+}

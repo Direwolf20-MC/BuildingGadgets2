@@ -1,0 +1,23 @@
+{
+  "name": "Vertical Wall",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/vertical_wall.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Vertical wall will build a wall upwards or downwards from the top or bottom of a block you're looking at. $(br2)If looking at the side of a block, it'll build around it."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Vertical Wall",
+      "images": [
+        "buildinggadgets2:textures/book/images/vertwall2.png",
+        "buildinggadgets2:textures/book/images/vertwall4.png",
+        "buildinggadgets2:textures/book/images/vertwall3.png"
+      ],
+      "border": true,
+      "text": "Switch the images above to see the different options"
+    }
+  ]
+}

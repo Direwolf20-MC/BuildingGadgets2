@@ -1,0 +1,23 @@
+{
+  "name": "Horizontal Wall",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/horizontal_wall.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Horizontal Wall works a few different ways. With place on top enabled, it'll build an area above the block you're looking at, or extending towards you if looking at a side. $(br2)With place on top disabled, it'll build around the block you're looking at.$(br2)See the pictures to the right for the different options."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Horizontal Wall",
+      "images": [
+        "buildinggadgets2:textures/book/images/horzwall1.png",
+        "buildinggadgets2:textures/book/images/horzwall3.png",
+        "buildinggadgets2:textures/book/images/horzwall2.png"
+      ],
+      "border": true,
+      "text": "Switch the images above to see the different options"
+    }
+  ]
+}

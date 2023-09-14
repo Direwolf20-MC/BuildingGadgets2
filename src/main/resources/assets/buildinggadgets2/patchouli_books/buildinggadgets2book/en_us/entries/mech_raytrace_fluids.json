@@ -1,0 +1,21 @@
+{
+  "name": "Raytrace Fluids",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/raytrace_fluid.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Raytrace Fluids allows the gadget(s) to interact with fluids. When turned on, exchangers can swap out fluids, and builders can build on top of fluids. $(br2)When turned off, these gadgets will ignore fluids, and build on the blocks behind them.$(br2)See the chapter on $(l:buildinggadgets2:mech_fluid_handling)Fluid Handling$(/l) for more details."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Raytrace Fluids",
+      "images": [
+        "buildinggadgets2:textures/book/images/raytracefluids.png"
+      ],
+      "border": true,
+      "text": "Affecting Fluids!"
+    }
+  ]
+}

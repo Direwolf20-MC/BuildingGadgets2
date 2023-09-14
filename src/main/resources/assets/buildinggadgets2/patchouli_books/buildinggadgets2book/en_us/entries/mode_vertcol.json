@@ -1,0 +1,23 @@
+{
+  "name": "Vertical Column",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/vertical_column.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Vertical Column mode is available for both the building and exchanging gadgets.$(br2)It will build up or down if you're looking at the top or bottom of a block, or build both up and down around if looking at the side of a block."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Vertical Column",
+      "images": [
+        "buildinggadgets2:textures/book/images/vertcolumn1.png",
+        "buildinggadgets2:textures/book/images/vertcolumn3.png",
+        "buildinggadgets2:textures/book/images/vertcolumn2.png"
+      ],
+      "border": true,
+      "text": "Switch the images above to see the different options"
+    }
+  ]
+}

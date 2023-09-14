@@ -1,0 +1,24 @@
+{
+  "name": "Horizontal Row",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/horizontal_row.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Horizontal Row will build blocks away from the player based on the direction they are looking. This is useful for building bridges! $(br2)Toggle 'place on top' to see how it changes the placement. $(br2)This is also available on the exchanger, to exchange 'left and right' of the direction the player is looking."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Horizontal Row",
+      "images": [
+        "buildinggadgets2:textures/book/images/horzrow1.png",
+        "buildinggadgets2:textures/book/images/horzrow3.png",
+        "buildinggadgets2:textures/book/images/horzrow2.png",
+        "buildinggadgets2:textures/book/images/horzrow4.png"
+      ],
+      "border": true,
+      "text": "Switch the images above to see the different options"
+    }
+  ]
+}

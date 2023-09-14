@@ -1,0 +1,16 @@
+{
+  "name": "Paste Replace",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/paste_replace.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Paste Replace is only available on Cut Paste or Copy Paste gadgets. $(br2)When disabled, the gadgets will not replace any blocks in the world except blocks you could normally overwrite, like water and tall grass, which is dangerous with the cut paste gadget, as it could lead to blocks being 'lost'.  "
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When enabled, the gadget will replace any block in the world with the block from the paste, including air! This is a great way to build a house into a mountain.$(br2)Note: Any blocks replaced in this manner will be $(bold)VOIDED$(clear) and won't drop or return any items."
+    }
+  ]
+}

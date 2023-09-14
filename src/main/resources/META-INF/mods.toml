@@ -66,3 +66,7 @@ We can build it better, stronger, faster.
     versionRange="[1.19.2,)"
     ordering="NONE"
     side="BOTH"
+#[[dependencies.buildinggadgets2]]
+#    modId="patchouli"
+#    mandatory=false
+#    versionRange="[1.20.1-80-FORGE,)"

@@ -1,0 +1,16 @@
+{
+  "name": "Undo",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/undo.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Undo will reverse the last task your gadget did, whether that means removing the last set of blocks or built, or swapping the last set of blocks back.$(br2)If exchanging back, make sure you still have the necessary items in your inventory!$(br2)Undo remembers the last 10 actions the gadget made."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Undo can be accessed via HotKey or from the Settings Menu of your gadget.$(br2)The cut and paste gadget does not have undo functionality!"
+    }
+  ]
+}

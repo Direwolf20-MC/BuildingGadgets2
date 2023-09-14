@@ -1,0 +1,34 @@
+{
+  "name": "Bind Inventory",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/bind_inventory.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Binding to an inventory allows you to interact with that inventory to extract/insert items.  First, enable 'bind inventory' mode in the settings menu of your gadget. Then shift-right click on a chest or other inventory. $(br2)A blue box around the inventory will note your success. Shift-Right click a non inventory block (like grass) to disconnect."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Bind Inventory",
+      "images": [
+        "buildinggadgets2:textures/book/images/bindinv.png"
+      ],
+      "border": true,
+      "text": "Binding to a Chest!"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "You can also bind to an Applied Energistics 2 System by connecting to the wireless access point of that system.  $(br2)The gadget will have unlimited range, so no need to worry about range upgrades!"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Bind Inventory",
+      "images": [
+        "buildinggadgets2:textures/book/images/bindinv_ae.png"
+      ],
+      "border": true,
+      "text": "Binding to AE2!"
+    }
+  ]
+}
