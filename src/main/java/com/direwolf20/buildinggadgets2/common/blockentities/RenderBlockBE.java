@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.blockentities;
 
+import com.direwolf20.buildinggadgets2.client.particles.itemparticle.ItemFlowParticleData;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import net.minecraft.core.BlockPos;
@@ -19,6 +20,9 @@ import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Random;
+
+import static com.direwolf20.buildinggadgets2.util.GadgetUtils.getSimpleItemForBlock;
 
 public class RenderBlockBE extends BlockEntity {
     public byte drawSize;
@@ -36,6 +40,18 @@ public class RenderBlockBE extends BlockEntity {
 
     public void tickClient() {
         increaseDrawSize();
+
+        if (renderBlock == null || !renderBlock.getFluidState().isEmpty()) return;
+        ItemStack itemStack = getSimpleItemForBlock(renderBlock);
+        ItemFlowParticleData data = new ItemFlowParticleData(itemStack);
+        BlockPos startPos = getBlockPos();
+
+        Random random = new Random();
+        for (int i = 0; i < 4; i++) { //Todo further test
+            double randomX = random.nextFloat();
+            double randomZ = random.nextFloat();
+            level.addParticle(data, startPos.getX() + randomX, startPos.getY() + 1, startPos.getZ() + randomZ, 0, 0, 0);
+        }
     }
 
     public void tickServer() {

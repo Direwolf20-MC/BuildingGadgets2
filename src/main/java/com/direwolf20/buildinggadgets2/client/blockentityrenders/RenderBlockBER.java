@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.blockentityrenders;
 
+import com.direwolf20.buildinggadgets2.client.particles.itemparticle.ItemFlowParticleData;
 import com.direwolf20.buildinggadgets2.client.renderer.*;
 import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -19,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,6 +28,9 @@ import net.minecraftforge.client.model.data.ModelData;
 
 import java.util.BitSet;
 import java.util.List;
+import java.util.Random;
+
+import static com.direwolf20.buildinggadgets2.util.GadgetUtils.getSimpleItemForBlock;
 
 public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
     public RenderBlockBER(BlockEntityRendererProvider.Context p_173636_) {
@@ -50,6 +55,8 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         // We're checking here as sometimes the tile can not have a render block as it's yet to be synced
         if (renderState == null)
             return;
+
+        //drawParticle(blockentity, renderState);
 
         BlockRenderDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRenderer();
         BakedModel ibakedmodel = blockrendererdispatcher.getBlockModel(renderState);
@@ -183,5 +190,20 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
                 MyRenderMethods.renderBETransparent(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
             }
         }
+    }
+
+    public void drawParticle(RenderBlockBE renderBlockBE, BlockState renderState) {
+        if (!renderState.getFluidState().isEmpty()) return;
+        ItemStack itemStack = getSimpleItemForBlock(renderState);
+        ItemFlowParticleData data = new ItemFlowParticleData(itemStack);
+        BlockPos startPos = renderBlockBE.getBlockPos();
+
+        Random random = new Random();
+        //for (int i = 0;i < 1; i++) { //Todo further test
+        double randomX = random.nextFloat();
+        double randomZ = random.nextFloat();
+        renderBlockBE.getLevel().addParticle(data, startPos.getX() + randomX, startPos.getY() + 1, startPos.getZ() + randomZ, 0, 0, 0);
+        //}
+
     }
 }
