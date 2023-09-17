@@ -42,7 +42,9 @@ public class GadgetNBT {
         FADE("buildinggadgets2.fade"),
         SQUISH("buildinggadgets2.squish"),
         GROWUP("buildinggadgets2.growup"),
-        RISEUP("buildinggadgets2.riseup");
+        RISEUP("buildinggadgets2.riseup"),
+        SNAP("buildinggadgets2.snap"),
+        ;
 
         private final String lang;
 

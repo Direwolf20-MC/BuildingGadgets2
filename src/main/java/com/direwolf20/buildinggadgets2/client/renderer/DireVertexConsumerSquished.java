@@ -3,6 +3,7 @@ package com.direwolf20.buildinggadgets2.client.renderer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraftforge.client.model.pipeline.VertexConsumerWrapper;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -18,6 +19,9 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
     public boolean bottomUp = false;
     Direction direction = null;
     TextureAtlasSprite sprite;
+    private float red = -1;
+    private float green = -1;
+    private float blue = -1;
 
     public DireVertexConsumerSquished(VertexConsumer parent, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Matrix4f matrix4f) {
         super(parent);
@@ -28,6 +32,33 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
         this.maxY = maxY;
         this.maxZ = maxZ;
         this.matrix4f = matrix4f;
+    }
+
+    public DireVertexConsumerSquished(VertexConsumer parent, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, Matrix4f matrix4f, float red, float green, float blue) {
+        super(parent);
+        this.minX = minX;
+        this.minY = minY;
+        this.minZ = minZ;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.maxZ = maxZ;
+        this.matrix4f = matrix4f;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+    }
+
+    @Override
+    public VertexConsumer color(int r, int g, int b, int a) {
+        if (red == -1)
+            parent.color(r, g, b, a);
+        else {
+            int rCol = (int) Mth.lerp(red, 0, r);
+            int gCol = (int) Mth.lerp(green, 0, g);
+            int bCol = (int) Mth.lerp(blue, 0, b);
+            parent.color(rCol, gCol, bCol, a);
+        }
+        return this;
     }
 
     public void setDirection(Direction direction) {

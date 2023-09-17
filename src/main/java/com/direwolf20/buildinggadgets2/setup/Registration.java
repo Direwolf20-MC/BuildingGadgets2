@@ -22,6 +22,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import static com.direwolf20.buildinggadgets2.BuildingGadgets2.MODID;
+import static com.direwolf20.buildinggadgets2.client.particles.ModParticles.PARTICLE_TYPES;
 
 public class Registration {
 
@@ -39,6 +40,7 @@ public class Registration {
         BLOCK_ENTITIES.register(bus);
         CONTAINERS.register(bus);
         SOUND_REGISTRY.register(bus);
+        PARTICLE_TYPES.register(bus);
     }
 
     //Blocks

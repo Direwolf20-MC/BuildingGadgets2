@@ -1,5 +1,7 @@
 package com.direwolf20.buildinggadgets2.common.blockentities;
 
+import com.direwolf20.buildinggadgets2.client.particles.fluidparticle.FluidFlowParticleData;
+import com.direwolf20.buildinggadgets2.client.particles.itemparticle.ItemFlowParticleData;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import net.minecraft.core.BlockPos;
@@ -9,6 +11,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -16,9 +19,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Random;
+
+import static com.direwolf20.buildinggadgets2.util.GadgetUtils.getSimpleItemForBlock;
 
 public class RenderBlockBE extends BlockEntity {
     public byte drawSize;
@@ -36,6 +43,98 @@ public class RenderBlockBE extends BlockEntity {
 
     public void tickClient() {
         increaseDrawSize();
+        if (renderType == 5)
+            drawParticles();
+    }
+
+    public void drawParticles() {
+        if (renderBlock == null) return;
+        Random random = new Random();
+        float nowScale = (float) (drawSize) / (float) getMaxSize();
+        if (renderBlock.getFluidState().isEmpty()) {
+            if (shrinking) {
+                if (nowScale != 0 && nowScale < 0.5f) return;
+                ItemStack itemStack = getSimpleItemForBlock(renderBlock);
+                BlockPos startPos = getBlockPos();
+
+                if (nowScale != 0) {
+                    float yscale = Mth.lerp(nowScale, 0.75f, 1f);
+                    ItemFlowParticleData data = new ItemFlowParticleData(itemStack, false, shrinking);
+                    for (int i = 0; i < 2; i++) {
+                        double randomX = random.nextFloat();
+                        double randomZ = random.nextFloat();
+                        level.addParticle(data, startPos.getX() + randomX, startPos.getY() + yscale, startPos.getZ() + randomZ, 0, 0, 0);
+                    }
+                } else {
+                    ItemFlowParticleData data = new ItemFlowParticleData(itemStack, true, shrinking);
+                    for (int i = 0; i < 100; i++) {
+                        double randomX = random.nextFloat();
+                        double randomY = random.nextFloat();
+                        double randomZ = random.nextFloat();
+                        level.addParticle(data, startPos.getX() + randomX, startPos.getY() + randomY, startPos.getZ() + randomZ, 0, 0, 0);
+                    }
+                }
+            } else {
+                ItemStack itemStack = getSimpleItemForBlock(renderBlock);
+                BlockPos startPos = getBlockPos();
+                if (nowScale < 0.05) {
+                    ItemFlowParticleData data = new ItemFlowParticleData(itemStack, true, !shrinking);
+                    for (int i = 0; i < 100; i++) {
+                        double randomX = random.nextFloat();
+                        double randomY = random.nextFloat();
+                        double randomZ = random.nextFloat();
+                        level.addParticle(data, startPos.getX() + randomX, startPos.getY() + randomY, startPos.getZ() + randomZ, 0, 0, 0);
+                    }
+                }
+
+                if (nowScale > 0.5f) return;
+
+                ItemFlowParticleData data = new ItemFlowParticleData(itemStack, false, shrinking);
+                for (int i = 0; i < 2; i++) {
+                    level.addParticle(data, startPos.getX() + 0.5f, startPos.getY() + +0.5f, startPos.getZ() + +0.5f, 0, 0, 0);
+                }
+            }
+        } else {
+            if (shrinking) {
+                if (nowScale != 0 && nowScale < 0.5f) return;
+                BlockPos startPos = getBlockPos();
+
+                if (nowScale != 0) {
+                    float yscale = Mth.lerp(nowScale, 0.75f, 1f);
+                    FluidFlowParticleData data = new FluidFlowParticleData(new FluidStack(renderBlock.getFluidState().getType(), 1000), false, shrinking);
+                    for (int i = 0; i < 2; i++) {
+                        double randomX = random.nextFloat();
+                        double randomZ = random.nextFloat();
+                        level.addParticle(data, startPos.getX() + randomX, startPos.getY() + yscale, startPos.getZ() + randomZ, 0, 0, 0);
+                    }
+                } else {
+                    FluidFlowParticleData data = new FluidFlowParticleData(new FluidStack(renderBlock.getFluidState().getType(), 1000), true, shrinking);
+                    for (int i = 0; i < 100; i++) {
+                        double randomX = random.nextFloat();
+                        double randomY = random.nextFloat();
+                        double randomZ = random.nextFloat();
+                        level.addParticle(data, startPos.getX() + randomX, startPos.getY() + randomY, startPos.getZ() + randomZ, 0, 0, 0);
+                    }
+                }
+            } else {
+                BlockPos startPos = getBlockPos();
+                if (nowScale < 0.05) {
+                    FluidFlowParticleData data = new FluidFlowParticleData(new FluidStack(renderBlock.getFluidState().getType(), 1000), true, !shrinking);
+                    for (int i = 0; i < 100; i++) {
+                        double randomX = random.nextFloat();
+                        double randomY = random.nextFloat();
+                        double randomZ = random.nextFloat();
+                        level.addParticle(data, startPos.getX() + randomX, startPos.getY() + randomY, startPos.getZ() + randomZ, 0, 0, 0);
+                    }
+                }
+                if (nowScale > 0.5f) return;
+
+                FluidFlowParticleData data = new FluidFlowParticleData(new FluidStack(renderBlock.getFluidState().getType(), 1000), false, shrinking);
+                for (int i = 0; i < 2; i++) {
+                    level.addParticle(data, startPos.getX() + 0.5f, startPos.getY() + +0.5f, startPos.getZ() + +0.5f, 0, 0, 0);
+                }
+            }
+        }
     }
 
     public void tickServer() {
@@ -53,7 +152,9 @@ public class RenderBlockBE extends BlockEntity {
         }
     }
 
-    public static byte getMaxSize() {
+    public byte getMaxSize() {
+        if (renderType == 5)
+            return 40;
         return 20;
     }
 
