@@ -71,13 +71,13 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         if (blockentity.renderType == 0)
             renderGrow(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender);
         else if (blockentity.renderType == 1)
-            renderFade(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender);
+            renderFade(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender, blockentity);
         else if (blockentity.renderType == 2 || blockentity.renderType == 3 || blockentity.renderType == 4) {
             boolean adjustUV = blockentity.renderType != 2; //3 and 4 get their UV adjusted
             boolean bottomUp = blockentity.renderType == 4; //4 is bottom up, 3 is not, and 2 this doesn't apply
             renderSquished(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender, adjustUV, bottomUp);
         } else if (blockentity.renderType == 5)
-            renderSnap(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender);
+            renderSnap(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender, blockentity);
         else
             renderGrow(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender); //Fallback in case something weird happens!
 
@@ -104,7 +104,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
 
     public void renderSquished(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, BlockRenderDispatcher blockrendererdispatcher, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender, boolean adjustUV, boolean bottomUp) {
         matrixStackIn.pushPose();
-        OurRenderTypes.updateRenders();
+        //OurRenderTypes.updateRenders();
         VertexConsumer builder = renderState.isSolidRender(level, pos) ? bufferIn.getBuffer(OurRenderTypes.RenderBlockBackface) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
 
 
@@ -149,7 +149,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         matrixStackIn.popPose();
     }
 
-    public void renderFade(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
+    public void renderFade(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender, RenderBlockBE thisBlockEntity) {
         final RandomSource random = RandomSource.create();
         VertexConsumer builder = renderState.isSolidRender(level, pos) ? bufferIn.getBuffer(OurRenderTypes.RenderBlockFade) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
         scale = Mth.lerp(scale, 0.25f, 1f);
@@ -174,7 +174,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
                             BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
                             boolean renderAdjacent = true;
                             if (blockEntity instanceof RenderBlockBE renderBlockBE) {
-                                if (renderBlockBE.renderBlock != null && (renderType.equals(RenderType.translucent()) || renderType.equals(RenderType.cutout())))
+                                if (renderBlockBE.renderBlock != null && Math.abs(thisBlockEntity.drawSize - renderBlockBE.drawSize) < 5)
                                     renderAdjacent = false;
                             }
                             if (renderAdjacent) {
@@ -194,7 +194,8 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         }
     }
 
-    public void renderSnap(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
+    public void renderSnap(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender, RenderBlockBE thisBlockEntity) {
+        OurRenderTypes.updateRenders();
         final RandomSource random = RandomSource.create();
         VertexConsumer builder = renderState.isSolidRender(level, pos) ? bufferIn.getBuffer(RenderType.solid()) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
         float rgbScale = Mth.lerp((float) Math.pow(scale, 2), 0.05f, 1);
@@ -209,9 +210,14 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             if (isNormalRender) {
                 ModelBlockRenderer.AmbientOcclusionFace modelblockrenderer$ambientocclusionface = new ModelBlockRenderer.AmbientOcclusionFace();
                 for (RenderType renderType : ibakedmodel.getRenderTypes(renderState, random, ModelData.EMPTY)) {
-                    builder = bufferIn.getBuffer(renderType);
+                    builder = !(renderType.equals(RenderType.translucent()) || renderType.equals(RenderType.cutout())) ? bufferIn.getBuffer(OurRenderTypes.RenderBlockFade) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
+
+                    //builder = bufferIn.getBuffer(RenderType.translucentMovingBlock());
                     rgbScale = Mth.lerp((float) Math.pow(scale, 2), 0.05f, 1);
-                    direVertexConsumer = new DireVertexConsumer(builder, 1f, rgbScale, rgbScale, rgbScale);
+                    float alphaScale = 1f;
+                    if (scale < 0.5f)
+                        alphaScale = Mth.lerp((float) Math.pow(scale / 0.5f, 0.25), 0.25f, 1);
+                    direVertexConsumer = new DireVertexConsumer(builder, alphaScale, rgbScale, rgbScale, rgbScale);
                     for (Direction direction : Direction.values()) {
                         randomSource.setSeed(renderState.getSeed(pos));
                         List<BakedQuad> list = ibakedmodel.getQuads(renderState, direction, randomSource, ModelData.EMPTY, null);
@@ -220,7 +226,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
                             BlockEntity blockEntity = level.getBlockEntity(pos.relative(direction));
                             boolean renderAdjacent = true;
                             if (blockEntity instanceof RenderBlockBE renderBlockBE) {
-                                if (renderBlockBE.renderBlock != null && (renderType.equals(RenderType.translucent()) || renderType.equals(RenderType.cutout())))
+                                if (renderBlockBE.renderBlock != null && Math.abs(thisBlockEntity.drawSize - renderBlockBE.drawSize) < 5)
                                     renderAdjacent = false;
                             }
                             if (renderAdjacent) {
