@@ -48,9 +48,9 @@ public class ItemFlowParticle extends BreakingItemParticle {
         this.yd += path.y / speedAdjust;
         this.zd += path.z / speedAdjust;
         //this.lifetime = (int) (distance * speedAdjust);
-        this.lifetime = 40;
-        int longLifeChance = random.nextInt(10);
-        if (!gravity && longLifeChance == 0)
+        this.lifetime = 30;
+        int longLifeChance = random.nextInt(20);
+        if (longLifeChance == 0)
             this.lifetime = 120;
         this.scale(partSize);
         this.partSize = quadSize;

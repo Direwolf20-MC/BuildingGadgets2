@@ -55,14 +55,14 @@ public class RenderBlockBE extends BlockEntity {
             Random random = new Random();
             if (nowScale != 0) {
                 ItemFlowParticleData data = new ItemFlowParticleData(itemStack, false, shrinking);
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 2; i++) {
                     double randomX = random.nextFloat();
                     double randomZ = random.nextFloat();
                     level.addParticle(data, startPos.getX() + randomX, startPos.getY() + 1, startPos.getZ() + randomZ, 0, 0, 0);
                 }
             } else {
                 ItemFlowParticleData data = new ItemFlowParticleData(itemStack, true, shrinking);
-                for (int i = 0; i < 250; i++) {
+                for (int i = 0; i < 50; i++) {
                     double randomX = random.nextFloat();
                     double randomY = random.nextFloat();
                     double randomZ = random.nextFloat();
