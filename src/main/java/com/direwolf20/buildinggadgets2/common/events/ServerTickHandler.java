@@ -361,7 +361,7 @@ public class ServerTickHandler {
 
         BlockPos blockPos = statePos.pos;
 
-        byte drawSize = RenderBlockBE.getMaxSize();
+        byte drawSize = -99;
 
         BlockState oldState = level.getBlockState(blockPos);
         if (oldState.isAir() || !GadgetUtils.isValidBlockState(oldState, level, blockPos))
@@ -398,7 +398,8 @@ public class ServerTickHandler {
         RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
         if (placed && be != null) {
             be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState(), serverBuildList.renderType);
-            be.drawSize = drawSize;
+            if (drawSize != -99)
+                be.drawSize = drawSize;
         }
 
         serverBuildList.addToBuiltList(affectedBlock);

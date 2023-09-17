@@ -35,6 +35,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.squish", "Squish");
         add("buildinggadgets2.riseup", "Rise Up");
         add("buildinggadgets2.growup", "Grow Up");
+        add("buildinggadgets2.snap", "The SNAP!");
         add("buildinggadgets2.voidwarning", "WARNING: Voids Drops of removed blocks!!");
         add("buildinggadgets2.templatename", "Name: %s");
 

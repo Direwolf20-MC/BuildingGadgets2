@@ -40,17 +40,37 @@ public class RenderBlockBE extends BlockEntity {
 
     public void tickClient() {
         increaseDrawSize();
+        if (renderType == 5)
+            drawParticles();
+    }
 
+    public void drawParticles() {
         if (renderBlock == null || !renderBlock.getFluidState().isEmpty()) return;
-        ItemStack itemStack = getSimpleItemForBlock(renderBlock);
-        ItemFlowParticleData data = new ItemFlowParticleData(itemStack);
-        BlockPos startPos = getBlockPos();
+        float nowScale = (float) (drawSize) / (float) getMaxSize();
+        if (shrinking) {
+            if (nowScale != 0 && nowScale < 0.5f) return;
+            ItemStack itemStack = getSimpleItemForBlock(renderBlock);
+            BlockPos startPos = getBlockPos();
 
-        Random random = new Random();
-        for (int i = 0; i < 4; i++) { //Todo further test
-            double randomX = random.nextFloat();
-            double randomZ = random.nextFloat();
-            level.addParticle(data, startPos.getX() + randomX, startPos.getY() + 1, startPos.getZ() + randomZ, 0, 0, 0);
+            Random random = new Random();
+            if (nowScale != 0) {
+                ItemFlowParticleData data = new ItemFlowParticleData(itemStack, false, shrinking);
+                for (int i = 0; i < 4; i++) {
+                    double randomX = random.nextFloat();
+                    double randomZ = random.nextFloat();
+                    level.addParticle(data, startPos.getX() + randomX, startPos.getY() + 1, startPos.getZ() + randomZ, 0, 0, 0);
+                }
+            } else {
+                ItemFlowParticleData data = new ItemFlowParticleData(itemStack, true, shrinking);
+                for (int i = 0; i < 250; i++) {
+                    double randomX = random.nextFloat();
+                    double randomY = random.nextFloat();
+                    double randomZ = random.nextFloat();
+                    level.addParticle(data, startPos.getX() + randomX, startPos.getY() + randomY, startPos.getZ() + randomZ, 0, 0, 0);
+                }
+            }
+        } else {
+
         }
     }
 
@@ -69,7 +89,9 @@ public class RenderBlockBE extends BlockEntity {
         }
     }
 
-    public static byte getMaxSize() {
+    public byte getMaxSize() {
+        if (renderType == 5)
+            return 40;
         return 20;
     }
 

@@ -18,9 +18,13 @@ import java.util.Locale;
 
 public class ItemFlowParticleData implements ParticleOptions {
     private final ItemStack itemStack;
+    public final boolean doGravity;
+    public final boolean shrinking;
 
-    public ItemFlowParticleData(ItemStack itemStack) {
+    public ItemFlowParticleData(ItemStack itemStack, boolean doGravity, boolean shrinking) {
         this.itemStack = itemStack.copy(); //Forge: Fix stack updating after the fact causing particle changes.
+        this.doGravity = doGravity;
+        this.shrinking = shrinking;
     }
 
     @Nonnull
@@ -37,8 +41,8 @@ public class ItemFlowParticleData implements ParticleOptions {
     @Nonnull
     @Override
     public String writeToString() {
-        return String.format(Locale.ROOT, "%s",
-                this.getType());
+        return String.format(Locale.ROOT, "%s %b %b",
+                this.getType(), this.doGravity, this.shrinking);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -54,12 +58,17 @@ public class ItemFlowParticleData implements ParticleOptions {
             ItemParser.ItemResult itemparser$itemresult = ItemParser.parseForItem(BuiltInRegistries.ITEM.asLookup(), reader);
             ItemStack itemstack = (new ItemInput(itemparser$itemresult.item(), itemparser$itemresult.nbt())).createItemStack(1, false);
 
-            return new ItemFlowParticleData(itemstack);
+            reader.expect(' ');
+            boolean doGravity = reader.readBoolean();
+            reader.expect(' ');
+            boolean building = reader.readBoolean();
+
+            return new ItemFlowParticleData(itemstack, doGravity, building);
         }
 
         @Override
         public ItemFlowParticleData fromNetwork(ParticleType<ItemFlowParticleData> particleTypeIn, FriendlyByteBuf buffer) {
-            return new ItemFlowParticleData(buffer.readItem());
+            return new ItemFlowParticleData(buffer.readItem(), buffer.readBoolean(), buffer.readBoolean());
         }
     };
 }

@@ -18,9 +18,13 @@ public class ItemFlowParticle extends BreakingItemParticle {
     private double targetX, targetY, targetZ;
     Random random = new Random();
     private float partSize;
+    private boolean doGravity;
+    private boolean shrinking;
 
-    public ItemFlowParticle(ClientLevel world, double x, double y, double z, ItemStack itemStack) {
+    public ItemFlowParticle(ClientLevel world, double x, double y, double z, ItemStack itemStack, boolean gravity, boolean shrinking) {
         super(world, x, y, z, itemStack);
+        this.doGravity = gravity;
+        this.shrinking = shrinking;
         this.xd = 0;
         this.yd = 0;
         this.zd = 0;
@@ -30,10 +34,8 @@ public class ItemFlowParticle extends BreakingItemParticle {
         Vec3 target = new Vec3(targetX, targetY, targetZ);
         Vec3 source = new Vec3(this.x, this.y, this.z);
         Vec3 path = target.subtract(source).normalize().multiply(1, 1, 1);
-        this.gravity = 0.0f;
         double distance = target.distanceTo(source);
         //System.out.println(source +":"+target);
-        this.hasPhysics = false;
         //float minSize = 0.10f;
         //float maxSize = 0.25f;
         float minSize = 0.25f;
@@ -47,10 +49,25 @@ public class ItemFlowParticle extends BreakingItemParticle {
         this.zd += path.z / speedAdjust;
         //this.lifetime = (int) (distance * speedAdjust);
         this.lifetime = 40;
+        int longLifeChance = random.nextInt(10);
+        if (!gravity && longLifeChance == 0)
+            this.lifetime = 120;
         this.scale(partSize);
         this.partSize = quadSize;
         if (this.sprite == null) {
             this.setSprite(Minecraft.getInstance().getItemRenderer().getModel(new ItemStack(Blocks.COBBLESTONE), world, (LivingEntity) null, 0).getParticleIcon());
+        }
+
+        if (gravity) {
+            this.xd = 0;
+            this.yd = 0;
+            this.zd = 0;
+            this.gravity = 0.0625f;
+            this.hasPhysics = true;
+            this.age = this.lifetime / 2;
+        } else {
+            this.gravity = 0.0f;
+            this.hasPhysics = false;
         }
 
     }
@@ -70,21 +87,22 @@ public class ItemFlowParticle extends BreakingItemParticle {
         float shrink = Mth.lerp(relativeAge, 0.1f, 1);
         this.quadSize = partSize * shrink;
 
-        if (relativeAge < 1) {
-            float adjustedAge = (float) Math.pow((float) Math.pow(relativeAge, 1.5), 2);
-            this.rCol = Mth.lerp(adjustedAge, 0, 1);
-            this.gCol = Mth.lerp(adjustedAge, 0, 1);
-            this.bCol = Mth.lerp(adjustedAge, 0, 1);
-        }
+
+        float adjustedAge = (float) Math.pow((float) Math.pow(relativeAge, 1.5), 2);
+        this.rCol = Mth.lerp(adjustedAge, 0, 1);
+        this.gCol = Mth.lerp(adjustedAge, 0, 1);
+        this.bCol = Mth.lerp(adjustedAge, 0, 1);
 
         if (relativeAge < 0.5f) {
-            float adjustedAge = (float) Math.pow(relativeAge / 0.5f, 2);
+            adjustedAge = (float) Math.pow(relativeAge / 0.5f, 2);
             this.alpha = Mth.lerp(adjustedAge, 0.4f, 1);
         }
-
-        int gravityChance = random.nextInt(10);
-        if (relativeAge < 0.75f && gravityChance == 0)
-            this.gravity = 0.02f;
+        if (!doGravity) {
+            int gravityChance = random.nextInt(2);
+            if (relativeAge < 0.75f && gravityChance == 0) {
+                this.gravity = 0.05f;
+            }
+        }
     }
 
     @Override //Performance Reasons
@@ -94,6 +112,6 @@ public class ItemFlowParticle extends BreakingItemParticle {
 
     public static ParticleProvider<ItemFlowParticleData> FACTORY =
             (data, world, x, y, z, xSpeed, ySpeed, zSpeed) ->
-                    new ItemFlowParticle(world, x, y, z, data.getItemStack());
+                    new ItemFlowParticle(world, x, y, z, data.getItemStack(), data.doGravity, data.shrinking);
 }
 
