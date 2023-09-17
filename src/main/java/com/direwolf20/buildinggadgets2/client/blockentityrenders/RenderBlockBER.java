@@ -77,7 +77,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             boolean bottomUp = blockentity.renderType == 4; //4 is bottom up, 3 is not, and 2 this doesn't apply
             renderSquished(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender, adjustUV, bottomUp);
         } else if (blockentity.renderType == 5)
-            renderSnap(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender, blockentity);
+            renderSquishedSnap(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender);
         else
             renderGrow(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender); //Fallback in case something weird happens!
 
@@ -186,6 +186,54 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
                 MyRenderMethods.renderBETransparent(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
             }
         }
+    }
+
+    public void renderSquishedSnap(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
+        matrixStackIn.pushPose();
+        //VertexConsumer builder = renderState.isSolidRender(level, pos) ? bufferIn.getBuffer(OurRenderTypes.RenderBlockBackface) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
+        VertexConsumer builder = bufferIn.getBuffer(RenderType.cutout());
+
+        float darkness = Mth.lerp(scale, 0.25f, 1f);
+        scale = Mth.lerp(scale, 0.75f, 1f);
+
+        DireVertexConsumerSquished chunksConsumer = new DireVertexConsumerSquished(builder, 0, 0, 0, 1, scale, 1, matrixStackIn.last().pose(), darkness, darkness, darkness);
+        chunksConsumer.adjustUV = true;
+        chunksConsumer.bottomUp = false;
+        if (!renderState.isSolidRender(level, pos))
+            chunksConsumer.adjustUV = false;
+
+        float[] afloat = new float[Direction.values().length * 2];
+        BitSet bitset = new BitSet(3);
+        RandomSource randomSource = RandomSource.create();
+        randomSource.setSeed(renderState.getSeed(pos));
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = pos.mutable();
+        if (!renderState.getFluidState().isEmpty()) {
+            RenderFluidBlock.renderFluidBlock(renderState, level, pos, matrixStackIn, chunksConsumer, true);
+        } else {
+            if (isNormalRender) {
+                ModelBlockRenderer.AmbientOcclusionFace modelblockrenderer$ambientocclusionface = new ModelBlockRenderer.AmbientOcclusionFace();
+                for (Direction direction : Direction.values()) {
+                    List<BakedQuad> list = ibakedmodel.getQuads(renderState, direction, randomSource, ModelData.EMPTY, null);
+                    if (!list.isEmpty()) {
+                        TextureAtlasSprite sprite = list.get(0).getSprite();
+                        chunksConsumer.setSprite(sprite);
+                        chunksConsumer.setDirection(direction);
+                        blockpos$mutableblockpos.setWithOffset(pos, direction);
+                        modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
+                    }
+                }
+                List<BakedQuad> list = ibakedmodel.getQuads(renderState, null, randomSource, ModelData.EMPTY, null);
+                if (!list.isEmpty()) {
+                    TextureAtlasSprite sprite = list.get(0).getSprite();
+                    chunksConsumer.setSprite(sprite);
+                    chunksConsumer.setDirection(null);
+                    modelBlockRenderer.renderModelFaceAO(level, renderState, pos, matrixStackIn, chunksConsumer, list, afloat, bitset, modelblockrenderer$ambientocclusionface, combinedOverlayIn);
+                }
+            } else {
+                MyRenderMethods.renderBESquished(renderState, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale);
+            }
+        }
+        matrixStackIn.popPose();
     }
 
     public void renderSnap(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender, RenderBlockBE thisBlockEntity) {

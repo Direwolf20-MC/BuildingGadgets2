@@ -10,6 +10,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -54,15 +55,16 @@ public class RenderBlockBE extends BlockEntity {
 
             Random random = new Random();
             if (nowScale != 0) {
+                float yscale = Mth.lerp(nowScale, 0.75f, 1f);
                 ItemFlowParticleData data = new ItemFlowParticleData(itemStack, false, shrinking);
                 for (int i = 0; i < 2; i++) {
                     double randomX = random.nextFloat();
                     double randomZ = random.nextFloat();
-                    level.addParticle(data, startPos.getX() + randomX, startPos.getY() + 1, startPos.getZ() + randomZ, 0, 0, 0);
+                    level.addParticle(data, startPos.getX() + randomX, startPos.getY() + yscale, startPos.getZ() + randomZ, 0, 0, 0);
                 }
             } else {
                 ItemFlowParticleData data = new ItemFlowParticleData(itemStack, true, shrinking);
-                for (int i = 0; i < 50; i++) {
+                for (int i = 0; i < 100; i++) {
                     double randomX = random.nextFloat();
                     double randomY = random.nextFloat();
                     double randomZ = random.nextFloat();
