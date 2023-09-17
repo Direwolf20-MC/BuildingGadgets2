@@ -49,10 +49,6 @@ public class FluidFlowParticle extends BreakingItemParticle {
         Vec3 target = new Vec3(targetX, targetY, targetZ);
         Vec3 source = new Vec3(this.x, this.y, this.z);
         Vec3 path = target.subtract(source).normalize().multiply(1, 1, 1);
-        double distance = target.distanceTo(source);
-        //System.out.println(source +":"+target);
-        //float minSize = 0.10f;
-        //float maxSize = 0.25f;
         float minSize = 0.25f;
         float maxSize = 0.5f;
         this.partSize = minSize + random.nextFloat() * (maxSize - minSize);
@@ -62,7 +58,6 @@ public class FluidFlowParticle extends BreakingItemParticle {
         this.xd += path.x / speedAdjust;
         this.yd += path.y / speedAdjust;
         this.zd += path.z / speedAdjust;
-        //this.lifetime = (int) (distance * speedAdjust);
         this.lifetime = 30;
         int longLifeChance = random.nextInt(20);
         if (longLifeChance == 0)
