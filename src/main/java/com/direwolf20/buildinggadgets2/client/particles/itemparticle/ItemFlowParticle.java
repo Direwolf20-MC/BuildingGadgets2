@@ -67,20 +67,7 @@ public class ItemFlowParticle extends BreakingItemParticle {
             this.age = this.lifetime / 2;
             this.scale(2f);
             this.partSize = quadSize;
-            float relativeAge = (float) ((this.lifetime - this.age)) / this.lifetime; //1.0 -> 0.0
-            float shrink = Mth.lerp(relativeAge, 0.1f, 1);
-            this.quadSize = partSize * shrink;
-
-
-            float adjustedAge = (float) Math.pow((float) Math.pow(relativeAge, 1.5), 2);
-            this.rCol = Mth.lerp(adjustedAge, 0, 1);
-            this.gCol = Mth.lerp(adjustedAge, 0, 1);
-            this.bCol = Mth.lerp(adjustedAge, 0, 1);
-
-            if (relativeAge < 0.5f) {
-                adjustedAge = (float) Math.pow(relativeAge / 0.5f, 2);
-                this.alpha = Mth.lerp(adjustedAge, 0.4f, 1);
-            }
+            updateColorAndGravity();
         } else {
             this.gravity = 0.0f;
             this.hasPhysics = false;
@@ -99,15 +86,20 @@ public class ItemFlowParticle extends BreakingItemParticle {
             this.yd -= 0.04D * (double) this.gravity;
             this.move(this.xd, this.yd, this.zd);
         }
+        updateColorAndGravity();
+    }
+
+    public void updateColorAndGravity() {
         float relativeAge = (float) ((this.lifetime - this.age)) / this.lifetime; //1.0 -> 0.0
         float shrink = Mth.lerp(relativeAge, 0.1f, 1);
         this.quadSize = partSize * shrink;
 
-
         float adjustedAge = (float) Math.pow((float) Math.pow(relativeAge, 1.5), 2);
-        this.rCol = Mth.lerp(adjustedAge, 0, 1);
-        this.gCol = Mth.lerp(adjustedAge, 0, 1);
-        this.bCol = Mth.lerp(adjustedAge, 0, 1);
+        float darkness = Mth.lerp(adjustedAge, 0, 1);
+        ;
+        this.rCol = darkness;
+        this.gCol = darkness;
+        this.bCol = darkness;
 
         if (relativeAge < 0.5f) {
             adjustedAge = (float) Math.pow(relativeAge / 0.5f, 2);
