@@ -77,7 +77,7 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
             boolean bottomUp = blockentity.renderType == 4; //4 is bottom up, 3 is not, and 2 this doesn't apply
             renderSquished(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender, adjustUV, bottomUp);
         } else if (blockentity.renderType == 5)
-            renderSquishedSnap(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender);
+            renderSquishedSnap(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, modelBlockRenderer, isNormalRender, blockentity);
         else
             renderGrow(level, pos, matrixStackIn, bufferIn, combinedLightsIn, combinedOverlayIn, scale, renderState, ibakedmodel, blockrendererdispatcher, modelBlockRenderer, isNormalRender); //Fallback in case something weird happens!
 
@@ -188,9 +188,9 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         }
     }
 
-    public void renderSquishedSnap(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender) {
+    public void renderSquishedSnap(Level level, BlockPos pos, PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightsIn, int combinedOverlayIn, float scale, BlockState renderState, BakedModel ibakedmodel, ModelBlockRenderer modelBlockRenderer, boolean isNormalRender, RenderBlockBE thisRenderBlockBE) {
+        if (!thisRenderBlockBE.shrinking && scale < 0.1f) return;
         matrixStackIn.pushPose();
-        //VertexConsumer builder = renderState.isSolidRender(level, pos) ? bufferIn.getBuffer(OurRenderTypes.RenderBlockBackface) : bufferIn.getBuffer(OurRenderTypes.RenderBlockFadeNoCull);
         VertexConsumer builder = bufferIn.getBuffer(RenderType.cutout());
 
         float darkness = Mth.lerp(scale, 0.25f, 1f);

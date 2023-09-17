@@ -33,16 +33,18 @@ public class ItemFlowParticle extends BreakingItemParticle {
             this.targetY = y + 1.75f;
             this.targetZ = z + 1.75f;
         } else {
-            double randomX = random.nextFloat();
-            double randomY = random.nextFloat();
-            double randomZ = random.nextFloat();
-            this.xo = x + randomX;
-            this.yo = y + randomY;
-            this.zo = z + randomZ;
-            this.setPos(xo, yo, zo);
-            this.targetX = x;
-            this.targetY = y;
-            this.targetZ = z;
+            if (!gravity) {
+                double randomX = random.nextFloat();
+                double randomY = random.nextFloat();
+                double randomZ = random.nextFloat();
+                this.xo = x + randomX;
+                this.yo = y + randomY;
+                this.zo = z + randomZ;
+                this.setPos(xo, yo, zo);
+                this.targetX = x;
+                this.targetY = y;
+                this.targetZ = z;
+            }
         }
         Vec3 target = new Vec3(targetX, targetY, targetZ);
         Vec3 source = new Vec3(this.x, this.y, this.z);
