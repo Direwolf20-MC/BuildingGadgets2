@@ -72,7 +72,14 @@ public class RenderBlockBE extends BlockEntity {
                 }
             }
         } else {
+            if (nowScale > 0.5f) return;
+            ItemStack itemStack = getSimpleItemForBlock(renderBlock);
+            BlockPos startPos = getBlockPos();
 
+            ItemFlowParticleData data = new ItemFlowParticleData(itemStack, false, shrinking);
+            for (int i = 0; i < 2; i++) {
+                level.addParticle(data, startPos.getX() + 0.5f, startPos.getY() + +0.5f, startPos.getZ() + +0.5f, 0, 0, 0);
+            }
         }
     }
 

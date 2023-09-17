@@ -28,9 +28,22 @@ public class ItemFlowParticle extends BreakingItemParticle {
         this.xd = 0;
         this.yd = 0;
         this.zd = 0;
-        this.targetX = x + 1.75f;
-        this.targetY = y + 1.75f;
-        this.targetZ = z + 1.75f;
+        if (shrinking) {
+            this.targetX = x + 1.75f;
+            this.targetY = y + 1.75f;
+            this.targetZ = z + 1.75f;
+        } else {
+            double randomX = random.nextFloat();
+            double randomY = random.nextFloat();
+            double randomZ = random.nextFloat();
+            this.xo = x + randomX;
+            this.yo = y + randomY;
+            this.zo = z + randomZ;
+            this.setPos(xo, yo, zo);
+            this.targetX = x;
+            this.targetY = y;
+            this.targetZ = z;
+        }
         Vec3 target = new Vec3(targetX, targetY, targetZ);
         Vec3 source = new Vec3(this.x, this.y, this.z);
         Vec3 path = target.subtract(source).normalize().multiply(1, 1, 1);
@@ -73,6 +86,8 @@ public class ItemFlowParticle extends BreakingItemParticle {
             this.hasPhysics = false;
         }
 
+        if (!shrinking)
+            updateColorAndGravity();
     }
 
     @Override
@@ -86,6 +101,8 @@ public class ItemFlowParticle extends BreakingItemParticle {
             this.yd -= 0.04D * (double) this.gravity;
             this.move(this.xd, this.yd, this.zd);
         }
+        if (!shrinking && this.y <= targetY)
+            this.remove();
         updateColorAndGravity();
     }
 
@@ -94,16 +111,23 @@ public class ItemFlowParticle extends BreakingItemParticle {
         float shrink = Mth.lerp(relativeAge, 0.1f, 1);
         this.quadSize = partSize * shrink;
 
-        float adjustedAge = (float) Math.pow((float) Math.pow(relativeAge, 1.5), 2);
-        float darkness = Mth.lerp(adjustedAge, 0, 1);
-        ;
+        float adjustedAge = (float) Math.pow(relativeAge, 2);
+        float darkness;
+        if (shrinking)
+            darkness = Mth.lerp(adjustedAge, 0, 1);
+        else
+            darkness = Mth.lerp(adjustedAge, 1, 0.15f);
+
         this.rCol = darkness;
         this.gCol = darkness;
         this.bCol = darkness;
 
         if (relativeAge < 0.5f) {
             adjustedAge = (float) Math.pow(relativeAge / 0.5f, 2);
-            this.alpha = Mth.lerp(adjustedAge, 0.4f, 1);
+            if (shrinking)
+                this.alpha = Mth.lerp(adjustedAge, 0.4f, 1);
+            else
+                this.alpha = Mth.lerp(adjustedAge, 1f, 0.2f);
         }
         if (!doGravity) {
             int gravityChance = random.nextInt(2);
