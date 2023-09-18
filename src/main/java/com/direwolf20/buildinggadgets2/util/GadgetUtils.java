@@ -72,7 +72,12 @@ public class GadgetUtils {
     public static List<ItemStack> getDropsForBlockState(ServerLevel level, BlockPos blockPos, BlockState blockState, Player player) {
         ItemStack tempStack = new ItemStack(Registration.Exchanging_Gadget.get());
         tempStack.enchant(Enchantments.SILK_TOUCH, 1);
-        List<ItemStack> drops = new ArrayList<>(getDropsForBlockStateGadget(level, blockPos, blockState, tempStack));
+        List<ItemStack> drops = new ArrayList<>();
+        try {
+            drops = new ArrayList<>(getDropsForBlockStateGadget(level, blockPos, blockState, tempStack));
+        } catch (Exception e) {
+            //No-Op
+        }
         ItemStack baseItem;
         if (player != null)
             baseItem = getItemForBlock(blockState, level, blockPos, player); //Sometimes we have the player, sometimes not!
