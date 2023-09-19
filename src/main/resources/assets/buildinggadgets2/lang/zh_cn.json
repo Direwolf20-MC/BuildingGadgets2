@@ -43,7 +43,7 @@
   "buildinggadgets2.radialmenu.anchor": "预览固定",
   "buildinggadgets2.radialmenu.bind": "绑定物品栏",
   "buildinggadgets2.radialmenu.connected_area": "连接区域限制",
-  "buildinggadgets2.radialmenu.copypastemenu": "设置菜单",
+  "buildinggadgets2.radialmenu.copypastemenu": "配置",
   "buildinggadgets2.radialmenu.cut": "剪切",
   "buildinggadgets2.radialmenu.fuzzy": "模糊",
   "buildinggadgets2.radialmenu.materiallist": "材料列表",
@@ -100,6 +100,6 @@
   "key.buildinggadgets2.anchor": "预览固定",
   "key.buildinggadgets2.category": "建筑小帮手2",
   "key.buildinggadgets2.range": "调节尺寸",
-  "key.buildinggadgets2.settings_menu": "配置菜单",
+  "key.buildinggadgets2.settings_menu": "设置菜单",
   "key.buildinggadgets2.undo": "撤销"
 }
