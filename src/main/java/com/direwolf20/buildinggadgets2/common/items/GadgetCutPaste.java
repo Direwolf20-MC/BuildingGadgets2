@@ -17,6 +17,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -30,10 +31,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class GadgetCutPaste extends BaseGadget {
@@ -87,6 +85,7 @@ public class GadgetCutPaste extends BaseGadget {
             }
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
             ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false); //Don't remove the data just yet
+            Collections.reverse(buildList);
             ArrayList<TagPos> tagList = bg2Data.peekTEMap(uuid);
 
             ArrayList<StatePos> actuallyBuiltList = BuildingUtils.buildWithTileData(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), tagList, gadget);
@@ -151,7 +150,7 @@ public class GadgetCutPaste extends BaseGadget {
             return;
         }
 
-        BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
+        BlockPos.betweenClosedStream(area).map(BlockPos::immutable).sorted(Comparator.comparingInt(Vec3i::getY).reversed()).forEach(pos -> {
             ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, false, gadget, ServerBuildList.BuildType.CUT, false, BlockPos.ZERO);
         });
         ServerTickHandler.setCutStart(buildUUID, cutStart);
