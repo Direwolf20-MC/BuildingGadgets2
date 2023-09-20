@@ -1,0 +1,34 @@
+{
+  "name": "绑定至储存容器",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/bind_inventory.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        绑定至储存容器可以使工具远程访问指定容器，用以建造材料的获取与存放。在工具的设置菜单中激活“绑定至储存容器”，然后按住Shift并右键单击一个箱子或其他储存容器。$(br2)        容器周围出现蓝色轮廓则说明绑定成功。如果需要解除绑定，按住Shift并右键单击一个非储存容器方块 (例如泥土)即可解除绑定。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "绑定示例",
+      "images": [
+        "buildinggadgets2:textures/book/images/bindinv.png"
+      ],
+      "border": true,
+      "text": "将工具与箱子绑定！"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "        目前工具还支持与应用能源2 (Applied Energistics 2)的无线访问点进行绑定。$(br2)        无需安装无线信号增幅器，工具的范围不受限制，请尽情使用！"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "绑定示例",
+      "images": [
+        "buildinggadgets2:textures/book/images/bindinv_ae.png"
+      ],
+      "border": true,
+      "text": "将工具与无线访问点绑定！"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "顶部放置",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/place_on_top.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        顶部放置对每种模式的作用略有不同，而对于某些模式则不会有任何影响。$(br2)        启用此项后，工具不会将方块放置在指向方块的周围，而是放置在顶部，从预览中能轻易看出区别。$(br2)        例如右侧的两张示意图。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "示意图",
+      "images": [
+        "buildinggadgets2:textures/book/images/placeontop1.png",
+        "buildinggadgets2:textures/book/images/placeontop2.png"
+      ],
+      "border": true,
+      "text": "点击图片右下角的箭头来切换不同的图片。"
+    }
+  ]
+}

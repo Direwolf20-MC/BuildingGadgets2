@@ -1,0 +1,34 @@
+{
+  "name": "基本",
+  "sortnum": 0,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:template",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        建造工具和替换工具都有建造模式与建造范围设置，用以设置工具的处理范围。$(br2)        例如，选择“水平柱体”模式，“3”的范围代表3个方块。如果数字为偶数，将会四舍五入。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "水平柱体",
+      "images": [
+        "buildinggadgets2:textures/book/images/horzrow4.png"
+      ],
+      "border": true,
+      "text": "范围设置为“3”。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "        对于墙面，范围设置为“3”将建造3×3的墙面，偶数范围会略微改变墙面高度。$(br2)        仔细查看预览并调整，以便取得最好的效果。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "垂直墙面",
+      "images": [
+        "buildinggadgets2:textures/book/images/vertwall1.png"
+      ],
+      "border": true,
+      "text": "范围设置为“3”。"
+    }
+  ]
+}
