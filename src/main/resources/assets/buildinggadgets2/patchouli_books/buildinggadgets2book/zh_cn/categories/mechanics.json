@@ -1,0 +1,6 @@
+{
+  "name": "附加功能",
+  "description": "工具的一些辅助功能",
+  "icon": "buildinggadgets2:textures/book/icons/anchor.png",
+  "sortnum": 2
+}
