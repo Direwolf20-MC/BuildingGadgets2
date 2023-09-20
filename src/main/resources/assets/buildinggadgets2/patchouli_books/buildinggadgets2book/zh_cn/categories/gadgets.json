@@ -1,0 +1,6 @@
+{
+  "name": "工具",
+  "description": "各种功能的建筑小工具！",
+  "icon": "buildinggadgets2:gadget_building{energy:500000}",
+  "sortnum": 0
+}

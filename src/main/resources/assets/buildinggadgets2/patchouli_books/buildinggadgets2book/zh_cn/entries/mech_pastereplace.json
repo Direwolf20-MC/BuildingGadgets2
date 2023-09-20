@@ -1,0 +1,16 @@
+{
+  "name": "替换原有方块",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/paste_replace.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        替换原有方块功能适用于复制工具和剪切工具。$(br2)        禁用此项时，工具在粘贴放置时不会清除放置处的原有方块，除了常见的覆盖方块，例如水源和高草丛。不推荐在剪切工具中禁用，这可能导致剪切放置的某些方块直接$(bold)消失$(clear)！"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "        启用此项时，工具在粘贴放置时会同时清除放置处的原有方块，包括空气方块。任何被清除的原有方块都会直接$(bold)消失$(clear)，而且不会掉落任何物品。"
+    }
+  ]
+}

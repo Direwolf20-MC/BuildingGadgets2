@@ -1,0 +1,21 @@
+{
+  "name": "预览锁定",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/anchor.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        预览锁定能将建造预览锁定，以便您可以环顾四周或自由活动。预览锁定可以通过设置菜单或热键激活。$(br2)        锁定后，您随时可以单击右键来执行相应操作。$(br2)        注意：在移除预览锁定前，调节尺寸可能不会生效。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "示意图",
+      "images": [
+        "buildinggadgets2:textures/book/images/anchor1.png"
+      ],
+      "border": true,
+      "text": "锁定住您的建造预览！"
+    }
+  ]
+}

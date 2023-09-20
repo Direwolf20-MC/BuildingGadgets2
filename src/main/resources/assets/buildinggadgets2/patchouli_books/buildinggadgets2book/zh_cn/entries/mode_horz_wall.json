@@ -1,0 +1,23 @@
+{
+  "name": "水平墙面",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/horizontal_wall.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        水平墙面模式在激活“顶部放置”功能后，若指向方块的顶面，工具会在其上方进行建造；若指向方块的侧面，工具会在其侧面向玩家位置延伸建造。$(br2)        不使用“顶部放置”功能，若指向方块的顶面，工具会在其周围环绕建造；指向方块的侧面时与激活“顶部放置”一致。$(br2)        查看右侧的示意图或自己尝试一下！"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "水平墙面模式",
+      "images": [
+        "buildinggadgets2:textures/book/images/horzwall1.png",
+        "buildinggadgets2:textures/book/images/horzwall3.png",
+        "buildinggadgets2:textures/book/images/horzwall2.png"
+      ],
+      "border": true,
+      "text": "点击图片右下角的箭头来切换不同的图片。"
+    }
+  ]
+}

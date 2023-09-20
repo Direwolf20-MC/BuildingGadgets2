@@ -1,0 +1,35 @@
+{
+  "name": "流体支持",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "minecraft:water_bucket",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        建造工具可以放置流体。确保激活设置菜单中的$(l:buildinggadgets2:mech_raytrace_fluids)流体跟踪$(/l)，然后按住Shift并右键单击以选择流体。$(br2)        要放置流体，您需要装有相应流体的桶，或者使用含有流体储存容器的模组，例如通用机械 (Mekanism)。流体将从容器中取出或存放在容器中。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "流体放置",
+      "images": [
+        "buildinggadgets2:textures/book/images/fluidhandling1.png",
+        "buildinggadgets2:textures/book/images/fluidhandling2.png"
+      ],
+      "border": true,
+      "text": "点击图片右下角的箭头来切换不同的图片。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "        其他工具也可以处理流体。当撤销或替换流体时，工具会尝试寻找储存流体的容器，例如空桶或储罐。若寻找失败，就会导致流体消失。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "流体放置",
+      "images": [
+        "buildinggadgets2:textures/book/images/fluidhandling3.png"
+      ],
+      "border": true,
+      "text": "使用复制工具放置流体。"
+    }
+  ]
+}

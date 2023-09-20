@@ -1,0 +1,23 @@
+{
+  "name": "垂直柱体",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/vertical_column.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        垂直柱体模式可用于建造工具和替换工具。$(br2)        当指向方块的顶面或底面时，工具会向上或向下建造；当指向方块的侧面时，工具会同时向方块的顶面与底面建造，但范围都会缩短一半。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "垂直柱体模式",
+      "images": [
+        "buildinggadgets2:textures/book/images/vertcolumn1.png",
+        "buildinggadgets2:textures/book/images/vertcolumn3.png",
+        "buildinggadgets2:textures/book/images/vertcolumn2.png"
+      ],
+      "border": true,
+      "text": "点击图片右下角的箭头来切换不同的图片。"
+    }
+  ]
+}

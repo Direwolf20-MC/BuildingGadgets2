@@ -1,0 +1,12 @@
+{
+  "name": "建造动画",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/raytrace_fluid.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        每个小工具都能设置不同的建造动画，默认为“放大/缩小”。全部都尝试一下，看看最喜欢哪一种！$(br2)        更改建造动画不会影响工具的功能，只是动画不同，仅此而已！"
+    }
+  ]
+}

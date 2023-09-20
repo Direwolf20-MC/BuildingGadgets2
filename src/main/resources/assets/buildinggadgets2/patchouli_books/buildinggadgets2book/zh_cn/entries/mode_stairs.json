@@ -1,0 +1,22 @@
+{
+  "name": "楼梯",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/stairs.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        楼梯模式能够建造一条楼梯状方块，方便前往高处或安全到达下方。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "楼梯模式",
+      "images": [
+        "buildinggadgets2:textures/book/images/stairs1.png",
+        "buildinggadgets2:textures/book/images/stairs2.png"
+      ],
+      "border": true,
+      "text": "点击图片右下角的箭头来切换不同的图片。"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "网格",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/grid.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        网格模式将方块放置在网格中，常用于火把等发光方块的区域照明使用。随着范围的增加，方块之间的距离也会同步增加，6与12是间隔最大的两个范围。$(br2)        网格模式也可用于替换工具。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "网格模式",
+      "images": [
+        "buildinggadgets2:textures/book/images/mode_grid.png",
+        "buildinggadgets2:textures/book/images/mode_grid2.png"
+      ],
+      "border": true,
+      "text": "点击图片右下角的箭头来切换不同的图片。"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "流体跟踪",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/raytrace_fluid.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "        流体跟踪能使工具与流体交互。启用此项时，替换工具可以替换流体，而建造工具可以将方块放置在流体上方。$(br2)        禁用此项时，工具将忽略指向的流体进而与流体之下的方块交互。$(br2)        参阅$(l:buildinggadgets2:mech_fluid_handling)流体支持$(/l)条目以了解详情。"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "示意图",
+      "images": [
+        "buildinggadgets2:textures/book/images/raytracefluids.png"
+      ],
+      "border": true,
+      "text": "与流体交互！"
+    }
+  ]
+}
