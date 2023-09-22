@@ -311,10 +311,18 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
             if (blockEntity != null) {
                 var renderer = blockEntityRenderer.getRenderer(blockEntity);
-                renderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer, 15728640, OverlayTexture.NO_OVERLAY);
-                //blockEntityRenderer.render(blockEntity, 0, matrix, buffersource);
-            } else
-                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
+                try {
+                    renderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer, 15728640, OverlayTexture.NO_OVERLAY);
+                } catch (Exception e) {
+                    //No Op
+                }
+            } else {
+                try {
+                    MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
+                } catch (Exception e) {
+                    //No Op
+                }
+            }
             matrix.popPose();
         }
         matrix.popPose();
