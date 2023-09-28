@@ -174,6 +174,16 @@ public class FakeRenderingWorld implements LevelAccessor {
     }
 
     @Override
+    public int getRawBrightness(BlockPos blockPos, int amount) {
+        return realWorld.getRawBrightness(blockPos.offset(lookingAt), amount);
+    }
+
+    @Override
+    public boolean canSeeSky(BlockPos blockPos) {
+        return realWorld.canSeeSky(blockPos.offset(lookingAt));
+    }
+
+    @Override
     public long nextSubTickCount() {
         return 0;
     }
