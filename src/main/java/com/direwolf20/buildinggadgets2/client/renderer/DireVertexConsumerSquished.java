@@ -94,7 +94,7 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
         if (adjustUV) {
             //Growing up from ground!
             if (bottomUp) {
-                if (!direction.getAxis().equals(Direction.Axis.Y)) {
+                if (direction != null && !direction.getAxis().equals(Direction.Axis.Y)) {
                     float uDistanceFromStart = u - minU;  // How far is u from its starting value?
                     float vDistanceFromStart = v - minV;  // How far is v from its starting value?
 
@@ -110,7 +110,7 @@ public class DireVertexConsumerSquished extends VertexConsumerWrapper {
                 }
             } else {
                 //Building above!
-                if (!direction.getAxis().equals(Direction.Axis.Y)) {
+                if (direction != null && !direction.getAxis().equals(Direction.Axis.Y)) {
                     float uDistanceToEnd = maxU - u;      // How far is u from its end value?
                     float vDistanceToEnd = maxV - v;      // How far is v from its end value?
 

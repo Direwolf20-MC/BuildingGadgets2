@@ -89,7 +89,6 @@ public class RenderBlockBER implements BlockEntityRenderer<RenderBlockBE> {
         matrixStackIn.translate((1 - scale) / 2, (1 - scale) / 2, (1 - scale) / 2);
         matrixStackIn.scale(scale, scale, scale);
 
-        //TODO Fluids
         if (renderState.getFluidState().isEmpty()) {
             if (isNormalRender)
                 modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos, matrixStackIn, builder, false, RandomSource.create(), renderState.getSeed(pos), combinedOverlayIn, ModelData.EMPTY, null);
