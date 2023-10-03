@@ -530,7 +530,7 @@ public class BuildingUtils {
                 continue;  //Don't do this validation for copy/paste
             if (pos.state.getFluidState().isEmpty()) { //Check for items
                 List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos.offset(lookingAt), pos.state, player);
-                if (!player.isCreative() && needItems) { //Check if player has needed items before using energy -- a real check happens again in ServerTicks
+                if (!player.isCreative() && needItems && !pos.state.isAir()) { //Check if player has needed items before using energy -- a real check happens again in ServerTicks
                     if (!removeStacksFromInventory(player, neededItems, true, boundPos, direction))
                         continue; //Continue to the next position
                 }
