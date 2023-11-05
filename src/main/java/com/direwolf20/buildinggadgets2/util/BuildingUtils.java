@@ -483,6 +483,8 @@ public class BuildingUtils {
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos.offset(lookingAt)))
                 continue; //Chunk Protection like spawn and FTB Utils
+            if (!level.getBlockState(blockPos.offset(lookingAt)).canBeReplaced())
+                continue; //Skip this block if it can't be placed (Avoids using energy)
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue; //Don't do this validation for copy/paste
             if (pos.state.getFluidState().isEmpty()) { //Check for items
@@ -524,6 +526,8 @@ public class BuildingUtils {
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos.offset(lookingAt)))
                 continue; //Chunk Protection like spawn and FTB Utils
+            if (level.getBlockState(blockPos.offset(lookingAt)).equals(pos.state))
+                continue; //No need to replace blocks if they already match!
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos.offset(lookingAt)), level, blockPos))
                 continue;
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
