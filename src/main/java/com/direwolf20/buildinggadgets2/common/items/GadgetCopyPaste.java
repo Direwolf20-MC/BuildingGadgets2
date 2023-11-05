@@ -88,7 +88,7 @@ public class GadgetCopyPaste extends BaseGadget {
                 buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, false);
 
             GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
-            GadgetNBT.clearAnchorPos(gadget);
+            //GadgetNBT.clearAnchorPos(gadget);
             return InteractionResultHolder.success(gadget);
         } else {
             return InteractionResultHolder.pass(gadget);
