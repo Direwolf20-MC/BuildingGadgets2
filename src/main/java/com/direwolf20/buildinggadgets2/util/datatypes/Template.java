@@ -30,7 +30,8 @@ public class Template {
         this.statePosArrayList = BG2Data.statePosListToNBTMapArray(statePosArrayList).toString();
         Map<ItemStackKey, Integer> requiredItemsTemp = StatePos.getItemList(statePosArrayList);
         for (Map.Entry<ItemStackKey, Integer> entry : requiredItemsTemp.entrySet()) {
-            requiredItems.put(entry.getKey().item.toString(), entry.getValue());
+            if (entry.getKey().getStack().isEmpty()) continue;
+            requiredItems.put(entry.getKey().item.getCreatorModId(entry.getKey().getStack()) + ":" + entry.getKey().item.toString(), entry.getValue());
         }
     }
 
