@@ -37,7 +37,7 @@ public abstract class BaseMode implements Comparable<BaseMode> {
             return buildList;
         ArrayList<BlockPos> anchorList = GadgetNBT.getAnchorList(gadget);
         if (anchorList.isEmpty()) {
-            if (!isExchanging || !player.level().getBlockState(start).equals(state))
+            //if (!isExchanging || !player.level().getBlockState(start).equals(state))
                 buildList.addAll(collectWorld(hitSide, player, start, state));
         } else {
             ArrayList<BlockPos> posList = GadgetNBT.getAnchorList(gadget);
