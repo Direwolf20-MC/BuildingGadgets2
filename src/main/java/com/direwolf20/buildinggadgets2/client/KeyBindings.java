@@ -32,6 +32,7 @@ public class KeyBindings {
     public static KeyMapping undo = createBinding("undo", GLFW.GLFW_KEY_U);
     public static KeyMapping anchor = createBinding("anchor", GLFW.GLFW_KEY_H);
     public static KeyMapping range = createBinding("range", GLFW.GLFW_KEY_R);
+    public static KeyMapping rotateMirror = createBinding("rotate_mirror", GLFW.GLFW_KEY_UNKNOWN);
 
     private static KeyMapping createBinding(String name, int key) {
         KeyMapping keyBinding = new KeyMapping(getKey(name), CONFLICT_CONTEXT_GADGET, InputConstants.Type.KEYSYM.getOrCreate(key), getKey("category"));

@@ -9,6 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -103,6 +104,40 @@ public class StatePos {
         }
 
         return rotatedList;
+    }
+
+    public static ArrayList<StatePos> mirror(ArrayList<StatePos> list, ArrayList<TagPos> tagListMutable) {
+        ArrayList<StatePos> mirroredList = new ArrayList<>();
+        if (list == null || list.isEmpty()) {
+            return mirroredList;
+        }
+        boolean tags = !(tagListMutable == null || tagListMutable.isEmpty()); //If not empty or null, it has tags!
+        Map<BlockPos, CompoundTag> tagMap = new HashMap<>();
+        if (tags)
+            tagMap = tagListMutable.stream().collect(Collectors.toMap(e -> e.pos, e -> e.tag));
+
+        for (StatePos statePos : list) {
+            BlockPos oldPos = statePos.pos;
+            BlockState oldState = statePos.state;
+            BlockState newState = oldState.mirror(Mirror.LEFT_RIGHT);
+            BlockPos newPos = new BlockPos(-oldPos.getX(), oldPos.getY(), oldPos.getZ());
+
+            if (tags && tagMap.get(statePos.pos) != null) {
+                CompoundTag tempTag = tagMap.get(statePos.pos);
+                tagMap.remove(statePos.pos);
+                tagMap.put(newPos, tempTag);
+            }
+
+            mirroredList.add(new StatePos(newState, newPos));
+        }
+
+        if (tags) {
+            tagListMutable.clear();
+            for (Map.Entry<BlockPos, CompoundTag> entry : tagMap.entrySet())
+                tagListMutable.add(new TagPos(entry.getValue(), entry.getKey()));
+        }
+
+        return mirroredList;
     }
 
     @OnlyIn(Dist.CLIENT)
