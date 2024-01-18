@@ -5,10 +5,13 @@ import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.screen.DestructionGUI;
 import com.direwolf20.buildinggadgets2.client.screen.ModeRadialMenu;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.common.items.GadgetDestruction;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketAnchor;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketRotateMirror;
 import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.client.KeyMapping;
@@ -54,13 +57,10 @@ public class EventKeyInput {
             int oldRange = GadgetNBT.getToolRange(tool);
             int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
             PacketHandler.sendToServer(new PacketRangeChange(newRange));
-        }/*else if (KeyBindings.rotateMirror.consumeClick()) {
-            PacketHandler.sendToServer(new PacketRotateMirror());
-        } else if (KeyBindings.undo.consumeClick()) {
-            PacketHandler.sendToServer(new PacketUndo());
-        } else if (KeyBindings.anchor.consumeClick()) {
-            PacketHandler.sendToServer(new PacketAnchor());
-        } else if (KeyBindings.fuzzy.consumeClick()) {
+        } else if (KeyBindings.rotateMirror.consumeClick()) {
+            if (tool.getItem() instanceof GadgetCopyPaste || tool.getItem() instanceof GadgetCutPaste)
+                PacketHandler.sendToServer(new PacketRotateMirror());
+        }/*else if (KeyBindings.fuzzy.consumeClick()) {
             PacketHandler.sendToServer(new PacketToggleFuzzy());
         } else if (KeyBindings.connectedArea.consumeClick()) {
             PacketHandler.sendToServer(new PacketToggleConnectedArea());
