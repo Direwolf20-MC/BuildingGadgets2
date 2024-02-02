@@ -1,8 +1,8 @@
 package com.direwolf20.buildinggadgets2.setup;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
+
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.config.ModConfig;
 
 public class Config {
     public static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();

@@ -3,8 +3,8 @@ package com.direwolf20.buildinggadgets2.datagen;
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
 
 public class BG2BlockStates extends BlockStateProvider {
     public BG2BlockStates(PackOutput output, ExistingFileHelper helper) {

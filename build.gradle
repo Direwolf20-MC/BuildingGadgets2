@@ -11,6 +11,31 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+
+    maven { //Patchouli && JEI
+        url 'https://maven.blamejared.com'
+        content {
+            includeGroup "vazkii.patchouli"
+            includeGroup "mezz.jei"
+        }
+    }
+
+    maven { //Curios
+        url = "https://maven.theillusivec4.top/"
+        content {
+            includeGroup "top.theillusivec4.curios"
+        }
+    }
+
+    maven { // mek
+        url = 'https://modmaven.dev/'
+        content {
+            includeGroup "mekanism"
+            includeGroup "appeng"
+        }
+    }
+
+    maven { url = "https://www.cursemaven.com" } // curse mods
 }
 
 base {
@@ -81,6 +106,14 @@ dependencies {
     // And its provides the option to then use net.minecraft as the group, and one of; client, server or joined as the module name, plus the game version as version.
     // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
     implementation "net.neoforged:neoforge:${neo_version}"
+
+    //AE2
+    compileOnly "appeng:appliedenergistics2-neoforge:${ae2_version}:api"
+    runtimeOnly "appeng:appliedenergistics2-neoforge:${ae2_version}"
+
+    //Curios
+    runtimeOnly "top.theillusivec4.curios:curios-forge:${curios_version}"
+    compileOnly "top.theillusivec4.curios:curios-forge:${curios_version}:api"
 
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime

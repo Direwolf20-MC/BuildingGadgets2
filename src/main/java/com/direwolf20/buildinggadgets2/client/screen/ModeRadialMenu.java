@@ -37,9 +37,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeI18n;
 import org.joml.Matrix4f;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;

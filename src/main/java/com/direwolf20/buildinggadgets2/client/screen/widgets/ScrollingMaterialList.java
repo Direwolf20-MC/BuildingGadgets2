@@ -91,7 +91,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
             if (entry.getKey().getStack().isEmpty()) continue;
             int itemCount = BuildingUtils.countItemStacks(player, entry.getKey().getStack());
             //Add entries to the list
-            addEntry(new Entry(this, entry.getKey().getStack(), entry.getValue(), itemCount));
+            addEntry(new com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry(this, entry.getKey().getStack(), entry.getValue(), itemCount));
         }
 
         sort();
@@ -128,7 +128,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
     /**
      * This class defines what each entry in the list looks like and how it behaves
      */
-    public static class Entry extends ObjectSelectionList.Entry<Entry> {
+    public static class Entry extends ObjectSelectionList.Entry<com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry> {
 
         private ScrollingMaterialList parent;
         private int required;
@@ -298,22 +298,22 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
 
     public enum SortingModes {
 
-        NAME(Comparator.comparing(Entry::getItemName), Component.translatable("buildinggadgets2.screen.sortaz")),
+        NAME(Comparator.comparing(com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry::getItemName), Component.translatable("buildinggadgets2.screen.sortaz")),
         NAME_REVERSED(NAME.getComparator().reversed(), Component.translatable("buildinggadgets2.screen.sortza")),
-        REQUIRED(Comparator.comparingInt(Entry::getRequired), Component.translatable("buildinggadgets2.screen.requiredasc")),
+        REQUIRED(Comparator.comparingInt(com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry::getRequired), Component.translatable("buildinggadgets2.screen.requiredasc")),
         REQUIRED_REVERSED(REQUIRED.getComparator().reversed(), Component.translatable("buildinggadgets2.screen.requireddesc")),
-        MISSING(Comparator.comparingInt(Entry::getMissing), Component.translatable("buildinggadgets2.screen.missingasc")),
+        MISSING(Comparator.comparingInt(com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry::getMissing), Component.translatable("buildinggadgets2.screen.missingasc")),
         MISSING_REVERSED(MISSING.getComparator().reversed(), Component.translatable("buildinggadgets2.screen.missingdesc"));
 
-        private final Comparator<Entry> comparator;
+        private final Comparator<com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry> comparator;
         private final Component translatable;
 
-        SortingModes(Comparator<Entry> comparator, Component translatable) {
+        SortingModes(Comparator<com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry> comparator, Component translatable) {
             this.comparator = comparator;
             this.translatable = translatable;
         }
 
-        public Comparator<Entry> getComparator() {
+        public Comparator<com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList.Entry> getComparator() {
             return comparator;
         }
 

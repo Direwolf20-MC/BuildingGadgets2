@@ -15,11 +15,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,13 +27,13 @@ import static com.direwolf20.buildinggadgets2.common.containers.TemplateManagerC
 
 public class TemplateManagerBE extends BlockEntity implements MenuProvider {
     //public static final TagKey<Item> TEMPLATE_CONVERTIBLES = TagKey.create(Registries.ITEM, ItemReference.TAG_TEMPLATE_CONVERTIBLE);
-    private final IItemHandler EMPTY = new ItemStackHandler(0);
+    //private final IItemHandler EMPTY = new ItemStackHandler(0);
     public final TemplateManagerHandler itemHandler = new TemplateManagerHandler(SLOTS, this);
-    public LazyOptional<TemplateManagerHandler> handlerLazyOptional;
+    //public LazyOptional<TemplateManagerHandler> handlerLazyOptional;
 
     public TemplateManagerBE(BlockPos pos, BlockState state) {
         super(Registration.TemplateManager_BE.get(), pos, state);
-        handlerLazyOptional = LazyOptional.of(() -> itemHandler);
+        //handlerLazyOptional = LazyOptional.of(() -> itemHandler);
     }
 
     @Override
@@ -92,14 +91,14 @@ public class TemplateManagerBE extends BlockEntity implements MenuProvider {
         super.clearRemoved();
     }
 
-    @Nonnull
+    /*@Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
+        if (cap == Capabilities.ItemHandler.BLOCK) {
             return handlerLazyOptional.cast();
         }
         return super.getCapability(cap, side);
-    }
+    }*/
 
     @Override
     public Component getDisplayName() {

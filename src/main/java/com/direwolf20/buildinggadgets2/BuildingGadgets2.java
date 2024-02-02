@@ -5,11 +5,11 @@ import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.ModSetup;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.mojang.logging.LogUtils;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.DistExecutor;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 @Mod(BuildingGadgets2.MODID)

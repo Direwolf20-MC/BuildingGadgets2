@@ -48,11 +48,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.gui.widget.ExtendedButton;
+import net.neoforged.neoforge.client.gui.widget.ExtendedButton;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;

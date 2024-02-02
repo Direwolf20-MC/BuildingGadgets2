@@ -10,8 +10,8 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -35,7 +35,7 @@ public class ItemFlowParticleData implements ParticleOptions {
 
     @Override
     public void writeToNetwork(FriendlyByteBuf buffer) {
-        buffer.writeItemStack(this.itemStack, false);
+        buffer.writeItem(this.itemStack);
     }
 
     @Nonnull

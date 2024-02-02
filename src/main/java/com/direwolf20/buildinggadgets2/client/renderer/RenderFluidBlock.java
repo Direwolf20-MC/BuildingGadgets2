@@ -15,9 +15,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.model.pipeline.QuadBakingVertexConsumer;
+import net.neoforged.neoforge.fluids.FluidStack;
+
 
 import java.util.List;
 
