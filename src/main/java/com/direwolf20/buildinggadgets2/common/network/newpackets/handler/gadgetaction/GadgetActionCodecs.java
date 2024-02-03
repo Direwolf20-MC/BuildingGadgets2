@@ -5,15 +5,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 
-class GadgetActionCodecs {
-    record BiPos(BlockPos startPos, BlockPos endPos) {
+public class GadgetActionCodecs {
+    public record BiPos(BlockPos startPos, BlockPos endPos) {
          public static Codec<BiPos> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                  BlockPos.CODEC.fieldOf("startPos").forGetter(BiPos::startPos),
                  BlockPos.CODEC.fieldOf("endPos").forGetter(BiPos::endPos)
          ).apply(instance, BiPos::new));
     }
 
-    record DestructionRanges(
+    public record DestructionRanges(
       int left, int right,
       int up, int down,
       int depth
@@ -27,7 +27,7 @@ class GadgetActionCodecs {
         ).apply(instance, DestructionRanges::new));
     }
 
-    record ModeSwitch(
+    public record ModeSwitch(
             boolean rotate,
             ResourceLocation modeId
     ) {

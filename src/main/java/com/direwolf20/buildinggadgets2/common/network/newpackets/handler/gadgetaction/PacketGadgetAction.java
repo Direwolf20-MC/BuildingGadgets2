@@ -19,7 +19,7 @@ public class PacketGadgetAction {
     public void handle(final GadgetActionPayload payload, final PlayPayloadContext context) {
         context.workHandler().submitAsync(() -> {
             try {
-                GadgetAction action = GadgetAction.valueOf(payload.actionName());
+                ActionGadget action = payload.actionName();
 
                 var gadget = context.player()
                         .map(LivingEntity::getMainHandItem)

@@ -14,7 +14,9 @@ import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
 import com.direwolf20.buildinggadgets2.common.items.*;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.*;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.data.GadgetActionPayload;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.ActionGadget;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.GadgetActionCodecs;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
@@ -25,6 +27,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,12 +36,17 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.I18nExtension;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,8 +105,9 @@ public class ModeRadialMenu extends Screen {
         this.conditionalButtons.clear();
 
         Button rayTrace = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), "raytrace_fluid", ScreenPosition.RIGHT, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketToggleSetting("raytracefluid"));
+            if (send) {
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", "raytracefluid"))));
+            }
 
             return GadgetNBT.getSetting(tool, "raytracefluid");
         });
@@ -107,8 +116,9 @@ public class ModeRadialMenu extends Screen {
         //Building Gadget Only
         if (tool.getItem() instanceof GadgetBuilding) {
             Button placeOnTop = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.placeatop"), "building_place_atop", ScreenPosition.RIGHT, true, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketToggleSetting("placeontop"));
+                if (send) {
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", "placeontop"))));
+                }
 
                 return GadgetNBT.getSetting(tool, "placeontop");
             });
@@ -127,8 +137,9 @@ public class ModeRadialMenu extends Screen {
         //Exchanging Gadget Only
         if (tool.getItem() instanceof GadgetExchanger) {
             Button affectTiles = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.affecttiles"), "affecttiles", ScreenPosition.RIGHT, true, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketToggleSetting("affecttiles"));
+                if (send) {
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", "affecttiles"))));
+                }
 
                 return GadgetNBT.getSetting(tool, "affecttiles");
             });
@@ -144,10 +155,19 @@ public class ModeRadialMenu extends Screen {
                         cutForSure = true;
                         return false;
                     }
-                    PacketHandler.sendToServer(new PacketCut());
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.CUT));
+
                     int modeIndex = arrayOfModes.indexOf(mode);
                     modeIndex = modeIndex == 0 ? 1 : 0;
-                    PacketHandler.sendToServer(new PacketModeSwitch(arrayOfModes.get(modeIndex).getId(), false));
+
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
+                            ActionGadget.MODE_SWITCH,
+                            (CompoundTag) GadgetActionCodecs.ModeSwitch.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.ModeSwitch(
+                                    false,
+                                    arrayOfModes.get(modeIndex).getId()
+                            )).get().orThrow())
+                    );
+                    // TODO: Finish here
                     mode = arrayOfModes.get(modeIndex);
                 }
 
@@ -174,8 +194,9 @@ public class ModeRadialMenu extends Screen {
         //Cut Paste or Copy Paste Gadget Only
         if (tool.getItem() instanceof GadgetCutPaste || tool.getItem() instanceof GadgetCopyPaste) {
             Button pastereplace = new PositionedIconActionable(Component.translatable("buildinggadgets2.screen.paste_replace"), "paste_replace", ScreenPosition.RIGHT, true, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketToggleSetting("pastereplace"));
+                if (send) {
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", "pastereplace"))));
+                }
 
                 return GadgetNBT.getPasteReplace(tool);
             });
@@ -196,8 +217,9 @@ public class ModeRadialMenu extends Screen {
             }));
 
             addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.rotate"), "rotate", ScreenPosition.LEFT, false, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketRotate());
+                if (send) {
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.ROTATE));
+                }
 
                 return false;
             }));
@@ -206,16 +228,18 @@ public class ModeRadialMenu extends Screen {
         //Everything but Cut and Paste Gadget
         if (!(tool.getItem() instanceof GadgetCutPaste)) {
             Button undo_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.undo"), "undo", ScreenPosition.LEFT, false, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketUndo());
+                if (send) {
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.UNDO));
+                }
 
                 return false;
             });
             addRenderableWidget(undo_button);
 
             Button bind_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.bind"), "building_place_atop", ScreenPosition.LEFT, true, send -> {
-                if (send)
-                    PacketHandler.sendToServer(new PacketToggleSetting("bind"));
+                if (send) {
+                    PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", "bind"))));
+                }
 
                 return GadgetNBT.getSetting(tool, "bind");
             });
@@ -224,7 +248,7 @@ public class ModeRadialMenu extends Screen {
 
         Button fuzzy_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.fuzzy"), "fuzzy", ScreenPosition.RIGHT, send -> {
             if (send) {
-                PacketHandler.sendToServer(new PacketToggleSetting(GadgetNBT.NBTValues.FUZZY.value));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", GadgetNBT.NBTValues.FUZZY.value))));
             }
 
             return GadgetNBT.getSetting(this.getGadget(), GadgetNBT.NBTValues.FUZZY.value);
@@ -234,7 +258,7 @@ public class ModeRadialMenu extends Screen {
 
         Button connected_button = new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.connected_area"), "connected_area", ScreenPosition.RIGHT, send -> {
             if (send) {
-                PacketHandler.sendToServer(new PacketToggleSetting(GadgetNBT.NBTValues.CONNECTED_AREA.value));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", GadgetNBT.NBTValues.CONNECTED_AREA.value))));
             }
 
             return GadgetNBT.getSetting(this.getGadget(), GadgetNBT.NBTValues.CONNECTED_AREA.value);
@@ -243,8 +267,9 @@ public class ModeRadialMenu extends Screen {
         conditionalButtons.add(connected_button);
 
         addRenderableWidget(new PositionedIconActionable(Component.translatable("buildinggadgets2.radialmenu.anchor"), "anchor", ScreenPosition.LEFT, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketAnchor());
+            if (send) {
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.ANCHOR));
+            }
 
             return !GadgetNBT.getAnchorPos(tool).equals(GadgetNBT.nullPos);
         }));
@@ -253,7 +278,7 @@ public class ModeRadialMenu extends Screen {
             if (send) {
                 renderType = renderType.next();
                 renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
-                PacketHandler.sendToServer(new PacketRenderChange(renderType.getPosition()));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RENDER_CHANGE, Util.make(new CompoundTag(), c -> c.putByte("renderType", renderType.getPosition()))));
             }
 
             return false;
@@ -446,7 +471,14 @@ public class ModeRadialMenu extends Screen {
     private void changeMode() {
         if (this.slotSelected >= 0) {
             assert getMinecraft().player != null;
-            PacketHandler.sendToServer(new PacketModeSwitch(arrayOfModes.get(this.slotSelected).getId(), false));
+            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
+                    ActionGadget.MODE_SWITCH,
+                    (CompoundTag) GadgetActionCodecs.ModeSwitch.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.ModeSwitch(
+                            false,
+                            arrayOfModes.get(this.slotSelected).getId()
+                    )).get().orThrow())
+            );
+
             mode = arrayOfModes.get(this.slotSelected);
             OurSounds.playSound(Registration.BEEP.get());
         }
@@ -500,7 +532,7 @@ public class ModeRadialMenu extends Screen {
 
     private void sendRangeUpdate(int valueNew) {
         if (valueNew != GadgetNBT.getToolRange(this.getGadget())) {
-            PacketHandler.sendToServer(new PacketRangeChange(valueNew));
+            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RANGE_CHANGE, Util.make(new CompoundTag(), c -> c.putInt("range", valueNew))));
         }
     }
 

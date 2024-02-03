@@ -22,7 +22,7 @@ public class DataGenerators {
         PackOutput packOutput = generator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         //if (event.includeServer()) {
-        generator.addProvider(event.includeServer(), new BG2Recipes(packOutput));
+        generator.addProvider(event.includeServer(), new BG2Recipes(packOutput, event.getLookupProvider()));
         generator.addProvider(event.includeServer(), new LootTableProvider(packOutput, Collections.emptySet(),
                 List.of(new LootTableProvider.SubProviderEntry(BG2LootTables::new, LootContextParamSets.BLOCK))));
         BG2BlockTags blockTags = new BG2BlockTags(packOutput, lookupProvider, event.getExistingFileHelper());

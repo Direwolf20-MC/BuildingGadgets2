@@ -5,7 +5,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
-record GadgetActionContext(
+public record GadgetActionContext(
         PlayPayloadContext context,
         GadgetActionPayload payload,
         ItemStack gadget,

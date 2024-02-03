@@ -1,10 +1,12 @@
 package com.direwolf20.buildinggadgets2.util.datatypes;
 
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketSendPasteBatches;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.data.SendPasteBatchesPayload;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.PacketSendPasteBatches;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.*;
 
@@ -52,8 +54,7 @@ public class PasteData {
 
         UUID copyUUID = UUID.randomUUID();
         for (int i = 0; i < chunks.size(); i++) {
-            PacketSendPasteBatches packet = new PacketSendPasteBatches(copyUUID, chunks.size(), i, chunks.get(i));
-            PacketHandler.sendToServer(packet); // You might need to adjust this based on your packet handling mechanism
+            PacketDistributor.SERVER.noArg().send(new SendPasteBatchesPayload(copyUUID, chunks.size(), i, chunks.get(i)));
         }
     }
 }

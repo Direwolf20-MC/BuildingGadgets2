@@ -4,8 +4,7 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.*;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketSendCopyData;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.data.SendCopyDataPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -36,7 +35,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public enum GadgetAction {
+public enum ActionGadget {
     ANCHOR((context) -> {
         var player = context.player();
         var gadgetStack = context.gadget();
@@ -203,8 +202,13 @@ public enum GadgetAction {
             //Update the client - Yes - even though this came from the client!! This is to make sure the server sanity checked the blocks list
             CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(templateStack), false);
 
-            // TODO: FIX ME
-            PacketHandler.sendTo(new PacketSendCopyData(GadgetNBT.getUUID(templateStack), GadgetNBT.getCopyUUID(templateStack), tag), (ServerPlayer) context.player());
+            ((ServerPlayer) context.player()).connection.send(
+                    new SendCopyDataPayload(
+                            GadgetNBT.getUUID(templateStack),
+                            GadgetNBT.getCopyUUID(templateStack),
+                            tag
+                    )
+            );
         }, error -> {
 
         });
@@ -223,7 +227,7 @@ public enum GadgetAction {
 
     private final Consumer<GadgetActionContext> handler;
 
-    GadgetAction(Consumer<GadgetActionContext> handler) {
+    ActionGadget(Consumer<GadgetActionContext> handler) {
         this.handler = handler;
     }
 

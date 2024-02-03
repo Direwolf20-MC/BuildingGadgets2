@@ -6,19 +6,20 @@ import com.direwolf20.buildinggadgets2.client.screen.DestructionGUI;
 import com.direwolf20.buildinggadgets2.client.screen.ModeRadialMenu;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetDestruction;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketAnchor;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketRangeChange;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketUndo;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.data.GadgetActionPayload;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.ActionGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber(modid = BuildingGadgets2.MODID, value = Dist.CLIENT)
 public class EventKeyInput {
@@ -46,13 +47,13 @@ public class EventKeyInput {
             else
                 mc.setScreen(new ModeRadialMenu(tool));
         } else if (KeyBindings.undo.consumeClick()) {
-            PacketHandler.sendToServer(new PacketUndo());
+            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.UNDO));
         } else if (KeyBindings.anchor.consumeClick()) {
-            PacketHandler.sendToServer(new PacketAnchor());
+            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.ANCHOR));
         } else if (KeyBindings.range.consumeClick()) {
             int oldRange = GadgetNBT.getToolRange(tool);
             int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
-            PacketHandler.sendToServer(new PacketRangeChange(newRange));
+            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RANGE_CHANGE, Util.make(new CompoundTag(), c -> c.putInt("range", newRange))));
         }/*else if (KeyBindings.rotateMirror.consumeClick()) {
             PacketHandler.sendToServer(new PacketRotateMirror());
         } else if (KeyBindings.undo.consumeClick()) {

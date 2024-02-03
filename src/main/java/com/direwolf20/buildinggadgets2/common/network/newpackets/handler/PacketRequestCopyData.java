@@ -1,16 +1,12 @@
 package com.direwolf20.buildinggadgets2.common.network.newpackets.handler;
 
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
-import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.newpackets.data.RequestCopyDataPayload;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.GadgetActionContext;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketSendCopyData;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.data.SendCopyDataPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.Objects;
@@ -58,8 +54,11 @@ public class PacketRequestCopyData {
                 PacketHandler.sendTo(new PacketSendCopyData(GadgetNBT.getUUID(gadget), GadgetNBT.getCopyUUID(gadget), tag), sender);
             }*/
 
-            player.connection.send();
-            PacketHandler.sendTo(new PacketSendCopyData(payload.gadgetUUID, message.copyUUID, tag), sender);
+            player.connection.send(new SendCopyDataPayload(
+                    payload.gadgetUUID(),
+                    payload.copyUUID(),
+                    tag
+            ));
         });
     }
 }

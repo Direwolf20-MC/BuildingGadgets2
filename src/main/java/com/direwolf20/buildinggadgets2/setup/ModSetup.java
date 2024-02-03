@@ -18,7 +18,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModSetup {
     public static void init(final FMLCommonSetupEvent event) {
-        PacketHandler.register();
         NeoForge.EVENT_BUS.register(ServerTickHandler.class);
         if (AE2Integration.isLoaded()) {
             AE2Methods.registerItems();

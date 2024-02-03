@@ -14,8 +14,7 @@ import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.common.items.TemplateItem;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketUpdateTemplateManager;
+import com.direwolf20.buildinggadgets2.common.network.newpackets.data.UpdateTemplateManagerPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.FakeRenderingWorld;
@@ -49,6 +48,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.gui.widget.ExtendedButton;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
@@ -331,7 +331,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        renderBackground(guiGraphics);
+        renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
         guiGraphics.blit(background, leftPos - 20, topPos - 12, 0, 0, imageWidth, imageHeight + 25);
         guiGraphics.blit(background, (leftPos - 20) + imageWidth, topPos + 8, imageWidth + 3, 30, 71, imageHeight);
@@ -446,19 +446,18 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
-        zoom = initZoom + ((float) scrollDelta * 2);
+    public boolean mouseScrolled(double mouseX, double mouseY, double mouseDeltaX, double mouseDeltaY) {
+        zoom = initZoom + ((float) mouseDeltaY * 2);
         if (zoom < -200) zoom = -200;
         if (zoom > 5000) zoom = 5000;
 
-        return super.mouseScrolled(mouseX, mouseY, scrollDelta);
+        return super.mouseScrolled(mouseX, mouseY, mouseDeltaX, mouseDeltaY);
     }
 
     @Override
     protected void containerTick() {
         super.containerTick();
 
-        nameField.tick();
         if (!panelClicked) {
             initRotX = rotX;
             initRotY = rotY;
@@ -477,11 +476,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     private void onSave() {
-        PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 0, nameField.getValue()));
+        PacketDistributor.SERVER.noArg().send(new UpdateTemplateManagerPayload(be.getBlockPos(), 0, nameField.getValue()));
     }
 
     private void onLoad() {
-        PacketHandler.sendToServer(new PacketUpdateTemplateManager(be.getBlockPos(), 1, nameField.getValue()));
+        PacketDistributor.SERVER.noArg().send(new UpdateTemplateManagerPayload(be.getBlockPos(), 1, nameField.getValue()));
     }
 
     private Template getTemplate() {
