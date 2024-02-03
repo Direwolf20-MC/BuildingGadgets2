@@ -1,11 +1,8 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.data.RequestCopyDataPayload;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.PacketRequestCopyData;
+import com.direwolf20.buildinggadgets2.common.network.data.RequestCopyDataPayload;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 

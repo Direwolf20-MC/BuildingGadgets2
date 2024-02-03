@@ -1,4 +1,4 @@
-package com.direwolf20.buildinggadgets2.common.network.newpackets.data;
+package com.direwolf20.buildinggadgets2.common.network.data;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import net.minecraft.nbt.CompoundTag;

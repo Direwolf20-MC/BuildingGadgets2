@@ -1,4 +1,4 @@
-package com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction;
+package com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

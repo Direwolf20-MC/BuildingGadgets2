@@ -6,8 +6,8 @@
 package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIncrementer;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.data.GadgetActionPayload;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.ActionGadget;
+import com.direwolf20.buildinggadgets2.common.network.data.GadgetActionPayload;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.ActionGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;

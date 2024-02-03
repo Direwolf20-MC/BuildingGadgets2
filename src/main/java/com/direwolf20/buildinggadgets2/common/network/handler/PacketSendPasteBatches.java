@@ -1,8 +1,8 @@
-package com.direwolf20.buildinggadgets2.common.network.newpackets.handler;
+package com.direwolf20.buildinggadgets2.common.network.handler;
 
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.data.SendCopyDataPayload;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.data.SendPasteBatchesPayload;
+import com.direwolf20.buildinggadgets2.common.network.data.SendCopyDataPayload;
+import com.direwolf20.buildinggadgets2.common.network.data.SendPasteBatchesPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
