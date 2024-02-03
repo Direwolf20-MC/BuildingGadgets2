@@ -17,7 +17,7 @@ public class DireButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         if (this.visible) {
             Font fontrenderer = Minecraft.getInstance().font;
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

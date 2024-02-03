@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.util.datatypes;
 
 import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
+import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,7 +43,7 @@ public class TemplateJsonRepresentation {
             tempMap.put(pos, blockState);
         }
 
-        AABB area = new AABB(startPos, endPos);
+        AABB area = VecHelpers.aabbFromBlockPos(startPos, endPos);
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
             BlockState blockState = tempMap.getOrDefault(pos, Blocks.AIR.defaultBlockState());
             if (blockState.isAir()) {

@@ -37,6 +37,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.I18nExtension;
 import org.joml.Matrix4f;
 import java.awt.*;
 import java.util.ArrayList;
@@ -400,7 +401,7 @@ public class ModeRadialMenu extends Screen {
             int xp = data.getX();
             int yp = data.getY();
 
-            String name = ForgeI18n.getPattern(arrayOfModes.get(i).i18n());
+            String name = I18nExtension.getPattern(arrayOfModes.get(i).i18n(), () -> "");
 
             int xsp = xp - 4;
             int ysp = yp;

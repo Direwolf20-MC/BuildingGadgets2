@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2;
 
 import com.direwolf20.buildinggadgets2.common.capabilities.EnergisedItem;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.setup.ClientSetup;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.ModSetup;

@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -42,13 +43,11 @@ public class BuildingUtils {
     public static IItemHandler getHandlerFromBound(Player player, DimBlockPos boundInventory, Direction direction) {
         Level level = boundInventory.getLevel(player.getServer());
         if (level == null) return null;
+
         BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
         if (blockEntity == null) return null;
-        LazyOptional<IItemHandler> handler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, direction);
-        if (handler.isPresent()) {
-            return handler.resolve().get();
-        }
-        return null;
+
+        return level.getCapability(Capabilities.ItemHandler.BLOCK, boundInventory.blockPos, direction);
     }
 
     public static ItemStack checkFluidHandlerForFluids(IFluidHandlerItem handler, FluidStack fluidStack, boolean simulate) {
@@ -73,36 +72,36 @@ public class BuildingUtils {
         return ItemStack.EMPTY;
     }
 
+    // TODO: Dire learn about avoiding the non-DRY hell. (Dry = Don't Repeat Yourself)
     public static ItemStack checkItemForFluids(ItemStack itemStack, FluidStack fluidStack, boolean simulate) {
-        LazyOptional<IItemHandler> itemStackCapability = itemStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-        if (itemStackCapability.isPresent()) {
-            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-            checkItemHandlerForFluids(slotHandler, fluidStack, simulate);
+        var itemStackCapability = itemStack.getCapability(Capabilities.ItemHandler.ITEM, null);
+        if (itemStackCapability != null) {
+            checkItemHandlerForFluids(itemStackCapability, fluidStack, simulate);
             if (fluidStack.isEmpty())
                 return ItemStack.EMPTY; //The Item Handler removed this for us, so no need to remove it again!
         }
-        LazyOptional<IFluidHandlerItem> fluidStackCapability = itemStack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null);
-        if (fluidStackCapability.isPresent()) {
-            IFluidHandlerItem fluidHandlerItem = fluidStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-            ItemStack returnedStack = checkFluidHandlerForFluids(fluidHandlerItem, fluidStack, simulate);
+
+        var fluidStackCapability = itemStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (fluidStackCapability != null) {
+            ItemStack returnedStack = checkFluidHandlerForFluids(fluidStackCapability, fluidStack, simulate);
             if (fluidStack.isEmpty())
                 return returnedStack;
         }
+
         return ItemStack.EMPTY;
     }
 
     public static ItemStack insertFluidIntoItem(ItemStack itemStack, FluidStack fluidStack, boolean simulate) {
-        LazyOptional<IItemHandler> itemStackCapability = itemStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-        if (itemStackCapability.isPresent()) {
-            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-            insertFluidIntoItemHandler(slotHandler, fluidStack, simulate);
+        var itemStackCapability = itemStack.getCapability(Capabilities.ItemHandler.ITEM, null);
+        if (itemStackCapability != null) {
+            insertFluidIntoItemHandler(itemStackCapability, fluidStack, simulate);
             if (fluidStack.isEmpty())
                 return ItemStack.EMPTY; //The Item Handler removed this for us, so no need to remove it again!
         }
-        LazyOptional<IFluidHandlerItem> fluidStackCapability = itemStack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null);
-        if (fluidStackCapability.isPresent()) {
-            IFluidHandlerItem fluidHandlerItem = fluidStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-            ItemStack returnedStack = insertFluidIntoHandler(fluidHandlerItem, fluidStack, simulate);
+
+        var fluidStackCapability = itemStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (fluidStackCapability != null) {
+            ItemStack returnedStack = insertFluidIntoHandler(fluidStackCapability, fluidStack, simulate);
             if (fluidStack.isEmpty())
                 return returnedStack;
         }
@@ -178,16 +177,16 @@ public class BuildingUtils {
 
         if (fluidStack.isEmpty()) return true;
         //Check curious slots second:
+        // TODO: Fix me, I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-            if (curiosOpt.isPresent()) {
-                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                    for (int j = 0; j < stackHandler.getSlots(); j++) {
-                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
-                        checkItemForFluids(itemInSlot, fluidStack, simulate);
-                    }
-                });
-            }
+            var curios = CuriosApi.getCuriosInventory(player);
+
+            curios.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
+                for (int j = 0; j < stackHandler.getSlots(); j++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
+                    checkItemForFluids(itemInSlot, fluidStack, simulate);
+                }
+            }));
         }
         if (fluidStack.isEmpty()) return true;
 
@@ -197,13 +196,14 @@ public class BuildingUtils {
         return false;
     }
 
+    // TODO: Dire, DRY plz
     public static void checkHandlerForItems(IItemHandler handler, List<ItemStack> testArray, boolean simulate) {
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack itemInSlot = handler.getStackInSlot(j);
-            LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-            if (itemStackCapability.isPresent()) {
-                IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-                checkHandlerForItems(slotHandler, testArray, simulate);
+            var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
+
+            if (itemStackCapability != null) {
+                checkHandlerForItems(itemStackCapability, testArray, simulate);
                 if (testArray.isEmpty()) break;
             } else {
                 Optional<ItemStack> matchStack = testArray.stream().filter(e -> ItemStack.isSameItem(e, itemInSlot) && itemInSlot.getCount() >= e.getCount()).findFirst();
@@ -220,10 +220,9 @@ public class BuildingUtils {
     public static void checkInventoryForItems(Inventory inventory, List<ItemStack> testArray, boolean simulate) {
         for (int j = 0; j < inventory.getContainerSize(); j++) {
             ItemStack itemInSlot = inventory.getItem(j);
-            LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-            if (itemStackCapability.isPresent()) {
-                IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-                checkHandlerForItems(slotHandler, testArray, simulate);
+            var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
+            if (itemStackCapability != null) {
+                checkHandlerForItems(itemStackCapability, testArray, simulate);
                 if (testArray.isEmpty()) break;
             } else {
                 Optional<ItemStack> matchStack = testArray.stream().filter(e -> ItemStack.isSameItem(e, itemInSlot) && itemInSlot.getCount() >= e.getCount()).findFirst();
@@ -255,21 +254,19 @@ public class BuildingUtils {
 
         if (testArray.isEmpty()) return true;
         //Check curious slots second:
+        // TODO: Fix me, I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-            if (curiosOpt.isPresent()) {
-                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                    for (int j = 0; j < stackHandler.getSlots(); j++) {
-                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
-                        LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                        if (itemStackCapability.isPresent()) {
-                            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-                            checkHandlerForItems(slotHandler, testArray, simulate);
-                            if (testArray.isEmpty()) break;
-                        }
+            var curios = CuriosApi.getCuriosInventory(player);
+            curios.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
+                for (int j = 0; j < stackHandler.getSlots(); j++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
+                    var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
+                    if (itemStackCapability != null) {
+                        checkHandlerForItems(itemStackCapability, testArray, simulate);
+                        if (testArray.isEmpty()) break;
                     }
-                });
-            }
+                }
+            }));
         }
         if (testArray.isEmpty()) return true;
 
@@ -285,33 +282,30 @@ public class BuildingUtils {
         final int[] counter = {0};
 
         //Check curious slots first:
+        // TODO: Fix me, I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-            if (curiosOpt.isPresent()) {
-                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                    for (int i = 0; i < stackHandler.getSlots(); i++) {
-                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                        LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                        if (itemStackCapability.isPresent()) {
-                            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-                            for (int j = 0; j < slotHandler.getSlots(); j++) {
-                                ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
-                                if (ItemStack.isSameItem(itemInBagSlot, itemStack))
-                                    counter[0] += itemInBagSlot.getCount();
-                            }
+            var curiosOpt = CuriosApi.getCuriosInventory(player);
+            curiosOpt.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
+                for (int i = 0; i < stackHandler.getSlots(); i++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
+                    var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
+                    if (itemStackCapability != null) {
+                        for (int j = 0; j < itemStackCapability.getSlots(); j++) {
+                            ItemStack itemInBagSlot = itemStackCapability.getStackInSlot(j);
+                            if (ItemStack.isSameItem(itemInBagSlot, itemStack))
+                                counter[0] += itemInBagSlot.getCount();
                         }
                     }
-                });
-            }
+                }
+            }));
         }
 
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
-            LazyOptional<IItemHandler> itemStackCapability = slotStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-            if (itemStackCapability.isPresent()) {
-                IItemHandler handler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-                for (int j = 0; j < handler.getSlots(); j++) {
-                    ItemStack itemInSlot = handler.getStackInSlot(j);
+            var itemStackCapability = slotStack.getCapability(Capabilities.ItemHandler.ITEM, null);
+            if (itemStackCapability != null) {
+                for (int j = 0; j < itemStackCapability.getSlots(); j++) {
+                    ItemStack itemInSlot = itemStackCapability.getStackInSlot(j);
                     if (ItemStack.isSameItem(itemInSlot, itemStack))
                         counter[0] += itemInSlot.getCount();
                 }
@@ -338,17 +332,16 @@ public class BuildingUtils {
         if (returnedFluid.isEmpty()) return;
 
         //Look for matching itemstacks inside curios inventories second - if found, insert there!
+        // TODO: Fix me, I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-            if (curiosOpt.isPresent()) {
-                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                    for (int i = 0; i < stackHandler.getSlots(); i++) {
-                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                        insertFluidIntoItem(itemInSlot, returnedFluid, false);
-                        if (returnedFluid.isEmpty()) return;
-                    }
-                });
-            }
+            var curios = CuriosApi.getCuriosInventory(player);
+            curios.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
+                for (int i = 0; i < stackHandler.getSlots(); i++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
+                    insertFluidIntoItem(itemInSlot, returnedFluid, false);
+                    if (returnedFluid.isEmpty()) return;
+                }
+            }));
         }
         //Now look inside the players inventory
         Inventory playerInventory = player.getInventory();
@@ -389,38 +382,35 @@ public class BuildingUtils {
         ItemStack realReturnedItem = tempReturnedItem.copy();
 
         //Look for matching itemstacks inside curios inventories second - if found, insert there!
+        // TODO: Fix me: I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            LazyOptional<ICuriosItemHandler> curiosOpt = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-            if (curiosOpt.isPresent()) {
-                curiosOpt.resolve().get().getCurios().forEach((id, stackHandler) -> {
-                    for (int i = 0; i < stackHandler.getSlots(); i++) {
-                        ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                        LazyOptional<IItemHandler> itemStackCapability = itemInSlot.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                        if (itemStackCapability.isPresent()) {
-                            IItemHandler slotHandler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-                            for (int j = 0; j < slotHandler.getSlots(); j++) {
-                                ItemStack itemInBagSlot = slotHandler.getStackInSlot(j);
-                                if (ItemStack.isSameItem(itemInBagSlot, realReturnedItem))
-                                    slotHandler.insertItem(j, realReturnedItem.split(slotHandler.getSlotLimit(j) - itemInBagSlot.getCount()), false);
-                                if (realReturnedItem.isEmpty()) return;
-                            }
+            var curiosOpt = CuriosApi.getCuriosInventory(player);
+            curiosOpt.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
+                for (int i = 0; i < stackHandler.getSlots(); i++) {
+                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
+                    var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
+                    if (itemStackCapability != null) {
+                        for (int j = 0; j < itemStackCapability.getSlots(); j++) {
+                            ItemStack itemInBagSlot = itemStackCapability.getStackInSlot(j);
+                            if (ItemStack.isSameItem(itemInBagSlot, realReturnedItem))
+                                itemStackCapability.insertItem(j, realReturnedItem.split(itemStackCapability.getSlotLimit(j) - itemInBagSlot.getCount()), false);
+                            if (realReturnedItem.isEmpty()) return;
                         }
                     }
-                });
-            }
+                }
+            }));
             if (realReturnedItem.isEmpty()) return;
         }
         //Now look for bags inside the players inventory
         Inventory playerInventory = player.getInventory();
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
-            LazyOptional<IItemHandler> itemStackCapability = slotStack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-            if (itemStackCapability.isPresent()) {
-                IItemHandler handler = itemStackCapability.orElseThrow(IllegalStateException::new); // This should never throw
-                for (int j = 0; j < handler.getSlots(); j++) {
-                    ItemStack itemInSlot = handler.getStackInSlot(j);
+            var itemStackCapability = slotStack.getCapability(Capabilities.ItemHandler.ITEM, null);
+            if (itemStackCapability != null) {
+                for (int j = 0; j < itemStackCapability.getSlots(); j++) {
+                    ItemStack itemInSlot = itemStackCapability.getStackInSlot(j);
                     if (ItemStack.isSameItem(itemInSlot, realReturnedItem))
-                        handler.insertItem(j, realReturnedItem.split(handler.getSlotLimit(j) - itemInSlot.getCount()), false);
+                        itemStackCapability.insertItem(j, realReturnedItem.split(itemStackCapability.getSlotLimit(j) - itemInSlot.getCount()), false);
                     if (realReturnedItem.isEmpty()) break;
                 }
             }
@@ -438,8 +428,8 @@ public class BuildingUtils {
 
     public static int getEnergyStored(ItemStack gadget) {
         if (gadget.getItem() instanceof BaseGadget baseGadget) {
-            IEnergyStorage energy = gadget.getCapability(ForgeCapabilities.ENERGY, null).orElse(null);
-            return energy.getEnergyStored();
+            IEnergyStorage energy = gadget.getCapability(Capabilities.EnergyStorage.ITEM);
+            return energy != null ? energy.getEnergyStored() : 0;
         }
         return 0;
     }
@@ -464,7 +454,8 @@ public class BuildingUtils {
 
     public static void useEnergy(ItemStack gadget) {
         if (gadget.getItem() instanceof BaseGadget baseGadget) {
-            IEnergyStorage energy = gadget.getCapability(ForgeCapabilities.ENERGY, null).orElse(null);
+            IEnergyStorage energy = gadget.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (energy == null) return; //This should never happen, but just in case :
             int cost = baseGadget.getEnergyCost();
             energy.extractEnergy(cost, false);
         }

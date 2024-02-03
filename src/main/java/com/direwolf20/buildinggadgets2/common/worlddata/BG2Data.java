@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
+import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.direwolf20.buildinggadgets2.util.datatypes.PasteData;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
@@ -117,7 +118,7 @@ public class BG2Data extends SavedData {
         final int[] counter = {0};
         BlockPos start = list.get(0).pos;
         BlockPos end = list.get(list.size() - 1).pos;
-        AABB aabb = new AABB(start, end);
+        AABB aabb = VecHelpers.aabbFromBlockPos(start, end);
 
         Map<BlockPos, BlockState> blockStateByPos = list.stream()
                 .collect(Collectors.toMap(e -> e.pos, e -> e.state));
@@ -143,7 +144,7 @@ public class BG2Data extends SavedData {
         ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMapFromNBT(tag.getList("blockstatemap", Tag.TAG_COMPOUND));
         BlockPos start = NbtUtils.readBlockPos(tag.getCompound("startpos"));
         BlockPos end = NbtUtils.readBlockPos(tag.getCompound("endpos"));
-        AABB aabb = new AABB(start, end);
+        AABB aabb = VecHelpers.aabbFromBlockPos(start, end);
         int[] blocklist = tag.getIntArray("statelist");
         final int[] counter = {0};
         BlockPos.betweenClosedStream(aabb).map(BlockPos::immutable).forEach(pos -> {
@@ -230,7 +231,15 @@ public class BG2Data extends SavedData {
     }
 
     public static BG2Data get(ServerLevel world) {
-        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(BG2Data::readNbt, () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>()), NAME);
+        // TODO: Can't this be cached?
+        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(
+                new Factory<>(
+                        () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>()),
+                        BG2Data::readNbt
+                ),
+                NAME
+        );
+
         bg2Data.setDirty();
         return bg2Data;
     }

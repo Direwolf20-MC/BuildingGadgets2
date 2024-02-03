@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
@@ -46,11 +47,12 @@ public class TemplateManagerContainer extends BaseContainer {
     }
 
     private void addOwnSlots() {
-        this.be.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
+        var cap = this.be.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, be.getBlockPos(), be.getBlockState(), be, null);
+        if (cap != null) {
             int x = 132;
-            addSlot(new SlotTemplateManager(h, 0, x, 18, TEXTURE_LOC_SLOT_TOOL));
-            addSlot(new SlotTemplateManager(h, 1, x, 63, TEXTURE_LOC_SLOT_TEMPLATE));
-        });
+            addSlot(new SlotTemplateManager(cap, 0, x, 18, TEXTURE_LOC_SLOT_TOOL));
+            addSlot(new SlotTemplateManager(cap, 1, x, 63, TEXTURE_LOC_SLOT_TEMPLATE));
+        }
     }
 
     @Override

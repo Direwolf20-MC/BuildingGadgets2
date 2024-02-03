@@ -112,8 +112,8 @@ dependencies {
     runtimeOnly "appeng:appliedenergistics2-neoforge:${ae2_version}"
 
     //Curios
-    runtimeOnly "top.theillusivec4.curios:curios-forge:${curios_version}"
-    compileOnly "top.theillusivec4.curios:curios-forge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
 
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime

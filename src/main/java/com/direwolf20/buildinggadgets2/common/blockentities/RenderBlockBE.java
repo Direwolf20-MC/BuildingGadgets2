@@ -268,11 +268,13 @@ public class RenderBlockBE extends BlockEntity {
             tag.put("blockEntityData", this.blockEntityData);
     }
 
-    @Nonnull
-    @Override
-    public AABB getRenderBoundingBox() {
-        return new AABB(getBlockPos().above(10).north(10).east(10), getBlockPos().below(10).south(10).west(10));
-    }
+// TODO: Removed in 1.20.4, not sure where this has gone...
+//       I'm also not sure what this was doing @michael
+//    @Nonnull
+//    @Override
+//    public AABB getRenderBoundingBox() {
+//        return new AABB(getBlockPos().above(10).north(10).east(10), getBlockPos().below(10).south(10).west(10));
+//    }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {

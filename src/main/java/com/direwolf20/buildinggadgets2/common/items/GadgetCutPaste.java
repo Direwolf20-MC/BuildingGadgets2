@@ -8,6 +8,7 @@ import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
+import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
@@ -133,7 +134,7 @@ public class GadgetCutPaste extends BaseGadget {
 
         if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return;
 
-        AABB area = new AABB(cutStart, cutEnd);
+        AABB area = VecHelpers.aabbFromBlockPos(cutStart, cutEnd);
 
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();

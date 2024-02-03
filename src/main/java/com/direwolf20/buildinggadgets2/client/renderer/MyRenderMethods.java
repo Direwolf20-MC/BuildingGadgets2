@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -31,7 +32,7 @@ public class MyRenderMethods {
     public static void renderBETransparent(BlockState pState, PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, float alpha) {
         MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MultiplyAlphaRenderTypeBuffer(pBufferSource, alpha);
         ItemStack stack = new ItemStack(pState.getBlock());
-        net.minecraftforge.client.extensions.common.IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, ItemDisplayContext.NONE, pPoseStack, multiplyAlphaRenderTypeBuffer, pPackedLight, pPackedOverlay);
+        IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, ItemDisplayContext.NONE, pPoseStack, multiplyAlphaRenderTypeBuffer, pPackedLight, pPackedOverlay);
     }
 
     public static class MultiplyAlphaRenderTypeBuffer implements MultiBufferSource {
@@ -46,6 +47,7 @@ public class MyRenderMethods {
         @Override
         public VertexConsumer getBuffer(RenderType type) {
             RenderType localType = type;
+            // TODO: Dire fix me, I don't like rendering
             if (localType instanceof RenderType.CompositeRenderType) {
                 // all of this requires a lot of AT's so be aware of that on ports
                 ResourceLocation texture = ((RenderStateShard.TextureStateShard) ((RenderType.CompositeRenderType) localType).state.textureState).texture
