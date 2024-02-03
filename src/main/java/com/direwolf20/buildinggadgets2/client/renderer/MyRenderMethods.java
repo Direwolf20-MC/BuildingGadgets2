@@ -47,7 +47,6 @@ public class MyRenderMethods {
         @Override
         public VertexConsumer getBuffer(RenderType type) {
             RenderType localType = type;
-            // TODO: Dire fix me, I don't like rendering
             if (localType instanceof RenderType.CompositeRenderType) {
                 // all of this requires a lot of AT's so be aware of that on ports
                 ResourceLocation texture = ((RenderStateShard.TextureStateShard) ((RenderType.CompositeRenderType) localType).state.textureState).texture

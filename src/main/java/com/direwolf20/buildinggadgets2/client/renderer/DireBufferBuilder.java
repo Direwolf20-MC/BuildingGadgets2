@@ -12,7 +12,6 @@ public class DireBufferBuilder extends BufferBuilder {
         super(pCapacity);
     }
 
-    // TODO: Dire fix me
     @Override
     public void putSortedQuadIndices(VertexFormat.IndexType pIndexType) {
         if (this.sortingPoints != null && this.sorting != null) {

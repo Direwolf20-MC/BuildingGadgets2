@@ -18,10 +18,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
@@ -268,7 +266,7 @@ public class RenderBlockBE extends BlockEntity {
             tag.put("blockEntityData", this.blockEntityData);
     }
 
-// TODO: Removed in 1.20.4, not sure where this has gone...
+//  Removed in 1.20.4, not sure where this has gone...
 //       I'm also not sure what this was doing @michael
 //    @Nonnull
 //    @Override

@@ -24,7 +24,6 @@ public class Config {
     public static ModConfigSpec.IntValue EXCHANGINGGADGET_COST;
     public static ModConfigSpec.IntValue CUTPASTEGADGET_MAXPOWER;
     public static ModConfigSpec.IntValue CUTPASTEGADGET_COST;
-    public static ModConfigSpec.IntValue CUTPASTEGADGET_NEWCOST;
     public static ModConfigSpec.IntValue COPYPASTEGADGET_MAXPOWER;
     public static ModConfigSpec.IntValue COPYPASTEGADGET_COST;
     public static ModConfigSpec.IntValue DESTRUCTIONGADGET_MAXPOWER;
@@ -82,14 +81,11 @@ public class Config {
                 .defineInRange("baseCost", 100, 0, Integer.MAX_VALUE);
         COMMON_BUILDER.pop();
 
-        //Todo: Cleanup in 1.21
         COMMON_BUILDER.comment("Cut Paste Gadget").push(SUBCATEGORY_CUTPASTEGADGET);
         CUTPASTEGADGET_MAXPOWER = COMMON_BUILDER.comment("Maximum power for the Cut and Paste Gadget")
                 .defineInRange("maxPower", 5000000, 0, Integer.MAX_VALUE);
-        CUTPASTEGADGET_COST = COMMON_BUILDER.comment("(LEGACY) NO LONGER USED")
-                .defineInRange("baseCost", 200, 0, Integer.MAX_VALUE);
-        CUTPASTEGADGET_NEWCOST = COMMON_BUILDER.comment("Base cost per block - Checked during CUT, Charged during PASTE")
-                .defineInRange("baseCostNew", 50, 0, Integer.MAX_VALUE);
+        CUTPASTEGADGET_COST = COMMON_BUILDER.comment("Base cost per block - Checked during CUT, Charged during PASTE")
+                .defineInRange("baseCost", 50, 0, Integer.MAX_VALUE);
         COMMON_BUILDER.pop();
 
         COMMON_BUILDER.comment("Copy Paste Gadget").push(SUBCATEGORY_COPYPASTEGADGET);
