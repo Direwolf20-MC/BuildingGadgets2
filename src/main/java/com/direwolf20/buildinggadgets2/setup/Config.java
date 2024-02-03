@@ -3,11 +3,12 @@ package com.direwolf20.buildinggadgets2.setup;
 
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class Config {
-    public static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec.Builder COMMON_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_POWER = "power";
@@ -17,19 +18,19 @@ public class Config {
     public static final String SUBCATEGORY_COPYPASTEGADGET = "copypaste_gadget";
     public static final String SUBCATEGORY_DESTRUCTIONGADGET = "destruction_gadget";
 
-    public static ForgeConfigSpec.IntValue BUILDINGGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue BUILDINGGADGET_COST;
-    public static ForgeConfigSpec.IntValue EXCHANGINGGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue EXCHANGINGGADGET_COST;
-    public static ForgeConfigSpec.IntValue CUTPASTEGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue CUTPASTEGADGET_COST;
-    public static ForgeConfigSpec.IntValue CUTPASTEGADGET_NEWCOST;
-    public static ForgeConfigSpec.IntValue COPYPASTEGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue COPYPASTEGADGET_COST;
-    public static ForgeConfigSpec.IntValue DESTRUCTIONGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue DESTRUCTIONGADGET_COST;
+    public static ModConfigSpec.IntValue BUILDINGGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue BUILDINGGADGET_COST;
+    public static ModConfigSpec.IntValue EXCHANGINGGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue EXCHANGINGGADGET_COST;
+    public static ModConfigSpec.IntValue CUTPASTEGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue CUTPASTEGADGET_COST;
+    public static ModConfigSpec.IntValue CUTPASTEGADGET_NEWCOST;
+    public static ModConfigSpec.IntValue COPYPASTEGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue COPYPASTEGADGET_COST;
+    public static ModConfigSpec.IntValue DESTRUCTIONGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue DESTRUCTIONGADGET_COST;
 
-    public static ForgeConfigSpec.IntValue RAYTRACE_RANGE;
+    public static ModConfigSpec.IntValue RAYTRACE_RANGE;
 
     public static void register() {
         //registerServerConfigs();

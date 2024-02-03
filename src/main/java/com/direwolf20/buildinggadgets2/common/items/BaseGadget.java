@@ -2,7 +2,6 @@ package com.direwolf20.buildinggadgets2.common.items;
 
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
-import com.direwolf20.buildinggadgets2.common.capabilities.CapabilityEnergyProvider;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.util.*;
@@ -14,7 +13,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.items.IItemHandler;
 import javax.annotation.Nullable;
@@ -58,28 +56,32 @@ public abstract class BaseGadget extends Item {
 
     @Override
     public boolean isBarVisible(ItemStack stack) {
-        IEnergyStorage energy = stack.getCapability(ForgeCapabilities.ENERGY, null).orElse(null);
-        return (energy.getEnergyStored() < energy.getMaxEnergyStored());
-    }
+        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        if (energy == null) {
+            return false;
+        }
 
-    @Nullable
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        return new CapabilityEnergyProvider(stack, getEnergyMax());
+        return (energy.getEnergyStored() < energy.getMaxEnergyStored());
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return stack.getCapability(ForgeCapabilities.ENERGY, null)
-                .map(e -> Math.min(13 * e.getEnergyStored() / e.getMaxEnergyStored(), 13))
-                .orElse(0);
+        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        if (energy == null) {
+            return 0;
+        }
+
+        return Math.min(13 * energy.getEnergyStored() / energy.getMaxEnergyStored(), 13);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return stack.getCapability(ForgeCapabilities.ENERGY)
-                .map(e -> Mth.hsvToRgb(Math.max(0.0F, (float) e.getEnergyStored() / (float) e.getMaxEnergyStored()) / 3.0F, 1.0F, 1.0F))
-                .orElse(super.getBarColor(stack));
+        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        if (energy == null) {
+            return super.getBarColor(stack);
+        }
+
+        return Mth.hsvToRgb(Math.max(0.0F, (float) energy.getEnergyStored() / (float) energy.getMaxEnergyStored()) / 3.0F, 1.0F, 1.0F);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -105,14 +107,14 @@ public abstract class BaseGadget extends Item {
             }
         }
 
-        stack.getCapability(ForgeCapabilities.ENERGY, null)
-                .ifPresent(energy -> {
-                    MutableComponent energyText = !sneakPressed
-                            ? Component.translatable("buildinggadgets2.tooltips.energy", MagicHelpers.tidyValue(energy.getEnergyStored()), MagicHelpers.tidyValue(energy.getMaxEnergyStored()))
-                            : Component.translatable("buildinggadgets2.tooltips.energy", String.format("%,d", energy.getEnergyStored()), String.format("%,d", energy.getMaxEnergyStored()));
-                    tooltip.add(energyText.withStyle(ChatFormatting.GREEN));
-                });
+        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        if (energy != null) {
+            MutableComponent energyText = !sneakPressed
+                    ? Component.translatable("buildinggadgets2.tooltips.energy", MagicHelpers.tidyValue(energy.getEnergyStored()), MagicHelpers.tidyValue(energy.getMaxEnergyStored()))
+                    : Component.translatable("buildinggadgets2.tooltips.energy", String.format("%,d", energy.getEnergyStored()), String.format("%,d", energy.getMaxEnergyStored()));
 
+            tooltip.add(energyText.withStyle(ChatFormatting.GREEN));
+        }
     }
 
     /**
@@ -156,8 +158,8 @@ public abstract class BaseGadget extends Item {
     public boolean bindToInventory(Level level, Player player, ItemStack gadget, BlockHitResult lookingAt) {
         BlockEntity blockEntity = level.getBlockEntity(lookingAt.getBlockPos());
         if (blockEntity != null) {
-            LazyOptional<IItemHandler> handler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, lookingAt.getDirection());
-            if (handler.isPresent()) {
+            var itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, lookingAt.getBlockPos(), lookingAt.getDirection());
+            if (itemHandler != null) {
                 GadgetNBT.setBoundPos(gadget, new DimBlockPos(level, lookingAt.getBlockPos()));
                 GadgetNBT.setToolValue(gadget, lookingAt.getDirection().ordinal(), "binddirection");
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindsuccess", lookingAt.getBlockPos().toShortString()), true);

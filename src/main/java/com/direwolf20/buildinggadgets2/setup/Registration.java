@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 
@@ -34,14 +35,13 @@ public class Registration {
     private static final DeferredRegister<SoundEvent> SOUND_REGISTRY = DeferredRegister.create(Registries.SOUND_EVENT, BuildingGadgets2.MODID);
     public static final Supplier<SoundEvent> BEEP = SOUND_REGISTRY.register("beep", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(BuildingGadgets2.MODID, "beep")));
 
-    public static void init() {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        BLOCKS.register(bus);
-        ITEMS.register(bus);
-        BLOCK_ENTITIES.register(bus);
-        CONTAINERS.register(bus);
-        SOUND_REGISTRY.register(bus);
-        PARTICLE_TYPES.register(bus);
+    public static void init(IEventBus eventBus) {
+        BLOCKS.register(eventBus);
+        ITEMS.register(eventBus);
+        BLOCK_ENTITIES.register(eventBus);
+        CONTAINERS.register(eventBus);
+        SOUND_REGISTRY.register(eventBus);
+        PARTICLE_TYPES.register(eventBus);
     }
 
     //Blocks
@@ -64,5 +64,5 @@ public class Registration {
 
     //Containers
     public static final Supplier<MenuType<TemplateManagerContainer>> TemplateManager_Container = CONTAINERS.register("templatemanager",
-            () -> IForgeMenuType.create((windowId, inv, data) -> new TemplateManagerContainer(windowId, inv, data)));
+            () -> IMenuTypeExtension.create(TemplateManagerContainer::new));
 }
