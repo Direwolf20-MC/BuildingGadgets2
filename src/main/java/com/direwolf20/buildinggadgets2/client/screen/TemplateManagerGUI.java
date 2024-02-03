@@ -52,6 +52,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
@@ -331,7 +332,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+        //renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
         guiGraphics.blit(background, leftPos - 20, topPos - 12, 0, 0, imageWidth, imageHeight + 25);
         guiGraphics.blit(background, (leftPos - 20) + imageWidth, topPos + 8, imageWidth + 3, 30, 71, imageHeight);
