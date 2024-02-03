@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 
@@ -28,7 +29,7 @@ import static com.direwolf20.buildinggadgets2.client.particles.ModParticles.PART
 
 public class Registration {
 
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, MODID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, MODID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
     private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(Registries.MENU, MODID);
@@ -45,24 +46,24 @@ public class Registration {
     }
 
     //Blocks
-    public static final Supplier<Block> RenderBlock = BLOCKS.register("render_block", RenderBlock::new);
-    public static final Supplier<Block> TemplateManager = BLOCKS.register("template_manager", TemplateManager::new);
-    public static final Supplier<Item> TemplateManager_ITEM = ITEMS.register("template_manager", () -> new BlockItem(TemplateManager.get(), new Item.Properties()));
+    public static final DeferredHolder<Block, RenderBlock> RenderBlock = BLOCKS.register("render_block", RenderBlock::new);
+    public static final DeferredHolder<Block, TemplateManager> TemplateManager = BLOCKS.register("template_manager", TemplateManager::new);
+    public static final DeferredHolder<Item, BlockItem> TemplateManager_ITEM = ITEMS.register("template_manager", () -> new BlockItem(TemplateManager.get(), new Item.Properties()));
 
     //BlockEntities (Not TileEntities - Honest)
-    public static final Supplier<BlockEntityType<RenderBlockBE>> RenderBlock_BE = BLOCK_ENTITIES.register("renderblock", () -> BlockEntityType.Builder.of(RenderBlockBE::new, RenderBlock.get()).build(null));
-    public static final Supplier<BlockEntityType<TemplateManagerBE>> TemplateManager_BE = BLOCK_ENTITIES.register("templatemanager", () -> BlockEntityType.Builder.of(TemplateManagerBE::new, TemplateManager.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RenderBlockBE>> RenderBlock_BE = BLOCK_ENTITIES.register("renderblock", () -> BlockEntityType.Builder.of(RenderBlockBE::new, RenderBlock.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TemplateManagerBE>> TemplateManager_BE = BLOCK_ENTITIES.register("templatemanager", () -> BlockEntityType.Builder.of(TemplateManagerBE::new, TemplateManager.get()).build(null));
     //public static final RegistryObject<BlockEntityType<LaserConnectorBE>> LaserConnector_BE = BLOCK_ENTITIES.register("laserconnector", () -> BlockEntityType.Builder.of(LaserConnectorBE::new, LaserConnector.get()).build(null));
 
     //Items
-    public static final Supplier<Item> Building_Gadget = ITEMS.register("gadget_building", GadgetBuilding::new);
-    public static final Supplier<Item> Exchanging_Gadget = ITEMS.register("gadget_exchanging", GadgetExchanger::new);
-    public static final Supplier<Item> CopyPaste_Gadget = ITEMS.register("gadget_copy_paste", GadgetCopyPaste::new);
-    public static final Supplier<Item> CutPaste_Gadget = ITEMS.register("gadget_cut_paste", GadgetCutPaste::new);
-    public static final Supplier<Item> Destruction_Gadget = ITEMS.register("gadget_destruction", GadgetDestruction::new);
-    public static final Supplier<Item> Template = ITEMS.register("template", TemplateItem::new);
+    public static final DeferredHolder<Item, GadgetBuilding> Building_Gadget = ITEMS.register("gadget_building", GadgetBuilding::new);
+    public static final DeferredHolder<Item, GadgetExchanger> Exchanging_Gadget = ITEMS.register("gadget_exchanging", GadgetExchanger::new);
+    public static final DeferredHolder<Item, GadgetCopyPaste> CopyPaste_Gadget = ITEMS.register("gadget_copy_paste", GadgetCopyPaste::new);
+    public static final DeferredHolder<Item, GadgetCutPaste> CutPaste_Gadget = ITEMS.register("gadget_cut_paste", GadgetCutPaste::new);
+    public static final DeferredHolder<Item, GadgetDestruction> Destruction_Gadget = ITEMS.register("gadget_destruction", GadgetDestruction::new);
+    public static final DeferredHolder<Item, TemplateItem> Template = ITEMS.register("template", TemplateItem::new);
 
     //Containers
-    public static final Supplier<MenuType<TemplateManagerContainer>> TemplateManager_Container = CONTAINERS.register("templatemanager",
+    public static final DeferredHolder<MenuType<?>, MenuType<TemplateManagerContainer>> TemplateManager_Container = CONTAINERS.register("templatemanager",
             () -> IMenuTypeExtension.create(TemplateManagerContainer::new));
 }

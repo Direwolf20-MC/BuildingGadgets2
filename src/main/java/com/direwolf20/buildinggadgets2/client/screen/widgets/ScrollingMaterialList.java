@@ -113,14 +113,6 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        //if (lastUpdate + UPDATE_MILLIS < System.currentTimeMillis())
-        //    updateEntries();  //Why?
-
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
-    }
-
     public void reset() {
         itemCountsMap = null;
     }

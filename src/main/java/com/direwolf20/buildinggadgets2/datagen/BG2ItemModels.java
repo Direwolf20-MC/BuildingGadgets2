@@ -2,8 +2,8 @@ package com.direwolf20.buildinggadgets2.datagen;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class BG2ItemModels extends ItemModelProvider {
     public BG2ItemModels(PackOutput output, ExistingFileHelper existingFileHelper) {

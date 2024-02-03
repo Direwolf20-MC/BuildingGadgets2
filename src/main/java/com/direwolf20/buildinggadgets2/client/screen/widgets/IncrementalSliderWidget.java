@@ -101,7 +101,7 @@ public class IncrementalSliderWidget extends ExtendedSlider {
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
+        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
             if (!visible)
                 return;
 

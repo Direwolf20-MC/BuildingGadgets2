@@ -3,7 +3,7 @@ package com.direwolf20.buildinggadgets2.datagen;
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 import static com.direwolf20.buildinggadgets2.setup.ModSetup.TAB_NAME;
 

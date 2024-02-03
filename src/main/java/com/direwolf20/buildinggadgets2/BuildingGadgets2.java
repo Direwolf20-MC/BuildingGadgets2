@@ -30,6 +30,7 @@ public class BuildingGadgets2 {
         eventBus.addListener(ModSetup::init);
         ModSetup.TABS.register(eventBus);
         eventBus.addListener(this::registerCapabilities);
+        eventBus.addListener(PacketHandler::registerNetworking);
 
         // TODO: Do this differently
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> eventBus.addListener(ClientSetup::init));

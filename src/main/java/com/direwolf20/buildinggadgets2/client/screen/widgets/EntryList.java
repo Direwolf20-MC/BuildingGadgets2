@@ -15,40 +15,39 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
     public static final int SCROLL_BAR_WIDTH = 6;
 
     public EntryList(int left, int top, int width, int height, int slotHeight) {
-        super(Minecraft.getInstance(), width, height, top, top + height, slotHeight);
+        super(Minecraft.getInstance(), width, height, top, slotHeight);
         // Set left x and right x, somehow MCP gave it a weird name
-        this.setLeftPos(left);
+        this.setX(left);
         double guiScaleFactor = Minecraft.getInstance().getWindow().getGuiScale();
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         //This Scissor stuff is what keeps the item list in the dark area, without it it bleeds into the white area while scrolling (try it)
-        guiGraphics.enableScissor(getLeft(), getTop(), getLeft() + width, getTop() + height);
+        guiGraphics.enableScissor(getX(), getY(), getX() + width, getY() + height);
         renderParts(guiGraphics, mouseX, mouseY, partialTicks);
         guiGraphics.disableScissor();
     }
 
     // Copied and modified from AbstractLists#render(int, int, float)
     private void renderParts(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(guiGraphics);
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
 
-        renderContentBackground(guiGraphics, tessellator, bufferbuilder);
+        renderContentBackground(guiGraphics);
 
         int k = getRowLeft();
-        int l = getTop() + 4 - (int) getScrollAmount();
+        int l = getY() + 4 - (int) getScrollAmount();
 
         //Don't ask my why this has to go first, but it does!
         int j1 = getMaxScroll();
         //This section renders the scroll bar. If we renderItems() first the scrollbar is always black - no idea why
         if (j1 > 0) {
-            int k1 = (int) ((float) ((getBottom() - getTop()) * (getBottom() - getTop())) / (float) getMaxPosition());
-            k1 = Mth.clamp(k1, 32, getBottom() - getTop() - 8);
-            int l1 = (int) getScrollAmount() * (getBottom() - getTop() - k1) / j1 + getTop();
-            if (l1 < getTop()) {
-                l1 = getTop();
+            int k1 = (int) ((float) ((getBottom() - getY()) * (getBottom() - getY())) / (float) getMaxPosition());
+            k1 = Mth.clamp(k1, 32, getBottom() - getY() - 8);
+            int l1 = (int) getScrollAmount() * (getBottom() - getY() - k1) / j1 + getY();
+            if (l1 < getY()) {
+                l1 = getY();
             }
             int x1 = getScrollbarPosition();
             int x2 = x1 + 6;
@@ -56,8 +55,8 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
             bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferbuilder.vertex(x1, getBottom(), 0.0D).color(0, 0, 0, 255).endVertex();
             bufferbuilder.vertex(x2, getBottom(), 0.0D).color(0, 0, 0, 255).endVertex();
-            bufferbuilder.vertex(x2, getTop(), 0.0D).color(0, 0, 0, 255).endVertex();
-            bufferbuilder.vertex(x1, getTop(), 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex(x2, getY(), 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.vertex(x1, getY(), 0.0D).color(0, 0, 0, 255).endVertex();
 
             bufferbuilder.vertex(x1, (l1 + k1), 0.0D).color(128, 128, 128, 255).endVertex();
             bufferbuilder.vertex(x2, (l1 + k1), 0.0D).color(128, 128, 128, 255).endVertex();
@@ -75,21 +74,16 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
         //RenderSystem.disableBlend();
     }
 
-    protected void renderContentBackground(GuiGraphics guiGraphics, Tesselator tessellator, BufferBuilder bufferbuilder) {
-        guiGraphics.fillGradient(getLeft(), getTop(), getRight(), getBottom(), 0xC0101010, 0xD0101010);
+    protected void renderContentBackground(GuiGraphics guiGraphics) {
+        guiGraphics.fillGradient(getX(), getY(), getRight(), getBottom(), 0xC0101010, 0xD0101010);
     }
 
     @Override
     protected void renderSelection(GuiGraphics p_283589_, int p_240142_, int p_240143_, int p_240144_, int p_240145_, int p_240146_) {
-        int i = this.x0 + 3;
-        int j = this.x0 + (this.width + p_240143_) / 2;
+        int i = this.getX() + 3;
+        int j = this.getX() + (this.width + p_240143_) / 2;
         p_283589_.fill(i, p_240142_ - 2, j, p_240142_ + p_240144_ + 2, p_240145_);
         p_283589_.fill(i + 1, p_240142_ - 1, j - 1, p_240142_ + p_240144_ + 1, p_240146_);
-    }
-
-    @Override
-    protected void renderBackground(GuiGraphics guiGraphics) {
-        super.renderBackground(guiGraphics);
     }
 
     @Override
@@ -119,7 +113,7 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
 
     // Copied from AbstractList#getMaxScroll because it is private
     public final int getMaxScroll() {
-        return Math.max(0, this.getMaxPosition() - (this.getBottom() - this.getTop() - 4));
+        return Math.max(0, this.getMaxPosition() - (this.getBottom() - this.getY() - 4));
     }
 
     @Override
