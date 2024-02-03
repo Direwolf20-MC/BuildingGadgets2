@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2;
 
+import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.capabilities.EnergisedItem;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
@@ -43,5 +44,9 @@ public class BuildingGadgets2 {
                 Registration.CutPaste_Gadget.get(),
                 Registration.Destruction_Gadget.get()
         );
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> ((TemplateManagerBE) be).itemHandler,
+                // blocks to register for
+                Registration.TemplateManager.get());
     }
 }
