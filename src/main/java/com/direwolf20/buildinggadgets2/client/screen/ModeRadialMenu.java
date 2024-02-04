@@ -13,7 +13,6 @@ import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
 import com.direwolf20.buildinggadgets2.common.items.*;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.common.network.newpackets.data.GadgetActionPayload;
 import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.ActionGadget;
 import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.GadgetActionCodecs;
@@ -45,7 +44,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.I18nExtension;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -90,6 +88,11 @@ public class ModeRadialMenu extends Screen {
         if (stack.getItem() instanceof BaseGadget actualGadget) {
             this.segments = GadgetModes.INSTANCE.getModesForGadget(actualGadget.gadgetTarget()).size();
         }
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+
     }
 
     @Override
