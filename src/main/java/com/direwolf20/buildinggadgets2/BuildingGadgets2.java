@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2;
 
+import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.capabilities.EnergisedItem;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
@@ -8,11 +9,9 @@ import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.ModSetup;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.mojang.logging.LogUtils;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.DistExecutor;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import org.slf4j.Logger;
@@ -32,8 +31,9 @@ public class BuildingGadgets2 {
         eventBus.addListener(this::registerCapabilities);
         eventBus.addListener(PacketHandler::registerNetworking);
 
-        // TODO: Do this differently
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> eventBus.addListener(ClientSetup::init));
+        if (FMLLoader.getDist().isClient()) {
+            eventBus.addListener(ClientSetup::init);
+        }
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -44,5 +44,9 @@ public class BuildingGadgets2 {
                 Registration.CutPaste_Gadget.get(),
                 Registration.Destruction_Gadget.get()
         );
+        event.registerBlock(Capabilities.ItemHandler.BLOCK,
+                (level, pos, state, be, side) -> ((TemplateManagerBE) be).itemHandler,
+                // blocks to register for
+                Registration.TemplateManager.get());
     }
 }

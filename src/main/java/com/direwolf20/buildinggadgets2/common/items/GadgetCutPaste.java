@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
@@ -46,7 +47,7 @@ public class GadgetCutPaste extends BaseGadget {
 
     @Override
     public int getEnergyCost() {
-        return Config.CUTPASTEGADGET_NEWCOST.get();
+        return Config.CUTPASTEGADGET_COST.get();
     }
 
     @OnlyIn(Dist.CLIENT)

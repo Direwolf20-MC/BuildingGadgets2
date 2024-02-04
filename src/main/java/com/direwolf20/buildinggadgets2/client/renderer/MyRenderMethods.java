@@ -47,7 +47,6 @@ public class MyRenderMethods {
         @Override
         public VertexConsumer getBuffer(RenderType type) {
             RenderType localType = type;
-            // TODO: Dire fix me, I don't like rendering
             if (localType instanceof RenderType.CompositeRenderType) {
                 // all of this requires a lot of AT's so be aware of that on ports
                 ResourceLocation texture = ((RenderStateShard.TextureStateShard) ((RenderType.CompositeRenderType) localType).state.textureState).texture
@@ -65,7 +64,7 @@ public class MyRenderMethods {
     public static void renderBESquished(BlockState pState, PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, float alpha) {
         SquishedRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new SquishedRenderTypeBuffer(pBufferSource, alpha, pPoseStack.last().pose());
         ItemStack stack = new ItemStack(pState.getBlock());
-       IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, ItemDisplayContext.NONE, pPoseStack, multiplyAlphaRenderTypeBuffer, pPackedLight, pPackedOverlay);
+        net.neoforged.neoforge.client.extensions.common.IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(stack, ItemDisplayContext.NONE, pPoseStack, multiplyAlphaRenderTypeBuffer, pPackedLight, pPackedOverlay);
     }
 
     public static class SquishedRenderTypeBuffer implements MultiBufferSource {
