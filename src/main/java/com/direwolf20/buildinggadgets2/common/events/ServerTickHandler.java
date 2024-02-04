@@ -24,7 +24,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-
 import java.util.*;
 
 import static com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste.customCutValidation;

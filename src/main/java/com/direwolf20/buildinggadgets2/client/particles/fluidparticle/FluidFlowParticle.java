@@ -11,7 +11,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-
 import java.util.Random;
 
 public class FluidFlowParticle extends BreakingItemParticle {

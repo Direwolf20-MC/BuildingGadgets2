@@ -14,6 +14,7 @@ public record SendCopyDataPayload(
         CompoundTag tag
 ) implements CustomPacketPayload {
     public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "send_copy_data");
+
     public SendCopyDataPayload(final FriendlyByteBuf buffer) {
         this(buffer.readUUID(), buffer.readUUID(), buffer.readNbt());
     }

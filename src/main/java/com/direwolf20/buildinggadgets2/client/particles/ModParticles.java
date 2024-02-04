@@ -7,7 +7,6 @@ import com.direwolf20.buildinggadgets2.client.particles.itemparticle.ItemFlowPar
 import com.direwolf20.buildinggadgets2.client.particles.itemparticle.ItemFlowParticleType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;

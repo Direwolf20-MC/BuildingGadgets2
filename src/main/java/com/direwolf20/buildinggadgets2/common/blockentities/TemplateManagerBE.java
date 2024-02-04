@@ -4,7 +4,6 @@ import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContaine
 import com.direwolf20.buildinggadgets2.common.containers.customhandler.TemplateManagerHandler;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -15,10 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

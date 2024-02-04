@@ -8,11 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.UUID;
 
 public record SendPasteBatchesPayload(
-    UUID copyUUID,
-    int numberOfPackets,
-    int position,
-    FriendlyByteBuf data
-) implements CustomPacketPayload  {
+        UUID copyUUID,
+        int numberOfPackets,
+        int position,
+        FriendlyByteBuf data
+) implements CustomPacketPayload {
     public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "send_paste_batches");
 
     public SendPasteBatchesPayload(final FriendlyByteBuf buffer) {

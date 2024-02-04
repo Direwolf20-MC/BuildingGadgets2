@@ -9,15 +9,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public record RequestCopyDataPayload(
-    UUID gadgetUUID,
-    UUID copyUUID
+        UUID gadgetUUID,
+        UUID copyUUID
 ) implements CustomPacketPayload {
     public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "request_copy_data");
 
     public RequestCopyDataPayload(final FriendlyByteBuf pBuffer) {
         this(
-            pBuffer.readUUID(),
-            pBuffer.readUUID()
+                pBuffer.readUUID(),
+                pBuffer.readUUID()
         );
     }
 

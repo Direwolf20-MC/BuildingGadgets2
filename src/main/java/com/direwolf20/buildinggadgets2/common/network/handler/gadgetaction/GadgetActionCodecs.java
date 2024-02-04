@@ -7,16 +7,16 @@ import net.minecraft.resources.ResourceLocation;
 
 public class GadgetActionCodecs {
     public record BiPos(BlockPos startPos, BlockPos endPos) {
-         public static Codec<BiPos> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                 BlockPos.CODEC.fieldOf("startPos").forGetter(BiPos::startPos),
-                 BlockPos.CODEC.fieldOf("endPos").forGetter(BiPos::endPos)
-         ).apply(instance, BiPos::new));
+        public static Codec<BiPos> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                BlockPos.CODEC.fieldOf("startPos").forGetter(BiPos::startPos),
+                BlockPos.CODEC.fieldOf("endPos").forGetter(BiPos::endPos)
+        ).apply(instance, BiPos::new));
     }
 
     public record DestructionRanges(
-      int left, int right,
-      int up, int down,
-      int depth
+            int left, int right,
+            int up, int down,
+            int depth
     ) {
         public static Codec<DestructionRanges> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("left").forGetter(DestructionRanges::left),

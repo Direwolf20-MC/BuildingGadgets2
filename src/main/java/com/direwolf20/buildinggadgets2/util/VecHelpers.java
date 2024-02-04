@@ -3,7 +3,6 @@ package com.direwolf20.buildinggadgets2.util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3d;
 
 public class VecHelpers {
     public static Vec3 blockPosToVec3(BlockPos pos) {

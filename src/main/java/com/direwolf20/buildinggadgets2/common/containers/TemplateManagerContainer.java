@@ -14,7 +14,6 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
-
 import javax.annotation.Nonnull;
 import java.util.Objects;
 

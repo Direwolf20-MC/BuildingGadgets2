@@ -2,7 +2,6 @@ package com.direwolf20.buildinggadgets2.setup;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
 import com.direwolf20.buildinggadgets2.integration.AE2Integration;
 import com.direwolf20.buildinggadgets2.integration.AE2Methods;
 import net.minecraft.core.registries.Registries;
