@@ -1,8 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.datatypes;
 
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.data.SendPasteBatchesPayload;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.PacketSendPasteBatches;
+import com.direwolf20.buildinggadgets2.common.network.data.SendPasteBatchesPayload;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;

@@ -1,12 +1,12 @@
 package com.direwolf20.buildinggadgets2.common.network;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.data.*;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.PacketRequestCopyData;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.PacketSendCopyData;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.PacketSendPasteBatches;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.PacketUpdateTemplateManager;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.PacketGadgetAction;
+import com.direwolf20.buildinggadgets2.common.network.data.*;
+import com.direwolf20.buildinggadgets2.common.network.handler.PacketRequestCopyData;
+import com.direwolf20.buildinggadgets2.common.network.handler.PacketSendCopyData;
+import com.direwolf20.buildinggadgets2.common.network.handler.PacketSendPasteBatches;
+import com.direwolf20.buildinggadgets2.common.network.handler.PacketUpdateTemplateManager;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.PacketGadgetAction;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 

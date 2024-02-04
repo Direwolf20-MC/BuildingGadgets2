@@ -1,7 +1,7 @@
-package com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction;
+package com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction;
 
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.data.GadgetActionPayload;
+import com.direwolf20.buildinggadgets2.common.network.data.GadgetActionPayload;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;

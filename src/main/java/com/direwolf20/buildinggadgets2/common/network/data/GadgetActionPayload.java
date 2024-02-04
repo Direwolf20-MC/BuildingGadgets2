@@ -1,7 +1,7 @@
-package com.direwolf20.buildinggadgets2.common.network.newpackets.data;
+package com.direwolf20.buildinggadgets2.common.network.data;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
-import com.direwolf20.buildinggadgets2.common.network.newpackets.handler.gadgetaction.ActionGadget;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.ActionGadget;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
