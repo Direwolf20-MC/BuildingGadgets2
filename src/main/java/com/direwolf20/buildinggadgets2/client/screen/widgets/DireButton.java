@@ -25,13 +25,7 @@ public class DireButton extends Button {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            guiGraphics.blit(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX(), this.getY(), 0, 46, this.width / 2, this.height);
-            guiGraphics.blit(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46, this.width / 2, this.height);
-
-
-            int bottomToDraw = 2;
-            guiGraphics.blit(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX(), this.getY() + this.height - bottomToDraw, 0, 66 - bottomToDraw, this.width / 2, bottomToDraw);
-            guiGraphics.blit(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX() + this.width / 2, this.getY() + this.height - bottomToDraw, 200 - this.width / 2, 66 - bottomToDraw, this.width / 2, bottomToDraw);
+            guiGraphics.blitSprite(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
             int j = 14737632;
 
