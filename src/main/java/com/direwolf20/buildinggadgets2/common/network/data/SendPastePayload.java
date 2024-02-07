@@ -1,30 +1,27 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
-public record SendPasteBatchesPayload(
+public record SendPastePayload(
         UUID copyUUID,
-        int numberOfPackets,
-        int position,
-        FriendlyByteBuf data
+        CompoundTag tag
 ) implements CustomPacketPayload {
-    public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "send_paste_batches");
+    public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "send_paste");
 
-    public SendPasteBatchesPayload(final FriendlyByteBuf buffer) {
-        this(buffer.readUUID(), buffer.readInt(), buffer.readInt(), new FriendlyByteBuf(buffer.readBytes(buffer.readableBytes())));
+    public SendPastePayload(final FriendlyByteBuf buffer) {
+        this(buffer.readUUID(), buffer.readNbt());
     }
 
     @Override
     public void write(FriendlyByteBuf buffer) {
         buffer.writeUUID(copyUUID());
-        buffer.writeInt(numberOfPackets());
-        buffer.writeInt(position());
-        buffer.writeBytes(data);
+        buffer.writeNbt(tag());
     }
 
     @Override

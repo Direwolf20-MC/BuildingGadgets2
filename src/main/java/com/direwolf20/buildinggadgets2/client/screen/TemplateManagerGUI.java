@@ -14,12 +14,12 @@ import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.common.items.TemplateItem;
+import com.direwolf20.buildinggadgets2.common.network.data.SendPastePayload;
 import com.direwolf20.buildinggadgets2.common.network.data.UpdateTemplateManagerPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.FakeRenderingWorld;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import com.direwolf20.buildinggadgets2.util.datatypes.PasteData;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.Template;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -524,7 +524,8 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         if (statePosArrayList.isEmpty())
             return;
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
-        PasteData.sendCompoundTag(serverTag);
+        UUID copyUUID = UUID.randomUUID();
+        PacketDistributor.SERVER.noArg().send(new SendPastePayload(copyUUID, serverTag));
     }
 
     //TODO WIP
