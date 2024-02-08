@@ -13,6 +13,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -68,7 +70,7 @@ public class PasteGUI extends Screen {
     }
 
     private void sendPacket() {
-        PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RELATIVE_PASTE, NbtUtils.writeBlockPos(new BlockPos(X.getValue(), Y.getValue(), Z.getValue()))));
+        PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RELATIVE_PASTE, BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, new BlockPos(X.getValue(), Y.getValue(), Z.getValue())).get().orThrow()));
     }
 
     private void onChange(int value) {

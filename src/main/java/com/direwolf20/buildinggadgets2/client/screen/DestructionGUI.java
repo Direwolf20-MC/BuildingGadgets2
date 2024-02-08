@@ -13,8 +13,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -104,7 +106,7 @@ public class DestructionGUI extends Screen {
 
         Button affectTiles = new GuiIconActionable(x + 5, y - 75, "affecttiles", Component.translatable("buildinggadgets2.screen.affecttiles"), true, send -> {
             if (send) {
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", "affecttiles"))));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, StringTag.valueOf("affecttiles")));
             }
 
             return GadgetNBT.getSetting(destructionGadget, "affecttiles");
@@ -113,7 +115,7 @@ public class DestructionGUI extends Screen {
 
         Button rayTrace = new GuiIconActionable(x + 35, y - 75, "raytrace_fluid", Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), true, send -> {
             if (send) {
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, Util.make(new CompoundTag(), c -> c.putString("setting", "raytracefluid"))));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, StringTag.valueOf("raytracefluid")));
             }
 
             return GadgetNBT.getSetting(destructionGadget, "raytracefluid");
@@ -124,7 +126,7 @@ public class DestructionGUI extends Screen {
             if (send) {
                 renderType = renderType.next();
                 renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RENDER_CHANGE, Util.make(new CompoundTag(), c -> c.putByte("renderType", renderType.getPosition()))));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RENDER_CHANGE, ByteTag.valueOf(renderType.getPosition())));
             }
 
             return false;
@@ -199,7 +201,7 @@ public class DestructionGUI extends Screen {
         if (isWithinBounds()) {
             PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
                     ActionGadget.DESTRUCTION_RANGES,
-                    (CompoundTag) GadgetActionCodecs.DestructionRanges.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.DestructionRanges(left.getValueInt(), right.getValueInt(), up.getValueInt(), down.getValueInt(), depth.getValueInt())).get().orThrow()
+                    GadgetActionCodecs.DestructionRanges.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.DestructionRanges(left.getValueInt(), right.getValueInt(), up.getValueInt(), down.getValueInt(), depth.getValueInt())).get().orThrow()
             ));
         }
     }

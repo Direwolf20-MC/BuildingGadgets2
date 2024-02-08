@@ -13,6 +13,7 @@ import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -53,7 +54,7 @@ public class EventKeyInput {
         } else if (KeyBindings.range.consumeClick()) {
             int oldRange = GadgetNBT.getToolRange(tool);
             int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
-            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RANGE_CHANGE, Util.make(new CompoundTag(), c -> c.putInt("range", newRange))));
+            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RANGE_CHANGE, IntTag.valueOf(newRange)));
         }/*else if (KeyBindings.rotateMirror.consumeClick()) {
             PacketHandler.sendToServer(new PacketRotateMirror());
         } else if (KeyBindings.undo.consumeClick()) {

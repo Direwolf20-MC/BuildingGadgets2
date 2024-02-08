@@ -3,6 +3,8 @@ package com.direwolf20.buildinggadgets2.common.network.data;
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.ActionGadget;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -10,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public record GadgetActionPayload(
         ActionGadget actionName,
-        CompoundTag metaData
+        Tag metaData
 ) implements CustomPacketPayload {
     public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "gadget_action");
 
@@ -21,7 +23,7 @@ public record GadgetActionPayload(
     public GadgetActionPayload(final FriendlyByteBuf buffer) {
         this(
                 ActionGadget.valueOf(buffer.readUtf()),
-                buffer.readNbt()
+                buffer.readNbt(NbtAccounter.unlimitedHeap())
         );
     }
 

@@ -18,8 +18,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -128,11 +127,13 @@ public enum ActionGadget {
         });
     }),
     RANGE_CHANGE(context -> {
-        // This only requires an int
-        // TODO: Ensure this is valid...
-        int range = context.payload().metaData().getInt("range");
-        GadgetNBT.setToolRange(context.gadget(), range);
-        context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.range_set", range), true);
+        lazyCodecRead(Codec.INT, context.payload().metaData(), range -> {
+            GadgetNBT.setToolRange(context.gadget(), range);
+            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.range_set", range), true);
+        }, error -> {
+            // TODO: Translate
+            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copycoordsfailed"), true);
+        });
     }),
     RELATIVE_PASTE(context -> {
         // This only requires an blockpos so we'll use the blockpos codec
@@ -145,10 +146,13 @@ public enum ActionGadget {
         });
     }),
     RENDER_CHANGE(context -> {
-        // This only requires a byte
-        byte renderType = context.payload().metaData().getByte("renderType");
-        GadgetNBT.setRenderType(context.gadget(), renderType);
-        context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.render_set", Component.translatable(GadgetNBT.getRenderType(context.gadget()).getLang())), true);
+        lazyCodecRead(Codec.BYTE, context.payload().metaData(), renderType -> {
+            GadgetNBT.setRenderType(context.gadget(), renderType);
+            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.render_set", Component.translatable(GadgetNBT.getRenderType(context.gadget()).getLang())), true);
+        }, error -> {
+            // TODO: Translate
+            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copycoordsfailed"), true);
+        });
     }),
     ROTATE(context -> {
         var gadget = context.gadget();
@@ -210,14 +214,19 @@ public enum ActionGadget {
                     )
             );
         }, error -> {
-
+            // TODO: Translate
+            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copycoordsfailed"), true);
         });
     }),
     TOGGLE_SETTING(context -> {
-        // This only requires a string
-        // TODO: valid this is sent correctly
-        String setting = context.payload().metaData().getString("setting");
-        GadgetNBT.toggleSetting(context.gadget(), setting);
+        lazyCodecRead(Codec.STRING, context.payload().metaData(), setting -> {
+            // This only requires a string
+            // TODO: valid this is sent correctly
+            GadgetNBT.toggleSetting(context.gadget(), setting);
+        }, error -> {
+            // TODO: Translate
+            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copycoordsfailed"), true);
+        });
     }),
     UNDO(context -> {
         if (context.gadget().getItem() instanceof BaseGadget actualGadget) {
@@ -235,7 +244,7 @@ public enum ActionGadget {
         return handler;
     }
 
-    private static <T> void lazyCodecRead(Codec<T> codec, CompoundTag compound, Consumer<T> onSuccess, Consumer<String> onFailure) {
+    private static <T> void lazyCodecRead(Codec<T> codec, Tag compound, Consumer<T> onSuccess, Consumer<String> onFailure) {
         // Read the nbt data from the context using our BiPos codec
         // Hehe, good luck dire :P
         DataResult<T> parseResult = codec.parse(NbtOps.INSTANCE, compound);

@@ -70,7 +70,7 @@ public class CopyGUI extends Screen {
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.clear"), (button) -> {
                 PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
                         ActionGadget.COPY_COORDS,
-                        (CompoundTag) GadgetActionCodecs.BiPos.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.BiPos(GadgetNBT.nullPos, GadgetNBT.nullPos)).get().orThrow()
+                        GadgetActionCodecs.BiPos.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.BiPos(GadgetNBT.nullPos, GadgetNBT.nullPos)).get().orThrow()
                 ));
 
                 onClose();
@@ -110,7 +110,7 @@ public class CopyGUI extends Screen {
         //System.out.println("Firing Packet!");
         PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
                 ActionGadget.COPY_COORDS,
-                (CompoundTag) GadgetActionCodecs.BiPos.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.BiPos(startPos, endPos)).get().orThrow()
+                GadgetActionCodecs.BiPos.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.BiPos(startPos, endPos)).get().orThrow()
         ));
     }
 
