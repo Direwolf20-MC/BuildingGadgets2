@@ -20,6 +20,7 @@
   "buildinggadgets2.messages.bindremoved": "Bind Removed",
   "buildinggadgets2.messages.bindsuccess": "Bind Succeeded to: %s",
   "buildinggadgets2.messages.copyblocks": "Copied %d blocks",
+  "buildinggadgets2.messages.copycoordsfailed": "Copying Coordinates Failed.",
   "buildinggadgets2.messages.cutblocks": "Cut %d blocks",
   "buildinggadgets2.messages.cutinprogress": "Cut in progress - Please Wait!",
   "buildinggadgets2.messages.invalidblock": "Invalid Block",

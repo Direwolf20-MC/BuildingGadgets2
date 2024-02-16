@@ -141,5 +141,6 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.messages.bindfailed", "Bind Failed: Invalid block");
         add("buildinggadgets2.messages.bindsuccess", "Bind Succeeded to: %s");
         add("buildinggadgets2.messages.bindremoved", "Bind Removed");
+        add("buildinggadgets2.messages.copycoordsfailed", "Copying Coordinates Failed.");
     }
 }
