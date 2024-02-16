@@ -2,24 +2,26 @@ package com.direwolf20.buildinggadgets2.datagen;
 
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 public class BG2Recipes extends RecipeProvider {
 
-    public BG2Recipes(PackOutput packOutput) {
-        super(packOutput);
+
+    public BG2Recipes(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider);
     }
 
     @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(RecipeOutput consumer) {
         //Gadgets
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Building_Gadget.get())
                 .pattern("iri")

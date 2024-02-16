@@ -21,10 +21,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.Nullable;
 
@@ -47,12 +44,12 @@ public class TemplateManager extends Block implements EntityBlock {
         if (newState.getBlock() != this) {
             BlockEntity blockEntity = worldIn.getBlockEntity(pos);
             if (blockEntity != null && blockEntity instanceof TemplateManagerBE) {
-                LazyOptional<IItemHandler> cap = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                cap.ifPresent(handler -> {
-                    for (int i = 0; i < handler.getSlots(); ++i) {
-                        Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), handler.getStackInSlot(i));
+                var cap = worldIn.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, null);
+                if (cap != null) {
+                    for (int i = 0; i < cap.getSlots(); ++i) {
+                        Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), cap.getStackInSlot(i));
                     }
-                });
+                }
             }
 
         }
@@ -80,7 +77,7 @@ public class TemplateManager extends Block implements EntityBlock {
         if (!(te instanceof TemplateManagerBE templateManagerBE))
             return InteractionResult.FAIL;
 
-        NetworkHooks.openScreen((ServerPlayer) player, new SimpleMenuProvider(
+        ((ServerPlayer) player).openMenu(new SimpleMenuProvider(
                 (windowId, playerInventory, playerEntity) -> new TemplateManagerContainer(windowId, playerInventory, templateManagerBE), Component.translatable("")), (buf -> {
             buf.writeBlockPos(blockPos);
         }));

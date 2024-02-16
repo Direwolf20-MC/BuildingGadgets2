@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
@@ -63,7 +64,7 @@ public class Template {
             if (temp.statePosArrayList == null) { //if this data wasn't in the JSON, it might be from the old template format, lets try!
                 TemplateJsonRepresentation temp2 = gson.fromJson(compactJSON, TemplateJsonRepresentation.class);
                 byte[] bytes = Base64.getDecoder().decode(temp2.body);
-                CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(bytes));
+                CompoundTag nbt = NbtIo.readCompressed(new ByteArrayInputStream(bytes), NbtAccounter.unlimitedHeap());
                 BlockPos startPos = new BlockPos(temp2.header.get("bounding_box").getAsJsonObject().get("min_x").getAsInt(), temp2.header.get("bounding_box").getAsJsonObject().get("min_y").getAsInt(), temp2.header.get("bounding_box").getAsJsonObject().get("min_z").getAsInt());
                 BlockPos endPos = new BlockPos(temp2.header.get("bounding_box").getAsJsonObject().get("max_x").getAsInt(), temp2.header.get("bounding_box").getAsJsonObject().get("max_y").getAsInt(), temp2.header.get("bounding_box").getAsJsonObject().get("max_z").getAsInt());
                 this.name = ""; //Todo

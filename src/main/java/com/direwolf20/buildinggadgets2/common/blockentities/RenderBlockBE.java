@@ -18,10 +18,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
@@ -268,11 +266,13 @@ public class RenderBlockBE extends BlockEntity {
             tag.put("blockEntityData", this.blockEntityData);
     }
 
-    @Nonnull
-    @Override
-    public AABB getRenderBoundingBox() {
-        return new AABB(getBlockPos().above(10).north(10).east(10), getBlockPos().below(10).south(10).west(10));
-    }
+//  Removed in 1.20.4, not sure where this has gone...
+//       I'm also not sure what this was doing @michael
+//    @Nonnull
+//    @Override
+//    public AABB getRenderBoundingBox() {
+//        return new AABB(getBlockPos().above(10).north(10).east(10), getBlockPos().below(10).south(10).west(10));
+//    }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {

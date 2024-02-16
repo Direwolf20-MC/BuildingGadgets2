@@ -5,7 +5,7 @@ import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 

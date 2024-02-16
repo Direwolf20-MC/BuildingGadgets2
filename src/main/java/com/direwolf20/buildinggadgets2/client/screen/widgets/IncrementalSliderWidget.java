@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.widget.ForgeSlider;
+import net.neoforged.neoforge.client.gui.widget.ExtendedSlider;
 
 import java.awt.*;
 import java.util.Collection;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 /**
  * A flat colored, incremental (+ and - buttons) slider widget
  */
-public class IncrementalSliderWidget extends ForgeSlider {
+public class IncrementalSliderWidget extends ExtendedSlider {
     private static final int BACKGROUND = createAlphaColor(Color.DARK_GRAY, 200).getRGB();
     private static final int SLIDER_BACKGROUND = createAlphaColor(Color.DARK_GRAY.darker(), 200).getRGB();
     private static final int SLIDER_COLOR = createAlphaColor(Color.DARK_GRAY.brighter().brighter(), 200).getRGB();
@@ -101,7 +101,7 @@ public class IncrementalSliderWidget extends ForgeSlider {
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
+        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
             if (!visible)
                 return;
 

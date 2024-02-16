@@ -3,17 +3,24 @@ package com.direwolf20.buildinggadgets2.client.screen;
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.*;
+import com.direwolf20.buildinggadgets2.common.network.data.GadgetActionPayload;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.ActionGadget;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.GadgetActionCodecs;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -80,32 +87,36 @@ public class DestructionGUI extends Screen {
                 .build());
 
         Button undo_button = new GuiIconActionable(x - 55, y - 75, "undo", Component.translatable("buildinggadgets2.radialmenu.undo"), false, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketUndo());
+            if (send) {
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.UNDO));
+            }
 
             return false;
         });
         this.addRenderableWidget(undo_button);
 
         Button anchorButton = new GuiIconActionable(x - 25, y - 75, "anchor", Component.translatable("buildinggadgets2.radialmenu.anchor"), true, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketAnchor());
+            if (send) {
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.ANCHOR));
+            }
 
             return !GadgetNBT.getAnchorPos(destructionGadget).equals(GadgetNBT.nullPos);
         });
         this.addRenderableWidget(anchorButton);
 
         Button affectTiles = new GuiIconActionable(x + 5, y - 75, "affecttiles", Component.translatable("buildinggadgets2.screen.affecttiles"), true, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketToggleSetting("affecttiles"));
+            if (send) {
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, StringTag.valueOf("affecttiles")));
+            }
 
             return GadgetNBT.getSetting(destructionGadget, "affecttiles");
         });
         this.addRenderableWidget(affectTiles);
 
         Button rayTrace = new GuiIconActionable(x + 35, y - 75, "raytrace_fluid", Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), true, send -> {
-            if (send)
-                PacketHandler.sendToServer(new PacketToggleSetting("raytracefluid"));
+            if (send) {
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, StringTag.valueOf("raytracefluid")));
+            }
 
             return GadgetNBT.getSetting(destructionGadget, "raytracefluid");
         });
@@ -115,7 +126,7 @@ public class DestructionGUI extends Screen {
             if (send) {
                 renderType = renderType.next();
                 renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
-                PacketHandler.sendToServer(new PacketRenderChange(renderType.getPosition()));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RENDER_CHANGE, ByteTag.valueOf(renderType.getPosition())));
             }
 
             return false;
@@ -188,7 +199,10 @@ public class DestructionGUI extends Screen {
 
     private void sendPacket() {
         if (isWithinBounds()) {
-            PacketHandler.sendToServer(new PacketDestructionRanges(left.getValueInt(), right.getValueInt(), up.getValueInt(), down.getValueInt(), depth.getValueInt()));
+            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
+                    ActionGadget.DESTRUCTION_RANGES,
+                    GadgetActionCodecs.DestructionRanges.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.DestructionRanges(left.getValueInt(), right.getValueInt(), up.getValueInt(), down.getValueInt(), depth.getValueInt())).get().orThrow()
+            ));
         }
     }
 

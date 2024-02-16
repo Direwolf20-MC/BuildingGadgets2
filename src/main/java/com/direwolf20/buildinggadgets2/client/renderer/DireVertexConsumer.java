@@ -2,7 +2,8 @@ package com.direwolf20.buildinggadgets2.client.renderer;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.model.pipeline.VertexConsumerWrapper;
+import net.neoforged.neoforge.client.model.pipeline.VertexConsumerWrapper;
+
 
 public class DireVertexConsumer extends VertexConsumerWrapper {
     private float alpha;

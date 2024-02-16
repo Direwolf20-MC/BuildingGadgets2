@@ -43,7 +43,6 @@ public class MaterialListGUI extends Screen {
     private Button buttonCopyList;
 
 
-
     public MaterialListGUI(ItemStack itemStack) {
         super(Component.translatable("buildinggadgets2.screen.componentslist"));
         this.gadget = itemStack;

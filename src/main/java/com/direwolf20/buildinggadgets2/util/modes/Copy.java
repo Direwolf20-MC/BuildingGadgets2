@@ -6,6 +6,7 @@ import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
+import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,7 +43,7 @@ public class Copy extends BaseMode {
 
         if (copyStart.equals(GadgetNBT.nullPos) || copyEnd.equals(GadgetNBT.nullPos)) return coordinates;
 
-        AABB area = new AABB(copyStart, copyEnd);
+        AABB area = VecHelpers.aabbFromBlockPos(copyStart, copyEnd);
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
         int maxSize = 100000;

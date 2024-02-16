@@ -6,15 +6,19 @@
 package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIncrementer;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketRelativePaste;
+import com.direwolf20.buildinggadgets2.common.network.data.GadgetActionPayload;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.ActionGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +70,7 @@ public class PasteGUI extends Screen {
     }
 
     private void sendPacket() {
-        PacketHandler.sendToServer(new PacketRelativePaste(X.getValue(), Y.getValue(), Z.getValue()));
+        PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RELATIVE_PASTE, BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, new BlockPos(X.getValue(), Y.getValue(), Z.getValue())).get().orThrow()));
     }
 
     private void onChange(int value) {

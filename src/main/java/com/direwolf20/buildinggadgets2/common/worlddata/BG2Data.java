@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.worlddata;
 
-import com.direwolf20.buildinggadgets2.util.datatypes.PasteData;
+import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
@@ -8,7 +8,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +25,7 @@ public class BG2Data extends SavedData {
     private final HashMap<UUID, ArrayList<StatePos>> undoList; //GadgetUUID -> UndoList StatePosData
     private final HashMap<UUID, ArrayList<StatePos>> copyPasteLookup; //GadgetUUID -> StatePosData
     private final HashMap<UUID, ArrayList<TagPos>> teMap; //GadgetUUID -> Tile Entity Data
-    private final HashMap<UUID, PasteData> pasteChunks = new HashMap<>(); //CopyUUID -> PasteData (Assembled from multiple chunks) - Not stored in NBT because its transient
+    //private final HashMap<UUID, PasteData> pasteChunks = new HashMap<>(); //CopyUUID -> PasteData (Assembled from multiple chunks) - Not stored in NBT because its transient
 
     public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup, HashMap<UUID, ArrayList<TagPos>> teMap) {
         this.undoList = undoList;
@@ -34,7 +33,7 @@ public class BG2Data extends SavedData {
         this.teMap = teMap;
     }
 
-    public boolean addToPasteChunks(UUID copyUUID, int position, int totalChunks, FriendlyByteBuf pasteChunk) {
+    /*public boolean addToPasteChunks(UUID copyUUID, int position, int totalChunks, FriendlyByteBuf pasteChunk) {
         PasteData data = pasteChunks.computeIfAbsent(copyUUID, k -> new PasteData(totalChunks));
         data.addChunk(position, pasteChunk);
         return data.isComplete();
@@ -46,7 +45,7 @@ public class BG2Data extends SavedData {
         CompoundTag compoundTag = assembledData.readNbt();
         pasteChunks.remove(copyUUID);
         return compoundTag;
-    }
+    }*/
 
     public boolean containsUndoList(UUID uuid) {
         return undoList.containsKey(uuid);
@@ -117,7 +116,7 @@ public class BG2Data extends SavedData {
         final int[] counter = {0};
         BlockPos start = list.get(0).pos;
         BlockPos end = list.get(list.size() - 1).pos;
-        AABB aabb = new AABB(start, end);
+        AABB aabb = VecHelpers.aabbFromBlockPos(start, end);
 
         Map<BlockPos, BlockState> blockStateByPos = list.stream()
                 .collect(Collectors.toMap(e -> e.pos, e -> e.state));
@@ -143,7 +142,7 @@ public class BG2Data extends SavedData {
         ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMapFromNBT(tag.getList("blockstatemap", Tag.TAG_COMPOUND));
         BlockPos start = NbtUtils.readBlockPos(tag.getCompound("startpos"));
         BlockPos end = NbtUtils.readBlockPos(tag.getCompound("endpos"));
-        AABB aabb = new AABB(start, end);
+        AABB aabb = VecHelpers.aabbFromBlockPos(start, end);
         int[] blocklist = tag.getIntArray("statelist");
         final int[] counter = {0};
         BlockPos.betweenClosedStream(aabb).map(BlockPos::immutable).forEach(pos -> {
@@ -230,7 +229,15 @@ public class BG2Data extends SavedData {
     }
 
     public static BG2Data get(ServerLevel world) {
-        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(BG2Data::readNbt, () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>()), NAME);
+        // TODO: Can't this be cached?
+        BG2Data bg2Data = world.getDataStorage().computeIfAbsent(
+                new Factory<>(
+                        () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>()),
+                        BG2Data::readNbt
+                ),
+                NAME
+        );
+
         bg2Data.setDirty();
         return bg2Data;
     }

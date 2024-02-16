@@ -7,48 +7,31 @@ import com.direwolf20.buildinggadgets2.client.events.EventKeyInput;
 import com.direwolf20.buildinggadgets2.client.events.RenderLevelLast;
 import com.direwolf20.buildinggadgets2.client.screen.TemplateManagerGUI;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod.EventBusSubscriber(modid = BuildingGadgets2.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientSetup {
     public static void init(final FMLClientSetupEvent event) {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        MinecraftForge.EVENT_BUS.addListener(KeyBindings::onClientInput);
+        NeoForge.EVENT_BUS.addListener(KeyBindings::onClientInput);
 
+        // TODO: Add this back I'd assume?
         //Register Custom Tooltips
-        //MinecraftForgeClient.registerTooltipComponentFactory(EventTooltip.CopyPasteTooltipComponent.Data.class, EventTooltip.CopyPasteTooltipComponent::new);
+        //NeoForgeClient.registerTooltipComponentFactory(EventTooltip.CopyPasteTooltipComponent.Data.class, EventTooltip.CopyPasteTooltipComponent::new);
 
         //Register our Render Events Class
-        MinecraftForge.EVENT_BUS.register(RenderLevelLast.class);
-        MinecraftForge.EVENT_BUS.register(EventKeyInput.class);
-        //MinecraftForge.EVENT_BUS.register(EventTooltip.class);
+        NeoForge.EVENT_BUS.register(RenderLevelLast.class);
+        NeoForge.EVENT_BUS.register(EventKeyInput.class);
 
         //Screens
         event.enqueueWork(() -> {
             MenuScreens.register(Registration.TemplateManager_Container.get(), TemplateManagerGUI::new); // Attach our container to the screen
         });
-
-        //Item Properties -- For giving the Cards an Insert/Extract on the itemstack
-        /*event.enqueueWork(() -> {
-            ItemProperties.register(Registration.Card_Item.get(),
-                    new ResourceLocation(LaserIO.MODID, "mode"), (stack, level, living, id) -> {
-                        return (int) BaseCard.getTransferMode(stack);
-                    });
-        });
-        event.enqueueWork(() -> {
-            ItemProperties.register(Registration.Card_Fluid.get(),
-                    new ResourceLocation(LaserIO.MODID, "mode"), (stack, level, living, id) -> {
-                        return (int) BaseCard.getTransferMode(stack);
-                    });
-        });*/
     }
 
     @SubscribeEvent

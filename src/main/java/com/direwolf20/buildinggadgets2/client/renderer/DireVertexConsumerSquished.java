@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.model.pipeline.VertexConsumerWrapper;
+import net.neoforged.neoforge.client.model.pipeline.VertexConsumerWrapper;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 

@@ -1,13 +1,14 @@
 package com.direwolf20.buildinggadgets2.setup;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
+
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class Config {
-    public static final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec.Builder SERVER_BUILDER = new ForgeConfigSpec.Builder();
+    public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec.Builder COMMON_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_POWER = "power";
@@ -17,19 +18,18 @@ public class Config {
     public static final String SUBCATEGORY_COPYPASTEGADGET = "copypaste_gadget";
     public static final String SUBCATEGORY_DESTRUCTIONGADGET = "destruction_gadget";
 
-    public static ForgeConfigSpec.IntValue BUILDINGGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue BUILDINGGADGET_COST;
-    public static ForgeConfigSpec.IntValue EXCHANGINGGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue EXCHANGINGGADGET_COST;
-    public static ForgeConfigSpec.IntValue CUTPASTEGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue CUTPASTEGADGET_COST;
-    public static ForgeConfigSpec.IntValue CUTPASTEGADGET_NEWCOST;
-    public static ForgeConfigSpec.IntValue COPYPASTEGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue COPYPASTEGADGET_COST;
-    public static ForgeConfigSpec.IntValue DESTRUCTIONGADGET_MAXPOWER;
-    public static ForgeConfigSpec.IntValue DESTRUCTIONGADGET_COST;
+    public static ModConfigSpec.IntValue BUILDINGGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue BUILDINGGADGET_COST;
+    public static ModConfigSpec.IntValue EXCHANGINGGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue EXCHANGINGGADGET_COST;
+    public static ModConfigSpec.IntValue CUTPASTEGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue CUTPASTEGADGET_COST;
+    public static ModConfigSpec.IntValue COPYPASTEGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue COPYPASTEGADGET_COST;
+    public static ModConfigSpec.IntValue DESTRUCTIONGADGET_MAXPOWER;
+    public static ModConfigSpec.IntValue DESTRUCTIONGADGET_COST;
 
-    public static ForgeConfigSpec.IntValue RAYTRACE_RANGE;
+    public static ModConfigSpec.IntValue RAYTRACE_RANGE;
 
     public static void register() {
         //registerServerConfigs();
@@ -81,14 +81,11 @@ public class Config {
                 .defineInRange("baseCost", 100, 0, Integer.MAX_VALUE);
         COMMON_BUILDER.pop();
 
-        //Todo: Cleanup in 1.21
         COMMON_BUILDER.comment("Cut Paste Gadget").push(SUBCATEGORY_CUTPASTEGADGET);
         CUTPASTEGADGET_MAXPOWER = COMMON_BUILDER.comment("Maximum power for the Cut and Paste Gadget")
                 .defineInRange("maxPower", 5000000, 0, Integer.MAX_VALUE);
-        CUTPASTEGADGET_COST = COMMON_BUILDER.comment("(LEGACY) NO LONGER USED")
-                .defineInRange("baseCost", 200, 0, Integer.MAX_VALUE);
-        CUTPASTEGADGET_NEWCOST = COMMON_BUILDER.comment("Base cost per block - Checked during CUT, Charged during PASTE")
-                .defineInRange("baseCostNew", 50, 0, Integer.MAX_VALUE);
+        CUTPASTEGADGET_COST = COMMON_BUILDER.comment("Base cost per block - Checked during CUT, Charged during PASTE")
+                .defineInRange("baseCost", 50, 0, Integer.MAX_VALUE);
         COMMON_BUILDER.pop();
 
         COMMON_BUILDER.comment("Copy Paste Gadget").push(SUBCATEGORY_COPYPASTEGADGET);

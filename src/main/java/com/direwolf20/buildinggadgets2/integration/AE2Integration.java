@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.integration;
 
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public class AE2Integration {
     private static final String ID = "ae2";

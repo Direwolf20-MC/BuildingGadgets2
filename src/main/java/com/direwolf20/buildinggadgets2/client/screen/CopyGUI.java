@@ -1,16 +1,20 @@
 package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIncrementer;
-import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
-import com.direwolf20.buildinggadgets2.common.network.packets.PacketCopyCoords;
+import com.direwolf20.buildinggadgets2.common.network.data.GadgetActionPayload;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.ActionGadget;
+import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.GadgetActionCodecs;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +68,11 @@ public class CopyGUI extends Screen {
             }));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.close"), (button) -> onClose()));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.clear"), (button) -> {
-                PacketHandler.sendToServer(new PacketCopyCoords(GadgetNBT.nullPos, GadgetNBT.nullPos));
+                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
+                        ActionGadget.COPY_COORDS,
+                        GadgetActionCodecs.BiPos.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.BiPos(GadgetNBT.nullPos, GadgetNBT.nullPos)).get().orThrow()
+                ));
+
                 onClose();
             }));
 
@@ -100,7 +108,10 @@ public class CopyGUI extends Screen {
             startZ.setValue(0, false);
         }
         //System.out.println("Firing Packet!");
-        PacketHandler.sendToServer(new PacketCopyCoords(startPos, endPos));
+        PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
+                ActionGadget.COPY_COORDS,
+                GadgetActionCodecs.BiPos.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.BiPos(startPos, endPos)).get().orThrow()
+        ));
     }
 
     private void coordsModeSwitch() {

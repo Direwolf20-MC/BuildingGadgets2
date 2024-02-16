@@ -161,7 +161,7 @@ public class GadgetUtils {
                 .relative(face.getOpposite(), depth - 1);
 
         //boolean isFluidOnly = getIsFluidOnly(gadget); //Todo
-        AABB box = new AABB(first, second);
+        AABB box = VecHelpers.aabbFromBlockPos(first, second);
         ArrayList<StatePos> returnList = new ArrayList<>();
         BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(blockPos -> {
             BlockState blockState = level.getBlockState(blockPos);
