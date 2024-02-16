@@ -22,14 +22,13 @@
   },
   "requirements": [
     [
-      "has_emerald",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_emerald"
     ]
   ],
   "rewards": {
     "recipes": [
       "buildinggadgets2:gadget_copy_paste"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

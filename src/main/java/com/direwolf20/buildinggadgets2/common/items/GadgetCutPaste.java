@@ -136,7 +136,19 @@ public class GadgetCutPaste extends BaseGadget {
         if (cutStart.equals(GadgetNBT.nullPos) || cutEnd.equals(GadgetNBT.nullPos)) return;
 
         AABB area = VecHelpers.aabbFromBlockPos(cutStart, cutEnd);
-
+        int maxAxis = 500; //Todo Config?
+        if (area.getXsize() > maxAxis) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "x", maxAxis, area.getXsize()), false);
+            return;
+        }
+        if (area.getYsize() > maxAxis) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "y", maxAxis, area.getYsize()), false);
+            return;
+        }
+        if (area.getZsize() > maxAxis) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "z", maxAxis, area.getZsize()), false);
+            return;
+        }
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
         int maxSize = 100000; //Todo Config?

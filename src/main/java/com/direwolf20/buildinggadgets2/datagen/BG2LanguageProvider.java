@@ -133,6 +133,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.messages.render_set", "Render Type set to: %s");
         add("buildinggadgets2.messages.relativepaste", "Relative Paste set to: [%s]");
         add("buildinggadgets2.messages.areatoolarge", "Area too large! Max size is: %d. Size was: %d");
+        add("buildinggadgets2.messages.axistoolarge", "%s Axis too large! Max size is: %d. Size was: %d");
         add("buildinggadgets2.messages.cutinprogress", "Cut in progress - Please Wait!");
         add("buildinggadgets2.messages.outofpower", "Gadget out of power!");
         add("buildinggadgets2.messages.notenoughenergy", "Not enough energy for cut, need: %d. Have: %d");

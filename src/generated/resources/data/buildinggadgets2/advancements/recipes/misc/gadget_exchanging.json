@@ -22,14 +22,13 @@
   },
   "requirements": [
     [
-      "has_diamond",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_diamond"
     ]
   ],
   "rewards": {
     "recipes": [
       "buildinggadgets2:gadget_exchanging"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

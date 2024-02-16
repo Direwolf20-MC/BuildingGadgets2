@@ -15,6 +15,7 @@
   "buildinggadgets2.messages.anchorcleared": "Anchor Cleared",
   "buildinggadgets2.messages.anchorset": "Anchor Set to: ",
   "buildinggadgets2.messages.areatoolarge": "Area too large! Max size is: %d. Size was: %d",
+  "buildinggadgets2.messages.axistoolarge": "%s Axis too large! Max size is: %d. Size was: %d",
   "buildinggadgets2.messages.bindfailed": "Bind Failed: Invalid block",
   "buildinggadgets2.messages.bindremoved": "Bind Removed",
   "buildinggadgets2.messages.bindsuccess": "Bind Succeeded to: %s",

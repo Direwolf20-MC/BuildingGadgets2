@@ -22,14 +22,13 @@
   },
   "requirements": [
     [
-      "has_shear",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_shear"
     ]
   ],
   "rewards": {
     "recipes": [
       "buildinggadgets2:gadget_cut_paste"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

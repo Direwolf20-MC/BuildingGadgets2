@@ -22,14 +22,13 @@
   },
   "requirements": [
     [
-      "has_paper",
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_paper"
     ]
   ],
   "rewards": {
     "recipes": [
       "buildinggadgets2:template_manager"
     ]
-  },
-  "sends_telemetry_event": false
+  }
 }

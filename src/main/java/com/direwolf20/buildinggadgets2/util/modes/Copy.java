@@ -44,6 +44,19 @@ public class Copy extends BaseMode {
         if (copyStart.equals(GadgetNBT.nullPos) || copyEnd.equals(GadgetNBT.nullPos)) return coordinates;
 
         AABB area = VecHelpers.aabbFromBlockPos(copyStart, copyEnd);
+        int maxAxis = 500; //Todo Config?
+        if (area.getXsize() > maxAxis) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "x", maxAxis, area.getXsize()), false);
+            return coordinates;
+        }
+        if (area.getYsize() > maxAxis) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "y", maxAxis, area.getYsize()), false);
+            return coordinates;
+        }
+        if (area.getZsize() > maxAxis) {
+            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "z", maxAxis, area.getZsize()), false);
+            return coordinates;
+        }
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
         int maxSize = 100000;
