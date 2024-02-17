@@ -13,6 +13,8 @@ import com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialLi
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
+import com.direwolf20.buildinggadgets2.common.items.Redprint;
 import com.direwolf20.buildinggadgets2.common.items.TemplateItem;
 import com.direwolf20.buildinggadgets2.common.network.data.SendPastePayload;
 import com.direwolf20.buildinggadgets2.common.network.data.UpdateTemplateManagerPayload;
@@ -171,7 +173,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     public boolean updatePanelIfNeeded() {
         ItemStack gadget = container.getSlot(renderSlot).getItem();
         UUID gadgetUUID = GadgetNBT.getUUID(gadget);
-        if (gadget.isEmpty() || !(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof TemplateItem)) {
+        if (gadget.isEmpty() || !(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof TemplateItem || gadget.getItem() instanceof Redprint || gadget.getItem() instanceof GadgetCutPaste)) {
             //vertexBuffers = null; //Clear vertex buffers when player removes item from the slot we're rendering
             copyPasteUUIDCache = UUID.randomUUID(); //Randomize the cached UUID so it rebuilds for next time
             resetViewport();
