@@ -3,6 +3,8 @@ package com.direwolf20.buildinggadgets2.common.worlddata;
 import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,27 +27,33 @@ public class BG2Data extends SavedData {
     private final HashMap<UUID, ArrayList<StatePos>> undoList; //GadgetUUID -> UndoList StatePosData
     private final HashMap<UUID, ArrayList<StatePos>> copyPasteLookup; //GadgetUUID -> StatePosData
     private final HashMap<UUID, ArrayList<TagPos>> teMap; //GadgetUUID -> Tile Entity Data
-    //private final HashMap<UUID, PasteData> pasteChunks = new HashMap<>(); //CopyUUID -> PasteData (Assembled from multiple chunks) - Not stored in NBT because its transient
+    private final BiMap<UUID, String> redprintLookup; //A list of RedPrint names to UUIDs
 
-    public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup, HashMap<UUID, ArrayList<TagPos>> teMap) {
+    public BG2Data(HashMap<UUID, ArrayList<StatePos>> undoList, HashMap<UUID, ArrayList<StatePos>> copyPasteLookup, HashMap<UUID, ArrayList<TagPos>> teMap, BiMap<UUID, String> redprintLookup) {
         this.undoList = undoList;
         this.copyPasteLookup = copyPasteLookup;
         this.teMap = teMap;
+        this.redprintLookup = redprintLookup;
     }
 
-    /*public boolean addToPasteChunks(UUID copyUUID, int position, int totalChunks, FriendlyByteBuf pasteChunk) {
-        PasteData data = pasteChunks.computeIfAbsent(copyUUID, k -> new PasteData(totalChunks));
-        data.addChunk(position, pasteChunk);
-        return data.isComplete();
+    public boolean addToRedprints(UUID uuid, String name) {
+        if (redprintLookup.containsKey(uuid)) return false;
+        if (redprintLookup.containsValue(name)) return false;
+        redprintLookup.put(uuid, name);
+        return true;
     }
 
-    public CompoundTag getAssembledTag(UUID copyUUID) {
-        PasteData pasteData = pasteChunks.get(copyUUID);
-        FriendlyByteBuf assembledData = pasteData.assembleData();
-        CompoundTag compoundTag = assembledData.readNbt();
-        pasteChunks.remove(copyUUID);
-        return compoundTag;
-    }*/
+    public boolean removeFromRedprints(String name) {
+        if (redprintLookup.containsValue(name)) {
+            redprintLookup.inverse().remove(name);
+            return true;
+        }
+        return false;
+    }
+
+    public BiMap<UUID, String> getRedprintLookup() {
+        return redprintLookup;
+    }
 
     public boolean containsUndoList(UUID uuid) {
         return undoList.containsKey(uuid);
@@ -189,6 +197,15 @@ public class BG2Data extends SavedData {
             teMapTag.add(tempTag);
         }
         nbt.put("temaptag", teMapTag);
+
+        ListTag redprintTag = new ListTag();
+        for (Map.Entry<UUID, String> entry : redprintLookup.entrySet()) {
+            CompoundTag tempTag = new CompoundTag();
+            tempTag.putUUID("uuid", entry.getKey());
+            tempTag.putString("name", entry.getValue());
+            redprintTag.add(tempTag);
+        }
+        nbt.put("redprinttag", redprintTag);
         return nbt;
     }
 
@@ -225,14 +242,22 @@ public class BG2Data extends SavedData {
             }
             teMap.put(uuid, tagPosList);
         }
-        return new BG2Data(undoList, copyPaste, teMap);
+
+        BiMap<UUID, String> redPrints = HashBiMap.create();
+        ListTag redPrintsTag = nbt.getList("redprinttag", Tag.TAG_COMPOUND);
+        for (int i = 0; i < redPrintsTag.size(); i++) {
+            UUID uuid = redPrintsTag.getCompound(i).getUUID("uuid");
+            String name = redPrintsTag.getCompound(i).getString("name");
+            redPrints.put(uuid, name);
+        }
+        return new BG2Data(undoList, copyPaste, teMap, redPrints);
     }
 
     public static BG2Data get(ServerLevel world) {
         // TODO: Can't this be cached?
         BG2Data bg2Data = world.getDataStorage().computeIfAbsent(
                 new Factory<>(
-                        () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>()),
+                        () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>(), HashBiMap.create()),
                         BG2Data::readNbt
                 ),
                 NAME

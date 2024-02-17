@@ -7,8 +7,16 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -50,30 +58,58 @@ public class PacketUpdateTemplateManager {
                     templateStack = container.getSlot(1).getItem();
                 }
 
+                if (templateStack.is(Registration.Redprint.get())) {
+                    if (payload.templateName().isEmpty()) {
+                        player.displayClientMessage(Component.translatable("buildinggadgets2.messages.namerequired"), true);
+                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                        return;
+                    }
+                }
+
                 GadgetNBT.setTemplateName(templateStack, payload.templateName());
 
                 if (gadgetStack.isEmpty())
                     return;
 
-                copyData((ServerPlayer) player, gadgetStack, templateStack);
-
+                copyData((ServerPlayer) player, gadgetStack, templateStack, payload.templateName());
             } else if (payload.mode() == 1) { //Load
                 if (templateStack.isEmpty() || gadgetStack.isEmpty())
                     return;
+                if (templateStack.is(Registration.Redprint.get()) && !gadgetStack.is(Registration.CutPaste_Gadget.get()))
+                    return; //Redprints can only go onto Cut and Paste gadgets
+                if (gadgetStack.is(Registration.CutPaste_Gadget.get()) && !templateStack.is(Registration.Redprint.get()))
+                    return; //Cut and Paste gadgets can only be loaded from Redprints
 
-                copyData((ServerPlayer) player, templateStack, gadgetStack);
+
+                copyData((ServerPlayer) player, templateStack, gadgetStack, payload.templateName());
                 GadgetNBT.setTemplateName(gadgetStack, GadgetNBT.getTemplateName(templateStack)); //Set gadget template name to templatestack name
             }
         });
     }
 
-    public static void copyData(ServerPlayer sender, ItemStack sourceStack, ItemStack targetStack) {
+    public static void copyData(ServerPlayer sender, ItemStack sourceStack, ItemStack targetStack, String templateName) {
+        UUID targetUUID = GadgetNBT.getUUID(targetStack);
         UUID sourceUUID = GadgetNBT.getUUID(sourceStack);
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(sender.level().getServer()).overworld());
+        if (targetStack.is(Registration.Redprint.get())) {
+            if (!bg2Data.addToRedprints(targetUUID, templateName)) {
+                sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.namealreadyexists"), true);
+                playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                return;
+            }
+        }
         ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);
-        UUID targetUUID = GadgetNBT.getUUID(targetStack);
         GadgetNBT.setCopyUUID(targetStack); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
         bg2Data.addToCopyPaste(targetUUID, buildList);
+
+        if (sourceStack.is(Registration.Redprint.get()) || targetStack.is(Registration.Redprint.get())) { //If we are reading or writing to a redprint, also copy the TEMap Data
+            ArrayList<TagPos> teMap = bg2Data.peekTEMap(sourceUUID);
+            bg2Data.addToTEMap(targetUUID, Objects.requireNonNullElseGet(teMap, ArrayList::new)); //Put a blank TEMap there if we don't have one
+        }
+
+        if (sourceStack.is(Registration.Redprint.get())) {
+            sourceStack.shrink(1);
+        }
 
         //Ensure client has the updated values for both objects
         CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(sourceUUID, false);
@@ -81,5 +117,27 @@ public class PacketUpdateTemplateManager {
 
         tag = bg2Data.getCopyPasteListAsNBTMap(targetUUID, false);
         sender.connection.send(new SendCopyDataPayload(targetUUID, GadgetNBT.getCopyUUID(targetStack), tag));
+
+        playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
+    }
+
+    public static void playSound(ServerPlayer player, Holder<SoundEvent> soundEventHolder) {
+        // Get player's position
+        double x = player.getX();
+        double y = player.getY();
+        double z = player.getZ();
+
+        // Create the packet
+        ClientboundSoundPacket packet = new ClientboundSoundPacket(
+                soundEventHolder, // The sound event
+                SoundSource.MASTER, // The sound category
+                x, y, z, // The sound location
+                1, // The volume, 1 is normal, higher is louder
+                1, // The pitch, 1 is normal, higher is higher pitch
+                1 // A random for some reason? (Some sounds have different variants, like the enchanting table success
+        );
+
+        // Send the packet to the player
+        player.connection.send(packet);
     }
 }

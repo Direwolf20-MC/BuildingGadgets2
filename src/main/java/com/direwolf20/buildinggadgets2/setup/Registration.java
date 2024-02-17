@@ -60,6 +60,7 @@ public class Registration {
     public static final DeferredHolder<Item, GadgetCutPaste> CutPaste_Gadget = ITEMS.register("gadget_cut_paste", GadgetCutPaste::new);
     public static final DeferredHolder<Item, GadgetDestruction> Destruction_Gadget = ITEMS.register("gadget_destruction", GadgetDestruction::new);
     public static final DeferredHolder<Item, TemplateItem> Template = ITEMS.register("template", TemplateItem::new);
+    public static final DeferredHolder<Item, Redprint> Redprint = ITEMS.register("redprint", Redprint::new);
 
     //Containers
     public static final DeferredHolder<MenuType<?>, MenuType<TemplateManagerContainer>> TemplateManager_Container = CONTAINERS.register("templatemanager",
