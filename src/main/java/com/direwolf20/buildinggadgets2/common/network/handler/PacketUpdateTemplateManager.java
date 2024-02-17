@@ -54,6 +54,13 @@ public class PacketUpdateTemplateManager {
                 }
 
                 if (templateStack.is(Items.PAPER)) {
+                    UUID sourceUUID = GadgetNBT.getUUID(gadgetStack);
+                    BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(player.level().getServer()).overworld());
+                    ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);
+                    if (buildList == null || buildList.isEmpty()) {
+                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                        return;
+                    }
                     container.setItem(1, container.getStateId(), new ItemStack(Registration.Template.get()));
                     templateStack = container.getSlot(1).getItem();
                 }
@@ -73,12 +80,18 @@ public class PacketUpdateTemplateManager {
 
                 copyData((ServerPlayer) player, gadgetStack, templateStack, payload.templateName());
             } else if (payload.mode() == 1) { //Load
-                if (templateStack.isEmpty() || gadgetStack.isEmpty())
+                if (templateStack.isEmpty() || gadgetStack.isEmpty()) {
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return;
-                if (templateStack.is(Registration.Redprint.get()) && !gadgetStack.is(Registration.CutPaste_Gadget.get()))
+                }
+                if (templateStack.is(Registration.Redprint.get()) && !gadgetStack.is(Registration.CutPaste_Gadget.get())) {
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return; //Redprints can only go onto Cut and Paste gadgets
-                if (gadgetStack.is(Registration.CutPaste_Gadget.get()) && !templateStack.is(Registration.Redprint.get()))
+                }
+                if (gadgetStack.is(Registration.CutPaste_Gadget.get()) && !templateStack.is(Registration.Redprint.get())) {
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return; //Cut and Paste gadgets can only be loaded from Redprints
+                }
 
 
                 copyData((ServerPlayer) player, templateStack, gadgetStack, payload.templateName());
@@ -99,6 +112,10 @@ public class PacketUpdateTemplateManager {
             }
         }
         ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);
+        if (buildList == null || buildList.isEmpty()) {
+            playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+            return;
+        }
         GadgetNBT.setCopyUUID(targetStack); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
         bg2Data.addToCopyPaste(targetUUID, buildList);
 
