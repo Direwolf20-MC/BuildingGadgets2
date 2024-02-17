@@ -111,6 +111,8 @@ public class RedprintCommand {
         ArrayList<TagPos> copiedMap = new ArrayList<>(Objects.requireNonNullElseGet(teMap, ArrayList::new)); //Put a blank TEMap there if we don't have one
         bg2Data.addToTEMap(targetUUID, copiedMap);
 
+        GadgetNBT.setTemplateName(newRedprint, name);
+
         //Ensure client has the updated values for both objects
         CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(targetUUID, false);
         serverPlayer.connection.send(new SendCopyDataPayload(targetUUID, GadgetNBT.getCopyUUID(newRedprint), tag));
