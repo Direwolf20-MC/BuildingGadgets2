@@ -11,12 +11,10 @@ import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -25,6 +23,8 @@ import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
+
+import static com.direwolf20.buildinggadgets2.util.MiscHelpers.playSound;
 
 public class PacketUpdateTemplateManager {
     public static final PacketUpdateTemplateManager INSTANCE = new PacketUpdateTemplateManager();
@@ -104,7 +104,8 @@ public class PacketUpdateTemplateManager {
 
         if (sourceStack.is(Registration.Redprint.get()) || targetStack.is(Registration.Redprint.get())) { //If we are reading or writing to a redprint, also copy the TEMap Data
             ArrayList<TagPos> teMap = bg2Data.peekTEMap(sourceUUID);
-            bg2Data.addToTEMap(targetUUID, Objects.requireNonNullElseGet(teMap, ArrayList::new)); //Put a blank TEMap there if we don't have one
+            ArrayList<TagPos> copiedMap = new ArrayList<>(Objects.requireNonNullElseGet(teMap, ArrayList::new)); //Put a blank TEMap there if we don't have one
+            bg2Data.addToTEMap(targetUUID, copiedMap);
         }
 
         if (sourceStack.is(Registration.Redprint.get())) {
@@ -119,25 +120,5 @@ public class PacketUpdateTemplateManager {
         sender.connection.send(new SendCopyDataPayload(targetUUID, GadgetNBT.getCopyUUID(targetStack), tag));
 
         playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
-    }
-
-    public static void playSound(ServerPlayer player, Holder<SoundEvent> soundEventHolder) {
-        // Get player's position
-        double x = player.getX();
-        double y = player.getY();
-        double z = player.getZ();
-
-        // Create the packet
-        ClientboundSoundPacket packet = new ClientboundSoundPacket(
-                soundEventHolder, // The sound event
-                SoundSource.MASTER, // The sound category
-                x, y, z, // The sound location
-                1, // The volume, 1 is normal, higher is louder
-                1, // The pitch, 1 is normal, higher is higher pitch
-                1 // A random for some reason? (Some sounds have different variants, like the enchanting table success
-        );
-
-        // Send the packet to the player
-        player.connection.send(packet);
     }
 }

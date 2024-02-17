@@ -54,6 +54,12 @@ public class BG2Data extends SavedData {
         return false;
     }
 
+    public UUID getRedprintUUIDfromName(String name) {
+        if (redprintLookup.containsValue(name))
+            return redprintLookup.inverse().get(name);
+        return null;
+    }
+
     public BiMap<UUID, String> getRedprintLookup() {
         return redprintLookup;
     }
