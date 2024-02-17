@@ -145,5 +145,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.messages.copycoordsfailed", "Copying Coordinates Failed.");
         add("buildinggadgets2.messages.namerequired", "Name Required for Redprints. Please try again.");
         add("buildinggadgets2.messages.namealreadyexists", "This name is already in use, either delete it with commands or give a new name.");
+        add("buildinggadgets2.messages.redprintremovesuccess", "Successfully deleted redprint: %s");
+        add("buildinggadgets2.messages.redprintremovefail", "Failed to delete redprint: %s");
     }
 }

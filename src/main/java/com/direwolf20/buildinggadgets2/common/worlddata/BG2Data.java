@@ -45,7 +45,10 @@ public class BG2Data extends SavedData {
 
     public boolean removeFromRedprints(String name) {
         if (redprintLookup.containsValue(name)) {
-            redprintLookup.inverse().remove(name);
+            UUID uuid = redprintLookup.inverse().get(name);
+            redprintLookup.remove(uuid);
+            copyPasteLookup.remove(uuid);
+            teMap.remove(uuid);
             return true;
         }
         return false;
