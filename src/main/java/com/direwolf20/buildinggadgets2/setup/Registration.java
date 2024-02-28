@@ -60,6 +60,7 @@ public class Registration {
     public static final RegistryObject<Item> CutPaste_Gadget = ITEMS.register("gadget_cut_paste", GadgetCutPaste::new);
     public static final RegistryObject<Item> Destruction_Gadget = ITEMS.register("gadget_destruction", GadgetDestruction::new);
     public static final RegistryObject<Item> Template = ITEMS.register("template", TemplateItem::new);
+    public static final RegistryObject<Item> Redprint = ITEMS.register("redprint", Redprint::new);
 
     //Containers
     public static final RegistryObject<MenuType<TemplateManagerContainer>> TemplateManager_Container = CONTAINERS.register("templatemanager",

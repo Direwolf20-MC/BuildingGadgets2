@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.common.containers.customhandler;
 
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -24,9 +25,9 @@ public class TemplateManagerHandler extends ItemStackHandler {
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
         if (slot == 0)
-            return stack.getItem() instanceof GadgetCopyPaste;
+            return (stack.getItem() instanceof GadgetCopyPaste || stack.getItem() instanceof GadgetCutPaste);
         if (slot == 1)
-            return stack.is(Items.PAPER) || stack.is(Registration.Template.get());
+            return stack.is(Items.PAPER) || stack.is(Registration.Template.get()) || stack.is(Registration.Redprint.get());
         return false;
     }
 

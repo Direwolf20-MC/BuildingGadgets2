@@ -1,11 +1,13 @@
 package com.direwolf20.buildinggadgets2;
 
+import com.direwolf20.buildinggadgets2.common.commands.BuildingGadgets2Commands;
 import com.direwolf20.buildinggadgets2.setup.ClientSetup;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.setup.ModSetup;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -27,6 +29,8 @@ public class BuildingGadgets2 {
         modEventBus.addListener(ModSetup::init);
         ModSetup.TABS.register(modEventBus);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> modEventBus.addListener(ClientSetup::init));
+
+        MinecraftForge.EVENT_BUS.addListener(BuildingGadgets2Commands::registerCommands);
 
     }
 }

@@ -27,6 +27,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(Registration.CutPaste_Gadget.get(), "Cut Paste Gadget");
         add(Registration.Destruction_Gadget.get(), "Destruction Gadget");
         add(Registration.Template.get(), "Template");
+        add(Registration.Redprint.get(), "Redprint");
 
         //Misc
         add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
@@ -140,5 +141,11 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.messages.bindfailed", "Bind Failed: Invalid block");
         add("buildinggadgets2.messages.bindsuccess", "Bind Succeeded to: %s");
         add("buildinggadgets2.messages.bindremoved", "Bind Removed");
+        add("buildinggadgets2.messages.copycoordsfailed", "Copying Coordinates Failed.");
+        add("buildinggadgets2.messages.namerequired", "Name Required for Redprints. Please try again.");
+        add("buildinggadgets2.messages.namealreadyexists", "This name is already in use, either delete it with commands or give a new name.");
+        add("buildinggadgets2.messages.redprintremovesuccess", "Successfully deleted redprint: %s");
+        add("buildinggadgets2.messages.redprintremovefail", "Failed to delete redprint: %s");
+        add("buildinggadgets2.messages.redprintgivefail", "Failed to give redprint %s to %s");
     }
 }
