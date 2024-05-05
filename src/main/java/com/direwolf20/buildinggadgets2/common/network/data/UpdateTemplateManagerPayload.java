@@ -3,6 +3,8 @@ package com.direwolf20.buildinggadgets2.common.network.data;
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
@@ -11,21 +13,17 @@ public record UpdateTemplateManagerPayload(
         int mode,
         String templateName
 ) implements CustomPacketPayload {
-    public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "update_template_manager");
-
-    public UpdateTemplateManagerPayload(final FriendlyByteBuf buffer) {
-        this(buffer.readBlockPos(), buffer.readInt(), buffer.readUtf());
-    }
+    public static final Type<UpdateTemplateManagerPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "update_template_manager_payload"));
 
     @Override
-    public void write(FriendlyByteBuf buffer) {
-        buffer.writeBlockPos(blockPos());
-        buffer.writeInt(mode());
-        buffer.writeUtf(templateName());
+    public Type<UpdateTemplateManagerPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public ResourceLocation id() {
-        return ID;
-    }
+    public static final StreamCodec<FriendlyByteBuf, UpdateTemplateManagerPayload> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC, UpdateTemplateManagerPayload::blockPos,
+            ByteBufCodecs.INT, UpdateTemplateManagerPayload::mode,
+            ByteBufCodecs.STRING_UTF8, UpdateTemplateManagerPayload::templateName,
+            UpdateTemplateManagerPayload::new
+    );
 }

@@ -4,6 +4,7 @@ import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContaine
 import com.direwolf20.buildinggadgets2.common.containers.customhandler.TemplateManagerHandler;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -32,17 +33,17 @@ public class TemplateManagerBE extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void load(CompoundTag tag) {
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         if (tag.contains("Inventory"))
-            itemHandler.deserializeNBT(tag.getCompound("Inventory"));
-        super.load(tag);
+            itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+        super.loadAdditional(tag, provider);
     }
 
     @Nonnull
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("Inventory", itemHandler.serializeNBT());
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
+        tag.put("Inventory", itemHandler.serializeNBT(provider));
     }
 
     @Override
@@ -52,20 +53,20 @@ public class TemplateManagerBE extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        this.load(tag);
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        this.loadAdditional(tag, lookupProvider);
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
+        saveAdditional(tag, provider);
         return tag;
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        this.load(pkt.getTag());
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
+        super.onDataPacket(net, pkt, lookupProvider);
     }
 
     public void markDirtyClient() {
@@ -85,15 +86,6 @@ public class TemplateManagerBE extends BlockEntity implements MenuProvider {
     public void clearRemoved() {
         super.clearRemoved();
     }
-
-    /*@Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == Capabilities.ItemHandler.BLOCK) {
-            return handlerLazyOptional.cast();
-        }
-        return super.getCapability(cap, side);
-    }*/
 
     @Override
     public Component getDisplayName() {

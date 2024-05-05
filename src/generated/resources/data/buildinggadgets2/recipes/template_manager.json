@@ -4,16 +4,16 @@
   "group": "buildinggadgets2",
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     },
     "l": {
-      "tag": "forge:gems/lapis"
+      "tag": "c:gems/lapis"
     },
     "p": {
       "item": "minecraft:paper"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:dusts/redstone"
     }
   },
   "pattern": [
@@ -22,6 +22,7 @@
     "ili"
   ],
   "result": {
-    "item": "buildinggadgets2:template_manager"
+    "count": 1,
+    "id": "buildinggadgets2:template_manager"
   }
 }

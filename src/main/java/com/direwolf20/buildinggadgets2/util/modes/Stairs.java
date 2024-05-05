@@ -27,7 +27,7 @@ public class Stairs extends BaseMode {
     public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ItemStack gadget = BaseGadget.getGadget(player);
         ArrayList<StatePos> coordinates = new ArrayList<>();
-        boolean placeOnTop = GadgetNBT.getSetting(gadget, "placeontop");
+        boolean placeOnTop = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.PLACE_ON_TOP.getName());
 
         Direction side = hitSide;
         if (hitSide.getAxis() == Direction.Axis.Y)

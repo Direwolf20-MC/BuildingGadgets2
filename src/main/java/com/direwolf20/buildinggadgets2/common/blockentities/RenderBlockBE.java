@@ -5,6 +5,7 @@ import com.direwolf20.buildinggadgets2.client.particles.itemparticle.ItemFlowPar
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -176,7 +177,7 @@ public class RenderBlockBE extends BlockEntity {
         if (blockEntityData != null) {
             BlockEntity newBE = level.getBlockEntity(this.getBlockPos());
             try {
-                newBE.load(blockEntityData);
+                newBE.loadCustomOnly(blockEntityData, level.registryAccess());
             } catch (Exception e) {
                 System.out.println("Failed to restore tile data for block at: " + this.getBlockPos() + " with NBT: " + blockEntityData + ". Consider adding it to the blacklist");
             }
@@ -233,8 +234,8 @@ public class RenderBlockBE extends BlockEntity {
 
     /** Misc Methods for TE's */
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.loadAdditional(tag, provider);
         this.renderBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("renderBlock"));
         this.sourceBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("sourceBlock"));
         this.targetBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("targetBlock"));
@@ -247,8 +248,8 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        super.saveAdditional(tag, provider);
         if (this.renderBlock != null) {
             tag.put("renderBlock", NbtUtils.writeBlockState(this.renderBlock));
         }
@@ -266,14 +267,6 @@ public class RenderBlockBE extends BlockEntity {
             tag.put("blockEntityData", this.blockEntityData);
     }
 
-//  Removed in 1.20.4, not sure where this has gone...
-//       I'm also not sure what this was doing @michael
-//    @Nonnull
-//    @Override
-//    public AABB getRenderBoundingBox() {
-//        return new AABB(getBlockPos().above(10).north(10).east(10), getBlockPos().below(10).south(10).west(10));
-//    }
-
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         // Vanilla uses the type parameter to indicate which type of tile entity (command block, skull, or beacon?) is receiving the packet, but it seems like Forge has overridden this behavior
@@ -281,21 +274,20 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        this.load(tag);
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        this.loadAdditional(tag, lookupProvider);
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
+        saveAdditional(tag, provider);
         return tag;
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        if (pkt.getTag() == null) return;
-        this.load(pkt.getTag());
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
+        super.onDataPacket(net, pkt, lookupProvider);
     }
 
     public void markDirtyClient() {

@@ -11,7 +11,6 @@ import appeng.api.stacks.AEItemKey;
 import appeng.api.storage.MEStorage;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.setup.Registration;
-import com.direwolf20.buildinggadgets2.util.DimBlockPos;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +21,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.Iterator;
 import java.util.List;
+
+import static com.direwolf20.buildinggadgets2.util.BuildingUtils.getLevel;
 
 public class AE2Methods {
 
@@ -41,7 +42,7 @@ public class AE2Methods {
 
         @Override
         public void link(ItemStack itemStack, GlobalPos pos) {
-            GadgetNBT.setBoundPos(itemStack, new DimBlockPos(pos.dimension(), pos.pos()));
+            GadgetNBT.setBoundPos(itemStack, pos);
         }
 
         @Override
@@ -50,10 +51,10 @@ public class AE2Methods {
         }
     }
 
-    public static void checkAE2ForItems(DimBlockPos boundInventory, Player player, List<ItemStack> testArray, boolean simulate) {
-        Level level = boundInventory.getLevel(player.getServer());
+    public static void checkAE2ForItems(GlobalPos boundInventory, Player player, List<ItemStack> testArray, boolean simulate) {
+        Level level = getLevel(player.getServer(), boundInventory);
         if (level == null) return;
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.pos());
         if (blockEntity == null) return;
         if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
             IGrid grid = accessPoint.getGrid();
@@ -73,10 +74,10 @@ public class AE2Methods {
         }
     }
 
-    public static void checkAE2ForFluids(DimBlockPos boundInventory, Player player, FluidStack fluidStack, boolean simulate) {
-        Level level = boundInventory.getLevel(player.getServer());
+    public static void checkAE2ForFluids(GlobalPos boundInventory, Player player, FluidStack fluidStack, boolean simulate) {
+        Level level = getLevel(player.getServer(), boundInventory);
         if (level == null) return;
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.pos());
         if (blockEntity == null) return;
         if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
             IGrid grid = accessPoint.getGrid();
@@ -93,10 +94,10 @@ public class AE2Methods {
         }
     }
 
-    public static void insertIntoAE2(Player player, DimBlockPos boundInventory, ItemStack tempReturnedItem) {
-        Level level = boundInventory.getLevel(player.getServer());
+    public static void insertIntoAE2(Player player, GlobalPos boundInventory, ItemStack tempReturnedItem) {
+        Level level = getLevel(player.getServer(), boundInventory);
         if (level == null) return;
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.pos());
         if (blockEntity == null) return;
         if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
             IGrid grid = accessPoint.getGrid();
@@ -108,10 +109,10 @@ public class AE2Methods {
         }
     }
 
-    public static void insertFluidIntoAE2(Player player, DimBlockPos boundInventory, FluidStack returnedFluid) {
-        Level level = boundInventory.getLevel(player.getServer());
+    public static void insertFluidIntoAE2(Player player, GlobalPos boundInventory, FluidStack returnedFluid) {
+        Level level = getLevel(player.getServer(), boundInventory);
         if (level == null) return;
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.pos());
         if (blockEntity == null) return;
         if (blockEntity instanceof IWirelessAccessPoint accessPoint) {
             IGrid grid = accessPoint.getGrid();

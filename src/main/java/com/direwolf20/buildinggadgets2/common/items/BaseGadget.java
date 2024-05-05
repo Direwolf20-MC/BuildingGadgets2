@@ -13,6 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +31,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 public abstract class BaseGadget extends Item {
@@ -85,11 +85,10 @@ public abstract class BaseGadget extends Item {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
-
-        if (level == null || mc.player == null) {
+        if (mc.level == null || mc.player == null) {
             return;
         }
 
@@ -100,9 +99,9 @@ public abstract class BaseGadget extends Item {
                             "shift")
                     .withStyle(ChatFormatting.GRAY));
         } else {
-            DimBlockPos boundTo = GadgetNBT.getBoundPos(stack);
+            GlobalPos boundTo = GadgetNBT.getBoundPos(stack);
             if (boundTo != null) {
-                tooltip.add(Component.translatable("buildinggadgets2.tooltips.boundto", boundTo.levelKey.location().getPath(), "[" + boundTo.blockPos.toShortString() + "]").setStyle(Styles.GOLD));
+                tooltip.add(Component.translatable("buildinggadgets2.tooltips.boundto", boundTo.dimension().location().getPath(), "[" + boundTo.pos().toShortString() + "]").setStyle(Styles.GOLD));
             }
         }
 
@@ -132,9 +131,9 @@ public abstract class BaseGadget extends Item {
         ItemActionContext context = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, player, level, hand, gadget);
 
         if (player.isShiftKeyDown()) {
-            if (GadgetNBT.getSetting(gadget, "bind")) {
+            if (GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.BIND.getName())) {
                 if (bindToInventory(level, player, gadget, lookingAt)) {
-                    GadgetNBT.toggleSetting(gadget, "bind"); //Turn off bind
+                    GadgetNBT.toggleSetting(gadget, GadgetNBT.ToggleableSettings.BIND.getName()); //Turn off bind
                     return InteractionResultHolder.success(gadget);
                 } else {
                     return InteractionResultHolder.fail(gadget);
@@ -159,13 +158,13 @@ public abstract class BaseGadget extends Item {
         if (blockEntity != null) {
             var itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, lookingAt.getBlockPos(), lookingAt.getDirection());
             if (itemHandler != null) {
-                GadgetNBT.setBoundPos(gadget, new DimBlockPos(level, lookingAt.getBlockPos()));
-                GadgetNBT.setToolValue(gadget, lookingAt.getDirection().ordinal(), "binddirection");
+                GadgetNBT.setBoundPos(gadget, new GlobalPos(level.dimension(), lookingAt.getBlockPos()));
+                GadgetNBT.setToolValue(gadget, lookingAt.getDirection().ordinal(), GadgetNBT.IntSettings.BIND_DIRECTION.getName());
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindsuccess", lookingAt.getBlockPos().toShortString()), true);
                 return true;
             }
         }
-        DimBlockPos existingBind = GadgetNBT.getBoundPos(gadget);
+        GlobalPos existingBind = GadgetNBT.getBoundPos(gadget);
         if (existingBind == null)
             player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindfailed"), true);
         else {
@@ -220,7 +219,9 @@ public abstract class BaseGadget extends Item {
 
     public boolean canUndo(Level level, Player player, ItemStack gadget) {
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(level.getServer()).overworld());
-        ArrayList<StatePos> undoList = bg2Data.peekUndoList(GadgetNBT.peekUndoList(gadget));
+        UUID undoUUID = GadgetNBT.peekUndoList(gadget);
+        if (undoUUID == null) return false;
+        ArrayList<StatePos> undoList = bg2Data.peekUndoList(undoUUID);
         for (StatePos statePos : undoList) {
             if (!level.isLoaded(statePos.pos)) {
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.undofailedunloaded", statePos.pos.toShortString()), true);

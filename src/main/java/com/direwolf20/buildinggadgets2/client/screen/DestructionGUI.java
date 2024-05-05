@@ -3,20 +3,13 @@ package com.direwolf20.buildinggadgets2.client.screen;
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIconActionable;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.IncrementalSliderWidget;
-import com.direwolf20.buildinggadgets2.common.network.data.GadgetActionPayload;
-import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.ActionGadget;
-import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.GadgetActionCodecs;
+import com.direwolf20.buildinggadgets2.common.network.data.*;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -88,7 +81,7 @@ public class DestructionGUI extends Screen {
 
         Button undo_button = new GuiIconActionable(x - 55, y - 75, "undo", Component.translatable("buildinggadgets2.radialmenu.undo"), false, send -> {
             if (send) {
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.UNDO));
+                PacketDistributor.sendToServer(new UndoPayload());
             }
 
             return false;
@@ -97,7 +90,7 @@ public class DestructionGUI extends Screen {
 
         Button anchorButton = new GuiIconActionable(x - 25, y - 75, "anchor", Component.translatable("buildinggadgets2.radialmenu.anchor"), true, send -> {
             if (send) {
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.ANCHOR));
+                PacketDistributor.sendToServer(new AnchorPayload());
             }
 
             return !GadgetNBT.getAnchorPos(destructionGadget).equals(GadgetNBT.nullPos);
@@ -106,19 +99,19 @@ public class DestructionGUI extends Screen {
 
         Button affectTiles = new GuiIconActionable(x + 5, y - 75, "affecttiles", Component.translatable("buildinggadgets2.screen.affecttiles"), true, send -> {
             if (send) {
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, StringTag.valueOf("affecttiles")));
+                PacketDistributor.sendToServer(new ToggleSettingPayload(GadgetNBT.ToggleableSettings.AFFECT_TILES.getName()));
             }
 
-            return GadgetNBT.getSetting(destructionGadget, "affecttiles");
+            return GadgetNBT.getSetting(destructionGadget, GadgetNBT.ToggleableSettings.AFFECT_TILES.getName());
         });
         this.addRenderableWidget(affectTiles);
 
         Button rayTrace = new GuiIconActionable(x + 35, y - 75, "raytrace_fluid", Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), true, send -> {
             if (send) {
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.TOGGLE_SETTING, StringTag.valueOf("raytracefluid")));
+                PacketDistributor.sendToServer(new ToggleSettingPayload(GadgetNBT.ToggleableSettings.RAYTRACE_FLUID.getName()));
             }
 
-            return GadgetNBT.getSetting(destructionGadget, "raytracefluid");
+            return GadgetNBT.getSetting(destructionGadget, GadgetNBT.ToggleableSettings.RAYTRACE_FLUID.getName());
         });
         this.addRenderableWidget(rayTrace);
 
@@ -126,7 +119,7 @@ public class DestructionGUI extends Screen {
             if (send) {
                 renderType = renderType.next();
                 renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
-                PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(ActionGadget.RENDER_CHANGE, ByteTag.valueOf(renderType.getPosition())));
+                PacketDistributor.sendToServer(new RenderChangePayload(renderType.getPosition()));
             }
 
             return false;
@@ -134,11 +127,11 @@ public class DestructionGUI extends Screen {
         this.addRenderableWidget(renderTypeButton);
 
         sliders.clear();
-        sliders.add(depth = this.createSlider(x - (70 / 2), y - (14 / 2), Component.translatable("buildinggadgets2.screen.depth"), GadgetNBT.getToolValue(destructionGadget, "depth")));
-        sliders.add(right = this.createSlider(x + (70 + 5), y - (14 / 2), Component.translatable("buildinggadgets2.screen.right"), GadgetNBT.getToolValue(destructionGadget, "right")));
-        sliders.add(left = this.createSlider(x - (70 * 2) - 5, y - (14 / 2), Component.translatable("buildinggadgets2.screen.left"), GadgetNBT.getToolValue(destructionGadget, "left")));
-        sliders.add(up = this.createSlider(x - (70 / 2), y - 35, Component.translatable("buildinggadgets2.screen.up"), GadgetNBT.getToolValue(destructionGadget, "up")));
-        sliders.add(down = this.createSlider(x - (70 / 2), y + 20, Component.translatable("buildinggadgets2.screen.down"), GadgetNBT.getToolValue(destructionGadget, "down")));
+        sliders.add(depth = this.createSlider(x - (70 / 2), y - (14 / 2), Component.translatable("buildinggadgets2.screen.depth"), GadgetNBT.getToolValue(destructionGadget, GadgetNBT.IntSettings.DEPTH.getName())));
+        sliders.add(right = this.createSlider(x + (70 + 5), y - (14 / 2), Component.translatable("buildinggadgets2.screen.right"), GadgetNBT.getToolValue(destructionGadget, GadgetNBT.IntSettings.RIGHT.getName())));
+        sliders.add(left = this.createSlider(x - (70 * 2) - 5, y - (14 / 2), Component.translatable("buildinggadgets2.screen.left"), GadgetNBT.getToolValue(destructionGadget, GadgetNBT.IntSettings.LEFT.getName())));
+        sliders.add(up = this.createSlider(x - (70 / 2), y - 35, Component.translatable("buildinggadgets2.screen.up"), GadgetNBT.getToolValue(destructionGadget, GadgetNBT.IntSettings.UP.getName())));
+        sliders.add(down = this.createSlider(x - (70 / 2), y + 20, Component.translatable("buildinggadgets2.screen.down"), GadgetNBT.getToolValue(destructionGadget, GadgetNBT.IntSettings.DOWN.getName())));
 
         originalDepth = depth.getValueInt();
         originalLeft = left.getValueInt();
@@ -182,15 +175,6 @@ public class DestructionGUI extends Screen {
 
     private void updateIsValid() {
         this.isValidSize = isWithinBounds();
-        /*if (!isValidSize && this.confirm.active) {
-            this.confirm.setFGColor(0xFF2000);
-            this.confirm.active = false;
-        }
-
-        if (isValidSize && !this.confirm.active) {
-            this.confirm.clearFGColor();
-            this.confirm.active = true;
-        }*/
     }
 
     private void updateSizeString() {
@@ -199,10 +183,7 @@ public class DestructionGUI extends Screen {
 
     private void sendPacket() {
         if (isWithinBounds()) {
-            PacketDistributor.SERVER.noArg().send(new GadgetActionPayload(
-                    ActionGadget.DESTRUCTION_RANGES,
-                    GadgetActionCodecs.DestructionRanges.CODEC.encodeStart(NbtOps.INSTANCE, new GadgetActionCodecs.DestructionRanges(left.getValueInt(), right.getValueInt(), up.getValueInt(), down.getValueInt(), depth.getValueInt())).get().orThrow()
-            ));
+            PacketDistributor.sendToServer(new DestructionRangesPayload(left.getValueInt(), right.getValueInt(), up.getValueInt(), down.getValueInt(), depth.getValueInt()));
         }
     }
 

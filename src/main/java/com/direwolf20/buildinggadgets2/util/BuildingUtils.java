@@ -7,11 +7,14 @@ import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.integration.AE2Integration;
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
+import com.direwolf20.buildinggadgets2.integration.CuriosMethods;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,7 +34,6 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import top.theillusivec4.curios.api.CuriosApi;
 
 import java.util.*;
 
@@ -39,14 +41,21 @@ import static com.direwolf20.buildinggadgets2.integration.AE2Methods.*;
 
 public class BuildingUtils {
 
-    public static IItemHandler getHandlerFromBound(Player player, DimBlockPos boundInventory, Direction direction) {
-        Level level = boundInventory.getLevel(player.getServer());
+    public static Level getLevel(MinecraftServer server, GlobalPos globalPos) {
+        if (server == null)
+            return null;//level = Minecraft.getInstance().level;
+        else
+            return server.getLevel(globalPos.dimension());
+    }
+
+    public static IItemHandler getHandlerFromBound(Player player, GlobalPos boundInventory, Direction direction) {
+        Level level = getLevel(player.getServer(), boundInventory);
         if (level == null) return null;
 
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.pos());
         if (blockEntity == null) return null;
 
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, boundInventory.blockPos, direction);
+        return level.getCapability(Capabilities.ItemHandler.BLOCK, boundInventory.pos(), direction);
     }
 
     public static ItemStack checkFluidHandlerForFluids(IFluidHandlerItem handler, FluidStack fluidStack, boolean simulate) {
@@ -160,7 +169,7 @@ public class BuildingUtils {
         }
     }
 
-    public static boolean removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate, DimBlockPos boundInventory, Direction direction) {
+    public static boolean removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate, GlobalPos boundInventory, Direction direction) {
         if (fluidStack.isEmpty()) return false;
         //Check Bound Inventory First
         if (boundInventory != null) {
@@ -176,16 +185,8 @@ public class BuildingUtils {
 
         if (fluidStack.isEmpty()) return true;
         //Check curious slots second:
-        // TODO: Fix me, I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            var curios = CuriosApi.getCuriosInventory(player);
-
-            curios.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
-                for (int j = 0; j < stackHandler.getSlots(); j++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
-                    checkItemForFluids(itemInSlot, fluidStack, simulate);
-                }
-            }));
+            CuriosMethods.removeFluidStacksFromInventory(player, fluidStack, simulate);
         }
         if (fluidStack.isEmpty()) return true;
 
@@ -236,7 +237,7 @@ public class BuildingUtils {
         }
     }
 
-    public static boolean removeStacksFromInventory(Player player, List<ItemStack> itemStacks, boolean simulate, DimBlockPos boundInventory, Direction direction) {
+    public static boolean removeStacksFromInventory(Player player, List<ItemStack> itemStacks, boolean simulate, GlobalPos boundInventory, Direction direction) {
         if (itemStacks.isEmpty() || itemStacks.contains(Items.AIR.getDefaultInstance())) return false;
         ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
         //Check Bound Inventory First
@@ -253,19 +254,9 @@ public class BuildingUtils {
 
         if (testArray.isEmpty()) return true;
         //Check curious slots second:
-        // TODO: Fix me, I'm a hard dep on curios
+
         if (CuriosIntegration.isLoaded()) {
-            var curios = CuriosApi.getCuriosInventory(player);
-            curios.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
-                for (int j = 0; j < stackHandler.getSlots(); j++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
-                    var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
-                    if (itemStackCapability != null) {
-                        checkHandlerForItems(itemStackCapability, testArray, simulate);
-                        if (testArray.isEmpty()) break;
-                    }
-                }
-            }));
+            CuriosMethods.removeStacksFromInventory(player, testArray, simulate);
         }
         if (testArray.isEmpty()) return true;
 
@@ -281,22 +272,8 @@ public class BuildingUtils {
         final int[] counter = {0};
 
         //Check curious slots first:
-        // TODO: Fix me, I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            var curiosOpt = CuriosApi.getCuriosInventory(player);
-            curiosOpt.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
-                for (int i = 0; i < stackHandler.getSlots(); i++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                    var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
-                    if (itemStackCapability != null) {
-                        for (int j = 0; j < itemStackCapability.getSlots(); j++) {
-                            ItemStack itemInBagSlot = itemStackCapability.getStackInSlot(j);
-                            if (ItemStack.isSameItem(itemInBagSlot, itemStack))
-                                counter[0] += itemInBagSlot.getCount();
-                        }
-                    }
-                }
-            }));
+            CuriosMethods.countItemStacks(player, itemStack, counter);
         }
 
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
@@ -316,7 +293,7 @@ public class BuildingUtils {
         return counter[0];
     }
 
-    public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, DimBlockPos boundInventory, Direction direction) {
+    public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, GlobalPos boundInventory, Direction direction) {
         //Check Bound Inventory First
         if (boundInventory != null) {
             if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
@@ -331,16 +308,8 @@ public class BuildingUtils {
         if (returnedFluid.isEmpty()) return;
 
         //Look for matching itemstacks inside curios inventories second - if found, insert there!
-        // TODO: Fix me, I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            var curios = CuriosApi.getCuriosInventory(player);
-            curios.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
-                for (int i = 0; i < stackHandler.getSlots(); i++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                    insertFluidIntoItem(itemInSlot, returnedFluid, false);
-                    if (returnedFluid.isEmpty()) return;
-                }
-            }));
+            CuriosMethods.giveFluidToPlayer(player, returnedFluid);
         }
         //Now look inside the players inventory
         Inventory playerInventory = player.getInventory();
@@ -364,7 +333,7 @@ public class BuildingUtils {
         }
     }
 
-    public static void giveItemToPlayer(Player player, ItemStack returnedItem, DimBlockPos boundInventory, Direction direction) {
+    public static void giveItemToPlayer(Player player, ItemStack returnedItem, GlobalPos boundInventory, Direction direction) {
         //Check Bound Inventory First
         ItemStack tempReturnedItem = returnedItem.copy();
         if (boundInventory != null) {
@@ -381,23 +350,8 @@ public class BuildingUtils {
         ItemStack realReturnedItem = tempReturnedItem.copy();
 
         //Look for matching itemstacks inside curios inventories second - if found, insert there!
-        // TODO: Fix me: I'm a hard dep on curios
         if (CuriosIntegration.isLoaded()) {
-            var curiosOpt = CuriosApi.getCuriosInventory(player);
-            curiosOpt.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
-                for (int i = 0; i < stackHandler.getSlots(); i++) {
-                    ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
-                    var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
-                    if (itemStackCapability != null) {
-                        for (int j = 0; j < itemStackCapability.getSlots(); j++) {
-                            ItemStack itemInBagSlot = itemStackCapability.getStackInSlot(j);
-                            if (ItemStack.isSameItem(itemInBagSlot, realReturnedItem))
-                                itemStackCapability.insertItem(j, realReturnedItem.split(itemStackCapability.getSlotLimit(j) - itemInBagSlot.getCount()), false);
-                            if (realReturnedItem.isEmpty()) return;
-                        }
-                    }
-                }
-            }));
+            CuriosMethods.giveItemToPlayer(player, realReturnedItem);
             if (realReturnedItem.isEmpty()) return;
         }
         //Now look for bags inside the players inventory
@@ -463,8 +417,8 @@ public class BuildingUtils {
     public static UUID build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
-        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
-        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        GlobalPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.BIND_DIRECTION.getName());
         Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
@@ -507,8 +461,8 @@ public class BuildingUtils {
     public static UUID exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
         UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
-        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
-        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        GlobalPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.BIND_DIRECTION.getName());
         Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos;

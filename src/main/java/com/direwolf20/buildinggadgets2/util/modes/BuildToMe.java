@@ -27,7 +27,7 @@ public class BuildToMe extends BaseMode {
     public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
         ItemStack gadget = BaseGadget.getGadget(player);
-        boolean placeontop = GadgetNBT.getSetting(gadget, "placeontop");
+        boolean placeontop = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.PLACE_ON_TOP.getName());
 
         int startCoord = hitSide.getAxis().choose(start.getX(), start.getY(), start.getZ());
         double yPos = placeontop ? player.getEyeY() : player.getBlockY();

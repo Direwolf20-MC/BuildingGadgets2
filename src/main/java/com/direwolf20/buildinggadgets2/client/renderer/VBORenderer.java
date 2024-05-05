@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -76,9 +77,9 @@ public class VBORenderer {
         BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
         BaseMode mode = GadgetNBT.getMode(gadget);
 
-        DimBlockPos boundTo = GadgetNBT.getBoundPos(gadget);
-        if (boundTo != null && boundTo.levelKey.equals(player.level().dimension()))
-            drawBoundBox(evt.getPoseStack(), boundTo.blockPos);
+        GlobalPos boundTo = GadgetNBT.getBoundPos(gadget);
+        if (boundTo != null && boundTo.dimension().equals(player.level().dimension()))
+            drawBoundBox(evt.getPoseStack(), boundTo.pos());
 
 
         if (gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof GadgetCutPaste) {
@@ -274,6 +275,7 @@ public class VBORenderer {
 
         PoseStack matrix = evt.getPoseStack();
         matrix.pushPose();
+        matrix.mulPose(evt.getModelViewMatrix());
         matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
         matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
         //Draw the renders in the specified order

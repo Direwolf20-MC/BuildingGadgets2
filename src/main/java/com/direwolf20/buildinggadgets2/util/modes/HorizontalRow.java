@@ -28,7 +28,7 @@ public class HorizontalRow extends BaseMode {
         ItemStack gadget = BaseGadget.getGadget(player);
         ArrayList<StatePos> coordinates = new ArrayList<>();
         int range = GadgetNBT.getToolRange(gadget);
-        boolean placeontop = GadgetNBT.getSetting(gadget, "placeontop");
+        boolean placeontop = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.PLACE_ON_TOP.getName());
         BlockPos startAt = placeontop ? start.above() : start;
 
         Direction side = hitSide.getAxis() == Direction.Axis.Y ? player.getDirection() : hitSide.getOpposite();
@@ -43,7 +43,7 @@ public class HorizontalRow extends BaseMode {
                 if (isPosValid(player.level(), player, startAt.relative(side, i), state))
                     coordinates.add(new StatePos(state, startAt.relative(side, i).subtract(start)));
         }
-        boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.CONNECTED_AREA.value);
+        boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.CONNECTED_AREA.getName());
         if (isExchanging && connected)
             return removeUnConnected(player.level(), player, startAt.subtract(start), coordinates, hitSide);
         return coordinates;

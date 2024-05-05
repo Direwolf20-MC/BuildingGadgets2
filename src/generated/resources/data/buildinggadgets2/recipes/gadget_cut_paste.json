@@ -4,13 +4,13 @@
   "group": "buildinggadgets2",
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     },
     "l": {
-      "tag": "forge:gems/lapis"
+      "tag": "c:gems/lapis"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:dusts/redstone"
     },
     "s": {
       "item": "minecraft:shears"
@@ -22,6 +22,7 @@
     "ili"
   ],
   "result": {
-    "item": "buildinggadgets2:gadget_cut_paste"
+    "count": 1,
+    "id": "buildinggadgets2:gadget_cut_paste"
   }
 }

@@ -35,12 +35,12 @@ public abstract class BaseMode implements Comparable<BaseMode> {
         final ArrayList<StatePos> buildList = new ArrayList<>();
         if (!player.mayBuild())
             return buildList;
-        ArrayList<BlockPos> anchorList = GadgetNBT.getAnchorList(gadget);
+        List<BlockPos> anchorList = GadgetNBT.getAnchorList(gadget);
         if (anchorList.isEmpty()) {
             //if (!isExchanging || !player.level().getBlockState(start).equals(state))
             buildList.addAll(collectWorld(hitSide, player, start, state));
         } else {
-            ArrayList<BlockPos> posList = GadgetNBT.getAnchorList(gadget);
+            List<BlockPos> posList = GadgetNBT.getAnchorList(gadget);
             posList.forEach(e -> buildList.add(new StatePos(state, e)));
         }
         return buildList;
@@ -108,9 +108,9 @@ public abstract class BaseMode implements Comparable<BaseMode> {
             return false;
         if (!GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos))
             return false;
-        boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.FUZZY.value);
+        boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.FUZZY.getName());
         BlockState oldState = level.getBlockState(pos);
-        if (oldState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
+        if (oldState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.AFFECT_TILES.getName()))
             return false;
         if (fuzzy) {
             if (oldState.isAir()) return false;

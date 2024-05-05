@@ -35,7 +35,7 @@ public class StatePos {
             this.pos = null;
         }
         this.state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compoundTag.getCompound("blockstate"));
-        this.pos = NbtUtils.readBlockPos(compoundTag.getCompound("blockpos"));
+        this.pos = NbtUtils.readBlockPos(compoundTag, "blockpos").orElse(BlockPos.ZERO);
     }
 
     public StatePos(CompoundTag compoundTag, ArrayList<BlockState> blockStates) {

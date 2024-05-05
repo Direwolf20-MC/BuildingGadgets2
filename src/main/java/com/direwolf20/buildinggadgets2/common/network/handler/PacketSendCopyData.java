@@ -4,7 +4,7 @@ import com.direwolf20.buildinggadgets2.common.network.data.SendCopyDataPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -16,8 +16,8 @@ public class PacketSendCopyData {
         return INSTANCE;
     }
 
-    public void handle(final SendCopyDataPayload payload, final PlayPayloadContext context) {
-        context.workHandler().submitAsync(() -> {
+    public void handle(final SendCopyDataPayload payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
             UUID gadgetUUID = payload.gadgetUUID();
             UUID copyUUID = payload.copyUUID();
             ArrayList<StatePos> statePosList = BG2Data.statePosListFromNBTMapArray(payload.tag());

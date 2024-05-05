@@ -32,7 +32,7 @@ public class Template {
         Map<ItemStackKey, Integer> requiredItemsTemp = StatePos.getItemList(statePosArrayList);
         for (Map.Entry<ItemStackKey, Integer> entry : requiredItemsTemp.entrySet()) {
             if (entry.getKey().getStack().isEmpty()) continue;
-            requiredItems.put(entry.getKey().item.getCreatorModId(entry.getKey().getStack()) + ":" + entry.getKey().item.toString(), entry.getValue());
+            requiredItems.put(entry.getKey().item.value().getCreatorModId(entry.getKey().getStack()) + ":" + entry.getKey().item.toString(), entry.getValue());
         }
     }
 

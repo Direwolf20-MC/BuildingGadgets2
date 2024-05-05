@@ -2,22 +2,33 @@ package com.direwolf20.buildinggadgets2.common.network;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.network.data.*;
-import com.direwolf20.buildinggadgets2.common.network.handler.PacketRequestCopyData;
-import com.direwolf20.buildinggadgets2.common.network.handler.PacketSendCopyData;
-import com.direwolf20.buildinggadgets2.common.network.handler.PacketSendPaste;
-import com.direwolf20.buildinggadgets2.common.network.handler.PacketUpdateTemplateManager;
-import com.direwolf20.buildinggadgets2.common.network.handler.gadgetaction.PacketGadgetAction;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import com.direwolf20.buildinggadgets2.common.network.handler.*;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class PacketHandler {
-    public static void registerNetworking(final RegisterPayloadHandlerEvent event) {
-        final IPayloadRegistrar registrar = event.registrar(BuildingGadgets2.MODID);
+    public static void registerNetworking(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(BuildingGadgets2.MODID);
 
-        registrar.play(GadgetActionPayload.ID, GadgetActionPayload::new, handler -> handler.server(PacketGadgetAction.get()::handle));
-        registrar.play(RequestCopyDataPayload.ID, RequestCopyDataPayload::new, handler -> handler.server(PacketRequestCopyData.get()::handle));
-        registrar.play(SendPastePayload.ID, SendPastePayload::new, handler -> handler.server(PacketSendPaste.get()::handle));
-        registrar.play(UpdateTemplateManagerPayload.ID, UpdateTemplateManagerPayload::new, handler -> handler.server(PacketUpdateTemplateManager.INSTANCE::handle));
-        registrar.play(SendCopyDataPayload.ID, SendCopyDataPayload::new, handler -> handler.client(PacketSendCopyData.get()::handle));
+        //Going to Server
+        registrar.playToServer(AnchorPayload.TYPE, AnchorPayload.STREAM_CODEC, PacketAnchor.get()::handle);
+        registrar.playToServer(CopyCoordsPayload.TYPE, CopyCoordsPayload.STREAM_CODEC, PacketCopyCoords.get()::handle);
+        registrar.playToServer(CutPayload.TYPE, CutPayload.STREAM_CODEC, PacketCut.get()::handle);
+        registrar.playToServer(DestructionRangesPayload.TYPE, DestructionRangesPayload.STREAM_CODEC, PacketDestructionRanges.get()::handle);
+        registrar.playToServer(ModeSwitchPayload.TYPE, ModeSwitchPayload.STREAM_CODEC, PacketModeSwitch.get()::handle);
+        registrar.playToServer(RangeChangePayload.TYPE, RangeChangePayload.STREAM_CODEC, PacketRangeChange.get()::handle);
+        registrar.playToServer(RelativePastePayload.TYPE, RelativePastePayload.STREAM_CODEC, PacketRelativePaste.get()::handle);
+        registrar.playToServer(RequestCopyDataPayload.TYPE, RequestCopyDataPayload.STREAM_CODEC, PacketRequestCopyData.get()::handle);
+        registrar.playToServer(RenderChangePayload.TYPE, RenderChangePayload.STREAM_CODEC, PacketRenderChange.get()::handle);
+        registrar.playToServer(RotatePayload.TYPE, RotatePayload.STREAM_CODEC, PacketRotate.get()::handle);
+        registrar.playToServer(SendCopyDataToServerPayload.TYPE, SendCopyDataToServerPayload.STREAM_CODEC, PacketSendCopyDataToServer.get()::handle);
+        registrar.playToServer(SendPastePayload.TYPE, SendPastePayload.STREAM_CODEC, PacketSendPaste.get()::handle);
+        registrar.playToServer(ToggleSettingPayload.TYPE, ToggleSettingPayload.STREAM_CODEC, PacketToggleSetting.get()::handle);
+        registrar.playToServer(UndoPayload.TYPE, UndoPayload.STREAM_CODEC, PacketUndo.get()::handle);
+        registrar.playToServer(UpdateTemplateManagerPayload.TYPE, UpdateTemplateManagerPayload.STREAM_CODEC, PacketUpdateTemplateManager.get()::handle);
+
+
+        //Going to Client
+        registrar.playToClient(SendCopyDataPayload.TYPE, SendCopyDataPayload.STREAM_CODEC, PacketSendCopyData.get()::handle);
     }
 }

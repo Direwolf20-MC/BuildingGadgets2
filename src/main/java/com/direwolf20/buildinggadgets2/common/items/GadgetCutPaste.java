@@ -4,7 +4,6 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
-import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -22,6 +21,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -30,8 +30,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.Tags;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -52,11 +52,10 @@ public class GadgetCutPaste extends BaseGadget {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
-
-        if (level == null || mc.player == null) {
+        if (mc.level == null || mc.player == null) {
             return;
         }
 
@@ -179,7 +178,7 @@ public class GadgetCutPaste extends BaseGadget {
     }
 
     public static boolean customCutValidation(BlockState blockState, Level level, Player player, BlockPos blockPos) {
-        if (blockState.is(BG2BlockTags.NO_MOVE)) return false;
+        if (blockState.is(Tags.Blocks.RELOCATION_NOT_SUPPORTED)) return false;
         if (!level.mayInteract(player, blockPos)) return false; //Chunk Protection like spawn and FTB Utils
         return true;
     }

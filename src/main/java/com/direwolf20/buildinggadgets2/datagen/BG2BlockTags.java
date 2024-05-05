@@ -9,6 +9,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +23,6 @@ public class BG2BlockTags extends BlockTagsProvider {
     }
 
     public static final TagKey<Block> BG2DENY = BlockTags.create(new ResourceLocation(BuildingGadgets2.MODID, "deny"));
-    public static final TagKey<Block> NO_MOVE = BlockTags.create(new ResourceLocation("forge", "relocation_not_supported"));
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
@@ -37,7 +37,7 @@ public class BG2BlockTags extends BlockTagsProvider {
         /*tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(Registration.LaserNode.get())
                 .add(Registration.LaserConnector.get());*/
-        tag(NO_MOVE)
+        tag(Tags.Blocks.RELOCATION_NOT_SUPPORTED)
                 .add(Registration.RenderBlock.get());
     }
 

@@ -144,7 +144,7 @@ public class GadgetUtils {
     }
 
     public static ArrayList<StatePos> getDestructionArea(Level level, BlockPos pos, Direction face, Player player, ItemStack gadget) {
-        int depth = GadgetNBT.getToolValue(gadget, "depth");
+        int depth = GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.DEPTH.getName());
 
         if (gadget.isEmpty() || depth == 0 || !player.mayBuild())
             return new ArrayList<>();
@@ -155,9 +155,9 @@ public class GadgetUtils {
         Direction right = vertical ? up.getClockWise() : face.getCounterClockWise();
         Direction left = right.getOpposite();
 
-        BlockPos first = pos.relative(left, GadgetNBT.getToolValue(gadget, "left")).relative(up, GadgetNBT.getToolValue(gadget, "up"));
-        BlockPos second = pos.relative(right, GadgetNBT.getToolValue(gadget, "right"))
-                .relative(down, GadgetNBT.getToolValue(gadget, "down"))
+        BlockPos first = pos.relative(left, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.LEFT.getName())).relative(up, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.UP.getName()));
+        BlockPos second = pos.relative(right, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.RIGHT.getName()))
+                .relative(down, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.DOWN.getName()))
                 .relative(face.getOpposite(), depth - 1);
 
         //boolean isFluidOnly = getIsFluidOnly(gadget); //Todo
@@ -165,7 +165,7 @@ public class GadgetUtils {
         ArrayList<StatePos> returnList = new ArrayList<>();
         BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(blockPos -> {
             BlockState blockState = level.getBlockState(blockPos);
-            if (blockState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
+            if (blockState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.AFFECT_TILES.getName()))
                 return;
             if (isValidDestroyBlockState(blockState, level, blockPos))
                 returnList.add(new StatePos(blockState, blockPos));

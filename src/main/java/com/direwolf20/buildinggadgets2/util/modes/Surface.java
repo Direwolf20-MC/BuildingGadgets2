@@ -42,7 +42,7 @@ public class Surface extends BaseMode {
                 coordinates.add(new StatePos(state, pos.subtract(start)));
         });
 
-        boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.CONNECTED_AREA.value);
+        boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.CONNECTED_AREA.getName());
         if (isExchanging && connected)
             return removeUnConnected(level, player, startAt.subtract(start), coordinates, hitSide);
         return coordinates;
@@ -50,7 +50,7 @@ public class Surface extends BaseMode {
 
     public boolean isPosValidCustom(Level level, BlockPos pos, BlockState compareState, ItemStack gadget, Direction hitSide) {
         if (isExchanging) return true; //Handled by isExchangingValid
-        boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.NBTValues.FUZZY.value);
+        boolean fuzzy = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.FUZZY.getName());
         BlockState belowState = level.getBlockState(pos.relative(hitSide.getOpposite()));
         if (fuzzy) {
             if (belowState.isAir()) return false;

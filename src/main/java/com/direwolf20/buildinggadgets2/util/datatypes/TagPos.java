@@ -19,7 +19,7 @@ public class TagPos {
             this.pos = null;
         }
         this.tag = compoundTag.getCompound("tedata");
-        this.pos = NbtUtils.readBlockPos(compoundTag.getCompound("blockpos"));
+        this.pos = NbtUtils.readBlockPos(compoundTag, "blockpos").orElse(BlockPos.ZERO);
     }
 
     public CompoundTag getTag() {
