@@ -1,10 +1,11 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -12,23 +13,16 @@ public record RequestCopyDataPayload(
         UUID gadgetUUID,
         UUID copyUUID
 ) implements CustomPacketPayload {
-    public static final ResourceLocation ID = new ResourceLocation(BuildingGadgets2.MODID, "request_copy_data");
-
-    public RequestCopyDataPayload(final FriendlyByteBuf pBuffer) {
-        this(
-                pBuffer.readUUID(),
-                pBuffer.readUUID()
-        );
-    }
+    public static final Type<RequestCopyDataPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "request_copy_data"));
 
     @Override
-    public void write(FriendlyByteBuf pBuffer) {
-        pBuffer.writeUUID(gadgetUUID);
-        pBuffer.writeUUID(copyUUID);
+    public Type<RequestCopyDataPayload> type() {
+        return TYPE;
     }
 
-    @Override
-    public @NotNull ResourceLocation id() {
-        return ID;
-    }
+    public static final StreamCodec<FriendlyByteBuf, RequestCopyDataPayload> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC, RequestCopyDataPayload::gadgetUUID,
+            UUIDUtil.STREAM_CODEC, RequestCopyDataPayload::copyUUID,
+            RequestCopyDataPayload::new
+    );
 }

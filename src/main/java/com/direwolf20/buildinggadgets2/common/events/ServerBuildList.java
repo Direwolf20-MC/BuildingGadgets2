@@ -1,10 +1,10 @@
 package com.direwolf20.buildinggadgets2.common.events;
 
-import com.direwolf20.buildinggadgets2.util.DimBlockPos;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -38,10 +38,10 @@ public class ServerBuildList {
     public ArrayList<BlockPos> retryList = new ArrayList<>();
     public BlockPos cutStart = BlockPos.ZERO;
     public BlockPos lookingAt = BlockPos.ZERO;
-    public DimBlockPos boundPos;
+    public GlobalPos boundPos;
     public int direction;
 
-    public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte renderType, UUID playerUUID, boolean needItems, boolean returnItems, UUID buildUUID, ItemStack gadget, BuildType buildType, boolean dropContents, BlockPos lookingAt, DimBlockPos boundPos, int direction) {
+    public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte renderType, UUID playerUUID, boolean needItems, boolean returnItems, UUID buildUUID, ItemStack gadget, BuildType buildType, boolean dropContents, BlockPos lookingAt, GlobalPos boundPos, int direction) {
         this.level = level;
         this.statePosList = statePosList;
         this.renderType = renderType;

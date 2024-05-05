@@ -243,7 +243,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         projectionMatrix.setPerspective((float) Math.toRadians(fov), aspectRatio, near, far);
         RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.ORTHOGRAPHIC_Z); //This is needed to switch to 3d rendering instead of 2d for the screen
 
-        PoseStack poseStack = RenderSystem.getModelViewStack();
+        PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.setIdentity();
         poseStack.translate(-lengthZ / 2 + panX, -lengthY / 2 - panY, -lengthZ + zoom); //Move the objects in the world being drawn inside the viewport around
@@ -479,11 +479,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     private void onSave() {
-        PacketDistributor.SERVER.noArg().send(new UpdateTemplateManagerPayload(be.getBlockPos(), 0, nameField.getValue()));
+        PacketDistributor.sendToServer(new UpdateTemplateManagerPayload(be.getBlockPos(), 0, nameField.getValue()));
     }
 
     private void onLoad() {
-        PacketDistributor.SERVER.noArg().send(new UpdateTemplateManagerPayload(be.getBlockPos(), 1, nameField.getValue()));
+        PacketDistributor.sendToServer(new UpdateTemplateManagerPayload(be.getBlockPos(), 1, nameField.getValue()));
     }
 
     private Template getTemplate() {
@@ -527,7 +527,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             return;
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
         UUID copyUUID = UUID.randomUUID();
-        PacketDistributor.SERVER.noArg().send(new SendPastePayload(copyUUID, serverTag));
+        PacketDistributor.sendToServer(new SendPastePayload(copyUUID, serverTag));
     }
 
     //TODO WIP

@@ -28,7 +28,7 @@ public class Grid extends BaseMode {
         ItemStack gadget = BaseGadget.getGadget(player);
         ArrayList<StatePos> coordinates = new ArrayList<>();
         int range = GadgetNBT.getToolRange(gadget) + 1;
-        boolean placeontop = GadgetNBT.getSetting(gadget, "placeontop");
+        boolean placeontop = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.PLACE_ON_TOP.getName());
         BlockPos startAt = placeontop ? start.above() : start;
 
         for (int x = range * -7 / 5; x <= range * 7 / 5; x++) {

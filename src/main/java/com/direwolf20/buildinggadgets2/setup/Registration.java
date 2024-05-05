@@ -41,6 +41,9 @@ public class Registration {
         CONTAINERS.register(eventBus);
         SOUND_REGISTRY.register(eventBus);
         PARTICLE_TYPES.register(eventBus);
+        BG2DataComponents.genSettingToggles();
+        BG2DataComponents.genSettingValues();
+        BG2DataComponents.COMPONENTS.register(eventBus);
     }
 
     //Blocks

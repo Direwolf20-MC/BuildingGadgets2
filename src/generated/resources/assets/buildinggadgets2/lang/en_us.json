@@ -30,6 +30,7 @@
   "buildinggadgets2.messages.outofpower": "Gadget out of power!",
   "buildinggadgets2.messages.overwritecut": "Tool already has cut data stored - click again to OVERWRITE this data",
   "buildinggadgets2.messages.range_set": "Range set to: %d",
+  "buildinggadgets2.messages.redprintgivefail": "Failed to give redprint %s to %s",
   "buildinggadgets2.messages.redprintremovefail": "Failed to delete redprint: %s",
   "buildinggadgets2.messages.redprintremovesuccess": "Successfully deleted redprint: %s",
   "buildinggadgets2.messages.relativepaste": "Relative Paste set to: [%s]",

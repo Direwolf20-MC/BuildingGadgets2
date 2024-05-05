@@ -15,10 +15,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -33,15 +34,11 @@ public class PacketUpdateTemplateManager {
         return INSTANCE;
     }
 
-    public void handle(final UpdateTemplateManagerPayload payload, final PlayPayloadContext context) {
-        context.workHandler().submitAsync(() -> {
-            var sender = context.player();
-            if (sender.isEmpty()) {
-                return;
-            }
-
-            var player = sender.get();
+    public void handle(final UpdateTemplateManagerPayload payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
             AbstractContainerMenu container = player.containerMenu;
+
             if (container == null || !(container instanceof TemplateManagerContainer))
                 return;
 

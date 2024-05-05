@@ -30,7 +30,7 @@ public class HorizontalWall extends BaseMode {
         int range = GadgetNBT.getToolRange(gadget);
         int halfRange = range / 2;
         ArrayList<StatePos> coordinates = new ArrayList<>();
-        boolean placeontop = GadgetNBT.getSetting(gadget, "placeontop");
+        boolean placeontop = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.PLACE_ON_TOP.getName());
 
         if (hitSide.getAxis() == Direction.Axis.Y) {
             for (int i = -halfRange; i <= halfRange; i++) {

@@ -4,12 +4,12 @@ import com.direwolf20.buildinggadgets2.common.blockentities.RenderBlockBE;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.setup.Registration;
-import com.direwolf20.buildinggadgets2.util.DimBlockPos;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.*;
@@ -34,8 +34,8 @@ public class ServerTickHandler {
     public static final HashMap<UUID, ServerBuildList> buildMap = new HashMap<>();
 
     @SubscribeEvent
-    public static void handleTickEndEvent(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || buildMap.isEmpty()) return;
+    public static void handleTickEndEvent(ServerTickEvent.Pre event) {
+        if (buildMap.isEmpty()) return;
 
         for (UUID uuid : buildMap.keySet()) {
             ServerBuildList serverBuildList = buildMap.get(uuid);
@@ -65,8 +65,8 @@ public class ServerTickHandler {
     }
 
     public static void addToMap(UUID buildUUID, StatePos statePos, Level level, byte renderType, Player player, boolean neededItems, boolean returnItems, ItemStack gadget, ServerBuildList.BuildType buildType, boolean dropContents, BlockPos lookingAt) {
-        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
-        int direction = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        GlobalPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int direction = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.BIND_DIRECTION.getName());
         ServerBuildList serverBuildList = buildMap.computeIfAbsent(buildUUID, k -> new ServerBuildList(level, new ArrayList<>(), renderType, player.getUUID(), neededItems, returnItems, buildUUID, gadget, buildType, dropContents, lookingAt, boundPos, direction));
         serverBuildList.statePosList.add(statePos);
         serverBuildList.originalSize = serverBuildList.statePosList.size();
@@ -97,7 +97,7 @@ public class ServerTickHandler {
         serverBuildList.statePosList.clear();
     }
 
-    public static void removeEmptyLists(TickEvent.ServerTickEvent event) {
+    public static void removeEmptyLists(ServerTickEvent.Pre event) {
         Iterator<Map.Entry<UUID, ServerBuildList>> iterator = buildMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<UUID, ServerBuildList> entry = iterator.next();
@@ -462,7 +462,7 @@ public class ServerTickHandler {
             if (!blockState.isAir()) //Don't remove air
                 doRemove = true;
             if (blockEntity != null) {
-                CompoundTag blockTag = blockEntity.saveWithFullMetadata();
+                CompoundTag blockTag = blockEntity.saveWithFullMetadata(level.registryAccess());
                 TagPos tagPos = new TagPos(blockTag, blockPos.subtract(serverBuildList.cutStart));
                 serverBuildList.teData.add(tagPos);
             }

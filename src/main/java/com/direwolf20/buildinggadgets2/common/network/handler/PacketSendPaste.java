@@ -9,10 +9,11 @@ import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -25,14 +26,11 @@ public class PacketSendPaste {
         return INSTANCE;
     }
 
-    public void handle(final SendPastePayload payload, final PlayPayloadContext context) {
-        context.workHandler().submitAsync(() -> {
-            var sender = context.player();
-            if (sender.isEmpty()) {
-                return;
-            }
+    public void handle(final SendPastePayload payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
 
-            AbstractContainerMenu container = sender.get().containerMenu;
+            AbstractContainerMenu container = player.containerMenu;
             if (container == null || !(container instanceof TemplateManagerContainer))
                 return;
 
@@ -46,7 +44,7 @@ public class PacketSendPaste {
                 templateStack = container.getSlot(1).getItem();
             }
 
-            BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(sender.get().level().getServer()).overworld());
+            BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(player.level().getServer()).overworld());
 
             ArrayList<StatePos> buildList = BG2Data.statePosListFromNBTMapArray(payload.tag());
             bg2Data.addToCopyPaste(GadgetNBT.getUUID(templateStack), buildList);
@@ -54,7 +52,7 @@ public class PacketSendPaste {
 
             //Update the client - Yes - even though this came from the client!! This is to make sure the server sanity checked the blocks list
             CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(templateStack), false);
-            ((ServerPlayer) sender.get()).connection.send(new SendCopyDataPayload(GadgetNBT.getUUID(templateStack), GadgetNBT.getCopyUUID(templateStack), tag));
+            ((ServerPlayer) player).connection.send(new SendCopyDataPayload(GadgetNBT.getUUID(templateStack), GadgetNBT.getCopyUUID(templateStack), tag));
         });
     }
 

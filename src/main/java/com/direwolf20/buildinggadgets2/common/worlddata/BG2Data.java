@@ -6,9 +6,9 @@ import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -146,19 +146,36 @@ public class BG2Data extends SavedData {
             blocklist[k] = blockStateMap.indexOf(statePos.state);
             k++;
         }*/
-        tag.put("startpos", NbtUtils.writeBlockPos(start));
-        tag.put("endpos", NbtUtils.writeBlockPos(end));
+        tag.put("startpos", writeBlockPos(start));
+        tag.put("endpos", writeBlockPos(end));
         tag.put("blockstatemap", blockStateMapList);
         tag.putIntArray("statelist", blocklist); //Todo - Short Array?
         return tag;
+    }
+
+    /**
+     * Something Changed in NBTUtils.ReadBlockPos that broke templates, so i made the below as a workaround
+     */
+    public static BlockPos readBlockPos(CompoundTag compoundTag, String pKey) {
+        if (!compoundTag.contains(pKey)) return BlockPos.ZERO;
+        CompoundTag tag = compoundTag.getCompound(pKey);
+        return new BlockPos(tag.getInt("X"), tag.getInt("Y"), tag.getInt("Z"));
+    }
+
+    public static CompoundTag writeBlockPos(BlockPos pPos) {
+        CompoundTag compoundtag = new CompoundTag();
+        compoundtag.putInt("X", pPos.getX());
+        compoundtag.putInt("Y", pPos.getY());
+        compoundtag.putInt("Z", pPos.getZ());
+        return compoundtag;
     }
 
     public static ArrayList<StatePos> statePosListFromNBTMapArray(CompoundTag tag) {
         ArrayList<StatePos> statePosList = new ArrayList<>();
         if (!tag.contains("blockstatemap") || !tag.contains("statelist")) return statePosList;
         ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMapFromNBT(tag.getList("blockstatemap", Tag.TAG_COMPOUND));
-        BlockPos start = NbtUtils.readBlockPos(tag.getCompound("startpos"));
-        BlockPos end = NbtUtils.readBlockPos(tag.getCompound("endpos"));
+        BlockPos start = readBlockPos(tag, "startpos");
+        BlockPos end = readBlockPos(tag, "endpos");
         AABB aabb = VecHelpers.aabbFromBlockPos(start, end);
         int[] blocklist = tag.getIntArray("statelist");
         final int[] counter = {0};
@@ -171,7 +188,7 @@ public class BG2Data extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag nbt) {
+    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider) {
         ListTag undoTagList = new ListTag();
         for (Map.Entry<UUID, ArrayList<StatePos>> entry : undoList.entrySet()) {
             CompoundTag tempTag = new CompoundTag();
@@ -218,7 +235,7 @@ public class BG2Data extends SavedData {
         return nbt;
     }
 
-    public static BG2Data readNbt(CompoundTag nbt) {
+    public static BG2Data readNbt(CompoundTag nbt, HolderLookup.Provider provider) {
         HashMap<UUID, ArrayList<StatePos>> undoList = new HashMap<>();
         ListTag undoTagList = nbt.getList("undolist", Tag.TAG_COMPOUND);
         for (int i = 0; i < undoTagList.size(); i++) {
@@ -263,9 +280,8 @@ public class BG2Data extends SavedData {
     }
 
     public static BG2Data get(ServerLevel world) {
-        // TODO: Can't this be cached?
         BG2Data bg2Data = world.getDataStorage().computeIfAbsent(
-                new Factory<>(
+                new SavedData.Factory<BG2Data>(
                         () -> new BG2Data(new HashMap<>(), new HashMap<>(), new HashMap<>(), HashBiMap.create()),
                         BG2Data::readNbt
                 ),

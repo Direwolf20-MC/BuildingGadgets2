@@ -69,9 +69,7 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
             bufferbuilder.vertex(x1, l1, 0.0D).color(192, 192, 192, 255).endVertex();
             tessellator.end();
         }
-        renderList(guiGraphics, k, l, partialTicks);
-        //renderDecorations(guiGraphics, mouseX, mouseX);
-        //RenderSystem.disableBlend();
+        renderListItems(guiGraphics, k, l, partialTicks);
     }
 
     protected void renderContentBackground(GuiGraphics guiGraphics) {

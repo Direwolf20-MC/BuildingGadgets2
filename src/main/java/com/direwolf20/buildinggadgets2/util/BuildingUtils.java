@@ -11,7 +11,9 @@ import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,14 +41,21 @@ import static com.direwolf20.buildinggadgets2.integration.AE2Methods.*;
 
 public class BuildingUtils {
 
-    public static IItemHandler getHandlerFromBound(Player player, DimBlockPos boundInventory, Direction direction) {
-        Level level = boundInventory.getLevel(player.getServer());
+    public static Level getLevel(MinecraftServer server, GlobalPos globalPos) {
+        if (server == null)
+            return null;//level = Minecraft.getInstance().level;
+        else
+            return server.getLevel(globalPos.dimension());
+    }
+
+    public static IItemHandler getHandlerFromBound(Player player, GlobalPos boundInventory, Direction direction) {
+        Level level = getLevel(player.getServer(), boundInventory);
         if (level == null) return null;
 
-        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.pos());
         if (blockEntity == null) return null;
 
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, boundInventory.blockPos, direction);
+        return level.getCapability(Capabilities.ItemHandler.BLOCK, boundInventory.pos(), direction);
     }
 
     public static ItemStack checkFluidHandlerForFluids(IFluidHandlerItem handler, FluidStack fluidStack, boolean simulate) {
@@ -160,7 +169,7 @@ public class BuildingUtils {
         }
     }
 
-    public static boolean removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate, DimBlockPos boundInventory, Direction direction) {
+    public static boolean removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate, GlobalPos boundInventory, Direction direction) {
         if (fluidStack.isEmpty()) return false;
         //Check Bound Inventory First
         if (boundInventory != null) {
@@ -236,7 +245,7 @@ public class BuildingUtils {
         }
     }
 
-    public static boolean removeStacksFromInventory(Player player, List<ItemStack> itemStacks, boolean simulate, DimBlockPos boundInventory, Direction direction) {
+    public static boolean removeStacksFromInventory(Player player, List<ItemStack> itemStacks, boolean simulate, GlobalPos boundInventory, Direction direction) {
         if (itemStacks.isEmpty() || itemStacks.contains(Items.AIR.getDefaultInstance())) return false;
         ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
         //Check Bound Inventory First
@@ -316,7 +325,7 @@ public class BuildingUtils {
         return counter[0];
     }
 
-    public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, DimBlockPos boundInventory, Direction direction) {
+    public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, GlobalPos boundInventory, Direction direction) {
         //Check Bound Inventory First
         if (boundInventory != null) {
             if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
@@ -364,7 +373,7 @@ public class BuildingUtils {
         }
     }
 
-    public static void giveItemToPlayer(Player player, ItemStack returnedItem, DimBlockPos boundInventory, Direction direction) {
+    public static void giveItemToPlayer(Player player, ItemStack returnedItem, GlobalPos boundInventory, Direction direction) {
         //Check Bound Inventory First
         ItemStack tempReturnedItem = returnedItem.copy();
         if (boundInventory != null) {
@@ -463,8 +472,8 @@ public class BuildingUtils {
     public static UUID build(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems) {
         UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
-        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
-        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        GlobalPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.BIND_DIRECTION.getName());
         Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
@@ -507,8 +516,8 @@ public class BuildingUtils {
     public static UUID exchange(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ItemStack gadget, boolean needItems, boolean returnItems) {
         UUID buildUUID = UUID.randomUUID();
         FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(level, blockPosList, lookingAt);
-        DimBlockPos boundPos = GadgetNBT.getBoundPos(gadget);
-        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, "binddirection");
+        GlobalPos boundPos = GadgetNBT.getBoundPos(gadget);
+        int dir = boundPos == null ? -1 : GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.BIND_DIRECTION.getName());
         Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos;

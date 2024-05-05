@@ -44,7 +44,7 @@ public class BG2DataClient {
             return false; //Since we're still awaiting an update, we're not good yet!
         }
         //Actually request the update from the server
-        PacketDistributor.SERVER.noArg().send(new RequestCopyDataPayload(gadgetUUID, copyUUID));
+        PacketDistributor.sendToServer(new RequestCopyDataPayload(gadgetUUID, copyUUID));
 
         awaitingUpdate = true;
         updateTimer = 0;

@@ -5,9 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:shears"
-            ]
+            "items": "minecraft:shears"
           }
         ]
       },
