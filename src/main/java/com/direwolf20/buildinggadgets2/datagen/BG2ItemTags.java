@@ -14,9 +14,6 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import java.util.concurrent.CompletableFuture;
 
 public class BG2ItemTags extends ItemTagsProvider {
-    //public static final TagKey<Item> WRENCHES = forgeTag("wrenches");
-    //public static final TagKey<Item> TOOLS_WRENCH = forgeTag("tools/wrench");
-
     private static TagKey<Item> forgeTag(String name) {
         return ItemTags.create(new ResourceLocation("forge", name));
     }
@@ -27,10 +24,7 @@ public class BG2ItemTags extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        /*tag(WRENCHES)
-                .add(Registration.Laser_Wrench.get());
-        tag(TOOLS_WRENCH)
-                .add(Registration.Laser_Wrench.get());*/
+
     }
 
     @Override

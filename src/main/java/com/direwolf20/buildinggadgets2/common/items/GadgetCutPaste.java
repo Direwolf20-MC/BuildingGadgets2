@@ -4,7 +4,6 @@ import com.direwolf20.buildinggadgets2.api.gadgets.GadgetTarget;
 import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
-import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -31,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -178,7 +178,7 @@ public class GadgetCutPaste extends BaseGadget {
     }
 
     public static boolean customCutValidation(BlockState blockState, Level level, Player player, BlockPos blockPos) {
-        if (blockState.is(BG2BlockTags.NO_MOVE)) return false;
+        if (blockState.is(Tags.Blocks.RELOCATION_NOT_SUPPORTED)) return false;
         if (!level.mayInteract(player, blockPos)) return false; //Chunk Protection like spawn and FTB Utils
         return true;
     }
