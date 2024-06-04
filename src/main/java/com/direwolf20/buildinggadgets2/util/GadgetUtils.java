@@ -22,6 +22,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.level.BlockEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,6 +169,8 @@ public class GadgetUtils {
             BlockState blockState = level.getBlockState(blockPos);
             if (blockState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, "affecttiles"))
                 return;
+            if (MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, blockPos, blockState, player)))
+                return; // skip block if another mod cancels the break
             if (isValidDestroyBlockState(blockState, level, blockPos))
                 returnList.add(new StatePos(blockState, blockPos));
         });

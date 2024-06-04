@@ -24,9 +24,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
@@ -482,9 +486,11 @@ public class BuildingUtils {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos.offset(lookingAt)))
-                continue; //Chunk Protection like spawn and FTB Utils
+                continue; //spawn protection and world border
             if (!level.getBlockState(blockPos.offset(lookingAt)).canBeReplaced())
                 continue; //Skip this block if it can't be placed (Avoids using energy)
+            if (ForgeEventFactory.onBlockPlace(player, BlockSnapshot.create(level.dimension(), level, blockPos.offset(lookingAt).below()), Direction.UP))
+                continue; //Skip this block if a mod cancels the placement
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue; //Don't do this validation for copy/paste
             if (pos.state.getFluidState().isEmpty()) { //Check for items
@@ -525,11 +531,13 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos.offset(lookingAt)))
-                continue; //Chunk Protection like spawn and FTB Utils
+                continue; //spawn protection and world border
             if (level.getBlockState(blockPos.offset(lookingAt)).equals(pos.state))
                 continue; //No need to replace blocks if they already match!
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos.offset(lookingAt)), level, blockPos))
                 continue;
+            if (MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, blockPos.offset(lookingAt), level.getBlockState(blockPos.offset(lookingAt)), player)))
+                continue; //Skip this block if a mod cancels the break
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
                 continue;  //Don't do this validation for copy/paste
             if (pos.state.getFluidState().isEmpty()) { //Check for items
