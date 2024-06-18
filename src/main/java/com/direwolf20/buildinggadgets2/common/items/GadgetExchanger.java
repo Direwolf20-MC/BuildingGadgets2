@@ -139,6 +139,16 @@ public class GadgetExchanger extends BaseGadget {
      * For Silk Touch - The tag that allows silk touch ALSO allows fortune, so I have to deny fortune after adding the tag....SUPER FUN!
      */
     @Override
+    public boolean isEnchantable(ItemStack p_41456_) {
+        return true;
+    }
+
+    @Override
+    public int getEnchantmentValue() {
+        return 3;
+    }
+
+    @Override
     public boolean isPrimaryItemFor(ItemStack stack, Holder<Enchantment> enchantment) {
         return super.isPrimaryItemFor(stack, enchantment) && canAcceptEnchantments(enchantment);
     }
