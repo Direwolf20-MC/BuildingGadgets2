@@ -20,7 +20,7 @@ public class BuildToMe extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "build_to_me");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "build_to_me");
     }
 
     @Override

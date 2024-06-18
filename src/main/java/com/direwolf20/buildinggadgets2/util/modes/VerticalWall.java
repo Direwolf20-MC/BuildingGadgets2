@@ -21,7 +21,7 @@ public class VerticalWall extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "vertical_wall");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "vertical_wall");
     }
 
     @Override

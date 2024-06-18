@@ -55,7 +55,7 @@ public class PacketUpdateTemplateManager {
                     BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(player.level().getServer()).overworld());
                     ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);
                     if (buildList == null || buildList.isEmpty()) {
-                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                         return;
                     }
                     container.setItem(1, container.getStateId(), new ItemStack(Registration.Template.get()));
@@ -65,7 +65,7 @@ public class PacketUpdateTemplateManager {
                 if (templateStack.is(Registration.Redprint.get())) {
                     if (payload.templateName().isEmpty()) {
                         player.displayClientMessage(Component.translatable("buildinggadgets2.messages.namerequired"), true);
-                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                         return;
                     }
                 }
@@ -78,15 +78,15 @@ public class PacketUpdateTemplateManager {
                 copyData((ServerPlayer) player, gadgetStack, templateStack, payload.templateName());
             } else if (payload.mode() == 1) { //Load
                 if (templateStack.isEmpty() || gadgetStack.isEmpty()) {
-                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return;
                 }
                 if (templateStack.is(Registration.Redprint.get()) && !gadgetStack.is(Registration.CutPaste_Gadget.get())) {
-                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return; //Redprints can only go onto Cut and Paste gadgets
                 }
                 if (gadgetStack.is(Registration.CutPaste_Gadget.get()) && !templateStack.is(Registration.Redprint.get())) {
-                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return; //Cut and Paste gadgets can only be loaded from Redprints
                 }
 
@@ -104,13 +104,13 @@ public class PacketUpdateTemplateManager {
         if (targetStack.is(Registration.Redprint.get())) {
             if (!bg2Data.addToRedprints(targetUUID, templateName)) {
                 sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.namealreadyexists"), true);
-                playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                 return;
             }
         }
         ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);
         if (buildList == null || buildList.isEmpty()) {
-            playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+            playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
             return;
         }
         GadgetNBT.setCopyUUID(targetStack); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
@@ -133,6 +133,6 @@ public class PacketUpdateTemplateManager {
         tag = bg2Data.getCopyPasteListAsNBTMap(targetUUID, false);
         sender.connection.send(new SendCopyDataPayload(targetUUID, GadgetNBT.getCopyUUID(targetStack), tag));
 
-        playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
+        playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
     }
 }

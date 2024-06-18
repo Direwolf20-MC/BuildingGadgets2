@@ -13,7 +13,7 @@ public record UpdateTemplateManagerPayload(
         int mode,
         String templateName
 ) implements CustomPacketPayload {
-    public static final Type<UpdateTemplateManagerPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "update_template_manager_payload"));
+    public static final Type<UpdateTemplateManagerPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "update_template_manager_payload"));
 
     @Override
     public Type<UpdateTemplateManagerPayload> type() {

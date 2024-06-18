@@ -13,7 +13,7 @@ public record RequestCopyDataPayload(
         UUID gadgetUUID,
         UUID copyUUID
 ) implements CustomPacketPayload {
-    public static final Type<RequestCopyDataPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "request_copy_data"));
+    public static final Type<RequestCopyDataPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "request_copy_data"));
 
     @Override
     public Type<RequestCopyDataPayload> type() {

@@ -10,7 +10,7 @@ public record RotatePayload(
 
 ) implements CustomPacketPayload {
     public static final RotatePayload INSTANCE = new RotatePayload();
-    public static final Type<RotatePayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "rotate_payload"));
+    public static final Type<RotatePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "rotate_payload"));
 
     @Override
     public Type<RotatePayload> type() {

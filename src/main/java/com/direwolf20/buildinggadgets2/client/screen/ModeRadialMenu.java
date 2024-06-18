@@ -46,8 +46,8 @@ import java.util.function.Predicate;
 
 public class ModeRadialMenu extends Screen {
     private static final ImmutableList<ResourceLocation> signsCopyPaste = ImmutableList.of(
-            new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/copy.png"),
-            new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/paste.png")
+            ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/mode/copy.png"),
+            ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/mode/paste.png")
     );
     private final List<Button> conditionalButtons = new ArrayList<>();
     private int timeIn = 0;
@@ -401,8 +401,8 @@ public class ModeRadialMenu extends Screen {
                     nameData.add(new NameDisplayData((int) xp, (int) yp, mouseInSector, shouldCenter && (seg == indexBottom || seg == indexTop)));
 
                 Matrix4f pose = matrices.last().pose();
-                buffer.vertex(pose, (float) (x + Math.cos(rad) * radius / 2.3F), (float) (y + Math.sin(rad) * radius / 2.3F), 0).color(r, g, b, a).endVertex();
-                buffer.vertex(xp, yp, 0).color(r, g, b, a).endVertex();
+                buffer.addVertex(pose, (float) (x + Math.cos(rad) * radius / 2.3F), (float) (y + Math.sin(rad) * radius / 2.3F), 0).setColor(r, g, b, a);
+                buffer.addVertex(xp, yp, 0).setColor(r, g, b, a);
             }
 
             bufferSource.endBatch(OurRenderTypes.TRIANGLE_STRIP);

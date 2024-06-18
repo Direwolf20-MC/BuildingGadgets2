@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 public record RelativePastePayload(
         BlockPos relativePos
 ) implements CustomPacketPayload {
-    public static final Type<RelativePastePayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "relative_paste_payload"));
+    public static final Type<RelativePastePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "relative_paste_payload"));
 
     @Override
     public Type<RelativePastePayload> type() {

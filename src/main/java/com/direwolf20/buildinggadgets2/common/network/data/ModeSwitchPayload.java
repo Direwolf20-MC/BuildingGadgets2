@@ -11,7 +11,7 @@ public record ModeSwitchPayload(
         boolean rotate,
         ResourceLocation modeId
 ) implements CustomPacketPayload {
-    public static final Type<ModeSwitchPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "mode_switch_payload"));
+    public static final Type<ModeSwitchPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "mode_switch_payload"));
 
     @Override
     public Type<ModeSwitchPayload> type() {

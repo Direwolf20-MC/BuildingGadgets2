@@ -11,6 +11,7 @@ import com.direwolf20.buildinggadgets2.setup.ModSetup;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -23,10 +24,10 @@ public class BuildingGadgets2 {
     public static final String MODID = "buildinggadgets2";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public BuildingGadgets2(IEventBus eventBus) {
+    public BuildingGadgets2(IEventBus eventBus, ModContainer container) {
         // Register the deferred registry
         Registration.init(eventBus);
-        Config.register();
+        Config.register(container);
 
         eventBus.addListener(ModSetup::init);
         ModSetup.TABS.register(eventBus);

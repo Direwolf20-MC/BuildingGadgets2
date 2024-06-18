@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 public record SendCopyDataToServerPayload(
         CompoundTag compoundTag
 ) implements CustomPacketPayload {
-    public static final Type<SendCopyDataToServerPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "send_copy_data_to_server_payload"));
+    public static final Type<SendCopyDataToServerPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "send_copy_data_to_server_payload"));
 
     @Override
     public Type<SendCopyDataToServerPayload> type() {

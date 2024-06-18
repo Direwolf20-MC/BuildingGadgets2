@@ -17,7 +17,7 @@ public class Cut extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "cut");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "cut");
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -15,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class BG2ItemTags extends ItemTagsProvider {
     private static TagKey<Item> forgeTag(String name) {
-        return ItemTags.create(new ResourceLocation("forge", name));
+        return ItemTags.create(ResourceLocation.fromNamespaceAndPath("forge", name));
     }
 
     public BG2ItemTags(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, BlockTagsProvider blockTags, ExistingFileHelper helper) {
@@ -24,7 +25,8 @@ public class BG2ItemTags extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-
+        tag(ItemTags.MINING_LOOT_ENCHANTABLE)
+                .add(Registration.Exchanging_Gadget.get());
     }
 
     @Override

@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 import static com.direwolf20.buildinggadgets2.client.renderer.VBORenderer.isModelRender;
 
 public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerContainer> {
-    private static final ResourceLocation background = new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/template_manager.png");
+    private static final ResourceLocation background = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/template_manager.png");
 
     private final Rect2i panel = new Rect2i((8 - 20), 12, 136, 80);
     private boolean panelClicked;

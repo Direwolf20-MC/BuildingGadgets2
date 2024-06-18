@@ -351,7 +351,7 @@ public class GadgetNBT {
             return modesForGadget.first();
         }
 
-        var id = new ResourceLocation(mode);
+        var id = ResourceLocation.parse(mode);
         return modesForGadget.stream()
                 .filter(m -> m.getId().equals(id))
                 .findFirst()
