@@ -20,7 +20,7 @@ public class Stairs extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "stairs");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "stairs");
     }
 
     @Override

@@ -29,7 +29,7 @@ public class Copy extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "copy");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "copy");
     }
 
     @Override

@@ -12,7 +12,7 @@ public record DestructionRangesPayload(
         int up, int down,
         int depth
 ) implements CustomPacketPayload {
-    public static final Type<DestructionRangesPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "destruction_ranges_payload"));
+    public static final Type<DestructionRangesPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "destruction_ranges_payload"));
 
     @Override
     public Type<DestructionRangesPayload> type() {

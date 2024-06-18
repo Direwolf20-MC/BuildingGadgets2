@@ -1,9 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -32,7 +29,7 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
     // Copied and modified from AbstractLists#render(int, int, float)
     private void renderParts(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuilder();
+        BufferBuilder bufferbuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         renderContentBackground(guiGraphics);
 
@@ -52,24 +49,23 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
             int x1 = getScrollbarPosition();
             int x2 = x1 + 6;
 
-            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            bufferbuilder.vertex(x1, getBottom(), 0.0D).color(0, 0, 0, 255).endVertex();
-            bufferbuilder.vertex(x2, getBottom(), 0.0D).color(0, 0, 0, 255).endVertex();
-            bufferbuilder.vertex(x2, getY(), 0.0D).color(0, 0, 0, 255).endVertex();
-            bufferbuilder.vertex(x1, getY(), 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.addVertex(x1, getBottom(), 0.0F).setColor(0, 0, 0, 255);
+            bufferbuilder.addVertex(x2, getBottom(), 0.0F).setColor(0, 0, 0, 255);
+            bufferbuilder.addVertex(x2, getY(), 0.0F).setColor(0, 0, 0, 255);
+            bufferbuilder.addVertex(x1, getY(), 0.0F).setColor(0, 0, 0, 255);
 
-            bufferbuilder.vertex(x1, (l1 + k1), 0.0D).color(128, 128, 128, 255).endVertex();
-            bufferbuilder.vertex(x2, (l1 + k1), 0.0D).color(128, 128, 128, 255).endVertex();
-            bufferbuilder.vertex(x2, l1, 0.0D).color(128, 128, 128, 255).endVertex();
-            bufferbuilder.vertex(x1, l1, 0.0D).color(128, 128, 128, 255).endVertex();
+            bufferbuilder.addVertex(x1, (l1 + k1), 0.0F).setColor(128, 128, 128, 255);
+            bufferbuilder.addVertex(x2, (l1 + k1), 0.0F).setColor(128, 128, 128, 255);
+            bufferbuilder.addVertex(x2, l1, 0.0F).setColor(128, 128, 128, 255);
+            bufferbuilder.addVertex(x1, l1, 0.0F).setColor(128, 128, 128, 255);
 
-            bufferbuilder.vertex(x1, (l1 + k1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
-            bufferbuilder.vertex((x2 - 1), (l1 + k1 - 1), 0.0D).color(192, 192, 192, 255).endVertex();
-            bufferbuilder.vertex((x2 - 1), l1, 0.0D).color(192, 192, 192, 255).endVertex();
-            bufferbuilder.vertex(x1, l1, 0.0D).color(192, 192, 192, 255).endVertex();
-            tessellator.end();
+            bufferbuilder.addVertex(x1, (l1 + k1 - 1), 0.0F).setColor(192, 192, 192, 255);
+            bufferbuilder.addVertex((x2 - 1), (l1 + k1 - 1), 0.0F).setColor(192, 192, 192, 255);
+            bufferbuilder.addVertex((x2 - 1), l1, 0.0F).setColor(192, 192, 192, 255);
+            bufferbuilder.addVertex(x1, l1, 0.0F).setColor(192, 192, 192, 255);
         }
         renderListItems(guiGraphics, k, l, partialTicks);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
     }
 
     protected void renderContentBackground(GuiGraphics guiGraphics) {

@@ -21,7 +21,7 @@ public class HorizontalWall extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "horizontal_wall");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "horizontal_wall");
     }
 
     @Override

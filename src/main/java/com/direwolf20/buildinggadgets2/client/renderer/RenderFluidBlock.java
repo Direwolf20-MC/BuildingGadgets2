@@ -25,7 +25,7 @@ import static net.minecraft.client.renderer.LevelRenderer.getLightColor;
 
 public class RenderFluidBlock {
     private static BakedQuad createQuad(List<Vec3> vectors, float[] cols, TextureAtlasSprite sprite, Direction face, float u1, float u2, float v1, float v2) {
-        QuadBakingVertexConsumer.Buffered quadBaker = new QuadBakingVertexConsumer.Buffered();
+        QuadBakingVertexConsumer quadBaker = new QuadBakingVertexConsumer();
         Vec3 normal = Vec3.atLowerCornerOf(face.getNormal());
 
         putVertex(quadBaker, normal, vectors.get(0).x, vectors.get(0).y, vectors.get(0).z, u1, v1, sprite, cols, face);
@@ -33,18 +33,17 @@ public class RenderFluidBlock {
         putVertex(quadBaker, normal, vectors.get(2).x, vectors.get(2).y, vectors.get(2).z, u2, v2, sprite, cols, face);
         putVertex(quadBaker, normal, vectors.get(3).x, vectors.get(3).y, vectors.get(3).z, u2, v1, sprite, cols, face);
 
-        return quadBaker.getQuad();
+        return quadBaker.bakeQuad();
     }
 
     private static void putVertex(QuadBakingVertexConsumer quadBaker, Vec3 normal,
                                   double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float[] cols, Direction face) {
-        quadBaker.vertex(x, y, z);
-        quadBaker.normal((float) normal.x, (float) normal.y, (float) normal.z);
-        quadBaker.color(cols[0], cols[1], cols[2], cols[3]);
-        quadBaker.uv(u, v);
+        quadBaker.addVertex((float) x, (float) y, (float) z);
+        quadBaker.setNormal((float) normal.x, (float) normal.y, (float) normal.z);
+        quadBaker.setColor(cols[0], cols[1], cols[2], cols[3]);
+        quadBaker.setUv(u, v);
         quadBaker.setSprite(sprite);
         quadBaker.setDirection(face);
-        quadBaker.endVertex();
     }
 
     public static void renderFluidBlock(BlockState renderState, Level level, BlockPos pos, PoseStack matrixStackIn, VertexConsumer builder, boolean renderAdjacent) {

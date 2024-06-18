@@ -10,7 +10,7 @@ public record AnchorPayload(
 
 ) implements CustomPacketPayload {
     public static final AnchorPayload INSTANCE = new AnchorPayload();
-    public static final Type<AnchorPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "anchor_payload"));
+    public static final Type<AnchorPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "anchor_payload"));
 
     @Override
     public Type<AnchorPayload> type() {

@@ -49,24 +49,28 @@ public class VBORenderer {
     private static FakeRenderingWorld fakeRenderingWorld;
 
     //Cached SortStates used for re-sorting every so often
-    private static final Map<RenderType, BufferBuilder.SortState> sortStates = new HashMap<>();
+    private static final Map<RenderType, MeshData.SortState> sortStates = new HashMap<>();
+    private static final Map<RenderType, BufferBuilder> bufferBuilders = new HashMap<>();
+    private static final Map<RenderType, MeshData> meshDatas = new HashMap<>();
     //A map of RenderType -> DireBufferBuilder, so we can draw the different render types in proper order later
-    private static final Map<RenderType, DireBufferBuilder> builders = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new DireBufferBuilder(type.bufferSize())));
+    private static final Map<RenderType, ByteBufferBuilder> byteBuilders = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new ByteBufferBuilder(type.bufferSize())));
     //A map of RenderType -> Vertex Buffer to buffer the different render types.
     private static final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
     //Get the buffer from the map, and ensure its building
-    public static DireBufferBuilder getBuffer(RenderType renderType) {
-        final DireBufferBuilder buffer = builders.get(renderType);
-        if (!buffer.building()) {
-            buffer.begin(renderType.mode(), renderType.format());
-        }
-        return buffer;
+    public static ByteBufferBuilder getByteBuffer(RenderType renderType) {
+        return byteBuilders.get(renderType);
     }
 
-    public static void clearBuffers() { //Prevents leaks
+    public static void clearBuffers() { //Prevents leaks - Unused?
         for (Map.Entry<RenderType, VertexBuffer> entry : vertexBuffers.entrySet()) {
             entry.getValue().close();
+        }
+    }
+
+    public static void clearByteBuffers() { //Prevents leaks - Unused?
+        for (Map.Entry<RenderType, ByteBufferBuilder> entry : byteBuilders.entrySet()) {
+            entry.getValue().clear();
         }
     }
 
@@ -151,6 +155,10 @@ public class VBORenderer {
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         ModelBlockRenderer modelBlockRenderer = dispatcher.getModelRenderer();
         final RandomSource random = RandomSource.create();
+
+        clearByteBuffers();
+        bufferBuilders.clear();
+
         //Iterate through the state pos cache and start drawing to the VertexBuffers - skip modelRenders(like chests) - include fluids (even though they don't work yet)
         for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state) || !pos.state.getFluidState().isEmpty()).toList()) {
             BlockState renderState = fakeRenderingWorld.getBlockStateWithoutReal(pos.pos);
@@ -168,7 +176,9 @@ public class VBORenderer {
                 //Flowers render weirdly so we use a custom renderer to make them look better. Glass and Flowers are both cutouts, so we only want this for non-cube blocks
                 if (renderType.equals(RenderType.cutout()) && renderState.getShape(level, pos.pos.offset(renderPos)).equals(Shapes.block()))
                     renderType = RenderType.translucent();
-                DireVertexConsumer direVertexConsumer = new DireVertexConsumer(getBuffer(renderType), transparency);
+                BufferBuilder builder = bufferBuilders.getOrDefault(renderType, new BufferBuilder(getByteBuffer(renderType), renderType.mode(), renderType.format()));
+                bufferBuilders.put(renderType, builder);
+                DireVertexConsumer direVertexConsumer = new DireVertexConsumer(builder, transparency);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
                 if (renderState.getFluidState().isEmpty()) {
                     //modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, renderState.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
@@ -189,15 +199,20 @@ public class VBORenderer {
         Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         Vec3 subtracted = projectedView.subtract(renderPos.getX(), renderPos.getY(), renderPos.getZ());
         Vector3f sortPos = new Vector3f((float) subtracted.x, (float) subtracted.y, (float) subtracted.z);
-        for (Map.Entry<RenderType, DireBufferBuilder> entry : builders.entrySet()) {
+        for (Map.Entry<RenderType, BufferBuilder> entry : bufferBuilders.entrySet()) {
             RenderType renderType = entry.getKey();
-            DireBufferBuilder direBufferBuilder = getBuffer(renderType);
-            direBufferBuilder.setQuadSorting(VertexSorting.byDistance(sortPos));
-            sortStates.put(renderType, direBufferBuilder.getSortState());
-            VertexBuffer vertexBuffer = vertexBuffers.get(entry.getKey());
-            vertexBuffer.bind();
-            vertexBuffer.upload(direBufferBuilder.end());
-            VertexBuffer.unbind();
+            ByteBufferBuilder byteBufferBuilder = getByteBuffer(renderType);
+            BufferBuilder builder = entry.getValue();
+            if (meshDatas.containsKey(renderType) && meshDatas.get(renderType) != null)
+                meshDatas.get(renderType).close();
+            meshDatas.put(renderType, builder.build());
+            if (meshDatas.containsKey(renderType) && meshDatas.get(renderType) != null) {
+                sortStates.put(renderType, meshDatas.get(renderType).sortQuads(byteBufferBuilder, VertexSorting.byDistance(v -> -sortPos.distanceSquared(v))));
+                VertexBuffer vertexBuffer = vertexBuffers.get(entry.getKey());
+                vertexBuffer.bind();
+                vertexBuffer.upload(meshDatas.get(renderType));
+                VertexBuffer.unbind();
+            }
         }
     }
 
@@ -368,26 +383,21 @@ public class VBORenderer {
 
     //Sort all the RenderTypes
     public static void sortAll(BlockPos lookingAt) {
-        for (Map.Entry<RenderType, BufferBuilder.SortState> entry : sortStates.entrySet()) {
+        for (Map.Entry<RenderType, MeshData.SortState> entry : sortStates.entrySet()) {
             RenderType renderType = entry.getKey();
-            BufferBuilder.RenderedBuffer renderedBuffer = sort(lookingAt, renderType);
+            ByteBufferBuilder.Result renderedBuffer = sort(lookingAt, renderType);
             VertexBuffer vertexBuffer = vertexBuffers.get(renderType);
             vertexBuffer.bind();
-            vertexBuffer.upload(renderedBuffer);
+            vertexBuffer.uploadIndexBuffer(renderedBuffer);
             VertexBuffer.unbind();
         }
     }
 
     //Sort the render type we pass in - using DireBufferBuilder because we want to sort in the opposite direction from normal
-    public static BufferBuilder.RenderedBuffer sort(BlockPos lookingAt, RenderType renderType) {
+    public static ByteBufferBuilder.Result sort(BlockPos lookingAt, RenderType renderType) {
         Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         Vec3 subtracted = projectedView.subtract(lookingAt.getX(), lookingAt.getY(), lookingAt.getZ());
         Vector3f sortPos = new Vector3f((float) subtracted.x, (float) subtracted.y, (float) subtracted.z);
-        DireBufferBuilder bufferBuilder = getBuffer(renderType);
-        BufferBuilder.SortState sortState = sortStates.get(renderType);
-        bufferBuilder.restoreSortState(sortState);
-        bufferBuilder.setQuadSorting(VertexSorting.byDistance(sortPos));
-        sortStates.put(renderType, bufferBuilder.getSortState());
-        return bufferBuilder.end();
+        return sortStates.get(renderType).buildSortedIndexBuffer(getByteBuffer(renderType), VertexSorting.byDistance(v -> -sortPos.distanceSquared(v)));
     }
 }

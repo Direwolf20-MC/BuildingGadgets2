@@ -61,7 +61,7 @@ public abstract class BaseMode implements Comparable<BaseMode> {
      * Used when displaying the mode selection wheel
      */
     public ResourceLocation icon() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
     }
 
     public boolean isPosValid(Level level, Player player, BlockPos blockPos, BlockState blockState) {

@@ -17,7 +17,7 @@ public class Paste extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "paste");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "paste");
     }
 
     @Override

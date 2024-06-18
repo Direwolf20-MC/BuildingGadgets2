@@ -96,7 +96,7 @@ public class RedprintCommand {
         UUID sourceUUID = bg2Data.getRedprintUUIDfromName(name);
         if (sourceUUID == null) {
             pSource.sendSuccess(() -> Component.translatable("buildinggadgets2.messages.redprintgivefail", name, serverPlayer.getDisplayName()), false);
-            playSound(serverPlayer, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+            playSound(serverPlayer, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
             return 0;
         }
 
@@ -118,7 +118,7 @@ public class RedprintCommand {
         serverPlayer.connection.send(new SendCopyDataPayload(targetUUID, GadgetNBT.getCopyUUID(newRedprint), tag));
 
         serverPlayer.addItem(newRedprint);
-        playSound(serverPlayer, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
+        playSound(serverPlayer, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
 
         return 1;
     }

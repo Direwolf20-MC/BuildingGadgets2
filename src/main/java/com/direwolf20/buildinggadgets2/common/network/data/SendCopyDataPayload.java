@@ -16,7 +16,7 @@ public record SendCopyDataPayload(
         UUID copyUUID,
         CompoundTag tag
 ) implements CustomPacketPayload {
-    public static final Type<SendCopyDataPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "send_copy_data_payload"));
+    public static final Type<SendCopyDataPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "send_copy_data_payload"));
 
     @Override
     public Type<SendCopyDataPayload> type() {

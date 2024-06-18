@@ -10,7 +10,7 @@ public record UndoPayload(
 
 ) implements CustomPacketPayload {
     public static final UndoPayload INSTANCE = new UndoPayload();
-    public static final Type<UndoPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "undo_payload"));
+    public static final Type<UndoPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "undo_payload"));
 
     @Override
     public Type<UndoPayload> type() {

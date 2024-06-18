@@ -22,7 +22,7 @@ public class BG2BlockTags extends BlockTagsProvider {
         super(output, lookupProvider, BuildingGadgets2.MODID, existingFileHelper);
     }
 
-    public static final TagKey<Block> BG2DENY = BlockTags.create(new ResourceLocation(BuildingGadgets2.MODID, "deny"));
+    public static final TagKey<Block> BG2DENY = BlockTags.create(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "deny"));
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {

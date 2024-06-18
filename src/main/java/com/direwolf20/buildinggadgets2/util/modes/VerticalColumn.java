@@ -20,7 +20,7 @@ public class VerticalColumn extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "vertical_column");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "vertical_column");
     }
 
     @Override

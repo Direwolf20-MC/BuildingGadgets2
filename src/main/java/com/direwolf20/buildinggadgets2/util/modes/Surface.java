@@ -23,7 +23,7 @@ public class Surface extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "surface");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "surface");
     }
 
     @Override

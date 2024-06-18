@@ -20,7 +20,7 @@ public class HorizontalRow extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "horizontal_row");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "horizontal_row");
     }
 
     @Override

@@ -45,8 +45,8 @@ public class GuiIconActionable extends Button {
         // Set the selected and deselected textures.
         String assetLocation = "textures/gui/setting/%s.png";
 
-        this.deselectedTexture = new ResourceLocation(BuildingGadgets2.MODID, String.format(assetLocation, texture));
-        this.selectedTexture = !isSelectable ? this.deselectedTexture : new ResourceLocation(BuildingGadgets2.MODID, String.format(assetLocation, texture + "_selected"));
+        this.deselectedTexture = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, String.format(assetLocation, texture));
+        this.selectedTexture = !isSelectable ? this.deselectedTexture : ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, String.format(assetLocation, texture + "_selected"));
     }
 
     /**

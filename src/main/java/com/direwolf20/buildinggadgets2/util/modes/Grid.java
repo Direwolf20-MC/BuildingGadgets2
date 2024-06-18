@@ -20,7 +20,7 @@ public class Grid extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return new ResourceLocation(BuildingGadgets2.MODID, "grid");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "grid");
     }
 
     @Override

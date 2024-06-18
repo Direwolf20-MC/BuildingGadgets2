@@ -11,7 +11,7 @@ public record CopyCoordsPayload(
         BlockPos startPos,
         BlockPos endPos
 ) implements CustomPacketPayload {
-    public static final Type<CopyCoordsPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "copy_coords_payload"));
+    public static final Type<CopyCoordsPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "copy_coords_payload"));
 
     @Override
     public Type<CopyCoordsPayload> type() {

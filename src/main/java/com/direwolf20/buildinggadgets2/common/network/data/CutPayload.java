@@ -10,7 +10,7 @@ public record CutPayload(
 
 ) implements CustomPacketPayload {
     public static final CutPayload INSTANCE = new CutPayload();
-    public static final Type<CutPayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "cut_payload"));
+    public static final Type<CutPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "cut_payload"));
 
     @Override
     public Type<CutPayload> type() {

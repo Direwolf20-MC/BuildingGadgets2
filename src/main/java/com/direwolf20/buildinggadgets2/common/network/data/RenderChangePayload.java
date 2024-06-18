@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 public record RenderChangePayload(
         byte renderType
 ) implements CustomPacketPayload {
-    public static final Type<RenderChangePayload> TYPE = new Type<>(new ResourceLocation(BuildingGadgets2.MODID, "render_change_payload"));
+    public static final Type<RenderChangePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "render_change_payload"));
 
     @Override
     public Type<RenderChangePayload> type() {
