@@ -72,6 +72,9 @@ public class VBORenderer {
         for (Map.Entry<RenderType, ByteBufferBuilder> entry : byteBuilders.entrySet()) {
             entry.getValue().clear();
         }
+        bufferBuilders.clear();
+        sortStates.clear();
+        meshDatas.clear();
     }
 
     //Start rendering - this is the most expensive part, so we render it, then cache it, and draw it over and over (much cheaper)
@@ -157,7 +160,7 @@ public class VBORenderer {
         final RandomSource random = RandomSource.create();
 
         clearByteBuffers();
-        bufferBuilders.clear();
+
 
         //Iterate through the state pos cache and start drawing to the VertexBuffers - skip modelRenders(like chests) - include fluids (even though they don't work yet)
         for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state) || !pos.state.getFluidState().isEmpty()).toList()) {
@@ -176,8 +179,7 @@ public class VBORenderer {
                 //Flowers render weirdly so we use a custom renderer to make them look better. Glass and Flowers are both cutouts, so we only want this for non-cube blocks
                 if (renderType.equals(RenderType.cutout()) && renderState.getShape(level, pos.pos.offset(renderPos)).equals(Shapes.block()))
                     renderType = RenderType.translucent();
-                BufferBuilder builder = bufferBuilders.getOrDefault(renderType, new BufferBuilder(getByteBuffer(renderType), renderType.mode(), renderType.format()));
-                bufferBuilders.put(renderType, builder);
+                BufferBuilder builder = bufferBuilders.computeIfAbsent(renderType, rt -> new BufferBuilder(getByteBuffer(rt), rt.mode(), rt.format()));
                 DireVertexConsumer direVertexConsumer = new DireVertexConsumer(builder, transparency);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
                 if (renderState.getFluidState().isEmpty()) {
@@ -293,13 +295,18 @@ public class VBORenderer {
         matrix.mulPose(evt.getModelViewMatrix());
         matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
         matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
-        //Draw the renders in the specified order
+        //Draw the renders in the specified order -- Confirm they exist in this drawset first though!
         ArrayList<RenderType> drawSet = new ArrayList<>();
-        drawSet.add(RenderType.solid());
-        drawSet.add(RenderType.cutout());
-        drawSet.add(RenderType.cutoutMipped());
-        drawSet.add(RenderType.translucent());
-        drawSet.add(RenderType.tripwire());
+        if (bufferBuilders.containsKey(RenderType.solid()))
+            drawSet.add(RenderType.solid());
+        if (bufferBuilders.containsKey(RenderType.cutout()))
+            drawSet.add(RenderType.cutout());
+        if (bufferBuilders.containsKey(RenderType.cutoutMipped()))
+            drawSet.add(RenderType.cutoutMipped());
+        if (bufferBuilders.containsKey(RenderType.translucent()))
+            drawSet.add(RenderType.translucent());
+        if (bufferBuilders.containsKey(RenderType.tripwire()))
+            drawSet.add(RenderType.tripwire());
         try {
             for (RenderType renderType : drawSet) {
                 RenderType drawRenderType;
