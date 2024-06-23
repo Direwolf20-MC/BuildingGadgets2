@@ -25,6 +25,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.BlockSnapshot;
+import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +171,10 @@ public class GadgetUtils {
         ArrayList<StatePos> returnList = new ArrayList<>();
         BlockPos.betweenClosedStream(box).map(BlockPos::immutable).forEach(blockPos -> {
             BlockState blockState = level.getBlockState(blockPos);
+            if (!level.mayInteract(player, blockPos))
+                return; //Chunk Protection like spawn and FTB Utils
+            if (EventHooks.onBlockPlace(player, BlockSnapshot.create(level.dimension(), level, blockPos.below()), Direction.UP))
+                return; //FTB Chunk Protection, etc
             if (blockState.hasBlockEntity() && !GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.AFFECT_TILES.getName()))
                 return;
             if (isValidDestroyBlockState(blockState, level, blockPos))

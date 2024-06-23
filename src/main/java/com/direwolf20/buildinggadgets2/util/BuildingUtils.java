@@ -28,7 +28,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
@@ -424,7 +426,9 @@ public class BuildingUtils {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos.offset(lookingAt)))
-                continue; //Chunk Protection like spawn and FTB Utils
+                continue; //Chunk Protection like spawn
+            if (EventHooks.onBlockPlace(player, BlockSnapshot.create(level.dimension(), level, blockPos.offset(lookingAt).below()), Direction.UP))
+                continue; //FTB Chunk Protection, etc
             if (!level.getBlockState(blockPos.offset(lookingAt)).canBeReplaced())
                 continue; //Skip this block if it can't be placed (Avoids using energy)
             if (gadget.getItem() instanceof GadgetBuilding && needItems && !pos.state.canSurvive(level, blockPos.offset(lookingAt)))
@@ -468,6 +472,8 @@ public class BuildingUtils {
             BlockPos blockPos = pos.pos;
             if (!level.mayInteract(player, blockPos.offset(lookingAt)))
                 continue; //Chunk Protection like spawn and FTB Utils
+            if (EventHooks.onBlockPlace(player, BlockSnapshot.create(level.dimension(), level, blockPos.offset(lookingAt).below()), Direction.UP))
+                continue; //FTB Chunk Protection, etc
             if (level.getBlockState(blockPos.offset(lookingAt)).equals(pos.state))
                 continue; //No need to replace blocks if they already match!
             if (!GadgetUtils.isValidBlockState(level.getBlockState(blockPos.offset(lookingAt)), level, blockPos))
