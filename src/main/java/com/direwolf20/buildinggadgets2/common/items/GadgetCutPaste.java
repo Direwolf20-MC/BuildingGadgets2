@@ -17,7 +17,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResultHolder;
@@ -31,9 +30,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.util.BlockSnapshot;
-import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -167,9 +166,9 @@ public class GadgetCutPaste extends BaseGadget {
 
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).sorted(Comparator.comparingInt(Vec3i::getY).reversed()).forEach(pos -> {
             if (!level.mayInteract(player, pos))
-                return; //Chunk Protection like spawn and FTB Utils
-            if (EventHooks.onBlockPlace(player, BlockSnapshot.create(level.dimension(), level, pos.below()), Direction.UP))
-                return; //FTB Chunk Protection, etc
+                return; //Chunk Protection like spawn
+            BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
+            if (NeoForge.EVENT_BUS.post(event).isCanceled()) return; //Chunk Protection like FTB Utils
             ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, false, gadget, ServerBuildList.BuildType.CUT, false, BlockPos.ZERO);
         });
         ServerTickHandler.setCutStart(buildUUID, cutStart);
