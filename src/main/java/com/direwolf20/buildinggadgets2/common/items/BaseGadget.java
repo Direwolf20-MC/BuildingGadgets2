@@ -247,4 +247,9 @@ public abstract class BaseGadget extends Item {
         boolean giveItemsBack = !player.isCreative(); //Might want more conditions later?
         BuildingUtils.removeTickHandler(level, player, todoList, giveItemsBack, giveItemsBack, gadget);
     }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return false;
+    }
 }
