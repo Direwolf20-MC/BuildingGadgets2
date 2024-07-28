@@ -20,6 +20,7 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        if (children().isEmpty()) return;
         //This Scissor stuff is what keeps the item list in the dark area, without it it bleeds into the white area while scrolling (try it)
         guiGraphics.enableScissor(getX(), getY(), getX() + width, getY() + height);
         renderParts(guiGraphics, mouseX, mouseY, partialTicks);

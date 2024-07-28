@@ -17,6 +17,7 @@ public class OurRenderTypes extends RenderType {
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                     .setDepthTestState(LEQUAL_DEPTH_TEST)
                     .setCullState(CULL)
+                    .setLayeringState(POLYGON_OFFSET_LAYERING)
                     .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(false));
     public static final RenderType RenderBlockFade = create("GadgetRenderBlockFade",
