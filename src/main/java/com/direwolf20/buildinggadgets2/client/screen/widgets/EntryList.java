@@ -23,14 +23,18 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
         if (children().isEmpty()) return;
         //This Scissor stuff is what keeps the item list in the dark area, without it it bleeds into the white area while scrolling (try it)
         guiGraphics.enableScissor(getX(), getY(), getX() + width, getY() + height);
-        renderParts(guiGraphics, mouseX, mouseY, partialTicks);
+        try {
+            renderParts(guiGraphics, mouseX, mouseY, partialTicks);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         guiGraphics.disableScissor();
     }
 
     // Copied and modified from AbstractLists#render(int, int, float)
     private void renderParts(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
 
         renderContentBackground(guiGraphics);
 
@@ -41,6 +45,7 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
         int j1 = getMaxScroll();
         //This section renders the scroll bar. If we renderItems() first the scrollbar is always black - no idea why
         if (j1 > 0) {
+            BufferBuilder bufferbuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             int k1 = (int) ((float) ((getBottom() - getY()) * (getBottom() - getY())) / (float) getMaxPosition());
             k1 = Mth.clamp(k1, 32, getBottom() - getY() - 8);
             int l1 = (int) getScrollAmount() * (getBottom() - getY() - k1) / j1 + getY();
@@ -64,9 +69,10 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
             bufferbuilder.addVertex((x2 - 1), (l1 + k1 - 1), 0.0F).setColor(192, 192, 192, 255);
             bufferbuilder.addVertex((x2 - 1), l1, 0.0F).setColor(192, 192, 192, 255);
             bufferbuilder.addVertex(x1, l1, 0.0F).setColor(192, 192, 192, 255);
+            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
         }
         renderListItems(guiGraphics, k, l, partialTicks);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+
     }
 
     protected void renderContentBackground(GuiGraphics guiGraphics) {
