@@ -57,6 +57,9 @@ public class VBORenderer {
     //A map of RenderType -> Vertex Buffer to buffer the different render types.
     private static final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
 
+    private static final Map<BlockPos, BlockEntity> blockEntityCache = new HashMap<>();
+    private static final Map<BlockPos, BlockState> blockEntityNullCache = new HashMap<>();
+
     //Get the buffer from the map, and ensure its building
     public static ByteBufferBuilder getByteBuffer(RenderType renderType) {
         return byteBuilders.get(renderType);
@@ -75,6 +78,8 @@ public class VBORenderer {
         bufferBuilders.clear();
         sortStates.clear();
         meshDatas.clear();
+        blockEntityCache.clear();
+        blockEntityNullCache.clear();
     }
 
     //Start rendering - this is the most expensive part, so we render it, then cache it, and draw it over and over (much cheaper)
@@ -160,7 +165,16 @@ public class VBORenderer {
         final RandomSource random = RandomSource.create();
 
         clearByteBuffers();
+        BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
 
+        for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
+            if (pos.state.isAir()) continue;
+            BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
+            if (blockEntity != null)
+                blockEntityCache.put(pos.pos, blockEntity);
+            else
+                blockEntityNullCache.put(pos.pos, fakeRenderingWorld.getBlockState(pos.pos));
+        }
 
         //Iterate through the state pos cache and start drawing to the VertexBuffers - skip modelRenders(like chests) - include fluids (even though they don't work yet)
         for (StatePos pos : statePosCache.stream().filter(pos -> isModelRender(pos.state) || !pos.state.getFluidState().isEmpty()).toList()) {
@@ -329,23 +343,39 @@ public class VBORenderer {
         matrix.popPose();
 
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
         MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 0.5f);
         //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
-        fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, renderPos);
-        for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
-            if (pos.state.isAir()) continue;
-            matrix.pushPose();
-            matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
-            matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
-            matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
-            //MyRenderMethods.renderBETransparent(mockBuilderWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
-            BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
-            BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
-            if (blockEntity != null)
+        for (Map.Entry<BlockPos, BlockEntity> entry : blockEntityCache.entrySet()) {
+            BlockPos pos = entry.getKey();
+            BlockEntity blockEntity = entry.getValue();
+
+            if (blockEntity != null) {
+                matrix.pushPose();
+                matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+                matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+                matrix.translate(pos.getX(), pos.getY(), pos.getZ());
+
                 blockEntityRenderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer);
-            else
-                MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
-            matrix.popPose();
+
+                matrix.popPose();
+            }
+        }
+
+        for (Map.Entry<BlockPos, BlockState> entry : blockEntityNullCache.entrySet()) {
+            BlockPos pos = entry.getKey();
+            BlockState blockState = entry.getValue();
+
+            if (blockState != null) {
+                matrix.pushPose();
+                matrix.translate(-projectedView.x(), -projectedView.y(), -projectedView.z());
+                matrix.translate(renderPos.getX(), renderPos.getY(), renderPos.getZ());
+                matrix.translate(pos.getX(), pos.getY(), pos.getZ());
+
+                MyRenderMethods.renderBETransparent(blockState, matrix, buffersource, 15728640, 655360, 0.5f);
+
+                matrix.popPose();
+            }
         }
 
         //Fluid Rendering
