@@ -59,6 +59,7 @@ public class VBORenderer {
 
     private static final Map<BlockPos, BlockEntity> blockEntityCache = new HashMap<>();
     private static final Map<BlockPos, BlockState> blockEntityNullCache = new HashMap<>();
+    private static boolean isLargeRender = false;
 
     //Get the buffer from the map, and ensure its building
     public static ByteBufferBuilder getByteBuffer(RenderType renderType) {
@@ -80,6 +81,7 @@ public class VBORenderer {
         meshDatas.clear();
         blockEntityCache.clear();
         blockEntityNullCache.clear();
+        isLargeRender = false;
     }
 
     //Start rendering - this is the most expensive part, so we render it, then cache it, and draw it over and over (much cheaper)
@@ -165,7 +167,8 @@ public class VBORenderer {
         final RandomSource random = RandomSource.create();
 
         clearByteBuffers();
-        BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
+        if (statePosCache.size() > 50000)
+            isLargeRender = true;
 
         for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
             if (pos.state.isAir()) continue;
@@ -197,7 +200,6 @@ public class VBORenderer {
                 DireVertexConsumer direVertexConsumer = new DireVertexConsumer(builder, transparency);
                 //Use tesselateBlock to skip the block.isModel check - this helps render Create blocks that are both models AND animated
                 if (renderState.getFluidState().isEmpty()) {
-                    //modelBlockRenderer.tesselateBlock(level, ibakedmodel, renderState, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, renderState.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
                     try {
                         modelBlockRenderer.tesselateBlock(fakeRenderingWorld, ibakedmodel, renderState, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false, random, renderState.getSeed(pos.pos.offset(renderPos)), OverlayTexture.NO_OVERLAY, ibakedmodel.getModelData(fakeRenderingWorld, pos.pos, renderState, ModelData.EMPTY), renderType);
                     } catch (Exception e) {
@@ -205,9 +207,6 @@ public class VBORenderer {
                     }
                 } else
                     RenderFluidBlock.renderFluidBlock(renderState, level, pos.pos.offset(renderPos).above(255), matrix, direVertexConsumer, false);
-                //dispatcher.renderLiquid(pos.pos, level, direVertexConsumer, renderState, renderState.getFluidState());
-                //dispatcher.renderBatched(renderState, pos.pos.offset(lookingAt.getBlockPos()), level, matrix, direVertexConsumer, true, RandomSource.create(), ModelData.EMPTY, renderType);
-
             }
             matrix.popPose();
         }
@@ -297,7 +296,8 @@ public class VBORenderer {
             renderPos = renderPos.above().offset(GadgetNBT.getRelativePaste(gadget));
         }
         //Sort every <X> Frames to prevent screendoor effect
-        if (sortCounter > 20) {
+        int sortFrequency = isLargeRender ? 100 : 20;
+        if (sortCounter > sortFrequency) {
             sortAll(renderPos);
             sortCounter = 0;
         } else {
