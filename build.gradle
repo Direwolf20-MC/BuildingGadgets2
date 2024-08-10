@@ -20,18 +20,19 @@ repositories {
         }
     }
 
-    maven { //Curios
-        url = "https://maven.theillusivec4.top/"
-        content {
-            includeGroup "top.theillusivec4.curios"
-        }
-    }
-
     maven { // mek
         url = 'https://modmaven.dev/'
         content {
             includeGroup "mekanism"
             includeGroup "appeng"
+        }
+    }
+
+    maven { //Curios-New
+        name = "OctoStudios"
+        url = uri("https://maven.octo-studios.com/releases")
+        content {
+            includeGroup "top.theillusivec4.curios"
         }
     }
 
@@ -130,18 +131,23 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
     //AE2
-    compileOnly "appeng:appliedenergistics2-neoforge:${ae2_version}:api"
-    //runtimeOnly "appeng:appliedenergistics2-neoforge:${ae2_version}"
+    compileOnly "appeng:appliedenergistics2:${ae2_version}:api"
+    runtimeOnly "appeng:appliedenergistics2:${ae2_version}"
 
     //Curios
-    //runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
-    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    //compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
 
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_mc_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_mc_version}-neoforge-api:${jei_version}"
+    runtimeOnly "mezz.jei:jei-${jei_mc_version}-neoforge:${jei_version}"
+
+    //Patchouli
+    compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}:api"
+    runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
+
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar

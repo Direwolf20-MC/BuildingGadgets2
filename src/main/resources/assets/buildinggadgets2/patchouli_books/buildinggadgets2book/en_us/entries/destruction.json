@@ -2,7 +2,7 @@
   "name": "Destruction Gadget",
   "sortnum": 5,
   "category": "buildinggadgets2:gadgets",
-  "icon": "buildinggadgets2:gadget_destruction{energy:1000000}",
+  "icon": "buildinggadgets2:gadget_destruction[buildinggadgets2:forge_energy=2000000]",
   "pages": [
     {
       "type": "patchouli:text",

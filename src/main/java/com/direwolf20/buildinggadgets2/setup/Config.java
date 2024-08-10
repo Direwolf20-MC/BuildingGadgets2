@@ -97,9 +97,9 @@ public class Config {
 
         COMMON_BUILDER.comment("Destruction Gadget").push(SUBCATEGORY_DESTRUCTIONGADGET);
         DESTRUCTIONGADGET_MAXPOWER = COMMON_BUILDER.comment("Maximum power for the Destruction Gadget")
-                .defineInRange("maxPower", 1000000, 0, Integer.MAX_VALUE);
+                .defineInRange("maxPower", 2000000, 0, Integer.MAX_VALUE);
         DESTRUCTIONGADGET_COST = COMMON_BUILDER.comment("Base cost per block Destroyed")
-                .defineInRange("baseCost", 200, 0, Integer.MAX_VALUE);
+                .defineInRange("baseCost", 50, 0, Integer.MAX_VALUE);
         COMMON_BUILDER.pop();
     }
 

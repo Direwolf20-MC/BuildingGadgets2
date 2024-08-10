@@ -2,7 +2,7 @@
   "name": "Cut Paste Gadget",
   "sortnum": 4,
   "category": "buildinggadgets2:gadgets",
-  "icon": "buildinggadgets2:gadget_cut_paste{energy:50000000}",
+  "icon": "buildinggadgets2:gadget_cut_paste[buildinggadgets2:forge_energy=5000000]",
   "pages": [
     {
       "type": "patchouli:text",

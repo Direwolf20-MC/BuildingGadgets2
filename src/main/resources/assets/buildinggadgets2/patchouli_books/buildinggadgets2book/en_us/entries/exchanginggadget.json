@@ -2,7 +2,7 @@
   "name": "Exchanging Gadget",
   "sortnum": 2,
   "category": "buildinggadgets2:gadgets",
-  "icon": "buildinggadgets2:gadget_exchanging{energy:500000}",
+  "icon": "buildinggadgets2:gadget_exchanging[buildinggadgets2:forge_energy=500000]",
   "pages": [
     {
       "type": "patchouli:text",

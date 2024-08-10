@@ -5,7 +5,7 @@
       "modid": "patchouli"
     }
   ],
-  "type": "patchouli:shapeless_book_recipe",
+  "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
       "item": "minecraft:lapis_lazuli"
@@ -17,5 +17,10 @@
       "item": "minecraft:book"
     }
   ],
-  "book": "buildinggadgets2:buildinggadgets2book"
+  "result": {
+    "id": "patchouli:guide_book",
+    "components": {
+      "patchouli:book": "buildinggadgets2:buildinggadgets2book"
+    }
+  }
 }

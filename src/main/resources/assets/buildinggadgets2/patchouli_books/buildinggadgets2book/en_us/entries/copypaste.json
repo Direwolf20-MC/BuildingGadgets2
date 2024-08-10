@@ -2,7 +2,7 @@
   "name": "Copy Paste Gadget",
   "sortnum": 3,
   "category": "buildinggadgets2:gadgets",
-  "icon": "buildinggadgets2:gadget_copy_paste{energy:1000000}",
+  "icon": "buildinggadgets2:gadget_copy_paste[buildinggadgets2:forge_energy=1000000]",
   "pages": [
     {
       "type": "patchouli:text",

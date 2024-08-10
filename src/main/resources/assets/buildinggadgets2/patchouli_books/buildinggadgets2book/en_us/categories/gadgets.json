@@ -1,6 +1,6 @@
 {
   "name": "Gadgets",
   "description": "The gadgets!",
-  "icon": "buildinggadgets2:gadget_building{energy:500000}",
+  "icon": "buildinggadgets2:gadget_building[buildinggadgets2:forge_energy=500000]",
   "sortnum": 0
 }
