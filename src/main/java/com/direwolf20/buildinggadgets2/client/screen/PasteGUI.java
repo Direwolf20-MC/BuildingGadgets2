@@ -92,13 +92,12 @@ public class PasteGUI extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
         drawLabel(guiGraphics, "X", -75);
         drawLabel(guiGraphics, "Y", 0);
         drawLabel(guiGraphics, "Z", 75);
 
         guiGraphics.drawCenteredString(font, Component.translatable("buildinggadgets2.screen.pasteheading"), (int) (width / 2f), (int) (height / 2f) - 60, 0xFFFFFF);
-
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     private void drawLabel(GuiGraphics guiGraphics, String name, int x) {

@@ -133,6 +133,8 @@ public class CopyGUI extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
         drawFieldLabel(guiGraphics, Component.translatable("buildinggadgets2.screen.start").append(" X"), -175, -36);
         drawFieldLabel(guiGraphics, Component.literal("Y"), -45, -36);
         drawFieldLabel(guiGraphics, Component.literal("Z"), 55, -36);
@@ -142,8 +144,6 @@ public class CopyGUI extends Screen {
 
         guiGraphics.drawCenteredString(font, Component.translatable("buildinggadgets2.screen.copyheading"), this.x, this.y - 80, 0xFFFFFF);
         guiGraphics.drawCenteredString(font, Component.translatable("buildinggadgets2.screen.copysubheading"), this.x, this.y - 68, 0xFFFFFF);
-
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

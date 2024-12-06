@@ -98,6 +98,11 @@ public class MaterialListGUI extends Screen {
     }
 
     @Override
+    protected void renderBlurredBackground(float p_330683_) {
+
+    }
+
+    @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float particleTicks) {
         guiGraphics.blit(BACKGROUND_TEXTURE, backgroundX, backgroundY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
         //guiGraphics.drawString(font, "Test", titleLeft, titleTop, Color.WHITE.getRGB(), false); //Todo Title someday
