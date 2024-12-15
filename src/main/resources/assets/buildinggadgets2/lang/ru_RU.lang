@@ -1,0 +1,205 @@
+#PARSE_ESCAPES
+#itemGroup:
+itemGroup.buildingGadgets=Building Gadgets
+
+#singles: 
+singles.buildinggadgets.depth=Глубина
+singles.buildinggadgets.down=Вниз
+singles.buildinggadgets.left=Лево
+singles.buildinggadgets.right=Право
+singles.buildinggadgets.up=Верх
+singles.buildinggadgets.confirm=Хорошо
+singles.buildinggadgets.cancel=Отмена
+
+#item: 
+item.buildinggadgets.buildingtool.name=Строительный гаджет
+item.buildinggadgets.constructionpaste.name=Строительная паста
+item.buildinggadgets.construction_chunk_dense.name=Плотный строительный кусок
+item.buildinggadgets.constructionpastecontainer.name=Вставить контейнер
+item.buildinggadgets.constructionpastecontainert2.name=Контейнер для пасты T2
+item.buildinggadgets.constructionpastecontainert3.name=Контейнер для пасты T3
+item.buildinggadgets.constructionpastecontainercreative.name=Креативный контейнер для пасты
+item.buildinggadgets.copypastetool.name=Копирование и вставка гаджета
+item.buildinggadgets.destructiontool.name=Гаджет разрушения
+item.buildinggadgets.exchangertool.name=Обмен гаджета
+item.buildinggadgets.template.name=Шаблон
+
+#tile: 
+tile.buildinggadgets.constructionblock_dense.name=Плотный строительный блок
+tile.buildinggadgets.constructionblock.name=Строительный блок
+tile.buildinggadgets.constructionblockpowder.name=Порошок строительных блоков
+tile.buildinggadgets.effectblock.name=(Не используется) Блок эффектов
+tile.buildinggadgets.templatemanager.name=Менеджер шаблонов
+
+#block: 
+block.buildinggadgets.constructionblock.name=Строительный блок
+block.buildinggadgets.constructionblockpowder.name=Порошок строительных блоков
+block.buildinggadgets.effectblock.name=(Не используется) Блок эффектов
+block.buildinggadgets.templatemanager.name=Менеджер шаблонов
+
+#modes:
+modes.buildinggadgets.surface=Поверхность
+modes.buildinggadgets.grid=Сетка
+modes.buildinggadgets.horizontal_column=Горизонтальная колонна
+modes.buildinggadgets.horizontal_wall=Горизонтальная стена
+modes.buildinggadgets.vertical_column=Вертикальная колонна
+modes.buildinggadgets.vertical_wall=Вертикальная стена
+modes.buildinggadgets.stair=Лестница
+modes.buildinggadgets.axis_chasing=Построй для меня
+
+#key: 
+key.categories.buildingGadgets=Строительные гаджеты
+key.anchor=Anchor
+key.settings_menu=Меню настроек
+key.range=Диапазон / наложение
+key.rotate_mirror=Повернуть / Зеркально отразить
+key.undo=Отменить
+key.fuzzy=Нечеткий
+key.connected_area=Подключенная зона
+key.material_list=Список материалов
+
+#tooltip: 
+tooltip.constructionblockpowder.helptext=Место рядом с водой
+tooltip.gadget.block=Блокировать
+tooltip.gadget.destroy.overlay=Наложение
+tooltip.gadget.destroyshowoverlay=Показ наложения
+tooltip.gadget.destroywarning=ВНИМАНИЕ: этот инструмент удаляет блоки.
+tooltip.gadget.energy=Энергия
+tooltip.gadget.mode=Режим
+tooltip.gadget.range=Диапазон
+tooltip.gadget.fuzzy=Нечеткий
+tooltip.gadget.copypaste.opengui=Изменить место размещения
+tooltip.gadget.raytrace_fluid=Жидкость трассировки лучей
+tooltip.gadget.building.place_atop=Поместить сверху
+tooltip.gadget.connected=Связанный
+tooltip.gadget.connected_area=Подключенная зона
+tooltip.gadget.connected_surface=Подключенная поверхность
+tooltip.gadget.rotate=Поворот
+tooltip.gadget.mirror=Зеркало
+tooltip.gadget.anchor=Якорь
+tooltip.gadget.undo=Отменить
+tooltip.pasteContainer.amount=Количество
+tooltip.pasteContainer.creative.amountMsg=Сумма: Бесконечная!
+tooltip.template.name=Имя
+
+#message: 
+message.gadget.anchorremove=Якорь удален
+message.gadget.anchorrender=Рендеринг привязан
+message.gadget.areareset=Копировать область сброса
+message.gadget.copied=Область скопирована
+message.gadget.copyfailed=Ошибка копирования, нет данных для инструмента
+message.gadget.copyguierror=Копировать область не удалось
+message.gadget.copysuccess=Копирование в буфер обмена выполнено успешно
+message.gadget.destroysizeerror=Максимальный размер разрушения — 16x16x16, отрицательные числа недопустимы.
+message.gadget.fuzzymode=Нечеткий режим
+message.gadget.raytrace_fluid=Жидкость для трассировки лучей
+message.gadget.building.placement=Размещение блока: %s
+message.gadget.building.placement.atop=Наверху
+message.gadget.building.placement.inside=Внутри
+message.gadget.connectedarea=Подключенная зона
+message.gadget.connectedsurface=Подключенная поверхность
+message.gadget.invalidblock=Неверный блок
+message.gadget.nothingtoundo=Ничего не отменить
+message.gadget.pastefailed=Ошибка вставки, неверный JSON
+message.gadget.pastefailed.linkcopied=Вставить не удалось. Пожалуйста, скопируйте необработанные данные JSON вместо ссылки.
+message.gadget.pastesuccess=Вставка из буфера обмена прошла успешно.
+message.gadget.pastetoobig=Паста слишком большая
+message.gadget.rotated=Блоки повернуты
+message.gadget.mirrored=Зеркальные блоки
+message.gadget.toobigarea=Область слишком большая, максимальная площадь — 125x125x125 (щелкните правой кнопкой мыши по пустому воздуху, чтобы сбросить настройки)
+message.gadget.toolmode=Режим инструмента: %s
+message.gadget.toolrange= Диапазон инструментов
+message.gadget.toomanyblocks=Слишком много блоков, предел — 32 768 (щелкните правой кнопкой мыши по пустому воздуху, чтобы сбросить)
+message.gadget.undofailed=Отменить не удалось (слишком далеко?)
+message.gadget.TEinCopy=Область скопирована, количество не скопированных объектов плитки
+message.gadget.boundTE=Привязка гаджета к инвентарю
+message.gadget.unboundTE=Непривязанный гаджет из инвентаря
+
+#help: 
+help.gui.buildinggadgets.area.arrow.data_flow=Представляет поток данных от одного элемента к другому; либо из шаблона в гаджет/шаблон, либо из гаджета/шаблона в шаблон или лист бумаги
+help.gui.buildinggadgets.area.field.template_name=Когда данные будут сохранены/вставлены, результирующий шаблон будет иметь это имя.
+help.gui.buildinggadgets.area.preview=Предварительный просмотр данных, хранящихся в гаджете/шаблоне.
+help.gui.buildinggadgets.area.slot.gadget=Принимает гаджет §ncopy-paste§r или §ntemplate§r для сохранения/копирования и загрузки в \n\n§9Цветное наложение§r указывает, что элемент получит данные
+help.gui.buildinggadgets.area.slot.template=Принимает §npaper§r или §ntemplate§r для загрузки и сохранения/вставки в\n\n§9Цветное наложение§r указывает, что элемент получит данные
+help.gui.buildinggadgets.button.copy=Копирует данные из гаджета/шаблона в буфер обмена вашего компьютера.
+help.gui.buildinggadgets.button.help.enter=Показать всплывающий текст справки
+help.gui.buildinggadgets.button.help.exit=Выйти из режима справки
+help.gui.buildinggadgets.button.load=Загружает данные в гаджет/шаблон из шаблона.
+help.gui.buildinggadgets.button.paste=Вставляет данные из буфера обмена вашего компьютера в уже существующий шаблон или на лист бумаги, создавая шаблон.
+help.gui.buildinggadgets.button.save=Сохраняет данные гаджета/шаблона в уже существующий шаблон или на лист бумаги, создавая шаблон.
+
+#gui button name:
+gui.buildinggadgets.materialList.button.close=Закрыть
+gui.buildinggadgets.materialList.button.copyList=Копировать
+gui.buildinggadgets.materialList.button.sortingMode.countReversed=Count ↑
+gui.buildinggadgets.materialList.button.sortingMode.name=Name ↓
+gui.buildinggadgets.materialList.button.sortingMode.nameReversed=Name ↑
+gui.buildinggadgets.materialList.button.sortingMode.count=Count ↓
+gui.buildinggadgets.materialList.button.sortingMode.countReversed=Count ↑
+
+#gui texts:
+gui.buildinggadgets.materialList.text.statusTemplate=%s/%s
+
+#gui messages:
+gui.buildinggadgets.materialList.message.copiedMaterialList=Список материалов %s успешно скопирован.
+gui.buildinggadgets.materialList.message.copiedMaterialList.simple=простой
+gui.buildinggadgets.materialList.message.copiedMaterialList.detailed=подробный
+
+#gui title:
+gui.buildinggadgets.materialList.title=Список материалов
+
+#config:
+config.buildinggadgets.general.rayTraceRange=Макс. расстояние сборки
+config.buildinggadgets.general.rayTraceRange.tooltip=Определяет, как далеко вы можете строить
+config.buildinggadgets.general.poweredByFE=При поддержке Forge Energy
+config.buildinggadgets.general.poweredByFE.tooltip=Установите значение true для поддержки Forge Energy, установите значение False для урона ванильного предмета.
+config.buildinggadgets.general.paste.enabled=Включить строительную пасту
+config.buildinggadgets.general.paste.enabled.tooltip=Установите значение false, чтобы отключить рецепт строительной пасты.
+config.buildinggadgets.general.paste.dropped.min=Количество капель строительной пасты – мин.
+config.buildinggadgets.general.paste.dropped.min.tooltip=Минимальное количество предметов строительного клея, выпадающих из плотного строительного блока.
+config.buildinggadgets.general.paste.dropped.max=Количество капель строительной пасты — максимальное
+config.buildinggadgets.general.paste.dropped.max.tooltip=Максимальное количество предметов строительной пасты, выпадающих из плотного строительного блока.
+config.buildinggadgets.general.enableDestructionGadget=Включить гаджет разрушения
+config.buildinggadgets.general.enableDestructionGadget.tooltip=Установите значение false, чтобы отключить гаджет разрушения.
+config.buildinggadgets.general.absoluteCoordDefault=По умолчанию абсолютный координатный режим
+config.buildinggadgets.general.absoluteCoordDefault.tooltip=Определяет, начинается ли режим координат графического интерфейса копирования/вставки в «Абсолютном» режиме по умолчанию.\n Установите значение true для абсолютного значения, установите значение False для относительного.
+config.buildinggadgets.general.canOverwriteBlocks=Разрешить перезапись без Air-Block
+config.buildinggadgets.general.canOverwriteBlocks.tooltip=Может ли гаджет Building/CopyPaste перезаписывать такие блоки, как вода, лава, трава и т. д. (как это может сделать игрок).\n Значение False позволит перезаписывать только воздушные блоки.
+config.buildinggadgets.general.subCategoryBlacklist=Настройки черного списка
+config.buildinggadgets.general.subCategoryBlacklist.tooltip=Настройте параметры черного списка здесь.
+config.buildinggadgets.general.subCategoryBlacklist.blockBlacklist=Блоки в черном списке
+config.buildinggadgets.general.subCategoryBlacklist.blockBlacklist.tooltip=Все добавленные к нему блоки будут обрабатываться аналогично TileEntities. Нисколько. \nОбратите внимание, что вы можете использовать регулярные выражения, определенные шаблонами Java, для выражения более сложных комбинаций имен. \nИспользуйте, например, «awfulmod:.*», чтобы занести в черный список все блоки ужасных модов.
+config.buildinggadgets.general.subCategoryGadgets=Гаджеты
+config.buildinggadgets.general.subCategoryGadgets.tooltip=Настройте гаджеты здесь
+config.buildinggadgets.general.subCategoryGadgets.maxRange=Максимально допустимый диапазон
+config.buildinggadgets.general.subCategoryGadgets.maxRange.tooltip=Максимальный радиус действия гаджетов
+config.buildinggadgets.general.subCategoryGadgets.maxEnergy=Максимальная энергия
+config.buildinggadgets.general.subCategoryGadgets.maxEnergy.tooltip=Максимальная энергия создания, обмена и копирования-вставки гаджета
+config.buildinggadgets.general.subCategoryGadgets.energyCost=Стоимость энергии
+config.buildinggadgets.general.subCategoryGadgets.energyCost.tooltip=Стоимость энергии гаджета за операцию
+config.buildinggadgets.general.subCategoryGadgets.damageCost=Стоимость урона
+config.buildinggadgets.general.subCategoryGadgets.damageCost.tooltip=Стоимость урона гаджета за операцию
+config.buildinggadgets.general.subCategoryGadgets.durability=Долговечность
+config.buildinggadgets.general.subCategoryGadgets.durability.tooltip=Прочность гаджета (0 означает, что долговечность не используется) (игнорируется, если питание осуществляется от FE)
+config.buildinggadgets.general.subCategoryGadgets.gadgetBuilding=Строительный гаджет
+config.buildinggadgets.general.subCategoryGadgets.gadgetBuilding.tooltip=Стоимость энергии и долговечность строительного гаджета
+config.buildinggadgets.general.subCategoryGadgets.gadgetExchanger=Обмен гаджета
+config.buildinggadgets.general.subCategoryGadgets.gadgetExchanger.tooltip=Стоимость энергии и долговечность обменивающегося гаджета
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction=Гаджет разрушения
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction.tooltip=Стоимость энергии, прочность и максимальная энергия гаджета разрушения
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction.maxEnergy=Максимальная энергия
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction.maxEnergy.tooltip=Максимальная энергия гаджета разрушения
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction.nonfuzzy.multiplier=Множитель нечеткого режима
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction.nonfuzzy.multiplier.tooltip=Стоимость энергии/долговечности увеличится на эту величину, если не находится в нечетком режиме.
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction.nonfuzzy.enabled=Нечеткий режим включен
+config.buildinggadgets.general.subCategoryGadgets.gadgetDestruction.nonfuzzy.enabled.tooltip=Если этот параметр включен, гаджет разрушения можно вывести из нечеткого режима, позволяя удалять только экземпляры блока, по которому щелкнули (за более высокую цену).
+config.buildinggadgets.general.subCategoryGadgets.gadgetCopyPaste=Копирование и вставка гаджета
+config.buildinggadgets.general.subCategoryGadgets.gadgetCopyPaste.tooltip=Энергозатратность и долговечность копипаста гаджета
+config.buildinggadgets.general.subCategoryPasteContainers=Контейнеры для строительной пасты
+config.buildinggadgets.general.subCategoryPasteContainers.tooltip=Здесь настройте контейнеры для строительной пасты.
+config.buildinggadgets.general.subCategoryPasteContainers.capacity.t1=Емкость контейнера для пасты T1
+config.buildinggadgets.general.subCategoryPasteContainers.capacity.t1.tooltip=Максимальная вместимость контейнера для строительной пасты 1-го уровня (железного)
+config.buildinggadgets.general.subCategoryPasteContainers.capacity.t2=Емкость контейнера для пасты T2
+config.buildinggadgets.general.subCategoryPasteContainers.capacity.t2.tooltip=Максимальная вместимость контейнера для строительной пасты 2-го уровня (золотого)
+config.buildinggadgets.general.subCategoryPasteContainers.capacity.t3=Емкость контейнера для пасты T3
+config.buildinggadgets.general.subCategoryPasteContainers.capacity.t3.tooltip=Максимальная вместимость контейнера для строительной пасты 3-го уровня (ромб)
