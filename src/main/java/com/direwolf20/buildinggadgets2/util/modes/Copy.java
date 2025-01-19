@@ -36,10 +36,11 @@ public class Copy extends BaseMode {
     public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
         ItemStack heldItem = BaseGadget.getGadget(player);
-        if (!(heldItem.getItem() instanceof GadgetCopyPaste)) return coordinates; //Impossible....right?
+        if (!(heldItem.getItem() instanceof GadgetCopyPaste gadgetCopyPaste)) return coordinates; //Impossible....right?
         Level level = player.level();
         BlockPos copyStart = GadgetNBT.getCopyStartPos(heldItem);
         BlockPos copyEnd = GadgetNBT.getCopyEndPos(heldItem);
+        int maxSize = gadgetCopyPaste.getMaxSize();
 
         if (copyStart.equals(GadgetNBT.nullPos) || copyEnd.equals(GadgetNBT.nullPos)) return coordinates;
 
@@ -59,8 +60,7 @@ public class Copy extends BaseMode {
         }
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
-        int maxSize = 100000;
-        if (size > maxSize) { //Todo Config?
+        if (size > maxSize) {
             player.displayClientMessage(Component.translatable("buildinggadgets2.messages.areatoolarge", maxSize, size), false);
             return coordinates;
         }
