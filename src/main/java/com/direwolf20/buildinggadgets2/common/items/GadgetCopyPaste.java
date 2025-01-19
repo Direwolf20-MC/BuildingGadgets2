@@ -42,6 +42,10 @@ public class GadgetCopyPaste extends BaseGadget {
         return Config.COPYPASTEGADGET_COST.get();
     }
 
+    public int getMaxSize() {
+        return Config.COPYPASTEGADGET_MAXSIZE.get();
+    }
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
