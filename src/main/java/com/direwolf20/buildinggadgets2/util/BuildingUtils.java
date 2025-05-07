@@ -481,7 +481,7 @@ public class BuildingUtils {
         for (StatePos pos : blockPosList) {
             if (pos.state.isAir()) continue; //Since we store air now
             BlockPos blockPos = pos.pos;
-            if (!level.mayInteract(player, blockPos.offset(lookingAt)))
+            if (!EventHelpers.mayPlace((ServerLevel)level, player, blockPos))
                 continue; //Chunk Protection like spawn and FTB Utils
             if (!level.getBlockState(blockPos.offset(lookingAt)).canBeReplaced())
                 continue; //Skip this block if it can't be placed (Avoids using energy)
@@ -524,7 +524,7 @@ public class BuildingUtils {
         Direction direction = dir == -1 ? null : Direction.values()[dir];
         for (StatePos pos : blockPosList) {
             BlockPos blockPos = pos.pos;
-            if (!level.mayInteract(player, blockPos.offset(lookingAt)))
+            if (!EventHelpers.mayExchange((ServerLevel)level, player, blockPos))
                 continue; //Chunk Protection like spawn and FTB Utils
             if (level.getBlockState(blockPos.offset(lookingAt)).equals(pos.state))
                 continue; //No need to replace blocks if they already match!
@@ -581,7 +581,7 @@ public class BuildingUtils {
     public static UUID removeTickHandler(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
         UUID buildUUID = UUID.randomUUID();
         for (BlockPos pos : blockPosList) {
-            if (!level.mayInteract(player, pos)) continue; //Chunk Protection like spawn and FTB Utils
+            if (!EventHelpers.canBreak(level, player, pos)) continue; //Chunk Protection like spawn and FTB Utils
             if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
                 player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
                 break; //Break out if we're out of power
