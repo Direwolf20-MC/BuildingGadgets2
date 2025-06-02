@@ -35,8 +35,8 @@ public class EventHelpers {
 	 }
 	 
 	 private static boolean _canBreak(Level level, Player player, BlockPos pos) {
-		    BlockState state = level.getBlockState(pos);
-		    BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
+		BlockState state = level.getBlockState(pos);
+		BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
          return !MinecraftForge.EVENT_BUS.post(event);
-		}
+	}
 }
