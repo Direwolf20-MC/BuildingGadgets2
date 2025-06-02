@@ -13,22 +13,30 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class EventHelpers {
-    public static boolean mayExchange(ServerLevel level, Player player, BlockPos pos) { 
-        return canBreak(level, player, pos) && mayPlace(level, player, pos);
-    }
+    
+	 public static boolean mayExchange(Level level, Player player, BlockPos pos) {
+		 return level.mayInteract(player,pos) && _canBreak(level, player, pos) && _mayPlace(level, player, pos);
+	 }
 
-    public static boolean mayPlace(ServerLevel level, Player player, @NotNull BlockPos pos) { 
-        BlockSnapshot blockSnapshot = BlockSnapshot.create(level.dimension(), level, pos);
-        BlockState placedAgainst = Objects.requireNonNull(blockSnapshot.getLevel()).getBlockState(blockSnapshot.getPos());
-        BlockEvent.EntityPlaceEvent event = new BlockEvent.EntityPlaceEvent(blockSnapshot, placedAgainst, player);
-        boolean placeAllowed = !MinecraftForge.EVENT_BUS.post(event);
-        return level.mayInteract(player,pos) && placeAllowed;
-    }
+	 public static boolean mayPlace(Level level, Player player, @NotNull BlockPos pos){
+		 return level.mayInteract(player,pos) && _mayPlace(level, player, pos);
+	 }
+	 public static boolean canBreak(Level level, Player player, @NotNull BlockPos pos){
+		 return level.mayInteract(player,pos) && _canBreak(level, player, pos);
+	 }
 
-    public static boolean canBreak(Level level, Player player, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
-        boolean breakAllowed = !MinecraftForge.EVENT_BUS.post(event);
-        return level.mayInteract(player,pos) && breakAllowed;
-    }
+	 // I lie to forge because as far as im concerned WHAT im placing off of
+	 // does not matter we are just checking for permission
+	 private static boolean _mayPlace(Level level, Player player, @NotNull BlockPos pos) {
+		 BlockSnapshot blockSnapshot = BlockSnapshot.create(level.dimension(), level, pos);
+		 BlockState placedAgainst = Objects.requireNonNull(blockSnapshot.getLevel()).getBlockState(blockSnapshot.getPos());
+		 BlockEvent.EntityPlaceEvent event = new BlockEvent.EntityPlaceEvent(blockSnapshot, placedAgainst, player);
+         return !MinecraftForge.EVENT_BUS.post(event);
+	 }
+	 
+	 private static boolean _canBreak(Level level, Player player, BlockPos pos) {
+		    BlockState state = level.getBlockState(pos);
+		    BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
+         return !MinecraftForge.EVENT_BUS.post(event);
+		}
 }
