@@ -7,6 +7,7 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
 import com.direwolf20.buildinggadgets2.setup.Config;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
+import com.direwolf20.buildinggadgets2.util.EventHelpers;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -167,7 +168,7 @@ public class GadgetCutPaste extends BaseGadget {
 
     public static boolean customCutValidation(BlockState blockState, Level level, Player player, BlockPos blockPos) {
         if (blockState.is(BG2BlockTags.NO_MOVE)) return false;
-        if (!level.mayInteract(player, blockPos)) return false; //Chunk Protection like spawn and FTB Utils
+        if (!EventHelpers.canBreak(level, player, blockPos)) return false; //Chunk Protection like spawn and FTB Utils
         return true;
     }
 
