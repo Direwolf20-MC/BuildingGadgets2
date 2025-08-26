@@ -21,10 +21,10 @@ public interface IIntegration {
      * Removes multiple item stacks from the player's inventory.
      *
      * @param player    the player whose inventory should be modified
-     * @param testArray the list of item stacks to remove (stack size is respected)
+     * @param requestedItems the list of item stacks to remove (stack size is respected)
      * @param simulate  if {@code true}, perform a dry run without changing the inventory
      */
-    void removeStacksFromInventory(Player player, ArrayList<ItemStack> testArray, boolean simulate);
+    void removeStacksFromInventory(Player player, ArrayList<ItemStack> requestedItems, boolean simulate);
 
     /**
      * Counts how many of the given item exist in the player's inventory.

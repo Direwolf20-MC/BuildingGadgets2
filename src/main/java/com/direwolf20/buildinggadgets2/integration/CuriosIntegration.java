@@ -24,15 +24,15 @@ public class CuriosIntegration implements IIntegration {
         }));
     }
 
-    public void removeStacksFromInventory(Player player, ArrayList<ItemStack> testArray, boolean simulate) {
+    public void removeStacksFromInventory(Player player, ArrayList<ItemStack> requestedItems, boolean simulate) {
         var curios = CuriosApi.getCuriosInventory(player);
         curios.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
             for (int j = 0; j < stackHandler.getSlots(); j++) {
                 ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(j);
                 var itemStackCapability = itemInSlot.getCapability(Capabilities.ItemHandler.ITEM, null);
                 if (itemStackCapability != null) {
-                    checkHandlerForItems(itemStackCapability, testArray, simulate);
-                    if (testArray.isEmpty()) break;
+                    checkHandlerForItems(itemStackCapability, requestedItems, simulate);
+                    if (requestedItems.isEmpty()) break;
                 }
             }
         }));

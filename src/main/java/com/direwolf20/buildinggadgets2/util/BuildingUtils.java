@@ -188,8 +188,7 @@ public class BuildingUtils {
 
         if (fluidStack.isEmpty()) return true;
 
-        IntegrationRegistry.removeFluidStacksFromInventory(player, fluidStack, simulate);
-        if (fluidStack.isEmpty()) return true;
+        if (IntegrationRegistry.removeFluidStacksFromInventory(player, fluidStack, simulate)) return true;
 
         Inventory playerInventory = player.getInventory();
         checkInventoryForFluids(playerInventory, fluidStack, simulate);
@@ -255,8 +254,7 @@ public class BuildingUtils {
 
         if (testArray.isEmpty()) return true;
 
-        IntegrationRegistry.removeStacksFromInventory(player, testArray, simulate);
-        if (testArray.isEmpty()) return true;
+        if (IntegrationRegistry.removeStacksFromInventory(player, testArray, simulate)) return true;
 
         Inventory playerInventory = player.getInventory();
         checkInventoryForItems(playerInventory, testArray, simulate);
@@ -302,8 +300,7 @@ public class BuildingUtils {
         }
         if (returnedFluid.isEmpty()) return;
 
-        IntegrationRegistry.giveFluidToPlayer(player, returnedFluid);
-        if (returnedFluid.isEmpty()) return;
+        if (IntegrationRegistry.giveFluidToPlayer(player, returnedFluid)) return;
 
         //Now look inside the players inventory
         Inventory playerInventory = player.getInventory();
@@ -343,8 +340,7 @@ public class BuildingUtils {
         if (tempReturnedItem.isEmpty()) return;
         ItemStack realReturnedItem = tempReturnedItem.copy();
 
-        IntegrationRegistry.giveItemToPlayer(player, realReturnedItem);
-        if (realReturnedItem.isEmpty()) return;
+        if (IntegrationRegistry.giveItemToPlayer(player, realReturnedItem)) return;
 
         //Now look for bags inside the players inventory
         Inventory playerInventory = player.getInventory();

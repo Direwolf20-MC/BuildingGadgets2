@@ -47,18 +47,20 @@ public class IntegrationRegistry {
         }
     }
 
-    public static void removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate) {
+    public static boolean removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate) {
         runForIntegrations(integration -> {
             integration.removeFluidStacksFromInventory(player, fluidStack, simulate);
             return !fluidStack.isEmpty();
         });
+        return fluidStack.isEmpty();
     }
 
-    public static void removeStacksFromInventory(Player player, ArrayList<ItemStack> testArray, boolean simulate) {
+    public static boolean removeStacksFromInventory(Player player, ArrayList<ItemStack> requestedItems, boolean simulate) {
         runForIntegrations(integration -> {
-            integration.removeStacksFromInventory(player, testArray, simulate);
-            return !testArray.isEmpty();
+            integration.removeStacksFromInventory(player, requestedItems, simulate);
+            return !requestedItems.isEmpty();
         });
+        return requestedItems.isEmpty();
     }
 
     public static int countItemStacks(Player player, ItemStack itemStack) {
@@ -70,17 +72,19 @@ public class IntegrationRegistry {
         return count.get();
     }
 
-    public static void giveFluidToPlayer(Player player, FluidStack returnedFluid) {
+    public static boolean giveFluidToPlayer(Player player, FluidStack returnedFluid) {
         runForIntegrations(integration -> {
             integration.giveFluidToPlayer(player, returnedFluid);
             return returnedFluid.isEmpty();
         });
+        return returnedFluid.isEmpty();
     }
 
-    public static void giveItemToPlayer(Player player, ItemStack realReturnedItem) {
+    public static boolean giveItemToPlayer(Player player, ItemStack realReturnedItem) {
         runForIntegrations(integration -> {
             integration.giveItemToPlayer(player, realReturnedItem);
             return realReturnedItem.isEmpty();
         });
+        return realReturnedItem.isEmpty();
     }
 }

@@ -31,12 +31,12 @@ public class ProjectEIntegration implements IIntegration {
         fluidStack.setAmount(0);
     }
 
-    public void removeStacksFromInventory(Player player, ArrayList<ItemStack> testArray, boolean simulate) {
+    public void removeStacksFromInventory(Player player, ArrayList<ItemStack> requestedItems, boolean simulate) {
         IKnowledgeProvider knowledgeProvider = getProvider(player);
         IEMCProxy emcProxy = getEMCProxy();
         BigInteger currentEMC = knowledgeProvider.getEmc();
         long totalCost = 0;
-        Iterator<ItemStack> it = testArray.iterator();
+        Iterator<ItemStack> it = requestedItems.iterator();
         while (it.hasNext()) {
             ItemStack s = it.next();
             if (!knowledgeProvider.hasKnowledge(s)) continue;
