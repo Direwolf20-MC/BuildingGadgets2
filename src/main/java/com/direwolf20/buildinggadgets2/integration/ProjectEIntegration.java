@@ -53,17 +53,16 @@ public class ProjectEIntegration implements IIntegration {
         }
     }
 
-    public void countItemStacks(Player player, ItemStack itemStack, int[] counter) {
+    public int countItemStacks(Player player, ItemStack itemStack) {
         IKnowledgeProvider knowledgeProvider = getProvider(player);
-        if (!knowledgeProvider.hasKnowledge(itemStack)) return;
         IEMCProxy emcProxy = getEMCProxy();
+        if (!knowledgeProvider.hasKnowledge(itemStack)) return 0;
+
         long cost = emcProxy.getValue(itemStack);
-        if (cost > 0) {
-            BigInteger count = knowledgeProvider.getEmc().divide(BigInteger.valueOf(cost));
-            counter[0] = count.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0
-                    ? Integer.MAX_VALUE
-                    : count.intValue();
-        }
+        BigInteger count = knowledgeProvider.getEmc().divide(BigInteger.valueOf(cost));
+        return count.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0
+                ? Integer.MAX_VALUE
+                : count.intValue();
     }
 
     public void giveFluidToPlayer(Player player, FluidStack returnedFluid) {

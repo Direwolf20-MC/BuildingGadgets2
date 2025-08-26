@@ -10,6 +10,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public class IntegrationRegistry {
     private static Map<String, IIntegration> integrations;
@@ -35,42 +37,50 @@ public class IntegrationRegistry {
         integrations.put(modid, integration);
     }
 
-    public static void removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate) {
+    private static void runForIntegrations(Function<IIntegration, Boolean> runner) {
         for (Map.Entry<String, IIntegration> entry : integrations.entrySet()) {
             if (!ModList.get().isLoaded(entry.getKey())) continue;
-            entry.getValue().removeFluidStacksFromInventory(player, fluidStack, simulate);
-            if (fluidStack.isEmpty()) return;
+            var shouldContinue = runner.apply(entry.getValue());
+            if (!shouldContinue) {
+                return;
+            }
         }
+    }
+
+    public static void removeFluidStacksFromInventory(Player player, FluidStack fluidStack, boolean simulate) {
+        runForIntegrations(integration -> {
+            integration.removeFluidStacksFromInventory(player, fluidStack, simulate);
+            return !fluidStack.isEmpty();
+        });
     }
 
     public static void removeStacksFromInventory(Player player, ArrayList<ItemStack> testArray, boolean simulate) {
-        for (Map.Entry<String, IIntegration> entry : integrations.entrySet()) {
-            if (!ModList.get().isLoaded(entry.getKey())) continue;
-            entry.getValue().removeStacksFromInventory(player, testArray, simulate);
-            if (testArray.isEmpty()) return;
-        }
+        runForIntegrations(integration -> {
+            integration.removeStacksFromInventory(player, testArray, simulate);
+            return !testArray.isEmpty();
+        });
     }
 
-    public static void countItemStacks(Player player, ItemStack itemStack, int[] counter) {
-        for (Map.Entry<String, IIntegration> entry : integrations.entrySet()) {
-            if (!ModList.get().isLoaded(entry.getKey())) continue;
-            entry.getValue().countItemStacks(player, itemStack, counter);
-        }
+    public static int countItemStacks(Player player, ItemStack itemStack) {
+        AtomicInteger count = new AtomicInteger();
+        runForIntegrations(integration -> {
+            count.addAndGet(integration.countItemStacks(player, itemStack));
+            return true;
+        });
+        return count.get();
     }
 
     public static void giveFluidToPlayer(Player player, FluidStack returnedFluid) {
-        for (Map.Entry<String, IIntegration> entry : integrations.entrySet()) {
-            if (!ModList.get().isLoaded(entry.getKey())) continue;
-            entry.getValue().giveFluidToPlayer(player, returnedFluid);
-            if (returnedFluid.isEmpty()) return;
-        }
+        runForIntegrations(integration -> {
+            integration.giveFluidToPlayer(player, returnedFluid);
+            return returnedFluid.isEmpty();
+        });
     }
 
     public static void giveItemToPlayer(Player player, ItemStack realReturnedItem) {
-        for (Map.Entry<String, IIntegration> entry : integrations.entrySet()) {
-            if (!ModList.get().isLoaded(entry.getKey())) continue;
-            entry.getValue().giveItemToPlayer(player, realReturnedItem);
-            if (realReturnedItem.isEmpty()) return;
-        }
+        runForIntegrations(integration -> {
+            integration.giveItemToPlayer(player, realReturnedItem);
+            return realReturnedItem.isEmpty();
+        });
     }
 }

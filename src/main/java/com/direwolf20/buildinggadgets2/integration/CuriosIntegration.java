@@ -8,6 +8,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import top.theillusivec4.curios.api.CuriosApi;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.direwolf20.buildinggadgets2.util.BuildingUtils.*;
 
@@ -37,8 +38,9 @@ public class CuriosIntegration implements IIntegration {
         }));
     }
 
-    public void countItemStacks(Player player, ItemStack itemStack, int[] counter) {
+    public int countItemStacks(Player player, ItemStack itemStack) {
         var curiosOpt = CuriosApi.getCuriosInventory(player);
+        AtomicInteger count = new AtomicInteger();
         curiosOpt.ifPresent(iCuriosItemHandler -> iCuriosItemHandler.getCurios().forEach((id, stackHandler) -> {
             for (int i = 0; i < stackHandler.getSlots(); i++) {
                 ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
@@ -47,11 +49,12 @@ public class CuriosIntegration implements IIntegration {
                     for (int j = 0; j < itemStackCapability.getSlots(); j++) {
                         ItemStack itemInBagSlot = itemStackCapability.getStackInSlot(j);
                         if (ItemStack.isSameItem(itemInBagSlot, itemStack))
-                            counter[0] += itemInBagSlot.getCount();
+                            count.addAndGet(itemInBagSlot.getCount());
                     }
                 }
             }
         }));
+        return count.get();
     }
 
     public void giveFluidToPlayer(Player player, FluidStack returnedFluid) {

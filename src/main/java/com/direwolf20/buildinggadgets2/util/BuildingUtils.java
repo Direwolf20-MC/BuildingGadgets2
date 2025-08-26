@@ -267,9 +267,9 @@ public class BuildingUtils {
     public static int countItemStacks(Player player, ItemStack itemStack) {
         if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return 0;
         Inventory playerInventory = player.getInventory();
-        final int[] counter = {0};
+        int counter = 0;
 
-        IntegrationRegistry.countItemStacks(player, itemStack, counter);
+        counter += IntegrationRegistry.countItemStacks(player, itemStack);
 
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
@@ -278,14 +278,14 @@ public class BuildingUtils {
                 for (int j = 0; j < itemStackCapability.getSlots(); j++) {
                     ItemStack itemInSlot = itemStackCapability.getStackInSlot(j);
                     if (ItemStack.isSameItem(itemInSlot, itemStack))
-                        counter[0] += itemInSlot.getCount();
+                        counter += itemInSlot.getCount();
                 }
             } else {
                 if (ItemStack.isSameItem(slotStack, itemStack))
-                    counter[0] += slotStack.getCount();
+                    counter += slotStack.getCount();
             }
         }
-        return counter[0];
+        return counter;
     }
 
     public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, GlobalPos boundInventory, Direction direction) {

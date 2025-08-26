@@ -35,9 +35,8 @@ public interface IIntegration {
      *
      * @param player   the player whose inventory is being queried
      * @param itemStack the item type to count
-     * @param counter   an integer array used to store the count result
      */
-    void countItemStacks(Player player, ItemStack itemStack, int[] counter);
+    int countItemStacks(Player player, ItemStack itemStack);
 
     /**
      * Gives a fluid stack back to the player, e.g. after undoing an operation.

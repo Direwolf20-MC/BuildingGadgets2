@@ -156,8 +156,8 @@ dependencies {
     runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
 
     //ProjectE
-    compileOnly "curse.maven:projecte-226410:6611986"
-    runtimeOnly "curse.maven:projecte-226410:6611984"
+    compileOnly "curse.maven:projecte-226410:${projecte_api}"
+    runtimeOnly "curse.maven:projecte-226410:${projecte_mod}"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
