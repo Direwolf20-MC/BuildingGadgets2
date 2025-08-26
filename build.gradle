@@ -36,6 +36,13 @@ repositories {
         }
     }
 
+    maven { // ProjectE
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+
     maven { url = "https://www.cursemaven.com" } // curse mods
 }
 
@@ -148,6 +155,9 @@ dependencies {
     compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}:api"
     runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
 
+    //ProjectE
+    compileOnly "curse.maven:projecte-226410:6611986"
+    runtimeOnly "curse.maven:projecte-226410:6611984"
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
