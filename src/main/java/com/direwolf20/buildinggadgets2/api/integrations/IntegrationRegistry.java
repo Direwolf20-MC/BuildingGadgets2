@@ -1,7 +1,6 @@
 package com.direwolf20.buildinggadgets2.api.integrations;
 
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
-import com.direwolf20.buildinggadgets2.integration.ProjectEIntegration;
 import com.google.common.collect.Maps;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +17,6 @@ public class IntegrationRegistry {
     public static void setupIntegrations(){
         integrations = Maps.newHashMap();
         register("curios",new CuriosIntegration());
-        register("projecte", new ProjectEIntegration());
     }
 
     /**
@@ -27,7 +25,6 @@ public class IntegrationRegistry {
      * Example usage:
      * <pre>{@code
      * register("curios", new CuriosIntegration());
-     * register("projecte", new ProjectEIntegration());
      * }</pre>
      *
      * @param modid       the unique mod ID to associate with the integration
