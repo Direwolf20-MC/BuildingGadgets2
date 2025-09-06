@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2;
 
+import com.direwolf20.buildinggadgets2.api.integrations.IntegrationRegistry;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.capabilities.EnergyStorageItemstack;
 import com.direwolf20.buildinggadgets2.common.commands.BuildingGadgets2Commands;
@@ -34,6 +35,8 @@ public class BuildingGadgets2 {
         eventBus.addListener(this::registerCapabilities);
         eventBus.addListener(PacketHandler::registerNetworking);
         NeoForge.EVENT_BUS.addListener(BuildingGadgets2Commands::registerCommands);
+
+        IntegrationRegistry.setupIntegrations();
 
         if (FMLLoader.getDist().isClient()) {
             eventBus.addListener(ClientSetup::init);

@@ -1,13 +1,12 @@
 package com.direwolf20.buildinggadgets2.util;
 
+import com.direwolf20.buildinggadgets2.api.integrations.IntegrationRegistry;
 import com.direwolf20.buildinggadgets2.common.events.ServerBuildList;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.integration.AE2Integration;
-import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
-import com.direwolf20.buildinggadgets2.integration.CuriosMethods;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
@@ -188,11 +187,8 @@ public class BuildingUtils {
         }
 
         if (fluidStack.isEmpty()) return true;
-        //Check curious slots second:
-        if (CuriosIntegration.isLoaded()) {
-            CuriosMethods.removeFluidStacksFromInventory(player, fluidStack, simulate);
-        }
-        if (fluidStack.isEmpty()) return true;
+
+        if (IntegrationRegistry.removeFluidStacksFromInventory(player, fluidStack, simulate)) return true;
 
         Inventory playerInventory = player.getInventory();
         checkInventoryForFluids(playerInventory, fluidStack, simulate);
@@ -257,12 +253,8 @@ public class BuildingUtils {
         }
 
         if (testArray.isEmpty()) return true;
-        //Check curious slots second:
 
-        if (CuriosIntegration.isLoaded()) {
-            CuriosMethods.removeStacksFromInventory(player, testArray, simulate);
-        }
-        if (testArray.isEmpty()) return true;
+        if (IntegrationRegistry.removeStacksFromInventory(player, testArray, simulate)) return true;
 
         Inventory playerInventory = player.getInventory();
         checkInventoryForItems(playerInventory, testArray, simulate);
@@ -273,12 +265,9 @@ public class BuildingUtils {
     public static int countItemStacks(Player player, ItemStack itemStack) {
         if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return 0;
         Inventory playerInventory = player.getInventory();
-        final int[] counter = {0};
+        int counter = 0;
 
-        //Check curious slots first:
-        if (CuriosIntegration.isLoaded()) {
-            CuriosMethods.countItemStacks(player, itemStack, counter);
-        }
+        counter += IntegrationRegistry.countItemStacks(player, itemStack);
 
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             ItemStack slotStack = playerInventory.getItem(i);
@@ -287,14 +276,14 @@ public class BuildingUtils {
                 for (int j = 0; j < itemStackCapability.getSlots(); j++) {
                     ItemStack itemInSlot = itemStackCapability.getStackInSlot(j);
                     if (ItemStack.isSameItem(itemInSlot, itemStack))
-                        counter[0] += itemInSlot.getCount();
+                        counter += itemInSlot.getCount();
                 }
             } else {
                 if (ItemStack.isSameItem(slotStack, itemStack))
-                    counter[0] += slotStack.getCount();
+                    counter += slotStack.getCount();
             }
         }
-        return counter[0];
+        return counter;
     }
 
     public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, GlobalPos boundInventory, Direction direction) {
@@ -311,10 +300,8 @@ public class BuildingUtils {
         }
         if (returnedFluid.isEmpty()) return;
 
-        //Look for matching itemstacks inside curios inventories second - if found, insert there!
-        if (CuriosIntegration.isLoaded()) {
-            CuriosMethods.giveFluidToPlayer(player, returnedFluid);
-        }
+        if (IntegrationRegistry.giveFluidToPlayer(player, returnedFluid)) return;
+
         //Now look inside the players inventory
         Inventory playerInventory = player.getInventory();
         for (int i = 0; i < playerInventory.getContainerSize(); i++) { //If this fails the fluid just gets voided!
@@ -353,11 +340,8 @@ public class BuildingUtils {
         if (tempReturnedItem.isEmpty()) return;
         ItemStack realReturnedItem = tempReturnedItem.copy();
 
-        //Look for matching itemstacks inside curios inventories second - if found, insert there!
-        if (CuriosIntegration.isLoaded()) {
-            CuriosMethods.giveItemToPlayer(player, realReturnedItem);
-            if (realReturnedItem.isEmpty()) return;
-        }
+        if (IntegrationRegistry.giveItemToPlayer(player, realReturnedItem)) return;
+
         //Now look for bags inside the players inventory
         Inventory playerInventory = player.getInventory();
         for (int i = 0; i < playerInventory.getContainerSize(); i++) {
