@@ -1,11 +1,16 @@
 package com.direwolf20.buildinggadgets2.api.integrations;
 
+import io.netty.util.internal.UnstableApi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 
+/**
+ * Unstable API: Interface for mod integrations to handle item and fluid management
+ */
+@UnstableApi
 public interface IIntegration {
 
     /**

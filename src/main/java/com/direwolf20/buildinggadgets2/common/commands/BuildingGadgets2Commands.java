@@ -14,11 +14,12 @@ public class BuildingGadgets2Commands {
         // sub commands
         registerCommand(builder, "redprints", RedprintCommand::register);
 
-        // register final command
         event.getDispatcher().register(builder);
     }
 
-    /** Registers a sub command for the root BG2 command */
+    /**
+     * Registers a sub command for the root BG2 command
+     */
     private static void registerCommand(LiteralArgumentBuilder<CommandSourceStack> root, String name, Consumer<LiteralArgumentBuilder<CommandSourceStack>> consumer) {
         LiteralArgumentBuilder<CommandSourceStack> subCommand = Commands.literal(name);
         consumer.accept(subCommand);

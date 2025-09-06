@@ -1,16 +1,13 @@
 package com.direwolf20.buildinggadgets2.common.capabilities;
 
 import com.direwolf20.buildinggadgets2.setup.BG2DataComponents;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.energy.EnergyStorage;
 
-public class EnergyStorageItemstack extends EnergyStorage {
+public class EnergyStorageItemStack extends EnergyStorage {
     protected final ItemStack itemStack;
 
-    public EnergyStorageItemstack(int capacity, ItemStack itemStack) {
+    public EnergyStorageItemStack(int capacity, ItemStack itemStack) {
         super(capacity, capacity, capacity, 0);
         this.itemStack = itemStack;
         this.energy = itemStack.getOrDefault(BG2DataComponents.FORGE_ENERGY, 0);
@@ -50,32 +47,5 @@ public class EnergyStorageItemstack extends EnergyStorage {
     @Override
     public int getEnergyStored() {
         return itemStack.getOrDefault(BG2DataComponents.FORGE_ENERGY, 0);
-    }
-
-    @Override
-    public int getMaxEnergyStored() {
-        return capacity;
-    }
-
-    @Override
-    public boolean canExtract() {
-        return this.maxExtract > 0;
-    }
-
-    @Override
-    public boolean canReceive() {
-        return this.maxReceive > 0;
-    }
-
-    @Override
-    public Tag serializeNBT(HolderLookup.Provider provider) {
-        return IntTag.valueOf(this.getEnergyStored());
-    }
-
-    @Override
-    public void deserializeNBT(HolderLookup.Provider provider, Tag nbt) {
-        if (!(nbt instanceof IntTag intNbt))
-            throw new IllegalArgumentException("Can not deserialize to an instance that isn't the default implementation");
-        this.energy = intNbt.getAsInt();
     }
 }

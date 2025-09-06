@@ -2,7 +2,7 @@ package com.direwolf20.buildinggadgets2;
 
 import com.direwolf20.buildinggadgets2.api.integrations.IntegrationRegistry;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
-import com.direwolf20.buildinggadgets2.common.capabilities.EnergyStorageItemstack;
+import com.direwolf20.buildinggadgets2.common.capabilities.EnergyStorageItemStack;
 import com.direwolf20.buildinggadgets2.common.commands.BuildingGadgets2Commands;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
@@ -45,7 +45,7 @@ public class BuildingGadgets2 {
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerItem(Capabilities.EnergyStorage.ITEM,
-                (itemStack, context) -> new EnergyStorageItemstack(((BaseGadget) itemStack.getItem()).getEnergyMax(), itemStack),
+                (itemStack, context) -> new EnergyStorageItemStack(((BaseGadget) itemStack.getItem()).getEnergyMax(), itemStack),
                 Registration.Building_Gadget.get(),
                 Registration.Exchanging_Gadget.get(),
                 Registration.CopyPaste_Gadget.get(),
