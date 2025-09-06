@@ -28,7 +28,7 @@ public class TemplateManagerBE extends BlockEntity implements MenuProvider {
     //public LazyOptional<TemplateManagerHandler> handlerLazyOptional;
 
     public TemplateManagerBE(BlockPos pos, BlockState state) {
-        super(Registration.TemplateManager_BE.get(), pos, state);
+        super(Registration.TEMPLATE_MANGER_BLOCK_ENTITY.get(), pos, state);
         //handlerLazyOptional = LazyOptional.of(() -> itemHandler);
     }
 

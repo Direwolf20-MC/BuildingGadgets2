@@ -1,5 +1,6 @@
 package com.direwolf20.buildinggadgets2;
 
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.api.integrations.IntegrationRegistry;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.capabilities.EnergyStorageItemStack;
@@ -20,9 +21,8 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
-@Mod(BuildingGadgets2.MODID)
+@Mod(BuildingGadgets2Api.MOD_ID)
 public class BuildingGadgets2 {
-    public static final String MODID = "buildinggadgets2";
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public BuildingGadgets2(IEventBus eventBus, ModContainer container) {
@@ -46,15 +46,15 @@ public class BuildingGadgets2 {
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerItem(Capabilities.EnergyStorage.ITEM,
                 (itemStack, context) -> new EnergyStorageItemStack(((BaseGadget) itemStack.getItem()).getEnergyMax(), itemStack),
-                Registration.Building_Gadget.get(),
-                Registration.Exchanging_Gadget.get(),
-                Registration.CopyPaste_Gadget.get(),
-                Registration.CutPaste_Gadget.get(),
-                Registration.Destruction_Gadget.get()
+                Registration.BUILDING_GADGET.get(),
+                Registration.EXCHANGING_GADGET.get(),
+                Registration.COPY_PASTE_GADGET.get(),
+                Registration.CUT_PASTE_GADGET.get(),
+                Registration.DESTRUCTION_GADGET.get()
         );
         event.registerBlock(Capabilities.ItemHandler.BLOCK,
                 (level, pos, state, be, side) -> ((TemplateManagerBE) be).itemHandler,
                 // blocks to register for
-                Registration.TemplateManager.get());
+                Registration.TEMPLATE_MANAGER.get());
     }
 }

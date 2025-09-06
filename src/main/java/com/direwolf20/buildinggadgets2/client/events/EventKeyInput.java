@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.events;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.screen.DestructionGUI;
 import com.direwolf20.buildinggadgets2.client.screen.ModeRadialMenu;
@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-@EventBusSubscriber(modid = BuildingGadgets2.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = BuildingGadgets2Api.MOD_ID, value = Dist.CLIENT)
 public class EventKeyInput {
 
     @SubscribeEvent

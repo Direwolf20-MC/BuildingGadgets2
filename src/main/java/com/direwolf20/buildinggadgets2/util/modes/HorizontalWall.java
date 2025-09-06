@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.MagicHelpers;
@@ -21,7 +21,7 @@ public class HorizontalWall extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "horizontal_wall");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "horizontal_wall");
     }
 
     @Override

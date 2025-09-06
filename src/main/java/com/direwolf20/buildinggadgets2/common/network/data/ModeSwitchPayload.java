@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,7 +11,7 @@ public record ModeSwitchPayload(
         boolean rotate,
         ResourceLocation modeId
 ) implements CustomPacketPayload {
-    public static final Type<ModeSwitchPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "mode_switch_payload"));
+    public static final Type<ModeSwitchPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "mode_switch_payload"));
 
     @Override
     public Type<ModeSwitchPayload> type() {

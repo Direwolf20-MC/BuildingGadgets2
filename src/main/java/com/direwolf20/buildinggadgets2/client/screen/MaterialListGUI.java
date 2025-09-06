@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.client.screen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList;
 import com.google.common.collect.Lists;
 import net.minecraft.Util;
@@ -20,7 +20,7 @@ public class MaterialListGUI extends Screen {
     public static final int BUTTON_HEIGHT = 20;
     public static final int BUTTONS_PADDING = 4;
 
-    public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/material_list.png");
+    public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "textures/gui/material_list.png");
     public static final int BACKGROUND_WIDTH = 256;
     public static final int BACKGROUND_HEIGHT = 200;
     public static final int BORDER_SIZE = 4;

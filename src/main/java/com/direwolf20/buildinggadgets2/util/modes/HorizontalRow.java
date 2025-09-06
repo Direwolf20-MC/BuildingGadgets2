@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -20,7 +20,7 @@ public class HorizontalRow extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "horizontal_row");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "horizontal_row");
     }
 
     @Override

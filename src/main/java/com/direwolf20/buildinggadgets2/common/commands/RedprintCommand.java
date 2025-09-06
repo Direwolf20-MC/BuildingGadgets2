@@ -100,7 +100,7 @@ public class RedprintCommand {
             return 0;
         }
 
-        ItemStack newRedprint = new ItemStack(Registration.Redprint.get());
+        ItemStack newRedprint = new ItemStack(Registration.REDPRINT.get());
         UUID targetUUID = GadgetNBT.getUUID(newRedprint);
 
         ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);

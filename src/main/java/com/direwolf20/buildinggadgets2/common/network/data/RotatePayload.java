@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -10,7 +10,7 @@ public record RotatePayload(
 
 ) implements CustomPacketPayload {
     public static final RotatePayload INSTANCE = new RotatePayload();
-    public static final Type<RotatePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "rotate_payload"));
+    public static final Type<RotatePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "rotate_payload"));
 
     @Override
     public Type<RotatePayload> type() {

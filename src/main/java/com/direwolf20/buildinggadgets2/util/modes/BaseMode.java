@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
@@ -54,14 +54,14 @@ public abstract class BaseMode implements Comparable<BaseMode> {
      * Used for translations
      */
     public String i18n() {
-        return BuildingGadgets2.MODID + ".modes." + this.getId().getPath();
+        return BuildingGadgets2Api.MOD_ID + ".modes." + this.getId().getPath();
     }
 
     /**
      * Used when displaying the mode selection wheel
      */
     public ResourceLocation icon() {
-        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/mode/" + getId().getPath() + ".png");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "textures/gui/mode/" + getId().getPath() + ".png");
     }
 
     public boolean isPosValid(Level level, Player player, BlockPos blockPos, BlockState blockState) {

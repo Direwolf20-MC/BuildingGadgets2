@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.blockentityrenders.RenderBlockBER;
 import com.direwolf20.buildinggadgets2.client.events.EventKeyInput;
@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactori
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-@EventBusSubscriber(modid = BuildingGadgets2.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = BuildingGadgets2Api.MOD_ID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ClientSetup {
     public static void init(final FMLClientSetupEvent event) {
         NeoForge.EVENT_BUS.addListener(KeyBindings::onClientInput);
@@ -27,13 +27,13 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(Registration.TemplateManager_Container.get(), TemplateManagerGUI::new);
+        event.register(Registration.TEMPLATE_MANAGER_CONTAINER.get(), TemplateManagerGUI::new);
     }
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         //Register Block Entity Renders
-        event.registerBlockEntityRenderer(Registration.RenderBlock_BE.get(), RenderBlockBER::new);
+        event.registerBlockEntityRenderer(Registration.RENDER_BLOCK_BLOCK_ENTITY.get(), RenderBlockBER::new);
     }
 
     @SubscribeEvent

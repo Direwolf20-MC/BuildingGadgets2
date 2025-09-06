@@ -5,7 +5,7 @@
 
 package com.direwolf20.buildinggadgets2.client.screen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
 import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
 import com.direwolf20.buildinggadgets2.client.renderer.VBORenderer;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 import static com.direwolf20.buildinggadgets2.client.renderer.VBORenderer.isModelRender;
 
 public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerContainer> {
-    private static final ResourceLocation background = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/template_manager.png");
+    private static final ResourceLocation background = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "textures/gui/template_manager.png");
 
     private final Rect2i panel = new Rect2i((8 - 20), 12, 136, 80);
     private boolean panelClicked;

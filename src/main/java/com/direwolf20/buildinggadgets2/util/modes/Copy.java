@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.modes;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.common.blocks.RenderBlock;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
@@ -29,7 +29,7 @@ public class Copy extends BaseMode {
 
     @Override
     public ResourceLocation getId() {
-        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "copy");
+        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "copy");
     }
 
     @Override

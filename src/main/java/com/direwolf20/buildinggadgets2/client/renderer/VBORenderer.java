@@ -277,7 +277,7 @@ public class VBORenderer {
         BlockPos renderPos = anchorPos.equals(GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchorPos;
         BlockState lookingAtState = player.level().getBlockState(renderPos);
 
-        if ((lookingAtState.isAir() && anchorPos.equals(GadgetNBT.nullPos)) || lookingAtState.getBlock().equals(Registration.RenderBlock.get()))
+        if ((lookingAtState.isAir() && anchorPos.equals(GadgetNBT.nullPos)) || lookingAtState.getBlock().equals(Registration.RENDER_BLOCK.get()))
             return;
         ArrayList<StatePos> buildList = new ArrayList<>();
         var mode = GadgetNBT.getMode(gadget);

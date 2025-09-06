@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 public record RangeChangePayload(
         int range
 ) implements CustomPacketPayload {
-    public static final Type<RangeChangePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "range_change_payload"));
+    public static final Type<RangeChangePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "range_change_payload"));
 
     @Override
     public Type<RangeChangePayload> type() {

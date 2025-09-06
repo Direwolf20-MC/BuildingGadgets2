@@ -29,9 +29,9 @@ public class AE2Methods {
     public static final IGridLinkableHandler LINKABLE_HANDLER = new LinkableHandler();
 
     public static void registerItems() {
-        GridLinkables.register(Registration.Building_Gadget.get(), LINKABLE_HANDLER);
-        GridLinkables.register(Registration.Exchanging_Gadget.get(), LINKABLE_HANDLER);
-        GridLinkables.register(Registration.CopyPaste_Gadget.get(), LINKABLE_HANDLER);
+        GridLinkables.register(Registration.BUILDING_GADGET.get(), LINKABLE_HANDLER);
+        GridLinkables.register(Registration.EXCHANGING_GADGET.get(), LINKABLE_HANDLER);
+        GridLinkables.register(Registration.COPY_PASTE_GADGET.get(), LINKABLE_HANDLER);
     }
 
     public static class LinkableHandler implements IGridLinkableHandler {

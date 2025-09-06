@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,7 +11,7 @@ public record CopyCoordsPayload(
         BlockPos startPos,
         BlockPos endPos
 ) implements CustomPacketPayload {
-    public static final Type<CopyCoordsPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "copy_coords_payload"));
+    public static final Type<CopyCoordsPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "copy_coords_payload"));
 
     @Override
     public Type<CopyCoordsPayload> type() {

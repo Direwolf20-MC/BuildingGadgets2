@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.setup;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class BG2DataComponents {
-    public static final DeferredRegister<DataComponentType<?>> COMPONENTS = DeferredRegister.createDataComponents(BuildingGadgets2.MODID);
+    public static final DeferredRegister<DataComponentType<?>> COMPONENTS = DeferredRegister.createDataComponents(BuildingGadgets2Api.MOD_ID);
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<GlobalPos>> BOUND_GLOBAL_POS = COMPONENTS.register("bound_global_pos", () -> DataComponentType.<GlobalPos>builder().persistent(GlobalPos.CODEC).networkSynchronized(GlobalPos.STREAM_CODEC).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockPos>> ANCHOR_POS = COMPONENTS.register("anchor_pos", () -> DataComponentType.<BlockPos>builder().persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC).build());

@@ -35,7 +35,7 @@ public class DestructionRenderer {
 
         BlockPos startBlock = (anchor == GadgetNBT.nullPos) ? lookingAt.getBlockPos() : anchor;
         Direction facing = (anchorSide == null) ? lookingAt.getDirection() : anchorSide;
-        if (level.getBlockState(startBlock) == Registration.RenderBlock.get().defaultBlockState())
+        if (level.getBlockState(startBlock) == Registration.RENDER_BLOCK.get().defaultBlockState())
             return;
 
         Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();

@@ -23,7 +23,7 @@ public class BG2Recipes extends RecipeProvider {
     @Override
     protected void buildRecipes(RecipeOutput consumer) {
         //Gadgets
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Building_Gadget.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.BUILDING_GADGET.get())
                 .pattern("iri")
                 .pattern("drd")
                 .pattern("ili")
@@ -35,7 +35,7 @@ public class BG2Recipes extends RecipeProvider {
                 .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Exchanging_Gadget.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.EXCHANGING_GADGET.get())
                 .pattern("iri")
                 .pattern("dld")
                 .pattern("ili")
@@ -47,7 +47,7 @@ public class BG2Recipes extends RecipeProvider {
                 .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CopyPaste_Gadget.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.COPY_PASTE_GADGET.get())
                 .pattern("iri")
                 .pattern("ere")
                 .pattern("ili")
@@ -59,7 +59,7 @@ public class BG2Recipes extends RecipeProvider {
                 .unlockedBy("has_emerald", InventoryChangeTrigger.TriggerInstance.hasItems(Items.EMERALD))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Destruction_Gadget.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.DESTRUCTION_GADGET.get())
                 .pattern("iri")
                 .pattern("ere")
                 .pattern("ili")
@@ -71,7 +71,7 @@ public class BG2Recipes extends RecipeProvider {
                 .unlockedBy("has_ender_pearl", InventoryChangeTrigger.TriggerInstance.hasItems(Items.ENDER_PEARL))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CutPaste_Gadget.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CUT_PASTE_GADGET.get())
                 .pattern("iri")
                 .pattern("srs")
                 .pattern("ili")
@@ -84,7 +84,7 @@ public class BG2Recipes extends RecipeProvider {
                 .save(consumer);
 
         //Blocks
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.TemplateManager.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.TEMPLATE_MANAGER.get())
                 .pattern("iri")
                 .pattern("prp")
                 .pattern("ili")

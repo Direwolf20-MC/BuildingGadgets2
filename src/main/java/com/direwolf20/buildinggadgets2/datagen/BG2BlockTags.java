@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -19,10 +19,10 @@ import java.util.concurrent.CompletableFuture;
 public class BG2BlockTags extends BlockTagsProvider {
 
     public BG2BlockTags(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, BuildingGadgets2.MODID, existingFileHelper);
+        super(output, lookupProvider, BuildingGadgets2Api.MOD_ID, existingFileHelper);
     }
 
-    public static final TagKey<Block> BG2DENY = BlockTags.create(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "deny"));
+    public static final TagKey<Block> BG2DENY = BlockTags.create(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "deny"));
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
@@ -38,7 +38,7 @@ public class BG2BlockTags extends BlockTagsProvider {
                 .add(Registration.LaserNode.get())
                 .add(Registration.LaserConnector.get());*/
         tag(Tags.Blocks.RELOCATION_NOT_SUPPORTED)
-                .add(Registration.RenderBlock.get());
+                .add(Registration.RENDER_BLOCK.get());
     }
 
     @Override

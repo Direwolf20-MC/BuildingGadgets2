@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -20,13 +20,13 @@ public class BG2ItemTags extends ItemTagsProvider {
     }
 
     public BG2ItemTags(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, BlockTagsProvider blockTags, ExistingFileHelper helper) {
-        super(packOutput, lookupProvider, blockTags.contentsGetter(), BuildingGadgets2.MODID, helper);
+        super(packOutput, lookupProvider, blockTags.contentsGetter(), BuildingGadgets2Api.MOD_ID, helper);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(ItemTags.MINING_LOOT_ENCHANTABLE)
-                .add(Registration.Exchanging_Gadget.get());
+                .add(Registration.EXCHANGING_GADGET.get());
     }
 
     @Override

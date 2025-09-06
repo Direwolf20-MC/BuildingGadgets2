@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.containers;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.BlockPos;
@@ -18,13 +18,13 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class TemplateManagerContainer extends BaseContainer {
-    public static final String TEXTURE_LOC_SLOT_TOOL = BuildingGadgets2.MODID + ":textures/gui/slot_copy_paste_gadget.png";
-    public static final String TEXTURE_LOC_SLOT_TEMPLATE = BuildingGadgets2.MODID + ":gui/slot_template";
+    public static final String TEXTURE_LOC_SLOT_TOOL = BuildingGadgets2Api.MOD_ID + ":textures/gui/slot_copy_paste_gadget.png";
+    public static final String TEXTURE_LOC_SLOT_TEMPLATE = BuildingGadgets2Api.MOD_ID + ":gui/slot_template";
     public static final int SLOTS = 2;
     private TemplateManagerBE be;
 
     public TemplateManagerContainer(int windowId, Inventory playerInventory, FriendlyByteBuf extraData) {
-        super(Registration.TemplateManager_Container.get(), windowId);
+        super(Registration.TEMPLATE_MANAGER_CONTAINER.get(), windowId);
         BlockPos pos = extraData.readBlockPos();
 
         this.be = (TemplateManagerBE) playerInventory.player.level().getBlockEntity(pos);
@@ -33,7 +33,7 @@ public class TemplateManagerContainer extends BaseContainer {
     }
 
     public TemplateManagerContainer(int windowId, Inventory playerInventory, TemplateManagerBE tileEntity) {
-        super(Registration.TemplateManager_Container.get(), windowId);
+        super(Registration.TEMPLATE_MANAGER_CONTAINER.get(), windowId);
         this.be = Objects.requireNonNull(tileEntity);
 
         addOwnSlots();
@@ -42,7 +42,7 @@ public class TemplateManagerContainer extends BaseContainer {
 
     @Override
     public boolean stillValid(Player playerIn) {
-        return stillValid(ContainerLevelAccess.create(be.getLevel(), be.getBlockPos()), playerIn, Registration.TemplateManager.get());
+        return stillValid(ContainerLevelAccess.create(be.getLevel(), be.getBlockPos()), playerIn, Registration.TEMPLATE_MANAGER.get());
     }
 
     private void addOwnSlots() {

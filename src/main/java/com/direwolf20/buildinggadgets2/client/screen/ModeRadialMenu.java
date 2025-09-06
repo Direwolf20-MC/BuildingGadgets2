@@ -5,7 +5,7 @@
  */
 package com.direwolf20.buildinggadgets2.client.screen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.api.gadgets.GadgetModes;
 import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.OurSounds;
@@ -46,8 +46,8 @@ import java.util.function.Predicate;
 
 public class ModeRadialMenu extends Screen {
     private static final ImmutableList<ResourceLocation> signsCopyPaste = ImmutableList.of(
-            ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/mode/copy.png"),
-            ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/mode/paste.png")
+            ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "textures/gui/mode/copy.png"),
+            ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "textures/gui/mode/paste.png")
     );
     private final List<Button> conditionalButtons = new ArrayList<>();
     private int timeIn = 0;

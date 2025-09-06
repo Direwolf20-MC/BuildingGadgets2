@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.common.network.data.*;
 import com.direwolf20.buildinggadgets2.common.network.handler.*;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -8,7 +8,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class PacketHandler {
     public static void registerNetworking(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(BuildingGadgets2.MODID);
+        final PayloadRegistrar registrar = event.registrar(BuildingGadgets2Api.MOD_ID);
 
         //Going to Server
         registrar.playToServer(AnchorPayload.TYPE, AnchorPayload.STREAM_CODEC, PacketAnchor.get()::handle);

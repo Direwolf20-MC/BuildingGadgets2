@@ -40,7 +40,7 @@ public class PacketSendPaste {
                 return;
 
             if (templateStack.is(Items.PAPER)) {
-                container.setItem(1, container.getStateId(), new ItemStack(Registration.Template.get()));
+                container.setItem(1, container.getStateId(), new ItemStack(Registration.TEMPLATE.get()));
                 templateStack = container.getSlot(1).getItem();
             }
 

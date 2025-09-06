@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -13,7 +13,7 @@ public record UpdateTemplateManagerPayload(
         int mode,
         String templateName
 ) implements CustomPacketPayload {
-    public static final Type<UpdateTemplateManagerPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "update_template_manager_payload"));
+    public static final Type<UpdateTemplateManagerPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "update_template_manager_payload"));
 
     @Override
     public Type<UpdateTemplateManagerPayload> type() {

@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -9,7 +9,7 @@ import static com.direwolf20.buildinggadgets2.setup.ModSetup.TAB_NAME;
 
 public class BG2LanguageProvider extends LanguageProvider {
     public BG2LanguageProvider(PackOutput output, String locale) {
-        super(output, BuildingGadgets2.MODID, locale);
+        super(output, BuildingGadgets2Api.MOD_ID, locale);
     }
 
     @Override
@@ -17,20 +17,20 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("itemGroup." + TAB_NAME, "BuildingGadgets2");
 
         //Blocks
-        add(Registration.RenderBlock.get(), "Render Block (DO NOT USE)");
-        add(Registration.TemplateManager.get(), "Template Manager");
+        add(Registration.RENDER_BLOCK.get(), "Render Block (DO NOT USE)");
+        add(Registration.TEMPLATE_MANAGER.get(), "Template Manager");
 
         //Items
-        add(Registration.Building_Gadget.get(), "Building Gadget");
-        add(Registration.Exchanging_Gadget.get(), "Exchanging Gadget");
-        add(Registration.CopyPaste_Gadget.get(), "Copy Paste Gadget");
-        add(Registration.CutPaste_Gadget.get(), "Cut Paste Gadget");
-        add(Registration.Destruction_Gadget.get(), "Destruction Gadget");
-        add(Registration.Template.get(), "Template");
-        add(Registration.Redprint.get(), "Redprint");
+        add(Registration.BUILDING_GADGET.get(), "Building Gadget");
+        add(Registration.EXCHANGING_GADGET.get(), "Exchanging Gadget");
+        add(Registration.COPY_PASTE_GADGET.get(), "Copy Paste Gadget");
+        add(Registration.CUT_PASTE_GADGET.get(), "Cut Paste Gadget");
+        add(Registration.DESTRUCTION_GADGET.get(), "Destruction Gadget");
+        add(Registration.TEMPLATE.get(), "Template");
+        add(Registration.REDPRINT.get(), "Redprint");
 
         //Misc
-        add(BuildingGadgets2.MODID + ".keymapping.mode-switch", "Switch Modes");
+        add(BuildingGadgets2Api.MOD_ID + ".keymapping.mode-switch", "Switch Modes");
         add("buildinggadgets2.grow", "Grow");
         add("buildinggadgets2.fade", "Fade");
         add("buildinggadgets2.squish", "Squish");

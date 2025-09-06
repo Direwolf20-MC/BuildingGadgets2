@@ -58,11 +58,11 @@ public class PacketUpdateTemplateManager {
                         playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                         return;
                     }
-                    container.setItem(1, container.getStateId(), new ItemStack(Registration.Template.get()));
+                    container.setItem(1, container.getStateId(), new ItemStack(Registration.TEMPLATE.get()));
                     templateStack = container.getSlot(1).getItem();
                 }
 
-                if (templateStack.is(Registration.Redprint.get())) {
+                if (templateStack.is(Registration.REDPRINT.get())) {
                     if (payload.templateName().isEmpty()) {
                         player.displayClientMessage(Component.translatable("buildinggadgets2.messages.namerequired"), true);
                         playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
@@ -81,11 +81,11 @@ public class PacketUpdateTemplateManager {
                     playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return;
                 }
-                if (templateStack.is(Registration.Redprint.get()) && !gadgetStack.is(Registration.CutPaste_Gadget.get())) {
+                if (templateStack.is(Registration.REDPRINT.get()) && !gadgetStack.is(Registration.CUT_PASTE_GADGET.get())) {
                     playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return; //Redprints can only go onto Cut and Paste gadgets
                 }
-                if (gadgetStack.is(Registration.CutPaste_Gadget.get()) && !templateStack.is(Registration.Redprint.get())) {
+                if (gadgetStack.is(Registration.CUT_PASTE_GADGET.get()) && !templateStack.is(Registration.REDPRINT.get())) {
                     playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
                     return; //Cut and Paste gadgets can only be loaded from Redprints
                 }
@@ -101,7 +101,7 @@ public class PacketUpdateTemplateManager {
         UUID targetUUID = GadgetNBT.getUUID(targetStack);
         UUID sourceUUID = GadgetNBT.getUUID(sourceStack);
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(sender.level().getServer()).overworld());
-        if (targetStack.is(Registration.Redprint.get())) {
+        if (targetStack.is(Registration.REDPRINT.get())) {
             if (!bg2Data.addToRedprints(targetUUID, templateName)) {
                 sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.namealreadyexists"), true);
                 playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
@@ -116,13 +116,13 @@ public class PacketUpdateTemplateManager {
         GadgetNBT.setCopyUUID(targetStack); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
         bg2Data.addToCopyPaste(targetUUID, buildList);
 
-        if (sourceStack.is(Registration.Redprint.get()) || targetStack.is(Registration.Redprint.get())) { //If we are reading or writing to a redprint, also copy the TEMap Data
+        if (sourceStack.is(Registration.REDPRINT.get()) || targetStack.is(Registration.REDPRINT.get())) { //If we are reading or writing to a redprint, also copy the TEMap Data
             ArrayList<TagPos> teMap = bg2Data.peekTEMap(sourceUUID);
             ArrayList<TagPos> copiedMap = new ArrayList<>(Objects.requireNonNullElseGet(teMap, ArrayList::new)); //Put a blank TEMap there if we don't have one
             bg2Data.addToTEMap(targetUUID, copiedMap);
         }
 
-        if (sourceStack.is(Registration.Redprint.get())) {
+        if (sourceStack.is(Registration.REDPRINT.get())) {
             sourceStack.shrink(1);
         }
 

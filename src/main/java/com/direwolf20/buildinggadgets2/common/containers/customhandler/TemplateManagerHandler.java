@@ -27,7 +27,7 @@ public class TemplateManagerHandler extends ItemStackHandler {
         if (slot == 0)
             return (stack.getItem() instanceof GadgetCopyPaste || stack.getItem() instanceof GadgetCutPaste);
         if (slot == 1)
-            return stack.is(Items.PAPER) || stack.is(Registration.Template.get()) || stack.is(Registration.Redprint.get());
+            return stack.is(Items.PAPER) || stack.is(Registration.TEMPLATE.get()) || stack.is(Registration.REDPRINT.get());
         return false;
     }
 

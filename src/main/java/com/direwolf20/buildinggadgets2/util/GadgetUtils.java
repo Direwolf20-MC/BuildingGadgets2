@@ -75,7 +75,7 @@ public class GadgetUtils {
     }
 
     public static List<ItemStack> getDropsForBlockState(ServerLevel level, BlockPos blockPos, BlockState blockState, Player player) {
-        ItemStack tempStack = new ItemStack(Registration.Exchanging_Gadget.get());
+        ItemStack tempStack = new ItemStack(Registration.EXCHANGING_GADGET.get());
         HolderLookup.RegistryLookup<Enchantment> registrylookup = level.getServer().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         tempStack.enchant(registrylookup.getOrThrow(Enchantments.SILK_TOUCH), 1);
         List<ItemStack> drops = new ArrayList<>();

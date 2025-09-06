@@ -37,7 +37,7 @@ public class RenderBlockBE extends BlockEntity {
     public byte renderType;
 
     public RenderBlockBE(BlockPos pos, BlockState state) {
-        super(Registration.RenderBlock_BE.get(), pos, state);
+        super(Registration.RENDER_BLOCK_BLOCK_ENTITY.get(), pos, state);
     }
 
     public void tickClient() {

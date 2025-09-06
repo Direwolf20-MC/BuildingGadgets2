@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.common.network.data;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,7 +16,7 @@ public record SendCopyDataPayload(
         UUID copyUUID,
         CompoundTag tag
 ) implements CustomPacketPayload {
-    public static final Type<SendCopyDataPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "send_copy_data_payload"));
+    public static final Type<SendCopyDataPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2Api.MOD_ID, "send_copy_data_payload"));
 
     @Override
     public Type<SendCopyDataPayload> type() {

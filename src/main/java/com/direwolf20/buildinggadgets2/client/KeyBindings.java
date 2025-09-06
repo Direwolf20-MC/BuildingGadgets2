@@ -1,7 +1,7 @@
 package com.direwolf20.buildinggadgets2.client;
 
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.direwolf20.buildinggadgets2.api.BuildingGadgets2Api;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
@@ -41,12 +41,12 @@ public class KeyBindings {
 
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
-        LOGGER.debug("Registering {} keybinding for {}", keyMappings.size(), BuildingGadgets2.MODID);
+        LOGGER.debug("Registering {} keybinding for {}", keyMappings.size(), BuildingGadgets2Api.MOD_ID);
         keyMappings.forEach(event::register);
     }
 
     private static String getKey(String name) {
-        return String.join(".", "key", BuildingGadgets2.MODID, name);
+        return String.join(".", "key", BuildingGadgets2Api.MOD_ID, name);
     }
 
     public static void onClientInput(InputEvent.Key event) {

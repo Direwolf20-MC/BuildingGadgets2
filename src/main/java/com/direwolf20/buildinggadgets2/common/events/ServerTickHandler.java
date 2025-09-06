@@ -169,7 +169,7 @@ public class ServerTickHandler {
             }
         }
 
-        boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
+        boolean placed = level.setBlockAndUpdate(blockPos, Registration.RENDER_BLOCK.get().defaultBlockState());
         RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
         if (!placed || be == null) {
@@ -287,7 +287,7 @@ public class ServerTickHandler {
                 placed = true;
             }
         } else {
-            placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
+            placed = level.setBlockAndUpdate(blockPos, Registration.RENDER_BLOCK.get().defaultBlockState());
         }
 
         RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
@@ -394,7 +394,7 @@ public class ServerTickHandler {
             }
         }
 
-        boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
+        boolean placed = level.setBlock(affectedBlock.pos, Registration.RENDER_BLOCK.get().defaultBlockState(), 3);
         RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
         if (placed && be != null) {
             be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState(), serverBuildList.renderType);
@@ -432,7 +432,7 @@ public class ServerTickHandler {
                 renderBlockBE.drawSize = drawSize;
             }
         } else {
-            boolean placed = level.setBlockAndUpdate(blockPos, Registration.RenderBlock.get().defaultBlockState());
+            boolean placed = level.setBlockAndUpdate(blockPos, Registration.RENDER_BLOCK.get().defaultBlockState());
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(blockPos);
 
             if (!placed || be == null) {
@@ -482,7 +482,7 @@ public class ServerTickHandler {
             level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 48);
             StatePos affectedBlock = new StatePos(blockState, blockPos);
 
-            boolean placed = level.setBlock(affectedBlock.pos, Registration.RenderBlock.get().defaultBlockState(), 3);
+            boolean placed = level.setBlock(affectedBlock.pos, Registration.RENDER_BLOCK.get().defaultBlockState(), 3);
             RenderBlockBE be = (RenderBlockBE) level.getBlockEntity(affectedBlock.pos);
             if (placed && be != null) {
                 be.setRenderData(affectedBlock.state, Blocks.AIR.defaultBlockState(), serverBuildList.renderType);
