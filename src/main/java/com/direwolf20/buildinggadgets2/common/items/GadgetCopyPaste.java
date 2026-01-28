@@ -8,6 +8,7 @@ import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import com.direwolf20.buildinggadgets2.util.modes.Copy;
 import com.direwolf20.buildinggadgets2.util.modes.Paste;
 import net.minecraft.ChatFormatting;
@@ -78,13 +79,18 @@ public class GadgetCopyPaste extends BaseGadget {
             UUID uuid = GadgetNBT.getUUID(gadget);
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
             ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false);
+            ArrayList<TagPos> tagList = bg2Data.peekTEMap(uuid);
+            
             UUID buildUUID;
-            boolean replace = GadgetNBT.getPasteReplace(gadget);
-            if (!replace)
-                buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
-            else
-                buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, false);
-
+            if (tagList != null && !tagList.isEmpty()) {
+                buildUUID = BuildingUtils.buildCopyPasteWithTileData(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), tagList, gadget);
+            } else {
+                boolean replace = GadgetNBT.getPasteReplace(gadget);
+                if (!replace)
+                    buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true);
+                else
+                    buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context).above().offset(GadgetNBT.getRelativePaste(gadget)), gadget, true, false);
+            }
             GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
             //GadgetNBT.clearAnchorPos(gadget);
             return InteractionResultHolder.success(gadget);
@@ -116,11 +122,14 @@ public class GadgetCopyPaste extends BaseGadget {
     }
 
     public void buildAndStore(ItemActionContext context, ItemStack gadget) {
-        ArrayList<StatePos> buildList = new Copy().collect(context.hitResult().getDirection(), context.player(), context.pos(), Blocks.AIR.defaultBlockState());
+        Copy copyMode = new Copy();
+        ArrayList<StatePos> buildList = copyMode.collect(context.hitResult().getDirection(), context.player(), context.pos(), Blocks.AIR.defaultBlockState());
+        ArrayList<TagPos> teData = copyMode.getCollectedTEData();
         UUID uuid = GadgetNBT.getUUID(gadget);
         GadgetNBT.setCopyUUID(gadget); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
         bg2Data.addToCopyPaste(uuid, buildList);
+        bg2Data.addToTEMap(uuid, teData);
         context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copyblocks", buildList.size()), true);
     }
 

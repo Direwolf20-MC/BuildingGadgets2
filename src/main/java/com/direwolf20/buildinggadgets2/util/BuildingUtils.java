@@ -530,6 +530,24 @@ public class BuildingUtils {
         return actuallyBuiltList;
     }
 
+    public static UUID buildCopyPasteWithTileData(Level level, Player player, ArrayList<StatePos> blockPosList, BlockPos lookingAt, ArrayList<TagPos> teData, ItemStack gadget) {
+        UUID buildUUID;
+        boolean replace = GadgetNBT.getPasteReplace(gadget);
+        if (!replace)
+            buildUUID = BuildingUtils.build(level, player, blockPosList, lookingAt, gadget, true);
+        else
+            buildUUID = BuildingUtils.exchange(level, player, blockPosList, lookingAt, gadget, true, false);
+
+        if (teData != null && !teData.isEmpty()) {
+            ArrayList<TagPos> teDataCopy = new ArrayList<>();
+            for (TagPos tagPos : teData) {
+                teDataCopy.add(new TagPos(tagPos.tag.copy(), tagPos.pos));
+            }
+            ServerTickHandler.addTEDataForCopyPaste(buildUUID, teDataCopy);
+        }
+        return buildUUID;
+    }
+
     public static UUID removeTickHandler(Level level, Player player, List<BlockPos> blockPosList, boolean giveItem, boolean dropContents, ItemStack gadget) {
         UUID buildUUID = UUID.randomUUID();
         for (BlockPos pos : blockPosList) {

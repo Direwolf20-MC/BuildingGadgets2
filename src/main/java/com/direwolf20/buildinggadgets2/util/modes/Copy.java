@@ -8,14 +8,17 @@ import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
+import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
@@ -23,8 +26,14 @@ import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class Copy extends BaseMode {
+    private ArrayList<TagPos> collectedTEData = new ArrayList<>();
+    
     public Copy() {
         super(false);
+    }
+    
+    public ArrayList<TagPos> getCollectedTEData() {
+        return collectedTEData;
     }
 
     @Override
@@ -35,6 +44,7 @@ public class Copy extends BaseMode {
     @Override
     public ArrayList<StatePos> collectWorld(Direction hitSide, Player player, BlockPos start, BlockState state) {
         ArrayList<StatePos> coordinates = new ArrayList<>();
+        collectedTEData = new ArrayList<>();
         ItemStack heldItem = BaseGadget.getGadget(player);
         if (!(heldItem.getItem() instanceof GadgetCopyPaste)) return coordinates; //Impossible....right?
         Level level = player.level();
@@ -65,10 +75,22 @@ public class Copy extends BaseMode {
             return coordinates;
         }
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).forEach(pos -> {
-            if (GadgetUtils.isValidBlockState(level.getBlockState(pos), level, pos) && !(level.getBlockState(pos).getBlock() instanceof RenderBlock))
-                coordinates.add(new StatePos(GadgetUtils.cleanBlockState(level.getBlockState(pos)), pos.subtract(copyStart)));
-            else
+            BlockState blockState = level.getBlockState(pos);
+            boolean isValid = GadgetUtils.isValidBlockState(blockState, level, pos);
+            boolean isRenderBlock = blockState.getBlock() instanceof RenderBlock;
+            
+            if (isValid && !isRenderBlock) {
+                coordinates.add(new StatePos(GadgetUtils.cleanBlockState(blockState), pos.subtract(copyStart)));
+                
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity != null) {
+                    CompoundTag blockTag = blockEntity.saveWithFullMetadata(level.registryAccess());
+                    TagPos tagPos = new TagPos(blockTag, pos.subtract(copyStart));
+                    collectedTEData.add(tagPos);
+                }
+            } else {
                 coordinates.add(new StatePos(Blocks.AIR.defaultBlockState(), pos.subtract(copyStart))); //We need to have a block in EVERY position, so write air if invalid
+            }
         });
         return coordinates;
     }
