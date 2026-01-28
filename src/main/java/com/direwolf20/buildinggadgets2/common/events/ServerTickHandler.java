@@ -78,6 +78,13 @@ public class ServerTickHandler {
         serverBuildList.teData = teData;
     }
 
+    public static void addTEDataForCopyPaste(UUID buildUUID, ArrayList<TagPos> teData) {
+        ServerBuildList serverBuildList = buildMap.get(buildUUID);
+        if (serverBuildList == null) return;
+        serverBuildList.teData = teData;
+        serverBuildList.isCopyPasteWithTEData = true;
+    }
+
     public static boolean gadgetWorking(UUID gadgetUUID) {
         return buildMap.values().stream().anyMatch(e -> GadgetNBT.getUUID(e.gadget).equals(gadgetUUID));
     }
@@ -104,7 +111,7 @@ public class ServerTickHandler {
             ServerBuildList serverBuildList = entry.getValue();
             if (entry.getValue().statePosList.isEmpty()) {
                 Player player = event.getServer().getPlayerList().getPlayer(serverBuildList.playerUUID); //We check for the player - if they exist, they finished building - if not they logged off. Remove data from map only if finished building
-                if (serverBuildList.teData != null && !serverBuildList.buildType.equals(ServerBuildList.BuildType.CUT) && player != null) { //If we had teData this was from a cut-Paste, so remove the data from world data if we're not cutting
+                if (serverBuildList.teData != null && !serverBuildList.buildType.equals(ServerBuildList.BuildType.CUT) && !serverBuildList.isCopyPasteWithTEData && player != null) { //If we had teData this was from a cut-Paste, so remove the data from world data if we're not cutting (and not copy-paste with TE data)
                     BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(serverBuildList.level.getServer()).overworld());
                     bg2Data.getCopyPasteList(GadgetNBT.getUUID(serverBuildList.gadget), true); //Remove the data
                     bg2Data.getTEMap(GadgetNBT.getUUID(serverBuildList.gadget)); //Remove the TE data
@@ -149,7 +156,9 @@ public class ServerTickHandler {
             return;
         }
 
-        if (!level.getBlockState(blockPos).canBeReplaced()) return; //Return without placing the block
+        if (!level.getBlockState(blockPos).canBeReplaced()) {
+            return; //Return without placing the block
+        }
 
         List<ItemStack> neededItems = GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, blockState, player);
         if (blockState.getFluidState().isEmpty()) { //Check for items
@@ -198,13 +207,18 @@ public class ServerTickHandler {
             bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
         }
 
-        if (serverBuildList.teData != null) { //If theres ANY TE data (even an empty list), we are doing a cut paste
-            serverBuildList.addToBuiltList(new StatePos(blockState, statePos.pos)); //Add the non-adjust blockpos to the list for reference later
-            bg2Data.addToUndoList(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.actuallyBuildList, level);
-
+        if (serverBuildList.teData != null) { //If theres ANY TE data (even an empty list), we are doing a cut paste or copy paste with TE data
             CompoundTag compoundTag = serverBuildList.getTagForPos(blockPos); //First check if theres TE data for this block
             if (!compoundTag.isEmpty()) {
                 be.setBlockEntityData(compoundTag);
+            }
+            
+            if (serverBuildList.isCopyPasteWithTEData) {
+                serverBuildList.addToBuiltList(new StatePos(blockState, blockPos));
+                bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
+            } else {
+                serverBuildList.addToBuiltList(new StatePos(blockState, statePos.pos)); //Add the non-adjust blockpos to the list for reference later
+                bg2Data.addToUndoList(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.actuallyBuildList, level);
                 bg2Data.addToTEMap(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.teData); //If the server crashes mid-build you'll maybe dupe blocks but at least not dupe TE data? TODO Improve
             }
         }
@@ -340,13 +354,18 @@ public class ServerTickHandler {
             serverBuildList.addToBuiltList(new StatePos(oldState, blockPos));
             bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
         }
-        if (serverBuildList.teData != null) { //If theres ANY TE data (even an empty list), we are doing a cut paste
-            serverBuildList.addToBuiltList(new StatePos(blockState, statePos.pos)); //Add the non-adjust blockpos to the list for reference later
-            bg2Data.addToUndoList(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.actuallyBuildList, level);
-
+        if (serverBuildList.teData != null) { //If theres ANY TE data (even an empty list), we are doing a cut paste or copy paste with TE data
             CompoundTag compoundTag = serverBuildList.getTagForPos(blockPos); //First check if theres TE data for this block
             if (!compoundTag.isEmpty()) {
                 be.setBlockEntityData(compoundTag);
+            }
+            
+            if (serverBuildList.isCopyPasteWithTEData) {
+                serverBuildList.addToBuiltList(new StatePos(oldState, blockPos));
+                bg2Data.addToUndoList(serverBuildList.buildUUID, serverBuildList.actuallyBuildList, level);
+            } else {
+                serverBuildList.addToBuiltList(new StatePos(blockState, statePos.pos)); //Add the non-adjust blockpos to the list for reference later
+                bg2Data.addToUndoList(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.actuallyBuildList, level);
                 bg2Data.addToTEMap(GadgetNBT.getUUID(serverBuildList.gadget), serverBuildList.teData); //If the server crashes mid-build you'll maybe dupe blocks but at least not dupe TE data? TODO Improve
             }
         }

@@ -40,6 +40,7 @@ public class ServerBuildList {
     public BlockPos lookingAt = BlockPos.ZERO;
     public GlobalPos boundPos;
     public int direction;
+    public boolean isCopyPasteWithTEData = false;
 
     public ServerBuildList(Level level, ArrayList<StatePos> statePosList, byte renderType, UUID playerUUID, boolean needItems, boolean returnItems, UUID buildUUID, ItemStack gadget, BuildType buildType, boolean dropContents, BlockPos lookingAt, GlobalPos boundPos, int direction) {
         this.level = level;
