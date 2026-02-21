@@ -43,6 +43,8 @@ public class PacketHandler {
         HANDLER.registerMessage(id++, PacketSendCopyDataToServer.class, PacketSendCopyDataToServer::encode, PacketSendCopyDataToServer::decode, PacketSendCopyDataToServer::handle);
         HANDLER.registerMessage(id++, PacketSendPasteBatches.class, PacketSendPasteBatches::encode, PacketSendPasteBatches::decode, PacketSendPasteBatches::handle);
         HANDLER.registerMessage(id++, PacketRotate.class, PacketRotate::encode, PacketRotate::decode, PacketRotate::handle);
+        HANDLER.registerMessage(id++, PacketRequestAE2Count.class, PacketRequestAE2Count::encode, PacketRequestAE2Count::decode, PacketRequestAE2Count::handle);
+        HANDLER.registerMessage(id++, PacketUpdateAE2Count.class, PacketUpdateAE2Count::encode, PacketUpdateAE2Count::decode, PacketUpdateAE2Count::handle);
 
         //Client Side
         HANDLER.registerMessage(id++, PacketSendCopyData.class, PacketSendCopyData::encode, PacketSendCopyData::decode, PacketSendCopyData.Handler::handle);
