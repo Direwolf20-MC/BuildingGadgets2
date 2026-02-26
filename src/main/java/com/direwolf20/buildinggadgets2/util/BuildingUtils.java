@@ -325,6 +325,20 @@ public class BuildingUtils {
         return counter[0];
     }
 
+    // Player inventory count + AE2 grid count (when bound to a wireless point). Use this for the material list.
+    public static int countItemStacks(Player player, ItemStack itemStack, DimBlockPos boundInventory) {
+        if (itemStack.isEmpty() || itemStack.is(Items.AIR)) return 0;
+        final int[] counter = {0};
+
+        if (boundInventory != null && AE2Integration.isLoaded()) {
+            counter[0] += (int) com.direwolf20.buildinggadgets2.integration.AE2Methods.countInAE2(boundInventory, player, itemStack);
+        }
+
+        counter[0] += countItemStacks(player, itemStack);
+
+        return counter[0];
+    }
+
     public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, DimBlockPos boundInventory, Direction direction) {
         //Check Bound Inventory First
         if (boundInventory != null) {

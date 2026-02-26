@@ -5,6 +5,7 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.ItemStackKey;
+import com.direwolf20.buildinggadgets2.util.DimBlockPos;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -28,6 +29,11 @@ import java.util.Map;
 import static com.direwolf20.buildinggadgets2.client.screen.MaterialListGUI.*;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+
+import net.minecraftforge.registries.ForgeRegistries;
+import com.direwolf20.buildinggadgets2.common.network.PacketHandler;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketRequestAE2Count;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketUpdateAE2Count;
 
 // Todo change to AbstractList as it's an easy fix compared to duping the class
 public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry> {
@@ -73,25 +79,33 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         this.clearEntries();
         this.setScrollAmount(0);
 
-        //Get the statePos list - since this screen can only be called from 'paste' mode, the client side should always be up to date in theory?
         if (statePosArrayList == null || statePosArrayList.isEmpty()) {
             statePosArrayList = BG2DataClient.getLookupFromUUID(GadgetNBT.getUUID(templateItem));
         }
 
         Player player = Minecraft.getInstance().player;
+        if (player == null) return;
 
-        // Could likely just assert
-        if (player == null)
-            return;
-
-        //Get a list of ItemStackkey -> Amount required (Integer)
         itemCountsMap = StatePos.getItemList(statePosArrayList);
+        List<ItemStack> stacksToRequest = new ArrayList<>();
 
+        // Use cache for AE2 counts (empty first time, then filled when the response gets back). One packet for all items.
         for (Map.Entry<ItemStackKey, Integer> entry : itemCountsMap.entrySet()) {
-            if (entry.getKey().getStack().isEmpty()) continue;
-            int itemCount = BuildingUtils.countItemStacks(player, entry.getKey().getStack());
-            //Add entries to the list
-            addEntry(new Entry(this, entry.getKey().getStack(), entry.getValue(), itemCount));
+            ItemStack stack = entry.getKey().getStack();
+            if (stack.isEmpty()) continue;
+
+            stacksToRequest.add(stack);
+
+            String itemKey = ForgeRegistries.ITEMS.getKey(stack.getItem()).toString();
+            int ae2Count = PacketUpdateAE2Count.clientCache.getOrDefault(itemKey, 0);
+
+            int totalAvailable = BuildingUtils.countItemStacks(player, stack) + ae2Count;
+            addEntry(new Entry(this, stack, entry.getValue(), totalAvailable));
+        }
+
+        DimBlockPos boundPos = GadgetNBT.getBoundPos(templateItem);
+        if (boundPos != null && !stacksToRequest.isEmpty()) {
+            PacketHandler.sendToServer(new PacketRequestAE2Count(boundPos, stacksToRequest));
         }
 
         sort();
@@ -159,6 +173,10 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
             this.widthAmount = Minecraft.getInstance().font.width(amount);
         }
 
+        public void updateAmountString() {
+            this.amount = Math.min(this.available, this.required) + "/" + required;
+        }
+
         @Override
         public void render(GuiGraphics guiGraphics, int index, int topY, int leftX, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float particleTicks) {
             // Weird render issue with GuiSlot where the right border is slightly offset
@@ -220,7 +238,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         }
 
         private boolean hasEnoughItems() {
-            return required == available;
+            return required <= available;
         }
 
         private int getTextColor() {
@@ -327,5 +345,19 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         }
 
         public static final SortingModes[] VALUES = SortingModes.values();
+    }
+
+    // When the AE2 count packet comes back, update the right row so it shows player + AE2.
+    public void refreshItemCount(String itemKey, int newCount) {
+        for (Entry entry : this.children()) {
+            String entryKey = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(entry.stack.getItem()).toString();
+            if (entryKey.equals(itemKey)) {
+                Player player = Minecraft.getInstance().player;
+                int playerInvCount = BuildingUtils.countItemStacks(player, entry.stack);
+                entry.available = playerInvCount + newCount; 
+                entry.updateAmountString(); 
+                return; 
+            }
+        }
     }
 }

@@ -73,6 +73,23 @@ public class AE2Methods {
         }
     }
 
+    /** How many of this item are in the grid (simulated extract). Used for the material list "available" column. */
+    public static long countInAE2(DimBlockPos boundInventory, Player player, ItemStack itemStack) {
+        Level level = boundInventory.getLevel(player.getServer());
+        if (level == null) return 0;
+        
+        BlockEntity blockEntity = level.getBlockEntity(boundInventory.blockPos);
+        if (!(blockEntity instanceof IWirelessAccessPoint accessPoint)) return 0;
+
+        IGrid grid = accessPoint.getGrid();
+        if (grid == null) return 0;
+
+        var inventory = grid.getStorageService().getInventory();
+        AEItemKey itemKey = AEItemKey.of(itemStack);
+
+        return inventory.extract(itemKey, Long.MAX_VALUE, Actionable.SIMULATE, IActionSource.ofPlayer(player));
+    }
+
     public static void checkAE2ForFluids(DimBlockPos boundInventory, Player player, FluidStack fluidStack, boolean simulate) {
         Level level = boundInventory.getLevel(player.getServer());
         if (level == null) return;

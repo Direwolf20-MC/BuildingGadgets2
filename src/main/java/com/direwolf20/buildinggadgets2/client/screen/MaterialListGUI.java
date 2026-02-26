@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import com.direwolf20.buildinggadgets2.common.network.packets.PacketUpdateAE2Count;
 
 public class MaterialListGUI extends Screen {
 
@@ -221,5 +222,15 @@ public class MaterialListGUI extends Screen {
                 y >= by &&
                 x < bx + width &&
                 y < by + height;
+    }
+
+    public ScrollingMaterialList getScrollingList() {
+        return scrollingList;
+    }
+
+    @Override
+    public void onClose() {
+        PacketUpdateAE2Count.clientCache.clear(); // so next time we open we don't show old numbers
+        super.onClose();
     }
 }
