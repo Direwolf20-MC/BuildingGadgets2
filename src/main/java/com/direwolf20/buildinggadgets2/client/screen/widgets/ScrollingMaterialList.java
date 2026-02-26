@@ -5,6 +5,7 @@ import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
 import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.ItemStackKey;
+import com.direwolf20.buildinggadgets2.util.DimBlockPos;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -102,8 +103,9 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
             addEntry(new Entry(this, stack, entry.getValue(), totalAvailable));
         }
 
-        if (!stacksToRequest.isEmpty()) {
-            PacketHandler.sendToServer(new PacketRequestAE2Count(GadgetNBT.getBoundPos(templateItem), stacksToRequest));
+        DimBlockPos boundPos = GadgetNBT.getBoundPos(templateItem);
+        if (boundPos != null && !stacksToRequest.isEmpty()) {
+            PacketHandler.sendToServer(new PacketRequestAE2Count(boundPos, stacksToRequest));
         }
 
         sort();
