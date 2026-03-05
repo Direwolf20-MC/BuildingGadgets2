@@ -46,7 +46,12 @@ public class EventKeyInput {
             PacketDistributor.sendToServer(new AnchorPayload());
         } else if (KeyBindings.range.consumeClick()) {
             int oldRange = GadgetNBT.getToolRange(tool);
-            int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
+            int newRange;
+            if (mc.player.isShiftKeyDown()) {
+                newRange = oldRange - 1 > 0 ? oldRange - 1 : 15;
+            } else {
+                newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
+            }
             PacketDistributor.sendToServer(new RangeChangePayload(newRange));
         }
     }
