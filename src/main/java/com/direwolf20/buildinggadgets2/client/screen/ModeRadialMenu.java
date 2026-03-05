@@ -29,6 +29,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,6 +39,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -282,30 +284,41 @@ public class ModeRadialMenu extends Screen {
     private void updateButtons() {
         int buttonSize = 24;
         int paddingBetweenButtonsY = 10;
-        int yPosLeft = height / 4;
-        int yPosRight = height / 4;
 
+        int totalLeftHeight = 0;
+        int totalRightHeight = 0;
         for (GuiEventListener widget : children()) {
-            if (!(widget instanceof PositionedIconActionable button))
-                continue;
-            if (!button.visible) {
+            if (!(widget instanceof PositionedIconActionable button) || !button.visible) {
                 continue;
             }
 
+            if (button.position == ScreenPosition.LEFT) {
+                totalLeftHeight += buttonSize + paddingBetweenButtonsY;
+            } else if (button.position == ScreenPosition.RIGHT) {
+                totalRightHeight += buttonSize + paddingBetweenButtonsY;
+            }
+        }
+
+        int leftButtonCount = 0;
+        int rightButtonCount = 0;
+        for (GuiEventListener widget : children()) {
+            if (!(widget instanceof PositionedIconActionable button) || !button.visible)
+                continue;
+
             if (button.position == ScreenPosition.RIGHT) {
                 int xPos = width / 2 + 70;
-                yPosRight = yPosRight + paddingBetweenButtonsY + buttonSize;
                 button.setWidth(buttonSize);
                 button.setHeight(buttonSize);
                 button.setX(xPos);
-                button.setY(yPosRight);
+                button.setY(((this.height - totalRightHeight) / 2) + ((buttonSize + paddingBetweenButtonsY) * rightButtonCount));
+                rightButtonCount ++;
             } else if (button.position == ScreenPosition.LEFT) {
                 int xPos = width / 2 - 70 - buttonSize;
-                yPosLeft = yPosLeft + paddingBetweenButtonsY + buttonSize;
                 button.setWidth(buttonSize);
                 button.setHeight(buttonSize);
                 button.setX(xPos);
-                button.setY(yPosLeft);
+                button.setY(((this.height - totalLeftHeight) / 2) + ((buttonSize + paddingBetweenButtonsY) * leftButtonCount));
+                leftButtonCount ++;
             }
         }
     }
