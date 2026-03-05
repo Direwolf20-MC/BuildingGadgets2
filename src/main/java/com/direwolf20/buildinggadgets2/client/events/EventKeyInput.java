@@ -5,10 +5,14 @@ import com.direwolf20.buildinggadgets2.client.KeyBindings;
 import com.direwolf20.buildinggadgets2.client.screen.DestructionGUI;
 import com.direwolf20.buildinggadgets2.client.screen.ModeRadialMenu;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
+import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.common.items.GadgetDestruction;
 import com.direwolf20.buildinggadgets2.common.network.data.AnchorPayload;
 import com.direwolf20.buildinggadgets2.common.network.data.RangeChangePayload;
+import com.direwolf20.buildinggadgets2.common.network.data.RotatePayload;
 import com.direwolf20.buildinggadgets2.common.network.data.UndoPayload;
+import com.direwolf20.buildinggadgets2.common.network.handler.PacketRotate;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -45,14 +49,19 @@ public class EventKeyInput {
         } else if (KeyBindings.anchor.consumeClick()) {
             PacketDistributor.sendToServer(new AnchorPayload());
         } else if (KeyBindings.range.consumeClick()) {
-            int oldRange = GadgetNBT.getToolRange(tool);
-            int newRange;
-            if (mc.player.isShiftKeyDown()) {
-                newRange = oldRange - 1 > 0 ? oldRange - 1 : 15;
+            var toolItem = tool.getItem();
+            if (toolItem instanceof GadgetCopyPaste || toolItem instanceof GadgetCutPaste) {
+                PacketDistributor.sendToServer(RotatePayload.INSTANCE);
             } else {
-                newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
+                int oldRange = GadgetNBT.getToolRange(tool);
+                int newRange;
+                if (mc.player.isShiftKeyDown()) {
+                    newRange = oldRange - 1 > 0 ? oldRange - 1 : 15;
+                } else {
+                    newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
+                }
+                PacketDistributor.sendToServer(new RangeChangePayload(newRange));
             }
-            PacketDistributor.sendToServer(new RangeChangePayload(newRange));
         }
     }
 }
