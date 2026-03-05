@@ -16,7 +16,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class DestructionGUI extends Screen {
@@ -79,52 +81,57 @@ public class DestructionGUI extends Screen {
                 .size(60, 20)
                 .build());
 
-        Button undo_button = new GuiIconActionable(x - 55, y - 75, "undo", Component.translatable("buildinggadgets2.radialmenu.undo"), false, send -> {
+        var actionButtons = new ArrayList<GuiIconActionable>();
+        actionButtons.add(new GuiIconActionable(0, 0, "undo", Component.translatable("buildinggadgets2.radialmenu.undo"), false, send -> {
             if (send) {
                 PacketDistributor.sendToServer(new UndoPayload());
             }
 
             return false;
-        });
-        this.addRenderableWidget(undo_button);
+        }));
 
-        Button anchorButton = new GuiIconActionable(x - 25, y - 75, "anchor", Component.translatable("buildinggadgets2.radialmenu.anchor"), true, send -> {
+        actionButtons.add(new GuiIconActionable(0, 0, "anchor", Component.translatable("buildinggadgets2.radialmenu.anchor"), true, send -> {
             if (send) {
                 PacketDistributor.sendToServer(new AnchorPayload());
             }
 
             return !GadgetNBT.getAnchorPos(destructionGadget).equals(GadgetNBT.nullPos);
-        });
-        this.addRenderableWidget(anchorButton);
+        }));
 
-        Button affectTiles = new GuiIconActionable(x + 5, y - 75, "affecttiles", Component.translatable("buildinggadgets2.screen.affecttiles"), true, send -> {
+        actionButtons.add(new GuiIconActionable(0, 0, "affecttiles", Component.translatable("buildinggadgets2.screen.affecttiles"), true, send -> {
             if (send) {
                 PacketDistributor.sendToServer(new ToggleSettingPayload(GadgetNBT.ToggleableSettings.AFFECT_TILES.getName()));
             }
 
             return GadgetNBT.getSetting(destructionGadget, GadgetNBT.ToggleableSettings.AFFECT_TILES.getName());
-        });
-        this.addRenderableWidget(affectTiles);
+        }));
 
-        Button rayTrace = new GuiIconActionable(x + 35, y - 75, "raytrace_fluid", Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), true, send -> {
+        actionButtons.add(new GuiIconActionable(x + 35, 0, "raytrace_fluid", Component.translatable("buildinggadgets2.radialmenu.raytracefluids"), true, send -> {
             if (send) {
                 PacketDistributor.sendToServer(new ToggleSettingPayload(GadgetNBT.ToggleableSettings.RAYTRACE_FLUID.getName()));
             }
 
             return GadgetNBT.getSetting(destructionGadget, GadgetNBT.ToggleableSettings.RAYTRACE_FLUID.getName());
-        });
-        this.addRenderableWidget(rayTrace);
+        }));
 
-        renderTypeButton = new GuiIconActionable(x + 65, y - 75, "raytrace_fluid", Component.translatable(renderType.getLang()), false, send -> {
-            if (send) {
-                renderType = renderType.next();
-                renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
-                PacketDistributor.sendToServer(new RenderChangePayload(renderType.getPosition()));
-            }
+        actionButtons.add((GuiIconActionable) (renderTypeButton = new GuiIconActionable(x + 65, 0, "raytrace_fluid", Component.translatable(renderType.getLang()), false, send -> {
+                    if (send) {
+                        renderType = renderType.next();
+                        renderTypeButton.setMessage(Component.translatable(renderType.getLang()));
+                        PacketDistributor.sendToServer(new RenderChangePayload(renderType.getPosition()));
+                    }
 
-            return false;
-        });
-        this.addRenderableWidget(renderTypeButton);
+                    return false;
+                })));
+
+        int startX = x - ((actionButtons.size() * 30) / 2);
+        int xOffset = 0;
+        for (GuiIconActionable actionButton : actionButtons) {
+            actionButton.setX(startX + xOffset);
+            actionButton.setY(y - 75);
+            xOffset += 30;
+            this.addRenderableWidget(actionButton);
+        }
 
         sliders.clear();
         sliders.add(depth = this.createSlider(x - (70 / 2), y - (14 / 2), Component.translatable("buildinggadgets2.screen.depth"), GadgetNBT.getToolValue(destructionGadget, GadgetNBT.IntSettings.DEPTH.getName())));
