@@ -1,0 +1,23 @@
+{
+  "name": "Вертикальный столбец",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/vertical_column.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Режим «Вертикальный столбец» доступен как для строительного, так и для обменного гаджета.$(br2)Он строит вверх или вниз, если вы смотрите на верхнюю или нижнюю грань блока, либо строит одновременно и вверх, и вниз, если вы смотрите на его боковую сторону."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Вертикальный столбец",
+      "images": [
+        "buildinggadgets2:textures/book/images/vertcolumn1.png",
+        "buildinggadgets2:textures/book/images/vertcolumn3.png",
+        "buildinggadgets2:textures/book/images/vertcolumn2.png"
+      ],
+      "border": true,
+      "text": "Переключите изображения выше, чтобы увидеть разные варианты"
+    }
+  ]
+}

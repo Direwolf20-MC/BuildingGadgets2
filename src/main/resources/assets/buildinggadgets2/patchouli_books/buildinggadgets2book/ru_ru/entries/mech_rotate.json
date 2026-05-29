@@ -1,0 +1,23 @@
+{
+  "name": "Повернуть",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/rotate.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Функция «Повернуть» позволяет игроку вращать схему копирования и вставки или вырезания и вставки вокруг начальной точки.$(br2)Попробуйте её в деле и посмотрите, как меняется силуэт постройки, чтобы лучше понять принцип работы, или пролистайте изображения справа."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Повернуть",
+      "images": [
+        "buildinggadgets2:textures/book/images/rotate1.png",
+        "buildinggadgets2:textures/book/images/rotate2.png",
+        "buildinggadgets2:textures/book/images/rotate3.png"
+      ],
+      "border": true,
+      "text": "Вращение дома!"
+    }
+  ]
+}

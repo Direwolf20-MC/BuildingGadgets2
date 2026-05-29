@@ -1,0 +1,22 @@
+{
+  "name": "Разместить поверх",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/place_on_top.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Функция «Разместить поверх» работает немного по-разному в зависимости от режима, а для некоторых режимов она и вовсе не имеет никакого эффекта.$(br2)В общем случае вместо размещения блоков вокруг целевого блока гаджет будет строить поверх него. Попробуйте включить её и посмотрите, как изменится силуэт постройки!$(br2)В качестве примера посмотрите на два изображения справа."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Разместить поверх",
+      "images": [
+        "buildinggadgets2:textures/book/images/placeontop1.png",
+        "buildinggadgets2:textures/book/images/placeontop2.png"
+      ],
+      "border": true,
+      "text": "Переключите изображения выше, чтобы увидеть разницу"
+    }
+  ]
+}

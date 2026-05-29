@@ -1,0 +1,22 @@
+{
+  "name": "Сетка",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/grid.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Режим «Сетка» размещает блоки в шахматном или сетчатом порядке! Это очень удобно для расстановки факелов, светокамня и т.д. При увеличении параметра «Дальность» расстояние между блоками увеличивается, пока в конечном итоге сама область не станет больше. $(br2)Этот режим также доступен и для обменного гаджета, позволяя заменять блоки по сетке."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Режим «Сетка»",
+      "images": [
+        "buildinggadgets2:textures/book/images/mode_grid.png",
+        "buildinggadgets2:textures/book/images/mode_grid2.png"
+      ],
+      "border": true,
+      "text": "Переключите изображения выше, чтобы увидеть разные варианты"
+    }
+  ]
+}
