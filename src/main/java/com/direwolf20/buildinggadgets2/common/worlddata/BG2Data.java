@@ -129,14 +129,20 @@ public class BG2Data extends SavedData {
         if (list == null || list.isEmpty()) return tag;
         ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMap(list);
         ListTag blockStateMapList = StatePos.getBlockStateNBT(blockStateMap);
-        int[] blocklist = new int[list.size()];
-        final int[] counter = {0};
         BlockPos start = list.get(0).pos;
         BlockPos end = list.get(list.size() - 1).pos;
         AABB aabb = VecHelpers.aabbFromBlockPos(start, end);
 
+        // Fix: size the array based on the actual AABB volume, not list.size(),
+        // because betweenClosedStream(aabb) may yield more positions than the list contains.
+        int aabbCountX = (int) (Math.floor(aabb.maxX) - Math.floor(aabb.minX) + 1);
+        int aabbCountY = (int) (Math.floor(aabb.maxY) - Math.floor(aabb.minY) + 1);
+        int aabbCountZ = (int) (Math.floor(aabb.maxZ) - Math.floor(aabb.minZ) + 1);
+        int[] blocklist = new int[aabbCountX * aabbCountY * aabbCountZ];
+        final int[] counter = {0};
+
         Map<BlockPos, BlockState> blockStateByPos = list.stream()
-                .collect(Collectors.toMap(e -> e.pos, e -> e.state));
+                .collect(Collectors.toMap(e -> e.pos, e -> e.state, (a, b) -> b));
 
         BlockPos.betweenClosedStream(aabb).map(BlockPos::immutable).forEach(pos -> {
             BlockState blockState = blockStateByPos.get(pos);
