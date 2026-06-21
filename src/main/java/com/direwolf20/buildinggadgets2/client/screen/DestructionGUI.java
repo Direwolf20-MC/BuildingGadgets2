@@ -147,7 +147,7 @@ public class DestructionGUI extends Screen {
     }
 
     public IncrementalSliderWidget createSlider(int x, int y, MutableComponent prefix, int value) {
-        return new IncrementalSliderWidget(x, y, 70, 14, 0D, 16D, prefix.append(": "), value, this::onSliderUpdate);
+        return new IncrementalSliderWidget(x, y, 70, 14, 0D, 64D, prefix.append(": "), value, this::onSliderUpdate);
     }
 
     public void onSliderUpdate(IncrementalSliderWidget widget) {
@@ -160,9 +160,8 @@ public class DestructionGUI extends Screen {
         int x = left.getValueInt() + right.getValueInt();
         int y = up.getValueInt() + down.getValueInt();
         int z = depth.getValueInt();
-        int dim = 16;
 
-        return x <= 32 && y <= 32 && z <= 16;
+        return x <= 128 && y <= 128 && z <= 64;
     }
 
     private String getSizeString() {
