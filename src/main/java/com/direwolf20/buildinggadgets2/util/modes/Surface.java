@@ -43,7 +43,7 @@ public class Surface extends BaseMode {
         });
 
         boolean connected = GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.CONNECTED_AREA.getName());
-        if (isExchanging && connected)
+        if (connected)
             return removeUnConnected(level, player, startAt.subtract(start), coordinates, hitSide);
         return coordinates;
     }
