@@ -8,6 +8,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -26,10 +27,25 @@ public class IncrementalSliderWidget extends ExtendedSlider {
     private static final int SLIDER_COLOR = createAlphaColor(Color.DARK_GRAY.brighter().brighter(), 200).getRGB();
 
     public final Consumer<IncrementalSliderWidget> onUpdate;
+    private double logicalMaxValue;
 
     public IncrementalSliderWidget(int x, int y, int width, int height, double min, double max, Component prefix, double current, Consumer<IncrementalSliderWidget> onUpdate) {
-        super(x, y, width, height, prefix, Component.empty(), min, max, current, 1D, 1, true);
+        // ExtendedSlider does not need to deal with a zero-width physical range.
+        // When the logical range collapses (0..0 or 1..1), keep a one-step
+        // physical range internally and prevent interaction past logicalMaxValue.
+        super(x, y, width, height, prefix, Component.empty(), min, Math.max(max, min + 1D), current, 1D, 1, true);
         this.onUpdate = onUpdate;
+        this.logicalMaxValue = Math.max(min, max);
+        this.setMaxValue(this.logicalMaxValue);
+    }
+
+    public void setMaxValue(double newMax) {
+        double currentValue = getValue();
+
+        this.logicalMaxValue = Math.max(this.minValue, newMax);
+        this.maxValue = this.logicalMaxValue > this.minValue ? this.logicalMaxValue : this.minValue + 1D;
+
+        super.setValue(Mth.clamp(currentValue, this.minValue, this.logicalMaxValue));
     }
 
     @Override
@@ -53,7 +69,36 @@ public class IncrementalSliderWidget extends ExtendedSlider {
 
     @Override
     protected void applyValue() {
+        if (getValue() > this.logicalMaxValue) {
+            super.setValue(this.logicalMaxValue);
+        }
         this.onUpdate.accept(this);
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY) {
+        if (this.logicalMaxValue <= this.minValue) {
+            super.setValue(this.minValue);
+            return;
+        }
+        super.onClick(mouseX, mouseY);
+    }
+
+    @Override
+    protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+        if (this.logicalMaxValue <= this.minValue) {
+            super.setValue(this.minValue);
+            return;
+        }
+        super.onDrag(mouseX, mouseY, dragX, dragY);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.logicalMaxValue <= this.minValue) {
+            return false;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -85,11 +130,13 @@ public class IncrementalSliderWidget extends ExtendedSlider {
         return ImmutableSet.of(
                 this,
                 new GuiButtonIncrement(getX() - height - 5, getY(), height, height, Component.literal("-"), b -> {
-                    this.setValue(this.getValueInt() - 1);
+                    int increment = Screen.hasShiftDown() ? 10 : 1;
+                    this.setValue(Math.max(this.minValue, this.getValueInt() - increment));
                     IncrementalSliderWidget.this.applyValue();
                 }),
                 new GuiButtonIncrement(getX() + width + 5, getY(), height, height, Component.literal("+"), b -> {
-                    this.setValue(this.getValueInt() + 1);
+                    int increment = Screen.hasShiftDown() ? 10 : 1;
+                    this.setValue(Math.min(this.logicalMaxValue, this.getValueInt() + increment));
                     IncrementalSliderWidget.this.applyValue();
                 })
         );
