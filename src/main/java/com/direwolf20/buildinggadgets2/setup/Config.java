@@ -115,7 +115,7 @@ public class Config {
         COMMON_BUILDER.comment("Destruction Gadget").push(SUBCATEGORY_DESTRUCTIONGADGET);
         DESTRUCTIONGADGET_HARDMAX = COMMON_BUILDER
                 .comment("Absolute maximum value for each Destruction Gadget range slider")
-                .defineInRange("hardMax", 16, 1, Integer.MAX_VALUE);
+                .defineInRange("hardMax", 32, 1, Integer.MAX_VALUE);
         DESTRUCTIONGADGET_MAXBLOCKS = COMMON_BUILDER
                 .comment("Maximum number of blocks the Destruction Gadget may target at once",
                         "17424 preserves the original maximum volume of 33 x 33 x 16")
