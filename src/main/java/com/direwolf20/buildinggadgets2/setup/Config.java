@@ -12,6 +12,8 @@ public class Config {
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_POWER = "power";
+    public static final String CATEGORY_LIMITS = "limits";
+    
     public static final String SUBCATEGORY_BUILDINGGADGET = "building_gadget";
     public static final String SUBCATEGORY_EXCHANGINGGADGET = "exchanging_gadget";
     public static final String SUBCATEGORY_CUTPASTEGADGET = "cutpaste_gadget";
@@ -28,6 +30,8 @@ public class Config {
     public static ModConfigSpec.IntValue COPYPASTEGADGET_COST;
     public static ModConfigSpec.IntValue DESTRUCTIONGADGET_MAXPOWER;
     public static ModConfigSpec.IntValue DESTRUCTIONGADGET_COST;
+    public static ModConfigSpec.IntValue DESTRUCTIONGADGET_HARDMAX;
+    public static ModConfigSpec.IntValue DESTRUCTIONGADGET_MAXBLOCKS;
 
     public static ModConfigSpec.IntValue RAYTRACE_RANGE;
 
@@ -50,6 +54,10 @@ public class Config {
 
         COMMON_BUILDER.comment("Power settings").push(CATEGORY_POWER);
         powerConfig();
+        COMMON_BUILDER.pop();
+
+        COMMON_BUILDER.comment("Gadget limit settings").push(CATEGORY_LIMITS);
+        gadgetLimitConfig();
         COMMON_BUILDER.pop();
 
         container.registerConfig(ModConfig.Type.COMMON, COMMON_BUILDER.build());
@@ -100,6 +108,18 @@ public class Config {
                 .defineInRange("maxPower", 2000000, 0, Integer.MAX_VALUE);
         DESTRUCTIONGADGET_COST = COMMON_BUILDER.comment("Base cost per block Destroyed")
                 .defineInRange("baseCost", 50, 0, Integer.MAX_VALUE);
+        COMMON_BUILDER.pop();
+    }
+
+    private static void gadgetLimitConfig() {
+        COMMON_BUILDER.comment("Destruction Gadget").push(SUBCATEGORY_DESTRUCTIONGADGET);
+        DESTRUCTIONGADGET_HARDMAX = COMMON_BUILDER
+                .comment("Absolute maximum value for each Destruction Gadget range slider")
+                .defineInRange("hardMax", 16, 1, Integer.MAX_VALUE);
+        DESTRUCTIONGADGET_MAXBLOCKS = COMMON_BUILDER
+                .comment("Maximum number of blocks the Destruction Gadget may target at once",
+                        "17424 preserves the original maximum volume of 33 x 33 x 16")
+                .defineInRange("maxBlocks", 17424, 1, Integer.MAX_VALUE);
         COMMON_BUILDER.pop();
     }
 
