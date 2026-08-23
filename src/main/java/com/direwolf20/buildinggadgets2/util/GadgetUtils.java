@@ -151,8 +151,9 @@ public class GadgetUtils {
 
     public static ArrayList<StatePos> getDestructionArea(Level level, BlockPos pos, Direction face, Player player, ItemStack gadget) {
         int depth = GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.DEPTH.getName());
+        int effectiveDepth = Math.max(1, depth);
 
-        if (gadget.isEmpty() || depth == 0 || !player.mayBuild())
+        if (gadget.isEmpty() || !player.mayBuild())
             return new ArrayList<>();
 
         boolean vertical = face.getAxis().isVertical();
@@ -164,7 +165,7 @@ public class GadgetUtils {
         BlockPos first = pos.relative(left, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.LEFT.getName())).relative(up, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.UP.getName()));
         BlockPos second = pos.relative(right, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.RIGHT.getName()))
                 .relative(down, GadgetNBT.getToolValue(gadget, GadgetNBT.IntSettings.DOWN.getName()))
-                .relative(face.getOpposite(), depth - 1);
+                .relative(face.getOpposite(), effectiveDepth - 1);
 
         //boolean isFluidOnly = getIsFluidOnly(gadget); //Todo
         AABB box = VecHelpers.aabbFromBlockPos(first, second);
