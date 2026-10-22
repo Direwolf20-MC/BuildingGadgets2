@@ -117,6 +117,7 @@ public class CuriosMethods {
     public static void giveItemToPlayer(Player player, ItemStack realReturnedItem) {
         var curiosOpt = CuriosApi.getCuriosInventory(player);
         curiosOpt.ifPresent(handler -> handler.getCurios().forEach((id, stackHandler) -> {
+            if (realReturnedItem.isEmpty()) return;
             for (int i = 0; i < stackHandler.getSlots(); i++) {
                 ItemStack itemInSlot = stackHandler.getStacks().getStackInSlot(i);
                 if (itemInSlot.isEmpty()) continue;
