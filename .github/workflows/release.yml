@@ -1,0 +1,27 @@
+name: Build
+
+# Only push when the `v1.0.0+1.21.1` tag format is pushed, `v{version}+{mcversion}`
+on:
+  push:
+    tags:
+      - 'v*+*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.head_commit.message, '[ciskip]')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'microsoft'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Build with Gradle
+        run: ./gradlew build publish publishMods
+        env:
+          CURSE_TOKEN: ${{ secrets.CURSE_TOKEN }}
