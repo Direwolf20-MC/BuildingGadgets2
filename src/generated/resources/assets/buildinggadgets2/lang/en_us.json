@@ -105,10 +105,11 @@
   "item.buildinggadgets2.gadget_exchanging": "Exchanging Gadget",
   "item.buildinggadgets2.redprint": "Redprint",
   "item.buildinggadgets2.template": "Template",
+  "item.buildinggadgets2.template_manager": "Template Manager",
   "itemGroup.buildinggadgets2": "BuildingGadgets2",
   "key.buildinggadgets2.anchor": "Anchor",
-  "key.buildinggadgets2.category": "Building Gadgets 2",
   "key.buildinggadgets2.range": "Range",
   "key.buildinggadgets2.settings_menu": "Settings Menu",
-  "key.buildinggadgets2.undo": "Undo"
+  "key.buildinggadgets2.undo": "Undo",
+  "key.category.buildinggadgets2.main": "Building Gadgets 2"
 }
