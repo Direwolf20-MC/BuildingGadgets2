@@ -1,0 +1,27 @@
+name: Build
+
+# Only push when the `v21.1.1.0`, `v{version}` tag format is pushed, version is prefixed with Minecrafts Major + Minor excluding the 1. for pre 26. versions.
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.head_commit.message, '[ciskip]')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Build with Gradle
+        run: ./gradlew build publish publishMods
+        env:
+          CURSE_TOKEN: ${{ secrets.CURSE_TOKEN }}
