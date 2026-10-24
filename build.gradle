@@ -88,17 +88,21 @@ repositories {
             includeGroup "mezz.jei"
         }
     }
-    //
-    //maven { // mek
-    //    url = 'https://modmaven.dev/'
-    //    content {
-    //        includeGroup "mekanism"
-    //        includeGroup "appeng"
-    //    }
-    //}
-    //
-    // Curios 15.x for NeoForge 26.1 isn't on the OctoStudios maven yet —
-    // pull from CurseForge via CurseMaven instead.
+
+    maven {
+        url = 'https://modmaven.dev/'
+        content {
+            includeGroup "appeng"
+        }
+    }
+
+    maven {
+        url = uri("https://maven.theillusivec4.top/")
+        content {
+            includeGroup "top.theillusivec4.curios"
+        }
+    }
+
     maven { url = "https://www.cursemaven.com" }
 }
 
@@ -117,12 +121,13 @@ dependencies {
     // Re-enable one at a time after the base mod compiles against vanilla NeoForge.
     //
     ////AE2
-    //compileOnly "appeng:appliedenergistics2:${ae2_version}:api"
-    //runtimeOnly "appeng:appliedenergistics2:${ae2_version}"
+    compileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}:api"
+    runtimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
     //
     // Curios — sourced from CurseForge (CurseMaven). project id 309927.
     // Bump file id in gradle.properties (curios_file_id) when updating.
-    implementation "curse.maven:curios-309927:${curios_file_id}"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
     //
     // JEI — API at compile time, full mod at runtime
     compileOnly "mezz.jei:jei-${jei_mc_version}-common-api:${jei_version}"

@@ -5,8 +5,8 @@ import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
 import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.direwolf20.buildinggadgets2.common.items.GadgetBuilding;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
-// TODO(port, caps-rework): re-enable AE2 imports when Transfer API port is done
-// import com.direwolf20.buildinggadgets2.integration.AE2Integration;
+import com.direwolf20.buildinggadgets2.integration.AE2Integration;
+import com.direwolf20.buildinggadgets2.integration.AE2Methods;
 import com.direwolf20.buildinggadgets2.integration.CuriosIntegration;
 import com.direwolf20.buildinggadgets2.integration.CuriosMethods;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
@@ -43,9 +43,6 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.*;
-
-// TODO(port, caps-rework): re-enable AE2Methods static import when Transfer API port is done
-// import static com.direwolf20.buildinggadgets2.integration.AE2Methods.*;
 
 public class BuildingUtils {
 
@@ -185,11 +182,10 @@ public class BuildingUtils {
         if (fluidStack.isEmpty()) return false;
         //Check Bound Inventory First
         if (boundInventory != null) {
-            // TODO(port, caps-rework): load-bearing — AE2 bound inventory fluid extraction silently skipped
-            // if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
-            //     checkAE2ForFluids(boundInventory, player, fluidStack, simulate);
-            //     if (fluidStack.isEmpty()) return true;
-            // }
+             if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
+                 AE2Methods.checkAE2ForFluids(boundInventory, player, fluidStack, simulate);
+                 if (fluidStack.isEmpty()) return true;
+             }
             ResourceHandler<ItemResource> boundHandler = getHandlerFromBound(player, boundInventory, direction);
             if (boundHandler != null) {
                 checkItemHandlerForFluids(boundHandler, fluidStack, simulate);
@@ -265,11 +261,10 @@ public class BuildingUtils {
         ArrayList<ItemStack> testArray = new ArrayList<>(itemStacks);
         //Check Bound Inventory First
         if (boundInventory != null) {
-            // TODO(port, caps-rework): load-bearing — AE2 bound inventory item extraction silently skipped
-            // if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
-            //     checkAE2ForItems(boundInventory, player, testArray, simulate);
-            //     if (testArray.isEmpty()) return true;
-            // }
+             if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
+                 AE2Methods.checkAE2ForItems(boundInventory, player, testArray, simulate);
+                 if (testArray.isEmpty()) return true;
+             }
             ResourceHandler<ItemResource> boundHandler = getHandlerFromBound(player, boundInventory, direction);
             if (boundHandler != null) {
                 checkHandlerForItems(boundHandler, testArray, simulate);
@@ -321,11 +316,10 @@ public class BuildingUtils {
     public static void giveFluidToPlayer(Player player, FluidStack returnedFluid, GlobalPos boundInventory, Direction direction) {
         //Check Bound Inventory First
         if (boundInventory != null) {
-            // TODO(port, caps-rework): load-bearing — AE2 bound inventory fluid insertion silently skipped
-            // if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
-            //     insertFluidIntoAE2(player, boundInventory, returnedFluid);
-            //     if (returnedFluid.isEmpty()) return;
-            // }
+             if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
+                 AE2Methods.insertFluidIntoAE2(player, boundInventory, returnedFluid);
+                 if (returnedFluid.isEmpty()) return;
+             }
             ResourceHandler<ItemResource> boundHandler = getHandlerFromBound(player, boundInventory, direction);
             if (boundHandler != null) {
                 insertFluidIntoItemHandler(boundHandler, returnedFluid, false);
@@ -360,11 +354,10 @@ public class BuildingUtils {
         //Check Bound Inventory First
         ItemStack tempReturnedItem = returnedItem.copy();
         if (boundInventory != null) {
-            // TODO(port, caps-rework): load-bearing — AE2 bound inventory item insertion silently skipped
-            // if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
-            //     insertIntoAE2(player, boundInventory, tempReturnedItem);
-            //     if (tempReturnedItem.isEmpty()) return;
-            // }
+             if (AE2Integration.isLoaded()) { //Check if we are bound to an AE Device
+                 AE2Methods.insertIntoAE2(player, boundInventory, tempReturnedItem);
+                 if (tempReturnedItem.isEmpty()) return;
+             }
             ResourceHandler<ItemResource> boundHandler = getHandlerFromBound(player, boundInventory, direction);
             if (boundHandler != null) {
                 int inserted = ResourceHandlerUtil.insertStacking(boundHandler, ItemResource.of(tempReturnedItem), tempReturnedItem.getCount(), null);
