@@ -61,14 +61,6 @@ public class DestructionGUI extends Screen {
         int x = width / 2;
         int y = height / 2;
 
-        /*if (!keyDown)
-            this.addRenderableWidget(confirm = Button.builder(Component.translatable("buildinggadgets2.screen.close"), b -> {
-                        this.onClose();
-                    })
-                    .pos((x - 30) - 32, y + 65)
-                    .size(60, 20)
-                    .build());*/
-
         this.addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.screen.revert"), b -> {
                     depth.setValue(originalDepth);
                     right.setValue(originalRight);
@@ -77,7 +69,7 @@ public class DestructionGUI extends Screen {
                     down.setValue(originalDown);
                     sendPacket();
                 })
-                .pos((x - 30) + 32, y + 65)
+                .pos(x - 30, y + 65)
                 .size(60, 20)
                 .build());
 
