@@ -7,7 +7,7 @@ plugins {
     id "me.modmuss50.mod-publish-plugin" version "2.2.1"
 }
 
-version = "${mod_version}"
+version = computeModVersion()
 group = mod_group_id
 
 base {
@@ -123,7 +123,7 @@ tasks.withType(ProcessResources).configureEach {
             minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
             neo_version         : neo_version, neo_version_range: neo_version_range,
             loader_version_range: loader_version_range,
-            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: project.version,
             mod_authors         : mod_authors, mod_description: mod_description,
     ]
     inputs.properties replaceProperties
@@ -154,14 +154,14 @@ publishMods {
     def token = providers.environmentVariable("CURSE_TOKEN");
     dryRun = !token.isPresent()
     changelog = createChangelog()
-    version = "${mod_version}"
+    version = project.version
     type = STABLE
 
     curseforge {
         projectId = "298187"
         accessToken = token.getOrElse("")
         file = project.provider { tasks.jar }.flatMap { it.archiveFile }
-        displayName = "Building Gadgets 2 ${mod_version}"
+        displayName = "Building Gadgets 2 ${project.version}"
         modLoaders.add("neoforge")
         minecraftVersions.add("${minecraft_version}")
         javaVersions.add(JavaVersion.VERSION_21)
@@ -188,8 +188,8 @@ def createChangelog() {
     def reading = false
     def lines = changelogContent.readLines()
     for (line in lines) {
-        if (line.startsWith("## ") && line.contains(mod_version)) {
-            println("Found changelog for version ${mod_version}")
+        if (line.startsWith("## ") && line.contains(project.version)) {
+            println("Found changelog for version ${project.version}")
             reading = true
             continue
         } else if (line.startsWith("## ") && reading) {
@@ -213,4 +213,18 @@ def createChangelog() {
 
     def finalOutput = output.trim();
     return finalOutput.isEmpty() ? "No changelog available." : finalOutput
+}
+
+def computeModVersion() {
+    def modVersions = project.mod_version
+    def mcVersion = project.minecraft_version
+    def parts = mcVersion.split("\\.")
+
+    // If it's a pre 26 version, we only take [1] + [2] (if present, otherwise 0)
+    if (parts[0] == "1") {
+        return "${parts[1]}.${parts.length > 2 ? parts[2] : 0}.${modVersions}"
+    }
+
+    // For 26+ versions, we take [0] + [1] + [2] (if present, otherwise 0)
+    return "${parts[0]}.${parts[1]}.${parts.length > 2 ? parts[2] : 0}.${modVersions}"
 }

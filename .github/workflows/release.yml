@@ -1,10 +1,10 @@
 name: Build
 
-# Only push when the `v1.0.0+1.21.1` tag format is pushed, `v{version}+{mcversion}`
+# Only push when the `v21.1.1.0`, `v{version}` tag format is pushed, version is prefixed with Minecrafts Major + Minor excluding the 1. for pre 26. versions.
 on:
   push:
     tags:
-      - 'v*+*'
+      - 'v*'
 
 jobs:
   build:
