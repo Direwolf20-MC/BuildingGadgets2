@@ -12,3 +12,4 @@
 !/gradlew.bat
 !/settings.gradle
 !/src/
+!CHANGELOG.md
