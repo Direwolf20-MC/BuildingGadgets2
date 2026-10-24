@@ -1,0 +1,31 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v11
+        with:
+          only-issue-labels: 'awaiting reply'
+          stale-issue-label: 'stale'
+          days-before-issue-stale: 30
+          days-before-issue-close: 7
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          close-issue-reason: 'not_planned'
+          stale-issue-message: >
+            This issue has been waiting on a reply for 30 days, so it's been marked as stale.
+            If you're still having this problem, please leave a comment with the requested information
+            and we'll take another look. Otherwise, this issue will be closed in 7 days.
+          close-issue-message: >
+            We're closing this issue as we haven't heard back in a while. Thanks for taking the time to report it!
+            If it's still a problem, feel free to reply here or open a new issue with the requested details
+            and we'll be happy to help.
