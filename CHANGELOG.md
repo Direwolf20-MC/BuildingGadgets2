@@ -10,5 +10,6 @@
 ### Fixed
 
 - Button alignment on the various Gadgets radial menus (these would tend to be shifted incorrectly closer to the bottom of the screen)
-- Button alignment on the Destruction Gadgets 
+- Button alignment on the Destruction Gadgets
+- Revert button misalignment on the Destruction Gadgets
 - Connected area option not working correctly #246 #144
