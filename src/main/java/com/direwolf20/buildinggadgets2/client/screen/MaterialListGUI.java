@@ -2,25 +2,27 @@ package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList;
-import com.google.common.collect.Lists;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.Optional;
 
 public class MaterialListGUI extends Screen {
 
     public static final int BUTTON_HEIGHT = 20;
     public static final int BUTTONS_PADDING = 4;
 
-    public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/material_list.png");
+    public static final Identifier BACKGROUND_TEXTURE = Identifier.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/material_list.png");
     public static final int BACKGROUND_WIDTH = 256;
     public static final int BACKGROUND_HEIGHT = 200;
     public static final int BORDER_SIZE = 4;
@@ -98,24 +100,17 @@ public class MaterialListGUI extends Screen {
     }
 
     @Override
-    protected void renderBlurredBackground(float p_330683_) {
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
 
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float particleTicks) {
-        guiGraphics.blit(BACKGROUND_TEXTURE, backgroundX, backgroundY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
-        //guiGraphics.drawString(font, "Test", titleLeft, titleTop, Color.WHITE.getRGB(), false); //Todo Title someday
-        super.render(guiGraphics, mouseX, mouseY, particleTicks);
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float particleTicks) {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, backgroundX, backgroundY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+        super.extractRenderState(guiGraphics, mouseX, mouseY, particleTicks);
 
-        /*if (buttonCopyList.isMouseOver(mouseX, mouseY)) {
-            guiGraphics.renderTooltip(font, Lists.transform(ImmutableList.of(MaterialListTranslation.HELP_COPY_LIST.componentTranslation()), Component::getVisualOrderText), mouseX, mouseY);
-//            GuiUtils.drawHoveringText(matrices, ImmutableList.of(MaterialListTranslation.HELP_COPY_LIST.componentTranslation()), mouseX, mouseY, width, height, Integer.MAX_VALUE, textRenderer);
-        } else */
         if (scrollingList.hoveringText != null) {
-            guiGraphics.renderTooltip(font, Lists.transform(scrollingList.hoveringText, Component::getVisualOrderText), mouseX, mouseY);
-
-//            GuiUtils.drawHoveringText(matrices, hoveringText, hoveringTextX, hoveringTextY, width, height, Integer.MAX_VALUE, textRenderer);
+            guiGraphics.setTooltipForNextFrame(font, scrollingList.hoveringText, Optional.empty(), mouseX, mouseY);
             scrollingList.hoveringText = null;
         }
 
@@ -186,23 +181,21 @@ public class MaterialListGUI extends Screen {
         return top + (bottom - top) / 2 - height / 2;
     }
 
-    public static void renderTextVerticalCenter(GuiGraphics guiGraphics, String text, int leftX, int rightX, int top, int bottom, int color) {
+    public static void renderTextVerticalCenter(GuiGraphicsExtractor guiGraphics, String text, int leftX, int rightX, int top, int bottom, int color) {
         Font fontRenderer = Minecraft.getInstance().font;
         int y = getYForAlignedCenter(top, bottom, fontRenderer.lineHeight);
-        //guiGraphics.drawString(fontRenderer, text, leftX, y, color, false);
         renderScrollingString(guiGraphics, fontRenderer, Component.literal(text), leftX, y, rightX, color);
     }
 
-    public static void renderTextHorizontalRight(GuiGraphics guiGraphics, String text, int right, int y, int color) {
+    public static void renderTextHorizontalRight(GuiGraphicsExtractor guiGraphics, String text, int right, int y, int color) {
         Font fontRenderer = Minecraft.getInstance().font;
         int x = getXForAlignedRight(right, fontRenderer.width(text));
-        guiGraphics.drawString(fontRenderer, text, x, y, color, false);
+        guiGraphics.text(fontRenderer, text, x, y, color, false);
     }
 
-    protected static void renderScrollingString(GuiGraphics graphics, Font fontRenderer, Component text, int xStart, int yStart, int xEnd, int textColor) {
+    protected static void renderScrollingString(GuiGraphicsExtractor graphics, Font fontRenderer, Component text, int xStart, int yStart, int xEnd, int textColor) {
         int textWidth = fontRenderer.width(text);
         int yEnd = yStart + fontRenderer.lineHeight;
-        //int yCentered = (yStart + yEnd - 9) / 2 + 1;  // 9 might refer to the height of the text. Consider creating a constant for it.
         int maxRenderWidth = xEnd - xStart;
 
         if (textWidth > maxRenderWidth) {
@@ -213,10 +206,10 @@ public class MaterialListGUI extends Screen {
             double scrollOffset = Mth.lerp(oscillation, 0.0D, (double) textOverflow);
 
             graphics.enableScissor(xStart, yStart, xEnd, yEnd);
-            graphics.drawString(fontRenderer, text, xStart - (int) scrollOffset, yStart, textColor);
+            graphics.text(fontRenderer, text, xStart - (int) scrollOffset, yStart, textColor);
             graphics.disableScissor();
         } else {
-            graphics.drawString(fontRenderer, text, xStart, yStart, textColor, false);
+            graphics.text(fontRenderer, text, xStart, yStart, textColor, false);
         }
     }
 

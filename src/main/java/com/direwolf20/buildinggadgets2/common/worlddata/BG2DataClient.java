@@ -4,7 +4,7 @@ import com.direwolf20.buildinggadgets2.common.network.data.RequestCopyDataPayloa
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class BG2DataClient {
             return false; //Since we're still awaiting an update, we're not good yet!
         }
         //Actually request the update from the server
-        PacketDistributor.sendToServer(new RequestCopyDataPayload(gadgetUUID, copyUUID));
+        ClientPacketDistributor.sendToServer(new RequestCopyDataPayload(gadgetUUID, copyUUID));
 
         awaitingUpdate = true;
         updateTimer = 0;

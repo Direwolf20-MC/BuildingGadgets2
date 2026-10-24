@@ -2,8 +2,9 @@ package com.direwolf20.buildinggadgets2.setup;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.events.ServerTickHandler;
-import com.direwolf20.buildinggadgets2.integration.AE2Integration;
-import com.direwolf20.buildinggadgets2.integration.AE2Methods;
+// TODO(port, caps-rework): re-enable AE2 imports when Transfer API port is done
+// import com.direwolf20.buildinggadgets2.integration.AE2Integration;
+// import com.direwolf20.buildinggadgets2.integration.AE2Methods;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -18,9 +19,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ModSetup {
     public static void init(final FMLCommonSetupEvent event) {
         NeoForge.EVENT_BUS.register(ServerTickHandler.class);
-        if (AE2Integration.isLoaded()) {
-            AE2Methods.registerItems();
-        }
+        // TODO(port, caps-rework): re-enable AE2 item registration when Transfer API port is done
+        // if (AE2Integration.isLoaded()) {
+        //     AE2Methods.registerItems();
+        // }
     }
 
     public static final String TAB_NAME = "buildinggadgets2";

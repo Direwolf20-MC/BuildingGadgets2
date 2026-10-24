@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "buildinggadgets2:block/template_manager_bottom",
+    "front": "buildinggadgets2:block/template_manager_front",
+    "side": "buildinggadgets2:block/template_manager_side",
+    "top": "buildinggadgets2:block/template_manager_top"
+  }
+}

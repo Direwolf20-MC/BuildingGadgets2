@@ -1,12 +1,8 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.components.Button;
 
 public class DireButton extends Button {
 
@@ -17,27 +13,8 @@ public class DireButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        if (this.visible) {
-            Font fontrenderer = Minecraft.getInstance().font;
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            this.isHovered = isMouseOver(mouseX, mouseY);
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            guiGraphics.blitSprite(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX(), this.getY(), this.getWidth(), this.getHeight());
-
-            int j = 14737632;
-
-            if (this.packedFGColor != 0) {
-                j = this.packedFGColor;
-            } else if (!this.active) {
-                j = 10526880;
-            } else if (this.isHovered) {
-                j = 16777120;
-            }
-
-            guiGraphics.drawCenteredString(fontrenderer, this.getMessage().getString(), this.getX() + this.width / 2, this.getY() + (this.height - 7) / 2, j);
-        }
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.extractDefaultSprite(graphics);
+        this.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
     }
 }

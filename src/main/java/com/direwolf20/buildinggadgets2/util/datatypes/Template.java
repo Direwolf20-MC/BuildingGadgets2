@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
@@ -29,10 +30,11 @@ public class Template {
     public Template(String name, ArrayList<StatePos> statePosArrayList) {
         this.name = name;
         this.statePosArrayList = BG2Data.statePosListToNBTMapArray(statePosArrayList).toString();
-        Map<ItemStackKey, Integer> requiredItemsTemp = StatePos.getItemList(statePosArrayList);
+        Map<ItemStackKey, Integer> requiredItemsTemp = StatePos.getItemList(statePosArrayList, Minecraft.getInstance().level, Minecraft.getInstance().player);
+        HolderLookup.Provider registries = Minecraft.getInstance().level.registryAccess();
         for (Map.Entry<ItemStackKey, Integer> entry : requiredItemsTemp.entrySet()) {
             if (entry.getKey().getStack().isEmpty()) continue;
-            requiredItems.put(entry.getKey().item.value().getCreatorModId(entry.getKey().getStack()) + ":" + entry.getKey().item.toString(), entry.getValue());
+            requiredItems.put(entry.getKey().item.value().getCreatorModId(registries, entry.getKey().getStack()) + ":" + entry.getKey().item.toString(), entry.getValue());
         }
     }
 
@@ -41,7 +43,7 @@ public class Template {
         ArrayList<StatePos> statePosList = new ArrayList<>();
 
         try {
-            CompoundTag deserializedNBT = TagParser.parseTag(this.statePosArrayList);
+            CompoundTag deserializedNBT = TagParser.parseCompoundFully(this.statePosArrayList);
             statePosList = BG2Data.statePosListFromNBTMapArray(deserializedNBT);
         } catch (Exception e) {
             return;
@@ -76,7 +78,7 @@ public class Template {
         } catch (Exception e) {
             this.name = "";
             this.statePosArrayList = "";
-            Minecraft.getInstance().player.displayClientMessage(Component.translatable("buildinggadgets2.screen.invalidjson"), true);
+            Minecraft.getInstance().player.sendOverlayMessage(Component.translatable("buildinggadgets2.screen.invalidjson"));
         }
 
     }

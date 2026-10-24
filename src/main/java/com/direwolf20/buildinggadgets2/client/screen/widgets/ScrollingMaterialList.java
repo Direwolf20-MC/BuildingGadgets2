@@ -6,13 +6,13 @@ import com.direwolf20.buildinggadgets2.util.BuildingUtils;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.ItemStackKey;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.direwolf20.buildinggadgets2.client.screen.MaterialListGUI.*;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 
 // Todo change to AbstractList as it's an easy fix compared to duping the class
 public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry> {
@@ -85,7 +83,7 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
             return;
 
         //Get a list of ItemStackkey -> Amount required (Integer)
-        itemCountsMap = StatePos.getItemList(statePosArrayList);
+        itemCountsMap = StatePos.getItemList(statePosArrayList, Minecraft.getInstance().level, player);
 
         for (Map.Entry<ItemStackKey, Integer> entry : itemCountsMap.entrySet()) {
             if (entry.getKey().getStack().isEmpty()) continue;
@@ -98,19 +96,19 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
     }
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarX() {
         return getRight() - MARGIN - SCROLL_BAR_WIDTH;
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_E) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == GLFW.GLFW_KEY_E) {
             assert Minecraft.getInstance().player != null;
 
             Minecraft.getInstance().player.closeContainer();
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     public void reset() {
@@ -152,7 +150,12 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int topY, int leftX, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float particleTicks) {
+        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+            int leftX = this.getX();
+            int topY = this.getY();
+            int entryWidth = this.getWidth();
+            int entryHeight = this.getHeight();
+
             // Weird render issue with GuiSlot where the right border is slightly offset
             // MARGIN * 2 is just a magic number that made it look nice
             int right = leftX + entryWidth - MARGIN * 2;
@@ -162,42 +165,18 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
             int slotX = leftX + MARGIN - 15;
             int slotY = topY + MARGIN;
 
-            drawIcon(guiGraphics, stack, slotX, slotY);
-            drawTextOverlay(guiGraphics, right, topY, bottom, slotX);
+            drawIcon(graphics, stack, slotX, slotY);
+            drawTextOverlay(graphics, right, topY, bottom, slotX);
             drawHoveringText(stack, slotX, slotY, mouseX, mouseY);
         }
 
-        private void drawTextOverlay(GuiGraphics guiGraphics, int right, int top, int bottom, int slotX) {
+        private void drawTextOverlay(GuiGraphicsExtractor graphics, int right, int top, int bottom, int slotX) {
             int itemNameX = slotX + SLOT_SIZE + MARGIN;
             // -1 because the bottom x coordinate is exclusive
             Font fontRenderer = Minecraft.getInstance().font;
             int rightEdge = getXForAlignedRight(right, fontRenderer.width(amount)) - 5;
-            renderTextVerticalCenter(guiGraphics, itemName, itemNameX, rightEdge, top, bottom, Color.WHITE.getRGB());
-            renderTextHorizontalRight(guiGraphics, amount, right, getYForAlignedCenter(top, bottom, Minecraft.getInstance().font.lineHeight), getTextColor());
-
-            //drawGuidingLine(right, top, bottom, itemNameX, widthItemName, widthAmount); //Todo what even was this?
-        }
-
-        private void drawGuidingLine(int right, int top, int bottom, int itemNameX, int widthItemName, int widthAmount) {
-            if (!isSelected()) {
-                int lineXStart = itemNameX + widthItemName + LINE_SIDE_MARGIN;
-                int lineXEnd = right - widthAmount - LINE_SIDE_MARGIN;
-                int lineY = getYForAlignedCenter(top, bottom - 1, 1);
-                RenderSystem.enableBlend();
-//                RenderSystem.disableTexture();
-                RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                RenderSystem.setShaderColor(255, 255, 255, 34);
-
-//                glLineWidth(1);
-//                glBegin(GL_LINES);
-//                glVertex3f(lineXStart, lineY, 0);
-//                glVertex3f(lineXEnd, lineY, 0);
-//                glEnd();
-
-//                RenderSystem.enableTexture();
-                RenderSystem.setShaderColor(1, 1, 1, 1);
-                RenderSystem.disableBlend();
-            }
+            renderTextVerticalCenter(graphics, itemName, itemNameX, rightEdge, top, bottom, Color.WHITE.getRGB());
+            renderTextHorizontalRight(graphics, amount, right, getYForAlignedCenter(top, bottom, Minecraft.getInstance().font.lineHeight), getTextColor());
         }
 
         private void drawHoveringText(ItemStack item, int slotX, int slotY, int mouseX, int mouseY) {
@@ -205,10 +184,8 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
                 setTaskHoveringText(mouseX, mouseY, getTooltipFromItem(Minecraft.getInstance(), item));
         }
 
-        private void drawIcon(GuiGraphics guiGraphics, ItemStack item, int slotX, int slotY) {
-            Lighting.setupForFlatItems();
-            guiGraphics.renderItem(item, slotX, slotY);
-            Lighting.setupFor3DItems();
+        private void drawIcon(GuiGraphicsExtractor graphics, ItemStack item, int slotX, int slotY) {
+            graphics.item(item, slotX, slotY);
         }
 
         private boolean hasEnoughItems() {
@@ -249,9 +226,9 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
         }
 
         @Override
-        public boolean mouseClicked(double x, double y, int button) {
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
             // TODO add replacement function and make entries selectable
-            if (isMouseOver(x, y)) {
+            if (isMouseOver(event.x(), event.y())) {
                 parent.setSelected(this);
                 return true;
             }
@@ -285,7 +262,9 @@ public class ScrollingMaterialList extends EntryList<ScrollingMaterialList.Entry
     }
 
     private void sort() {
-        children().sort(sortingMode.getComparator());
+        // 26.1: AbstractSelectionList.children() returns Collections.unmodifiableList(...). The parent
+        // now exposes a protected sort(Comparator<E>) hook that mutates the backing list directly.
+        super.sort(sortingMode.getComparator());
     }
 
     public enum SortingModes {

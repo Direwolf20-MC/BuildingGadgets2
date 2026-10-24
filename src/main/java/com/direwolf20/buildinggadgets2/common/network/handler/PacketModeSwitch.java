@@ -6,7 +6,7 @@ import com.direwolf20.buildinggadgets2.common.network.data.ModeSwitchPayload;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.collect.ImmutableSortedSet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -30,7 +30,7 @@ public class PacketModeSwitch {
                 actualGadget.rotateModes(gadgetStack);
             }
 
-            ResourceLocation modeId = payload.modeId();
+            Identifier modeId = payload.modeId();
             ImmutableSortedSet<BaseMode> modesForGadget = GadgetModes.INSTANCE.getModesForGadget(actualGadget.gadgetTarget());
 
             var modeToUse = modesForGadget

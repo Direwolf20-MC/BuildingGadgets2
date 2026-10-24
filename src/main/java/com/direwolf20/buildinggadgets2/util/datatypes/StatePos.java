@@ -3,7 +3,6 @@ package com.direwolf20.buildinggadgets2.util.datatypes;
 import com.direwolf20.buildinggadgets2.util.GadgetUtils;
 import com.direwolf20.buildinggadgets2.util.ItemStackKey;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -11,8 +10,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,8 +35,9 @@ public class StatePos {
             this.state = null;
             this.pos = null;
         }
-        this.state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compoundTag.getCompound("blockstate"));
-        this.pos = NbtUtils.readBlockPos(compoundTag, "blockpos").orElse(BlockPos.ZERO);
+        // TODO(port): save format changed — "blockpos" is now stored as a packed long via BlockPos.asLong() / BlockPos.of(long) instead of NbtUtils.writeBlockPos. 1.21.1 worlds aren't loadable on 26.1 so this is cost-free, but flagging it explicitly.
+        this.state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, compoundTag.getCompoundOrEmpty("blockstate"));
+        this.pos = BlockPos.of(compoundTag.getLongOr("blockpos", 0L));
     }
 
     public StatePos(CompoundTag compoundTag, ArrayList<BlockState> blockStates) {
@@ -43,14 +45,14 @@ public class StatePos {
             this.state = null;
             this.pos = null;
         }
-        this.state = blockStates.get(compoundTag.getShort("blockstateshort"));
-        this.pos = BlockPos.of(compoundTag.getLong("blockpos"));
+        this.state = blockStates.get(compoundTag.getShortOr("blockstateshort", (short) 0));
+        this.pos = BlockPos.of(compoundTag.getLongOr("blockpos", 0L));
     }
 
     public CompoundTag getTag() {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.put("blockstate", NbtUtils.writeBlockState(state));
-        compoundTag.put("blockpos", NbtUtils.writeBlockPos(pos));
+        compoundTag.putLong("blockpos", pos.asLong());
         return compoundTag;
     }
 
@@ -105,13 +107,12 @@ public class StatePos {
         return rotatedList;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static Map<ItemStackKey, Integer> getItemList(ArrayList<StatePos> list) {
+    public static Map<ItemStackKey, Integer> getItemList(ArrayList<StatePos> list, Level level, Player player) {
         Map<ItemStackKey, Integer> itemList = new Object2IntOpenHashMap<>();
         if (list == null || list.isEmpty())
             return itemList;
         for (StatePos statePos : list) {
-            ItemStackKey itemStackKey = new ItemStackKey(GadgetUtils.getItemForBlock(statePos.state, Minecraft.getInstance().level, BlockPos.ZERO, Minecraft.getInstance().player), true);
+            ItemStackKey itemStackKey = new ItemStackKey(GadgetUtils.getItemForBlock(statePos.state, level, BlockPos.ZERO, player), true);
             if (!itemList.containsKey(itemStackKey)) //Todo Slabs, etc
                 itemList.put(itemStackKey, 1);
             else
@@ -131,7 +132,7 @@ public class StatePos {
     public static ArrayList<BlockState> getBlockStateMapFromNBT(ListTag listTag) {
         ArrayList<BlockState> blockStateMap = new ArrayList<>();
         for (int i = 0; i < listTag.size(); i++) {
-            BlockState blockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), listTag.getCompound(i));
+            BlockState blockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, listTag.getCompoundOrEmpty(i));
             blockStateMap.add(blockState);
         }
         return blockStateMap;

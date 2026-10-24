@@ -12,24 +12,23 @@ import com.direwolf20.buildinggadgets2.util.modes.Copy;
 import com.direwolf20.buildinggadgets2.util.modes.Paste;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class GadgetCopyPaste extends BaseGadget {
-    public GadgetCopyPaste() {
-        super();
+    public GadgetCopyPaste(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -42,24 +41,23 @@ public class GadgetCopyPaste extends BaseGadget {
         return Config.COPYPASTEGADGET_COST.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
         }
 
         if (GadgetNBT.getPasteReplace(stack))
-            tooltip.add(Component.translatable("buildinggadgets2.voidwarning").withStyle(ChatFormatting.RED));
+            tooltip.accept(Component.translatable("buildinggadgets2.voidwarning").withStyle(ChatFormatting.RED));
 
         String templateName = GadgetNBT.getTemplateName(stack);
 
         if (!templateName.isEmpty())
-            tooltip.add(Component.translatable("buildinggadgets2.templatename", templateName).withStyle(ChatFormatting.AQUA));
+            tooltip.accept(Component.translatable("buildinggadgets2.templatename", templateName).withStyle(ChatFormatting.AQUA));
 
-        boolean sneakPressed = Screen.hasShiftDown();
+        boolean sneakPressed = Minecraft.getInstance().hasShiftDown();
 
         if (sneakPressed) {
 
@@ -67,7 +65,7 @@ public class GadgetCopyPaste extends BaseGadget {
     }
 
     @Override
-    InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
+    InteractionResult onAction(ItemActionContext context) {
         var gadget = context.stack();
 
         var mode = GadgetNBT.getMode(gadget);
@@ -87,19 +85,19 @@ public class GadgetCopyPaste extends BaseGadget {
 
             GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
             //GadgetNBT.clearAnchorPos(gadget);
-            return InteractionResultHolder.success(gadget);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
         } else {
-            return InteractionResultHolder.pass(gadget);
+            return InteractionResult.PASS;
         }
 
-        return InteractionResultHolder.success(gadget);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
     }
 
     /**
      * Selects the block assuming you're actually looking at one
      */
     @Override
-    InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
+    InteractionResult onShiftAction(ItemActionContext context) {
         var gadget = context.stack();
 
         var mode = GadgetNBT.getMode(gadget);
@@ -109,10 +107,10 @@ public class GadgetCopyPaste extends BaseGadget {
         } else if (mode.equals(new Paste())) {
             //Paste
         } else {
-            return InteractionResultHolder.pass(gadget);
+            return InteractionResult.PASS;
         }
 
-        return InteractionResultHolder.success(gadget);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
     }
 
     public void buildAndStore(ItemActionContext context, ItemStack gadget) {
@@ -121,7 +119,7 @@ public class GadgetCopyPaste extends BaseGadget {
         GadgetNBT.setCopyUUID(gadget); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
         bg2Data.addToCopyPaste(uuid, buildList);
-        context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.copyblocks", buildList.size()), true);
+        context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.copyblocks", buildList.size()));
     }
 
     /**

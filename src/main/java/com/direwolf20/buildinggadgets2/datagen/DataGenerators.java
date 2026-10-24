@@ -14,25 +14,31 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@EventBusSubscriber(modid = BuildingGadgets2.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = BuildingGadgets2.MODID)
 public class DataGenerators {
+
     @SubscribeEvent
-    public static void gatherData(GatherDataEvent event) {
+    public static void gatherClientData(GatherDataEvent.Client event) {
+        DataGenerator generator = event.getGenerator();
+        PackOutput packOutput = generator.getPackOutput();
+
+        generator.addProvider(true, new BG2ModelProvider(packOutput));
+        generator.addProvider(true, new BG2LanguageProvider(packOutput, "en_us"));
+    }
+
+    @SubscribeEvent
+    public static void gatherServerData(GatherDataEvent.Server event) {
         DataGenerator generator = event.getGenerator();
         PackOutput packOutput = generator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
-        generator.addProvider(event.includeServer(), new BG2Recipes(packOutput, event.getLookupProvider()));
-        generator.addProvider(event.includeServer(), new LootTableProvider(packOutput, Collections.emptySet(),
-                List.of(new LootTableProvider.SubProviderEntry(BG2LootTables::new, LootContextParamSets.BLOCK)), event.getLookupProvider()));
-        BG2BlockTags blockTags = new BG2BlockTags(packOutput, lookupProvider, event.getExistingFileHelper());
-        generator.addProvider(event.includeServer(), blockTags);
-        BG2ItemTags itemTags = new BG2ItemTags(packOutput, lookupProvider, blockTags, event.getExistingFileHelper());
-        generator.addProvider(event.includeServer(), itemTags);
-
-        generator.addProvider(event.includeClient(), new BG2BlockStates(packOutput, event.getExistingFileHelper()));
-        generator.addProvider(event.includeClient(), new BG2ItemModels(packOutput, event.getExistingFileHelper()));
-        generator.addProvider(event.includeClient(), new BG2LanguageProvider(packOutput, "en_us"));
-
+        generator.addProvider(true, new BG2Recipes.Runner(packOutput, lookupProvider));
+        generator.addProvider(true, new LootTableProvider(
+                packOutput,
+                Collections.emptySet(),
+                List.of(new LootTableProvider.SubProviderEntry(BG2LootTables::new, LootContextParamSets.BLOCK)),
+                lookupProvider));
+        generator.addProvider(true, new BG2BlockTags(packOutput, lookupProvider));
+        generator.addProvider(true, new BG2ItemTags(packOutput, lookupProvider));
     }
 }

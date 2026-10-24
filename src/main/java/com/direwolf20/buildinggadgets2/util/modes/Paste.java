@@ -4,7 +4,7 @@ import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -16,8 +16,8 @@ public class Paste extends BaseMode {
     }
 
     @Override
-    public ResourceLocation getId() {
-        return ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "paste");
+    public Identifier getId() {
+        return Identifier.fromNamespaceAndPath(BuildingGadgets2.MODID, "paste");
     }
 
     @Override

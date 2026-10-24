@@ -1,22 +1,26 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
-import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import com.direwolf20.buildinggadgets2.setup.Registration;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.model.ModelTemplates;
 
-public class BG2ItemModels extends ItemModelProvider {
-    public BG2ItemModels(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, BuildingGadgets2.MODID, existingFileHelper);
+public final class BG2ItemModels {
+
+    private final ItemModelGenerators itemModels;
+
+    public BG2ItemModels(ItemModelGenerators itemModels) {
+        this.itemModels = itemModels;
     }
 
-    @Override
-    protected void registerModels() {
-        //Block Items
-        //withExistingParent(Registration.RenderBlock_ITEM.getId().getPath(), modLoc("block/render_block"));
-        //withExistingParent(Registration.LaserNode_ITEM.getId().getPath(), modLoc("block/laser_node"));
-
-        //Item items
-        //singleTexture(Registration.Building_Gadget.getId().getPath(), mcLoc("item/generated"), "layer0", modLoc("item/gadget_building"));
+    public void run() {
+        itemModels.generateFlatItem(Registration.Building_Gadget.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(Registration.Exchanging_Gadget.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(Registration.CopyPaste_Gadget.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(Registration.CutPaste_Gadget.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(Registration.Destruction_Gadget.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(Registration.Template.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(Registration.Redprint.get(), ModelTemplates.FLAT_ITEM);
+        // template_manager BlockItem is auto-resolved to the block model via
+        // ModelProvider.finalizeAndValidate's BlockItem fallback.
     }
 }

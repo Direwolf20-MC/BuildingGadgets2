@@ -40,7 +40,9 @@ public class PacketSendPaste {
                 return;
 
             if (templateStack.is(Items.PAPER)) {
-                container.setItem(1, container.getStateId(), new ItemStack(Registration.Template.get()));
+                ItemStack newTemplate = new ItemStack(Registration.Template.get());
+                GadgetNBT.setUUID(newTemplate);
+                container.setItem(1, container.getStateId(), newTemplate);
                 templateStack = container.getSlot(1).getItem();
             }
 
@@ -49,6 +51,9 @@ public class PacketSendPaste {
             ArrayList<StatePos> buildList = BG2Data.statePosListFromNBTMapArray(payload.tag());
             bg2Data.addToCopyPaste(GadgetNBT.getUUID(templateStack), buildList);
             GadgetNBT.setCopyUUID(templateStack, payload.copyUUID());
+
+            // Re-push slot so the client receives all component mutations.
+            container.setItem(1, container.getStateId(), templateStack);
 
             //Update the client - Yes - even though this came from the client!! This is to make sure the server sanity checked the blocks list
             CompoundTag tag = bg2Data.getCopyPasteListAsNBTMap(GadgetNBT.getUUID(templateStack), false);

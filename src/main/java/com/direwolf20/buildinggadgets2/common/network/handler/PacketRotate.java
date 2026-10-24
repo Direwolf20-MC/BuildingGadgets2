@@ -34,7 +34,7 @@ public class PacketRotate {
 
             if (gadgetStack.getItem() instanceof GadgetCutPaste) {
                 if (ServerTickHandler.gadgetWorking(gadgetUUID)) {
-                    context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.cutinprogress"), true);
+                    context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.cutinprogress"));
                     return; //If the gadget is mid cut, don't sync data
                 }
             }

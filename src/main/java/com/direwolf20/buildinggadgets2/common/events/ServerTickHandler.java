@@ -323,7 +323,10 @@ public class ServerTickHandler {
                     giveFluidToPlayer(player, returnStack, serverBuildList.boundPos, serverBuildList.getDirection());
                 }
             } else {
-                List<ItemStack> returnedItems = GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, serverBuildList.gadget);
+                boolean isUndo = serverBuildList.lookingAt.equals(GadgetNBT.nullPos);
+                List<ItemStack> returnedItems = isUndo
+                        ? GadgetUtils.getDropsForBlockState((ServerLevel) level, blockPos, oldState, player)
+                        : GadgetUtils.getDropsForBlockStateGadget((ServerLevel) level, blockPos, oldState, serverBuildList.gadget);
                 for (ItemStack returnedItem : returnedItems)
                     giveItemToPlayer(player, returnedItem, serverBuildList.boundPos, serverBuildList.getDirection());
             }

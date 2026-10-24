@@ -1,118 +1,78 @@
 package com.direwolf20.buildinggadgets2.client.renderer;
 
+import com.direwolf20.buildinggadgets2.BuildingGadgets2;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
-public class OurRenderTypes extends RenderType {
-    public static final RenderType RenderBlock = create("GadgetRenderBlock",
-            DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
-            RenderType.CompositeState.builder()
-//                    .setShadeModelState(SMOOTH_SHADE)
-                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
-                    .setLightmapState(LIGHTMAP)
-                    .setTextureState(BLOCK_SHEET_MIPPED)
-                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)
-                    .setCullState(CULL)
-                    .setWriteMaskState(COLOR_WRITE)
-                    .createCompositeState(false));
-    public static final RenderType RenderBlockFade = create("GadgetRenderBlockFade",
-            DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
-            RenderType.CompositeState.builder()
-//                    .setShadeModelState(SMOOTH_SHADE)
-                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
-                    .setLightmapState(LIGHTMAP)
-                    .setTextureState(BLOCK_SHEET_MIPPED)
-                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)
-                    .setCullState(CULL)
-                    .setWriteMaskState(COLOR_DEPTH_WRITE)
-                    .createCompositeState(false));
-    public static final RenderType RenderBlockBackface = create("GadgetRenderBlockBackface",
-            DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
-            RenderType.CompositeState.builder()
-//                    .setShadeModelState(SMOOTH_SHADE)
-                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
-                    .setLightmapState(LIGHTMAP)
-                    .setTextureState(BLOCK_SHEET_MIPPED)
-                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)
-                    .setCullState(NO_CULL)
-                    .setWriteMaskState(COLOR_DEPTH_WRITE)
-                    .createCompositeState(false));
+public class OurRenderTypes {
+    static final RenderPipeline TRANSLUCENT_BLOCK_NO_CULL = RenderPipelines.TRANSLUCENT_BLOCK.toBuilder()
+            .withLocation(Identifier.fromNamespaceAndPath(BuildingGadgets2.MODID, "pipeline/translucent_block_no_cull"))
+            .withCull(false)
+            .build();
 
-    public static final RenderType RenderBlockFadeNoCull = create("GadgetRenderBlockFadeNoCull",
-            DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
-            RenderType.CompositeState.builder()
-//                    .setShadeModelState(SMOOTH_SHADE)
-                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
-                    .setLightmapState(LIGHTMAP)
-                    .setTextureState(BLOCK_SHEET_MIPPED)
-                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)
-                    .setCullState(CULL)
-                    .setWriteMaskState(COLOR_WRITE)
-                    .createCompositeState(false));
+    public static final RenderPipeline DEBUG_TRIANGLE_STRIP = RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
+            .withLocation(Identifier.fromNamespaceAndPath(BuildingGadgets2.MODID, "pipeline/debug_triangle_strip"))
+            .withCull(false)
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP)
+            .build();
 
-    public static final RenderType TRIANGLE_STRIP =
-            create("triangle_strip", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP, 256, false, false,
-                    RenderType.CompositeState.builder()
-                            .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
-                            .setTextureState(NO_TEXTURE)
-                            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                            .setCullState(NO_CULL)
-                            .setLightmapState(NO_LIGHTMAP)
-                            .createCompositeState(false));
-
-    public static final RenderType MissingBlockOverlay = create("GadgetMissingBlockOverlay",
-            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, false,
-            RenderType.CompositeState.builder()
-                    .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
-                    .setLayeringState(VIEW_OFFSET_Z_LAYERING) // view_offset_z_layering
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                    .setTextureState(NO_TEXTURE)
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)
-                    .setCullState(NO_CULL)
-                    .setLightmapState(NO_LIGHTMAP)
-                    .setWriteMaskState(COLOR_WRITE)
-                    .createCompositeState(false));
-
-    public static final RenderType TRANSPARENT_BOX = create("transparent_box",
-            DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true,
-            RenderType.CompositeState.builder()
-                    .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)  // Use the translucent shader
-                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)  // View offset Z layering
-                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)  // Enable translucent transparency
-                    .setTextureState(NO_TEXTURE)  // No texture state
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)  // Depth test state
-                    .setCullState(NO_CULL)  // No cull state
-                    .setLightmapState(NO_LIGHTMAP)  // No lightmap state
-                    .setWriteMaskState(COLOR_WRITE)  // Only write color
-                    .createCompositeState(true));  // Enable sort on transparency
-
-    /*public static void updateRenders() {
-        RenderBlockBackface = create("GadgetRenderBlockBackface",
-                DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, false,
-                RenderType.CompositeState.builder()
-//                    .setShadeModelState(SMOOTH_SHADE)
-                        .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
-                        .setLightmapState(LIGHTMAP)
-                        .setTextureState(BLOCK_SHEET_MIPPED)
-                        .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                        .setDepthTestState(LEQUAL_DEPTH_TEST)
-                        .setCullState(NO_CULL)
-                        .setWriteMaskState(COLOR_DEPTH_WRITE)
-                        .createCompositeState(false));
-    }*/
-
-    public OurRenderTypes(String p_173178_, VertexFormat p_173179_, VertexFormat.Mode p_173180_, int p_173181_, boolean p_173182_, boolean p_173183_, Runnable p_173184_, Runnable p_173185_) {
-        super(p_173178_, p_173179_, p_173180_, p_173181_, p_173182_, p_173183_, p_173184_, p_173185_);
+    public static void registerPipelines(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(TRANSLUCENT_BLOCK_NO_CULL);
+        event.registerPipeline(DEBUG_TRIANGLE_STRIP);
     }
+
+    public static final RenderType RenderBlock = RenderType.create("GadgetRenderBlock",
+            RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
+                    .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+                    .useLightmap()
+                    .useOverlay()
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .createRenderSetup());
+
+    public static final RenderType RenderBlockFade = RenderType.create("GadgetRenderBlockFade",
+            RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
+                    .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+                    .useLightmap()
+                    .useOverlay()
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .createRenderSetup());
+
+    public static final RenderType RenderBlockBackface = RenderType.create("GadgetRenderBlockBackface",
+            RenderSetup.builder(TRANSLUCENT_BLOCK_NO_CULL)
+                    .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+                    .useLightmap()
+                    .useOverlay()
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .createRenderSetup());
+
+    public static final RenderType RenderBlockFadeNoCull = RenderType.create("GadgetRenderBlockFadeNoCull",
+            RenderSetup.builder(TRANSLUCENT_BLOCK_NO_CULL)
+                    .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+                    .useLightmap()
+                    .useOverlay()
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .createRenderSetup());
+
+    public static final RenderType TRIANGLE_STRIP = RenderType.create("GadgetTriangleStrip",
+            RenderSetup.builder(DEBUG_TRIANGLE_STRIP)
+                    .createRenderSetup());
+
+    public static final RenderType MissingBlockOverlay = RenderType.create("GadgetMissingBlockOverlay",
+            RenderSetup.builder(RenderPipelines.DEBUG_QUADS)
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .createRenderSetup());
+
+    public static final RenderType TRANSPARENT_BOX = RenderType.create("GadgetTransparentBox",
+            RenderSetup.builder(RenderPipelines.DEBUG_QUADS)
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .sortOnUpload()
+                    .createRenderSetup());
 }

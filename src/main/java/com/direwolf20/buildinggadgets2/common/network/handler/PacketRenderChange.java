@@ -22,7 +22,7 @@ public class PacketRenderChange {
             if (gadgetStack.isEmpty()) return;
 
             GadgetNBT.setRenderType(gadgetStack, payload.renderType());
-            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.render_set", Component.translatable(GadgetNBT.getRenderType(gadgetStack).getLang())), true);
+            context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.render_set", Component.translatable(GadgetNBT.getRenderType(gadgetStack).getLang())));
 
         });
     }

@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -351,7 +351,7 @@ public class GadgetNBT {
             return modesForGadget.first();
         }
 
-        var id = ResourceLocation.parse(mode);
+        var id = Identifier.parse(mode);
         return modesForGadget.stream()
                 .filter(m -> m.getId().equals(id))
                 .findFirst()

@@ -38,7 +38,7 @@ public class DestructionRenderer {
         if (level.getBlockState(startBlock) == Registration.RenderBlock.get().defaultBlockState())
             return;
 
-        Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 
         PoseStack stack = evt.getPoseStack();
         stack.pushPose();

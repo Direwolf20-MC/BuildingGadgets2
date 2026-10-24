@@ -1,13 +1,11 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
 import com.direwolf20.buildinggadgets2.setup.Registration;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 
@@ -15,15 +13,14 @@ import java.util.concurrent.CompletableFuture;
 
 public class BG2Recipes extends RecipeProvider {
 
-
-    public BG2Recipes(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider);
+    protected BG2Recipes(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput consumer) {
-        //Gadgets
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Building_Gadget.get())
+    protected void buildRecipes() {
+        // Gadgets
+        shaped(RecipeCategory.MISC, Registration.Building_Gadget.get())
                 .pattern("iri")
                 .pattern("drd")
                 .pattern("ili")
@@ -32,10 +29,10 @@ public class BG2Recipes extends RecipeProvider {
                 .define('d', Tags.Items.GEMS_DIAMOND)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
-                .save(consumer);
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(output);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Exchanging_Gadget.get())
+        shaped(RecipeCategory.MISC, Registration.Exchanging_Gadget.get())
                 .pattern("iri")
                 .pattern("dld")
                 .pattern("ili")
@@ -44,10 +41,10 @@ public class BG2Recipes extends RecipeProvider {
                 .define('d', Tags.Items.GEMS_DIAMOND)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_diamond", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
-                .save(consumer);
+                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .save(output);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CopyPaste_Gadget.get())
+        shaped(RecipeCategory.MISC, Registration.CopyPaste_Gadget.get())
                 .pattern("iri")
                 .pattern("ere")
                 .pattern("ili")
@@ -56,10 +53,10 @@ public class BG2Recipes extends RecipeProvider {
                 .define('e', Tags.Items.GEMS_EMERALD)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_emerald", InventoryChangeTrigger.TriggerInstance.hasItems(Items.EMERALD))
-                .save(consumer);
+                .unlockedBy("has_emerald", has(Items.EMERALD))
+                .save(output);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.Destruction_Gadget.get())
+        shaped(RecipeCategory.MISC, Registration.Destruction_Gadget.get())
                 .pattern("iri")
                 .pattern("ere")
                 .pattern("ili")
@@ -68,10 +65,10 @@ public class BG2Recipes extends RecipeProvider {
                 .define('e', Tags.Items.ENDER_PEARLS)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_ender_pearl", InventoryChangeTrigger.TriggerInstance.hasItems(Items.ENDER_PEARL))
-                .save(consumer);
+                .unlockedBy("has_ender_pearl", has(Items.ENDER_PEARL))
+                .save(output);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.CutPaste_Gadget.get())
+        shaped(RecipeCategory.MISC, Registration.CutPaste_Gadget.get())
                 .pattern("iri")
                 .pattern("srs")
                 .pattern("ili")
@@ -80,11 +77,11 @@ public class BG2Recipes extends RecipeProvider {
                 .define('s', Items.SHEARS)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_shear", InventoryChangeTrigger.TriggerInstance.hasItems(Items.SHEARS))
-                .save(consumer);
+                .unlockedBy("has_shear", has(Items.SHEARS))
+                .save(output);
 
-        //Blocks
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Registration.TemplateManager.get())
+        // Blocks
+        shaped(RecipeCategory.MISC, Registration.TemplateManager.get())
                 .pattern("iri")
                 .pattern("prp")
                 .pattern("ili")
@@ -93,7 +90,23 @@ public class BG2Recipes extends RecipeProvider {
                 .define('p', Items.PAPER)
                 .define('l', Tags.Items.GEMS_LAPIS)
                 .group("buildinggadgets2")
-                .unlockedBy("has_paper", InventoryChangeTrigger.TriggerInstance.hasItems(Items.PAPER))
-                .save(consumer);
+                .unlockedBy("has_paper", has(Items.PAPER))
+                .save(output);
+    }
+
+    public static class Runner extends RecipeProvider.Runner {
+        public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
+            super(packOutput, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new BG2Recipes(registries, output);
+        }
+
+        @Override
+        public String getName() {
+            return "BuildingGadgets2 Recipes";
+        }
     }
 }

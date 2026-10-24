@@ -25,3 +25,4 @@ public class BG2LootTables extends VanillaBlockLoot {
         return Registration.BLOCKS.getEntries().stream().map(DeferredHolder::get).collect(Collectors.toList());
     }
 }
+

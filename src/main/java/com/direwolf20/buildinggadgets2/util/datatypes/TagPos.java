@@ -2,7 +2,6 @@ package com.direwolf20.buildinggadgets2.util.datatypes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 
 public class TagPos {
     public CompoundTag tag;
@@ -18,14 +17,15 @@ public class TagPos {
             this.tag = null;
             this.pos = null;
         }
-        this.tag = compoundTag.getCompound("tedata");
-        this.pos = NbtUtils.readBlockPos(compoundTag, "blockpos").orElse(BlockPos.ZERO);
+        // TODO(port): save format changed — "blockpos" is now stored as a packed long instead of via NbtUtils.writeBlockPos. See note in StatePos.java.
+        this.tag = compoundTag.getCompoundOrEmpty("tedata");
+        this.pos = BlockPos.of(compoundTag.getLongOr("blockpos", 0L));
     }
 
     public CompoundTag getTag() {
         CompoundTag compoundTag = new CompoundTag();
         compoundTag.put("tedata", tag);
-        compoundTag.put("blockpos", NbtUtils.writeBlockPos(pos));
+        compoundTag.putLong("blockpos", pos.asLong());
         return compoundTag;
     }
 

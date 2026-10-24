@@ -13,12 +13,16 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
@@ -37,7 +41,7 @@ public class RenderBlockBE extends BlockEntity {
     public byte renderType;
 
     public RenderBlockBE(BlockPos pos, BlockState state) {
-        super(Registration.RenderBlock_BE.get(), pos, state);
+        super(com.direwolf20.buildinggadgets2.setup.Registration.RenderBlock_BE.get(), pos, state);
     }
 
     public void tickClient() {
@@ -176,10 +180,13 @@ public class RenderBlockBE extends BlockEntity {
         level.setBlockAndUpdate(this.getBlockPos(), adjustedState);
         if (blockEntityData != null) {
             BlockEntity newBE = level.getBlockEntity(this.getBlockPos());
-            try {
-                newBE.loadCustomOnly(blockEntityData, level.registryAccess());
-            } catch (Exception e) {
-                System.out.println("Failed to restore tile data for block at: " + this.getBlockPos() + " with NBT: " + blockEntityData + ". Consider adding it to the blacklist");
+            if (newBE != null) {
+                try {
+                    ValueInput wrapped = TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), blockEntityData);
+                    newBE.loadCustomOnly(wrapped);
+                } catch (Exception e) {
+                    System.out.println("Failed to restore tile data for block at: " + this.getBlockPos() + " with NBT: " + blockEntityData + ". Consider adding it to the blacklist");
+                }
             }
         }
     }
@@ -234,37 +241,36 @@ public class RenderBlockBE extends BlockEntity {
 
     /** Misc Methods for TE's */
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.renderBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("renderBlock"));
-        this.sourceBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("sourceBlock"));
-        this.targetBlock = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("targetBlock"));
-        this.shrinking = tag.getBoolean("shrinking");
-        this.exchanging = tag.getBoolean("exchanging");
-        this.drawSize = tag.getByte("drawSize");
-        this.renderType = tag.getByte("renderType");
-        if (tag.contains("blockEntityData"))
-            this.blockEntityData = tag.getCompound("blockEntityData");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.renderBlock = input.read("renderBlock", BlockState.CODEC).orElse(null);
+        this.sourceBlock = input.read("sourceBlock", BlockState.CODEC).orElse(null);
+        this.targetBlock = input.read("targetBlock", BlockState.CODEC).orElse(null);
+        this.shrinking = input.getBooleanOr("shrinking", false);
+        this.exchanging = input.getBooleanOr("exchanging", false);
+        this.drawSize = input.getByteOr("drawSize", (byte) 0);
+        this.renderType = input.getByteOr("renderType", (byte) 0);
+        this.blockEntityData = input.read("blockEntityData", CompoundTag.CODEC).orElse(null);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         if (this.renderBlock != null) {
-            tag.put("renderBlock", NbtUtils.writeBlockState(this.renderBlock));
+            output.store("renderBlock", BlockState.CODEC, this.renderBlock);
         }
         if (this.sourceBlock != null) {
-            tag.put("sourceBlock", NbtUtils.writeBlockState(this.sourceBlock));
+            output.store("sourceBlock", BlockState.CODEC, this.sourceBlock);
         }
         if (this.targetBlock != null) {
-            tag.put("targetBlock", NbtUtils.writeBlockState(this.targetBlock));
+            output.store("targetBlock", BlockState.CODEC, this.targetBlock);
         }
-        tag.putBoolean("shrinking", shrinking);
-        tag.putBoolean("exchanging", exchanging);
-        tag.putByte("drawSize", this.drawSize);
-        tag.putByte("renderType", this.renderType);
+        output.putBoolean("shrinking", shrinking);
+        output.putBoolean("exchanging", exchanging);
+        output.putByte("drawSize", this.drawSize);
+        output.putByte("renderType", this.renderType);
         if (blockEntityData != null)
-            tag.put("blockEntityData", this.blockEntityData);
+            output.store("blockEntityData", CompoundTag.CODEC, this.blockEntityData);
     }
 
     @Override
@@ -274,20 +280,18 @@ public class RenderBlockBE extends BlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        this.loadAdditional(tag, lookupProvider);
+    public void handleUpdateTag(ValueInput input) {
+        this.loadAdditional(input);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, provider);
-        return tag;
+        return saveCustomOnly(provider);
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput input) {
+        this.loadAdditional(input);
     }
 
     public void markDirtyClient() {

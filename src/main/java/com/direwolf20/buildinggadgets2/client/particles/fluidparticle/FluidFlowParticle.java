@@ -4,11 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.BreakingItemParticle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.Random;
@@ -23,7 +24,7 @@ public class FluidFlowParticle extends BreakingItemParticle {
     private FluidStack fluidStack;
 
     public FluidFlowParticle(ClientLevel world, double x, double y, double z, FluidStack fluidStack, boolean gravity, boolean shrinking) {
-        super(world, x, y, z, ItemStack.EMPTY);
+        super(world, x, y, z, resolveSprite(fluidStack));
         this.fluidStack = fluidStack;
         this.doGravity = gravity;
         this.shrinking = shrinking;
@@ -64,8 +65,7 @@ public class FluidFlowParticle extends BreakingItemParticle {
             this.lifetime = 120;
         this.scale(partSize);
         this.partSize = quadSize;
-        this.setSprite(Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(IClientFluidTypeExtensions.of(fluidStack.getFluid()).getStillTexture(fluidStack)));
-        int i = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
+        int i = resolveTintColor(fluidStack);
         this.rCol *= (float) (i >> 16 & 255) / 255.0F;
         this.gCol *= (float) (i >> 8 & 255) / 255.0F;
         this.bCol *= (float) (i & 255) / 255.0F;
@@ -87,6 +87,19 @@ public class FluidFlowParticle extends BreakingItemParticle {
 
         if (!shrinking)
             updateColorAndGravity();
+    }
+
+    private static TextureAtlasSprite resolveSprite(FluidStack fluidStack) {
+        FluidState state = fluidStack.getFluid().defaultFluidState();
+        FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(state);
+        return model.stillMaterial().sprite();
+    }
+
+    private static int resolveTintColor(FluidStack fluidStack) {
+        FluidState state = fluidStack.getFluid().defaultFluidState();
+        FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(state);
+        FluidTintSource tintSource = model.fluidTintSource();
+        return tintSource != null ? tintSource.colorAsStack(fluidStack) : -1;
     }
 
     @Override
@@ -116,7 +129,7 @@ public class FluidFlowParticle extends BreakingItemParticle {
             this.gCol = Mth.lerp(adjustedAge, 0, this.gCol);
             this.bCol = Mth.lerp(adjustedAge, 0, this.bCol);
         } else {
-            int i = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
+            int i = resolveTintColor(fluidStack);
             float targetRed = (float) (i >> 16 & 255) / 255.0F;
             float targetGreen = (float) (i >> 8 & 255) / 255.0F;
             float targetBlue = (float) (i & 255) / 255.0F;
@@ -141,11 +154,11 @@ public class FluidFlowParticle extends BreakingItemParticle {
     }
 
     @Override //Performance Reasons
-    protected int getLightColor(float pPartialTick) {
+    protected int getLightCoords(float pPartialTick) {
         return 0xF00080;
     }
 
     public static ParticleProvider<FluidFlowParticleData> FACTORY =
-            (data, world, x, y, z, xSpeed, ySpeed, zSpeed) ->
+            (data, world, x, y, z, xAux, yAux, zAux, random) ->
                     new FluidFlowParticle(world, x, y, z, data.getFluidStack(), data.doGravity, data.shrinking);
 }

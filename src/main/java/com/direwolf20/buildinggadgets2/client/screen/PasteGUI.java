@@ -8,13 +8,15 @@ package com.direwolf20.buildinggadgets2.client.screen;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIncrementer;
 import com.direwolf20.buildinggadgets2.common.network.data.RelativePastePayload;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +68,7 @@ public class PasteGUI extends Screen {
     }
 
     private void sendPacket() {
-        PacketDistributor.sendToServer(new RelativePastePayload(new BlockPos(X.getValue(), Y.getValue(), Z.getValue())));
+        ClientPacketDistributor.sendToServer(new RelativePastePayload(new BlockPos(X.getValue(), Y.getValue(), Z.getValue())));
     }
 
     private void onChange(int value) {
@@ -74,14 +76,14 @@ public class PasteGUI extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int mouseX, int mouseY, int __unused) {
-        fields.forEach(button -> button.keyPressed(mouseX, mouseY, __unused));
-        return super.keyPressed(mouseX, mouseY, __unused);
+    public boolean keyPressed(KeyEvent event) {
+        fields.forEach(field -> field.keyPressed(event));
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean charTyped(char charTyped, int __unused) {
-        fields.forEach(button -> button.charTyped(charTyped, __unused));
+    public boolean charTyped(CharacterEvent event) {
+        fields.forEach(field -> field.charTyped(event));
         return false;
     }
 
@@ -91,16 +93,16 @@ public class PasteGUI extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
         drawLabel(guiGraphics, "X", -75);
         drawLabel(guiGraphics, "Y", 0);
         drawLabel(guiGraphics, "Z", 75);
 
-        guiGraphics.drawCenteredString(font, Component.translatable("buildinggadgets2.screen.pasteheading"), (int) (width / 2f), (int) (height / 2f) - 60, 0xFFFFFF);
+        guiGraphics.centeredText(font, Component.translatable("buildinggadgets2.screen.pasteheading"), width / 2, (height / 2) - 60, 0xFFFFFFFF);
     }
 
-    private void drawLabel(GuiGraphics guiGraphics, String name, int x) {
-        guiGraphics.drawString(font, name, (width / 2f) + x, (height / 2f) - 30, 0xFFFFFF, false);
+    private void drawLabel(GuiGraphicsExtractor guiGraphics, String name, int x) {
+        guiGraphics.text(font, name, (width / 2) + x, (height / 2) - 30, 0xFFFFFFFF, false);
     }
 }

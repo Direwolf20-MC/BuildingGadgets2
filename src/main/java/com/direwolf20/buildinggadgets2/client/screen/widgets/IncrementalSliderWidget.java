@@ -4,13 +4,12 @@ import com.direwolf20.buildinggadgets2.client.OurSounds;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.gui.widget.ExtendedSlider;
 
 import java.awt.*;
@@ -33,20 +32,20 @@ public class IncrementalSliderWidget extends ExtendedSlider {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, BACKGROUND);
         this.drawBorderedRect(guiGraphics, (this.getX() + (int) (this.value * (double) (this.width - 8)) + 4) - 4, this.getY(), 8, this.height);
         this.renderText(guiGraphics);
     }
 
-    private void renderText(GuiGraphics guiGraphics) {
-        int color = !active ? 10526880 : (isHovered ? 16777120 : -1);
+    private void renderText(GuiGraphicsExtractor guiGraphics) {
+        int color = !active ? 0xFFA0A0A0 : (isHovered ? 0xFFFFFF60 : -1);
 
         Minecraft minecraft = Minecraft.getInstance();
-        guiGraphics.drawCenteredString(minecraft.font, this.prefix.copy().append(this.getValueString()), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, color);
+        guiGraphics.centeredText(minecraft.font, this.prefix.copy().append(this.getValueString()), getX() + getWidth() / 2, getY() + (getHeight() - 8) / 2, color);
     }
 
-    private void drawBorderedRect(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+    private void drawBorderedRect(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height) {
         guiGraphics.fill(x, y, x + width, y + height, SLIDER_BACKGROUND);
         guiGraphics.fill(++x, ++y, x + width - 2, y + height - 2, SLIDER_COLOR);
     }
@@ -57,23 +56,13 @@ public class IncrementalSliderWidget extends ExtendedSlider {
     }
 
     @Override
-    public void onRelease(double p_93609_, double p_93610_) {
+    public void playDownSound(SoundManager soundManager) {
     }
 
     @Override
-    public void playDownSound(SoundManager p_93605_) {
-    }
-
-    @Override
-    public boolean mouseReleased(double p_93684_, double p_93685_, int p_93686_) {
-        var result = super.mouseReleased(p_93684_, p_93685_, p_93686_);
-
-        // Prevents spam of sounds due to the ForgeSlider
-        if (result) {
-            OurSounds.playSound(Registration.BEEP.get());
-        }
-
-        return result;
+    public void onRelease(MouseButtonEvent event) {
+        this.dragging = false;
+        OurSounds.playSound(Registration.BEEP.get());
     }
 
     private static Color createAlphaColor(Color color, int alpha) {
@@ -101,21 +90,11 @@ public class IncrementalSliderWidget extends ExtendedSlider {
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
-            if (!visible)
-                return;
-
+        protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partial) {
             Minecraft minecraft = Minecraft.getInstance();
-            Font font = minecraft.font;
-
-            this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height;
             guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, IncrementalSliderWidget.BACKGROUND);
             IncrementalSliderWidget.this.drawBorderedRect(guiGraphics, this.getX(), this.getY(), this.width, this.height);
-            guiGraphics.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, getFGColor() | Mth.ceil(this.alpha * 255.0F) << 24);
-        }
-
-        @Override
-        public void onRelease(double p_93609_, double p_93610_) {
+            guiGraphics.centeredText(minecraft.font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, getFGColor() | 0xFF000000);
         }
 
         @Override

@@ -15,31 +15,31 @@ import com.direwolf20.buildinggadgets2.util.modes.Cut;
 import com.direwolf20.buildinggadgets2.util.modes.Paste;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class GadgetCutPaste extends BaseGadget {
-    public GadgetCutPaste() {
-        super();
+    public GadgetCutPaste(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -52,19 +52,18 @@ public class GadgetCutPaste extends BaseGadget {
         return Config.CUTPASTEGADGET_COST.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
         }
 
         if (GadgetNBT.getPasteReplace(stack))
-            tooltip.add(Component.translatable("buildinggadgets2.voidwarning").withStyle(ChatFormatting.RED));
+            tooltip.accept(Component.translatable("buildinggadgets2.voidwarning").withStyle(ChatFormatting.RED));
 
-        boolean sneakPressed = Screen.hasShiftDown();
+        boolean sneakPressed = Minecraft.getInstance().hasShiftDown();
 
         if (sneakPressed) {
 
@@ -72,7 +71,7 @@ public class GadgetCutPaste extends BaseGadget {
     }
 
     @Override
-    InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
+    InteractionResult onAction(ItemActionContext context) {
         var gadget = context.stack();
 
         var mode = GadgetNBT.getMode(gadget);
@@ -82,8 +81,8 @@ public class GadgetCutPaste extends BaseGadget {
         } else if (mode.getId().getPath().equals("paste")) {
             UUID uuid = GadgetNBT.getUUID(gadget);
             if (ServerTickHandler.gadgetWorking(GadgetNBT.getUUID(gadget))) {
-                context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.cutinprogress"), true);
-                return InteractionResultHolder.pass(gadget); // Do nothing if this gadget is already doing stuff!
+                context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.cutinprogress"));
+                return InteractionResult.PASS; // Do nothing if this gadget is already doing stuff!
             }
             BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(context.player().level().getServer()).overworld());
             ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(uuid, false); //Don't remove the data just yet
@@ -95,19 +94,19 @@ public class GadgetCutPaste extends BaseGadget {
                 GadgetNBT.clearAnchorPos(gadget);
             GadgetNBT.clearCopyUUID(gadget); // Erase copy UUID so the user doesn't get the 'are you sure' prompt
             GadgetNBT.setMode(gadget, new Cut()); // Set it back to cut mode - no need to stay in paste since the paste is gone :)
-            return InteractionResultHolder.success(gadget);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
         } else {
-            return InteractionResultHolder.pass(gadget);
+            return InteractionResult.PASS;
         }
 
-        return InteractionResultHolder.success(gadget);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
     }
 
     /**
      * Selects the block assuming you're actually looking at one
      */
     @Override
-    InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
+    InteractionResult onShiftAction(ItemActionContext context) {
         var gadget = context.stack();
 
         var mode = GadgetNBT.getMode(gadget);
@@ -116,10 +115,10 @@ public class GadgetCutPaste extends BaseGadget {
         } else if (mode.equals(new Paste())) {
             //Paste
         } else {
-            return InteractionResultHolder.pass(gadget);
+            return InteractionResult.PASS;
         }
 
-        return InteractionResultHolder.success(gadget);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
     }
 
     public void cutAndStore(Player player, ItemStack gadget) {
@@ -139,42 +138,42 @@ public class GadgetCutPaste extends BaseGadget {
         AABB area = VecHelpers.aabbFromBlockPos(cutStart, cutEnd);
         int maxAxis = 500; //Todo Config?
         if (area.getXsize() > maxAxis) {
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "x", maxAxis, area.getXsize()), false);
+            player.sendSystemMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "x", maxAxis, area.getXsize()));
             return;
         }
         if (area.getYsize() > maxAxis) {
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "y", maxAxis, area.getYsize()), false);
+            player.sendSystemMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "y", maxAxis, area.getYsize()));
             return;
         }
         if (area.getZsize() > maxAxis) {
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "z", maxAxis, area.getZsize()), false);
+            player.sendSystemMessage(Component.translatable("buildinggadgets2.messages.axistoolarge", "z", maxAxis, area.getZsize()));
             return;
         }
         Stream<BlockPos> areaStream = BlockPos.betweenClosedStream(area);
         long size = areaStream.count();
         int maxSize = 100000; //Todo Config?
         if (size > maxSize) {
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.areatoolarge", maxSize, size), false);
+            player.sendSystemMessage(Component.translatable("buildinggadgets2.messages.areatoolarge", maxSize, size));
             return;
         }
 
         int totalCost = gadgetCutPaste.getEnergyCost() * (int) size;
         if (!player.isCreative() && !BuildingUtils.hasEnoughEnergy(heldItem, totalCost)) {
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.notenoughenergy", totalCost, BuildingUtils.getEnergyStored(heldItem)), false);
+            player.sendSystemMessage(Component.translatable("buildinggadgets2.messages.notenoughenergy", totalCost, BuildingUtils.getEnergyStored(heldItem)));
             return;
         }
 
         BlockPos.betweenClosedStream(area).map(BlockPos::immutable).sorted(Comparator.comparingInt(Vec3i::getY).reversed()).forEach(pos -> {
             if (!level.mayInteract(player, pos))
                 return; //Chunk Protection like spawn
-            BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
+            BreakBlockEvent event = new BreakBlockEvent(level, pos, level.getBlockState(pos), player);
             if (NeoForge.EVENT_BUS.post(event).isCanceled()) return; //Chunk Protection like FTB Utils
             ServerTickHandler.addToMap(buildUUID, new StatePos(Blocks.AIR.defaultBlockState(), pos), level, GadgetNBT.getRenderTypeByte(gadget), player, false, false, gadget, ServerBuildList.BuildType.CUT, false, BlockPos.ZERO);
         });
         ServerTickHandler.setCutStart(buildUUID, cutStart);
         GadgetNBT.setCopyStartPos(gadget, GadgetNBT.nullPos);
         GadgetNBT.setCopyEndPos(gadget, GadgetNBT.nullPos);
-        player.displayClientMessage(Component.translatable("buildinggadgets2.messages.cutblocks", size), true);
+        player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.cutblocks", size));
 
         UUID uuid = GadgetNBT.getUUID(gadget);
         GadgetNBT.setCopyUUID(gadget, buildUUID); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.

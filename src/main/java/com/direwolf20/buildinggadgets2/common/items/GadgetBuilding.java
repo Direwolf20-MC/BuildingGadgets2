@@ -11,23 +11,22 @@ import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class GadgetBuilding extends BaseGadget {
-    public GadgetBuilding() {
-        super();
+    public GadgetBuilding(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -40,31 +39,30 @@ public class GadgetBuilding extends BaseGadget {
         return Config.BUILDINGGADGET_COST.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
         }
 
-        boolean sneakPressed = Screen.hasShiftDown();
+        boolean sneakPressed = Minecraft.getInstance().hasShiftDown();
 
         if (sneakPressed) {
             BaseMode mode = GadgetNBT.getMode(stack);
-            tooltip.add(Component.translatable("buildinggadgets2.tooltips.mode", Component.translatable(mode.i18n())).setStyle(Styles.AQUA));
-            tooltip.add(Component.translatable("buildinggadgets2.tooltips.range", GadgetNBT.getToolRange(stack)).setStyle(Styles.LT_PURPLE));
-            tooltip.add(Component.translatable("buildinggadgets2.tooltips.blockstate", GadgetNBT.getGadgetBlockState(stack).getBlock().getName()).setStyle(Styles.DK_GREEN));
+            tooltip.accept(Component.translatable("buildinggadgets2.tooltips.mode", Component.translatable(mode.i18n())).setStyle(Styles.AQUA));
+            tooltip.accept(Component.translatable("buildinggadgets2.tooltips.range", GadgetNBT.getToolRange(stack)).setStyle(Styles.LT_PURPLE));
+            tooltip.accept(Component.translatable("buildinggadgets2.tooltips.blockstate", GadgetNBT.getGadgetBlockState(stack).getBlock().getName()).setStyle(Styles.DK_GREEN));
         }
     }
 
     @Override
-    InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
+    InteractionResult onAction(ItemActionContext context) {
         var gadget = context.stack();
 
         BlockState setState = GadgetNBT.getGadgetBlockState(gadget);
-        if (setState.isAir()) return InteractionResultHolder.pass(gadget);
+        if (setState.isAir()) return InteractionResult.PASS;
 
         var mode = GadgetNBT.getMode(gadget);
         ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), getHitPos(context), setState);
@@ -72,21 +70,21 @@ public class GadgetBuilding extends BaseGadget {
         UUID buildUUID = BuildingUtils.build(context.level(), context.player(), buildList, getHitPos(context), gadget, true);
         GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
         GadgetNBT.clearAnchorPos(gadget);
-        return InteractionResultHolder.success(gadget);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
     }
 
     /**
      * Selects the block assuming you're actually looking at one
      */
     @Override
-    InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
+    InteractionResult onShiftAction(ItemActionContext context) {
         BlockState blockState = context.level().getBlockState(context.pos());
         if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos()) || blockState.getBlock() instanceof RenderBlock) {
-            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.invalidblock"), true);
+            context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.invalidblock"));
             return super.onShiftAction(context);
         }
         if (GadgetUtils.setBlockState(context.stack(), blockState))
-            return InteractionResultHolder.success(context.stack());
+            return InteractionResult.SUCCESS.heldItemTransformedTo(context.stack());
 
         return super.onShiftAction(context);
     }

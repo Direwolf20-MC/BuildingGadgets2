@@ -22,7 +22,7 @@ public class PacketRelativePaste {
             if (gadgetStack.isEmpty()) return;
 
             GadgetNBT.setRelativePaste(gadgetStack, payload.relativePos());
-            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.relativepaste", payload.relativePos().toShortString()), true);
+            context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.relativepaste", payload.relativePos().toShortString()));
         });
     }
 }

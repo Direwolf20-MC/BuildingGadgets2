@@ -5,8 +5,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.BreakingItemParticle;
 import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -22,7 +27,7 @@ public class ItemFlowParticle extends BreakingItemParticle {
     private boolean shrinking;
 
     public ItemFlowParticle(ClientLevel world, double x, double y, double z, ItemStack itemStack, boolean gravity, boolean shrinking) {
-        super(world, x, y, z, itemStack);
+        super(world, x, y, z, resolveSprite(world, itemStack));
         this.doGravity = gravity;
         this.shrinking = shrinking;
         this.xd = 0;
@@ -64,9 +69,6 @@ public class ItemFlowParticle extends BreakingItemParticle {
             this.lifetime = 120;
         this.scale(partSize);
         this.partSize = quadSize;
-        if (this.sprite == null) {
-            this.setSprite(Minecraft.getInstance().getItemRenderer().getModel(new ItemStack(Blocks.COBBLESTONE), world, (LivingEntity) null, 0).getParticleIcon());
-        }
 
         if (gravity) {
             this.xd = 0;
@@ -85,6 +87,27 @@ public class ItemFlowParticle extends BreakingItemParticle {
 
         if (!shrinking)
             updateColorAndGravity();
+    }
+
+    private static TextureAtlasSprite resolveSprite(ClientLevel world, ItemStack itemStack) {
+        Minecraft mc = Minecraft.getInstance();
+        RandomSource rand = world != null ? world.getRandom() : RandomSource.create();
+        ItemStack source = itemStack.isEmpty() ? new ItemStack(Blocks.COBBLESTONE) : itemStack;
+        ItemStackRenderState renderState = new ItemStackRenderState();
+        mc.getItemModelResolver().updateForTopItem(renderState, source, ItemDisplayContext.GROUND, world, null, 0);
+        Material.Baked material = renderState.pickParticleMaterial(rand);
+        if (material != null) {
+            return material.sprite();
+        }
+        if (source.getItem() != Blocks.COBBLESTONE.asItem()) {
+            ItemStackRenderState fallbackState = new ItemStackRenderState();
+            mc.getItemModelResolver().updateForTopItem(fallbackState, new ItemStack(Blocks.COBBLESTONE), ItemDisplayContext.GROUND, world, null, 0);
+            Material.Baked fallback = fallbackState.pickParticleMaterial(rand);
+            if (fallback != null) {
+                return fallback.sprite();
+            }
+        }
+        return mc.getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).missingSprite();
     }
 
     @Override
@@ -135,12 +158,11 @@ public class ItemFlowParticle extends BreakingItemParticle {
     }
 
     @Override //Performance Reasons
-    protected int getLightColor(float pPartialTick) {
+    protected int getLightCoords(float pPartialTick) {
         return 0xF00080;
     }
 
     public static ParticleProvider<ItemFlowParticleData> FACTORY =
-            (data, world, x, y, z, xSpeed, ySpeed, zSpeed) ->
+            (data, world, x, y, z, xAux, yAux, zAux, random) ->
                     new ItemFlowParticle(world, x, y, z, data.getItemStack(), data.doGravity, data.shrinking);
 }
-

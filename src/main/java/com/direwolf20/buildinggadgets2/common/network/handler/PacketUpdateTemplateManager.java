@@ -11,9 +11,7 @@ import com.direwolf20.buildinggadgets2.util.datatypes.TagPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -55,17 +53,23 @@ public class PacketUpdateTemplateManager {
                     BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(player.level().getServer()).overworld());
                     ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);
                     if (buildList == null || buildList.isEmpty()) {
-                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                        playSound((ServerPlayer) player, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
                         return;
                     }
-                    container.setItem(1, container.getStateId(), new ItemStack(Registration.Template.get()));
+                    // Pre-assign the UUID on the template stack BEFORE placing it in the slot.
+                    // In 26.1, setItem syncs the stack to the client. If the stack arrives without
+                    // a GADGET_UUID, client-side getUUID() auto-assigns a random one, contaminating
+                    // the client copy and causing UUID mismatches on load.
+                    ItemStack newTemplate = new ItemStack(Registration.Template.get());
+                    GadgetNBT.setUUID(newTemplate);
+                    container.setItem(1, container.getStateId(), newTemplate);
                     templateStack = container.getSlot(1).getItem();
                 }
 
                 if (templateStack.is(Registration.Redprint.get())) {
                     if (payload.templateName().isEmpty()) {
-                        player.displayClientMessage(Component.translatable("buildinggadgets2.messages.namerequired"), true);
-                        playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                        player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.namerequired"));
+                        playSound((ServerPlayer) player, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
                         return;
                     }
                 }
@@ -76,23 +80,29 @@ public class PacketUpdateTemplateManager {
                     return;
 
                 copyData((ServerPlayer) player, gadgetStack, templateStack, payload.templateName());
+                // Re-push both slots so the client receives all component mutations (UUID, COPY_UUID,
+                // template name) that copyData applied in-place. In 26.1, in-place component changes
+                // on container stacks aren't reliably detected by broadcastChanges.
+                container.setItem(0, container.getStateId(), gadgetStack);
+                container.setItem(1, container.getStateId(), templateStack);
             } else if (payload.mode() == 1) { //Load
                 if (templateStack.isEmpty() || gadgetStack.isEmpty()) {
-                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
                     return;
                 }
                 if (templateStack.is(Registration.Redprint.get()) && !gadgetStack.is(Registration.CutPaste_Gadget.get())) {
-                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
                     return; //Redprints can only go onto Cut and Paste gadgets
                 }
                 if (gadgetStack.is(Registration.CutPaste_Gadget.get()) && !templateStack.is(Registration.Redprint.get())) {
-                    playSound((ServerPlayer) player, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                    playSound((ServerPlayer) player, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
                     return; //Cut and Paste gadgets can only be loaded from Redprints
                 }
 
-
                 copyData((ServerPlayer) player, templateStack, gadgetStack, payload.templateName());
                 GadgetNBT.setTemplateName(gadgetStack, GadgetNBT.getTemplateName(templateStack)); //Set gadget template name to templatestack name
+                container.setItem(0, container.getStateId(), gadgetStack);
+                container.setItem(1, container.getStateId(), templateStack);
             }
         });
     }
@@ -103,14 +113,14 @@ public class PacketUpdateTemplateManager {
         BG2Data bg2Data = BG2Data.get(Objects.requireNonNull(sender.level().getServer()).overworld());
         if (targetStack.is(Registration.Redprint.get())) {
             if (!bg2Data.addToRedprints(targetUUID, templateName)) {
-                sender.displayClientMessage(Component.translatable("buildinggadgets2.messages.namealreadyexists"), true);
-                playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+                sender.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.namealreadyexists"));
+                playSound(sender, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
                 return;
             }
         }
         ArrayList<StatePos> buildList = bg2Data.getCopyPasteList(sourceUUID, false);
         if (buildList == null || buildList.isEmpty()) {
-            playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+            playSound(sender, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
             return;
         }
         GadgetNBT.setCopyUUID(targetStack); //This UUID will be used to determine if the copy/paste we are rendering from the cache is old or not.
@@ -133,6 +143,6 @@ public class PacketUpdateTemplateManager {
         tag = bg2Data.getCopyPasteListAsNBTMap(targetUUID, false);
         sender.connection.send(new SendCopyDataPayload(targetUUID, GadgetNBT.getCopyUUID(targetStack), tag));
 
-        playSound(sender, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
+        playSound(sender, Holder.direct(SoundEvents.ENCHANTMENT_TABLE_USE));
     }
 }

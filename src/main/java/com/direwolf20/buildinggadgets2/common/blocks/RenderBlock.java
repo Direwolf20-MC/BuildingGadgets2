@@ -15,11 +15,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 
 public class RenderBlock extends Block implements EntityBlock {
-    public RenderBlock() {
-        super(Block.Properties.of()
-                .strength(20f)
-                .dynamicShape()
-                .noOcclusion());
+    public RenderBlock(Properties properties) {
+        super(properties);
     }
 
     @Nullable
@@ -46,30 +43,20 @@ public class RenderBlock extends Block implements EntityBlock {
     }
 
 
-    //These 2 methods after the shadows under the block
+    //These 2 methods affect the shadows under the block
     @Override
-    public boolean propagatesSkylightDown(BlockState p_48740_, BlockGetter p_48741_, BlockPos p_48742_) {
-        /*if (p_48741_.getBlockEntity(p_48742_) instanceof RenderBlockBE renderBlockBE && renderBlockBE.renderBlock != null && !(renderBlockBE.renderBlock.getBlock() instanceof RenderBlock) && !renderBlockBE.shrinking) {
-            return renderBlockBE.renderBlock.propagatesSkylightDown(p_48741_, p_48742_);
-        }*/
+    public boolean propagatesSkylightDown(BlockState pState) {
         return true;
     }
 
     @Override
     public float getShadeBrightness(BlockState p_48731_, BlockGetter p_48732_, BlockPos p_48733_) {
-        /*if (p_48732_.getBlockEntity(p_48733_) instanceof RenderBlockBE renderBlockBE && renderBlockBE.renderBlock != null && !(renderBlockBE.renderBlock.getBlock() instanceof RenderBlock) && !renderBlockBE.shrinking) {
-            float blockShade = renderBlockBE.renderBlock.getShadeBrightness(p_48732_, p_48733_);
-            return blockShade;
-        }*/
         return 1.0F;
     }
 
     @Override
-    public VoxelShape getOcclusionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
-        /*if (pLevel.getBlockEntity(pPos) instanceof RenderBlockBE renderBlockBE && renderBlockBE.renderBlock != null && !(renderBlockBE.renderBlock.getBlock() instanceof RenderBlock) && !renderBlockBE.shrinking) {
-            return renderBlockBE.renderBlock.getOcclusionShape(pLevel, pPos);
-        }*/
-        return super.getOcclusionShape(pState, pLevel, pPos);
+    public VoxelShape getOcclusionShape(BlockState pState) {
+        return super.getOcclusionShape(pState);
     }
 
     @Override

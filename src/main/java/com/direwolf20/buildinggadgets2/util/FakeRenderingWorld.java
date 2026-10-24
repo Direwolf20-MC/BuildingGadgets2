@@ -2,9 +2,7 @@ package com.direwolf20.buildinggadgets2.util;
 
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
@@ -12,7 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.attribute.EnvironmentAttributeReader;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -92,16 +90,6 @@ public class FakeRenderingWorld implements LevelAccessor {
     }
 
     @Override
-    public void scheduleTick(BlockPos p_186461_, Block p_186462_, int p_186463_) {
-        //noOp
-    }
-
-    @Override
-    public boolean setBlock(BlockPos p_46944_, BlockState p_46945_, int p_46946_) {
-        return this.setBlock(p_46944_, p_46945_, p_46946_, 512);
-    }
-
-    @Override
     public boolean setBlock(BlockPos pos, BlockState state, int p_46949_, int p_46950_) {
         positions.put(pos, state);
         return true;
@@ -169,8 +157,13 @@ public class FakeRenderingWorld implements LevelAccessor {
     }
 
     @Override
-    public int getMinBuildHeight() {
-        return realWorld.getMinBuildHeight();
+    public EnvironmentAttributeReader environmentAttributes() {
+        return EnvironmentAttributeReader.EMPTY;
+    }
+
+    @Override
+    public int getMinY() {
+        return realWorld.getMinY();
     }
 
     @Override
@@ -203,11 +196,6 @@ public class FakeRenderingWorld implements LevelAccessor {
         return this.realWorld.getLevelData();
     }
 
-    @Override
-    public DifficultyInstance getCurrentDifficultyAt(BlockPos p_46800_) {
-        return null;
-    }
-
     @org.jetbrains.annotations.Nullable
     @Override
     public MinecraftServer getServer() {
@@ -225,7 +213,7 @@ public class FakeRenderingWorld implements LevelAccessor {
     }
 
     @Override
-    public void playSound(@org.jetbrains.annotations.Nullable Player p_46775_, BlockPos p_46776_, SoundEvent p_46777_, SoundSource p_46778_, float p_46779_, float p_46780_) {
+    public void playSound(@org.jetbrains.annotations.Nullable Entity except, BlockPos pos, SoundEvent sound, SoundSource source, float volume, float pitch) {
 
     }
 
@@ -235,37 +223,13 @@ public class FakeRenderingWorld implements LevelAccessor {
     }
 
     @Override
-    public void levelEvent(@org.jetbrains.annotations.Nullable Player p_46771_, int p_46772_, BlockPos p_46773_, int p_46774_) {
+    public void levelEvent(@org.jetbrains.annotations.Nullable Entity source, int type, BlockPos pos, int data) {
 
     }
 
     @Override
     public void gameEvent(Holder<GameEvent> p_316267_, Vec3 p_220405_, GameEvent.Context p_220406_) {
 
-    }
-
-    @Override
-    public float getShade(Direction pDirection, boolean pShade) {
-        ClientLevel clientLevel = (ClientLevel) realWorld;
-        boolean flag = clientLevel.effects().constantAmbientLight();
-        if (!pShade) {
-            return flag ? 0.9F : 1.0F;
-        } else {
-            switch (pDirection) {
-                case DOWN:
-                    return flag ? 0.9F : 0.5F;
-                case UP:
-                    return flag ? 0.9F : 1.0F;
-                case NORTH:
-                case SOUTH:
-                    return 0.8F;
-                case WEST:
-                case EAST:
-                    return 0.6F;
-                default:
-                    return 1.0F;
-            }
-        }
     }
 
     @Override

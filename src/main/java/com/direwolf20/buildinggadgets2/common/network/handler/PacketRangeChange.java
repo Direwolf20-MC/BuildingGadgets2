@@ -22,7 +22,7 @@ public class PacketRangeChange {
             if (gadgetStack.isEmpty()) return;
 
             GadgetNBT.setToolRange(gadgetStack, payload.range());
-            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.range_set", payload.range()), true);
+            context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.range_set", payload.range()));
         });
     }
 }

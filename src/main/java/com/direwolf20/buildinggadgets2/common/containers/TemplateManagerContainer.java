@@ -2,6 +2,7 @@ package com.direwolf20.buildinggadgets2.common.containers;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
+import com.direwolf20.buildinggadgets2.common.containers.customhandler.TemplateManagerHandler;
 import com.direwolf20.buildinggadgets2.setup.Registration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,8 +12,9 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -46,11 +48,11 @@ public class TemplateManagerContainer extends BaseContainer {
     }
 
     private void addOwnSlots() {
-        var cap = this.be.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, be.getBlockPos(), be.getBlockState(), be, null);
-        if (cap != null) {
+        ResourceHandler<ItemResource> cap = this.be.getLevel().getCapability(Capabilities.Item.BLOCK, be.getBlockPos(), be.getBlockState(), be, null);
+        if (cap instanceof TemplateManagerHandler handler) {
             int x = 132;
-            addSlot(new SlotTemplateManager(cap, 0, x, 18, TEXTURE_LOC_SLOT_TOOL));
-            addSlot(new SlotTemplateManager(cap, 1, x, 63, TEXTURE_LOC_SLOT_TEMPLATE));
+            addSlot(new SlotTemplateManager(handler, 0, x, 18, TEXTURE_LOC_SLOT_TOOL));
+            addSlot(new SlotTemplateManager(handler, 1, x, 63, TEXTURE_LOC_SLOT_TEMPLATE));
         }
     }
 
@@ -86,13 +88,13 @@ public class TemplateManagerContainer extends BaseContainer {
         return be;
     }
 
-    public static class SlotTemplateManager extends SlotItemHandler {
-        private String backgroundLoc;
+    public static class SlotTemplateManager extends ResourceHandlerSlot {
+        private final String backgroundLoc;
 
-        public SlotTemplateManager(IItemHandler itemHandler, int index, int xPosition, int yPosition, String backgroundLoc) {
-            super(itemHandler, index, xPosition, yPosition);
+        public SlotTemplateManager(TemplateManagerHandler handler, int index, int xPosition, int yPosition, String backgroundLoc) {
+            super(handler, handler::set, index, xPosition, yPosition);
             this.backgroundLoc = backgroundLoc;
-            //this.setBackground(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(this.backgroundLoc));
+            //this.setBackground(InventoryMenu.BLOCK_ATLAS, Identifier.parse(this.backgroundLoc));
         }
 
         @Override

@@ -14,27 +14,27 @@ import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class GadgetDestruction extends BaseGadget {
-    public GadgetDestruction() {
-        super();
+    public GadgetDestruction(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -47,19 +47,18 @@ public class GadgetDestruction extends BaseGadget {
         return Config.DESTRUCTIONGADGET_COST.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
         }
 
-        tooltip.add(Component.translatable("buildinggadgets2.voidwarning")
+        tooltip.accept(Component.translatable("buildinggadgets2.voidwarning")
                 .withStyle(ChatFormatting.RED));
 
-        boolean sneakPressed = Screen.hasShiftDown();
+        boolean sneakPressed = Minecraft.getInstance().hasShiftDown();
 
         if (sneakPressed) {
 
@@ -67,7 +66,7 @@ public class GadgetDestruction extends BaseGadget {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack gadget = player.getItemInHand(hand);
 
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
@@ -78,20 +77,20 @@ public class GadgetDestruction extends BaseGadget {
         }
 
         if (level.isClientSide()) //No client
-            return InteractionResultHolder.success(gadget);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
 
         return this.onAction(context);
     }
 
     @Override
-    InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
+    InteractionResult onAction(ItemActionContext context) {
         var gadget = context.stack();
 
         BlockPos anchor = GadgetNBT.getAnchorPos(gadget);
         Direction anchorSide = GadgetNBT.getAnchorSide(gadget);
 
         if (context.level().getBlockState(VectorHelper.getLookingAt(context.player(), gadget).getBlockPos()) == Blocks.AIR.defaultBlockState() && anchor == null)
-            return InteractionResultHolder.pass(gadget);
+            return InteractionResult.PASS;
 
         BlockPos startBlock = getHitPos(context);
         Direction facing = (anchorSide == null) ? context.hitResult().getDirection() : anchorSide;
@@ -104,12 +103,12 @@ public class GadgetDestruction extends BaseGadget {
         UUID buildUUID = BuildingUtils.removeTickHandler(context.level(), context.player(), destroyPosList, false, true, gadget);
         GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID); //If we placed anything at all, add to the undoList
         GadgetNBT.clearAnchorPos(gadget);
-        return InteractionResultHolder.success(gadget);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
     }
 
     @Override
-    InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
-        if (context.level().isClientSide)
+    InteractionResult onShiftAction(ItemActionContext context) {
+        if (context.level().isClientSide())
             ScreenOpener.openDestructionScreen(context.stack());
 
         return super.onShiftAction(context);

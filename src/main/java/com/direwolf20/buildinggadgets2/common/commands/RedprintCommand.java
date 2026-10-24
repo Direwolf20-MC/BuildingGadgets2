@@ -15,9 +15,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 
@@ -34,10 +32,10 @@ public class RedprintCommand {
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> subCommand) {
         subCommand
-                .requires(p_214470_ -> p_214470_.hasPermission(Commands.LEVEL_ALL))
+                .requires(Commands.hasPermission(Commands.LEVEL_ALL))
                 .then(
                         Commands.literal("list")
-                                .requires(p_214470_ -> p_214470_.hasPermission(Commands.LEVEL_ALL))
+                                .requires(Commands.hasPermission(Commands.LEVEL_ALL))
                                 .executes(
                                         p_258233_ -> listRedprints(
                                                 p_258233_.getSource()
@@ -46,7 +44,7 @@ public class RedprintCommand {
                 )
                 .then(
                         Commands.literal("remove")
-                                .requires(p_214470_ -> p_214470_.hasPermission(Commands.LEVEL_ADMINS))
+                                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                                 .then(
                                         Commands.argument("name", StringArgumentType.word())
                                                 .executes(
@@ -59,7 +57,7 @@ public class RedprintCommand {
                 )
                 .then(
                         Commands.literal("give")
-                                .requires(p_214470_ -> p_214470_.hasPermission(Commands.LEVEL_ADMINS))
+                                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                                 .then(
                                         Commands.argument("name", StringArgumentType.word())
                                                 .then(
@@ -96,7 +94,7 @@ public class RedprintCommand {
         UUID sourceUUID = bg2Data.getRedprintUUIDfromName(name);
         if (sourceUUID == null) {
             pSource.sendSuccess(() -> Component.translatable("buildinggadgets2.messages.redprintgivefail", name, serverPlayer.getDisplayName()), false);
-            playSound(serverPlayer, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.WAXED_SIGN_INTERACT_FAIL.getLocation().toString()))));
+            playSound(serverPlayer, Holder.direct(SoundEvents.WAXED_SIGN_INTERACT_FAIL));
             return 0;
         }
 
@@ -118,7 +116,7 @@ public class RedprintCommand {
         serverPlayer.connection.send(new SendCopyDataPayload(targetUUID, GadgetNBT.getCopyUUID(newRedprint), tag));
 
         serverPlayer.addItem(newRedprint);
-        playSound(serverPlayer, Holder.direct(SoundEvent.createVariableRangeEvent(ResourceLocation.parse(SoundEvents.ENCHANTMENT_TABLE_USE.getLocation().toString()))));
+        playSound(serverPlayer, Holder.direct(SoundEvents.ENCHANTMENT_TABLE_USE));
 
         return 1;
     }

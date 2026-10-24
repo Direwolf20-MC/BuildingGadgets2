@@ -17,8 +17,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.client.settings.KeyModifier;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = BuildingGadgets2.MODID, value = Dist.CLIENT)
 public class EventKeyInput {
@@ -34,20 +34,21 @@ public class EventKeyInput {
             return;
 
         KeyMapping mode = KeyBindings.menuSettings;
+        // TODO(port): 26.1 replaced KeyModifier.getActiveModifier() with getActiveModifiers() returning a List. Mapping "no active modifier" → "active modifiers list is empty".
         if (!(mc.screen instanceof ModeRadialMenu) && mode.consumeClick() && ((mode.getKeyModifier() == KeyModifier.NONE
-                && KeyModifier.getActiveModifier() == KeyModifier.NONE) || mode.getKeyModifier() != KeyModifier.NONE)) {
+                && KeyModifier.getActiveModifiers().isEmpty()) || mode.getKeyModifier() != KeyModifier.NONE)) {
             if (tool.getItem() instanceof GadgetDestruction)
                 mc.setScreen(new DestructionGUI(tool, true));
             else
                 mc.setScreen(new ModeRadialMenu(tool));
         } else if (KeyBindings.undo.consumeClick()) {
-            PacketDistributor.sendToServer(new UndoPayload());
+            ClientPacketDistributor.sendToServer(new UndoPayload());
         } else if (KeyBindings.anchor.consumeClick()) {
-            PacketDistributor.sendToServer(new AnchorPayload());
+            ClientPacketDistributor.sendToServer(new AnchorPayload());
         } else if (KeyBindings.range.consumeClick()) {
             int oldRange = GadgetNBT.getToolRange(tool);
             int newRange = oldRange + 1 > 15 ? 1 : oldRange + 1;
-            PacketDistributor.sendToServer(new RangeChangePayload(newRange));
+            ClientPacketDistributor.sendToServer(new RangeChangePayload(newRange));
         }
     }
 }

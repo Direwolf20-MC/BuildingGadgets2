@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "buildinggadgets2",
+  "key": {
+    "d": "#c:gems/diamond",
+    "i": "#c:ingots/iron",
+    "l": "#c:gems/lapis",
+    "r": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "iri",
+    "dld",
+    "ili"
+  ],
+  "result": {
+    "id": "buildinggadgets2:gadget_exchanging"
+  }
+}

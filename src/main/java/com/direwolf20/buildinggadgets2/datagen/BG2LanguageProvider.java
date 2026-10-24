@@ -20,6 +20,9 @@ public class BG2LanguageProvider extends LanguageProvider {
         add(Registration.RenderBlock.get(), "Render Block (DO NOT USE)");
         add(Registration.TemplateManager.get(), "Template Manager");
 
+        //Block Items
+        add(Registration.TemplateManager_ITEM.get(), "Template Manager");
+
         //Items
         add(Registration.Building_Gadget.get(), "Building Gadget");
         add(Registration.Exchanging_Gadget.get(), "Exchanging Gadget");
@@ -41,7 +44,7 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.templatename", "Name: %s");
 
         //Keys
-        add("key.buildinggadgets2.category", "Building Gadgets 2");
+        add("key.category.buildinggadgets2.main", "Building Gadgets 2");
         add("key.buildinggadgets2.anchor", "Anchor");
         add("key.buildinggadgets2.range", "Range");
         add("key.buildinggadgets2.settings_menu", "Settings Menu");
@@ -150,3 +153,4 @@ public class BG2LanguageProvider extends LanguageProvider {
         add("buildinggadgets2.messages.redprintgivefail", "Failed to give redprint %s to %s");
     }
 }
+

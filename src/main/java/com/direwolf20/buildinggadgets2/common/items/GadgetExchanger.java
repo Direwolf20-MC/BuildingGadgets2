@@ -14,29 +14,29 @@ import com.direwolf20.buildinggadgets2.util.context.ItemActionContext;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.direwolf20.buildinggadgets2.util.BuildingUtils.hasEnoughEnergy;
 import static com.direwolf20.buildinggadgets2.util.BuildingUtils.useEnergy;
 
 public class GadgetExchanger extends BaseGadget {
-    public GadgetExchanger() {
-        super();
+    public GadgetExchanger(Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -49,31 +49,30 @@ public class GadgetExchanger extends BaseGadget {
         return Config.EXCHANGINGGADGET_COST.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
         }
 
-        boolean sneakPressed = Screen.hasShiftDown();
+        boolean sneakPressed = Minecraft.getInstance().hasShiftDown();
 
         if (sneakPressed) {
             BaseMode mode = GadgetNBT.getMode(stack);
-            tooltip.add(Component.translatable("buildinggadgets2.tooltips.mode", Component.translatable(mode.i18n())).setStyle(Styles.AQUA));
-            tooltip.add(Component.translatable("buildinggadgets2.tooltips.range", GadgetNBT.getToolRange(stack)).setStyle(Styles.LT_PURPLE));
-            tooltip.add(Component.translatable("buildinggadgets2.tooltips.blockstate", GadgetNBT.getGadgetBlockState(stack).getBlock().getName()).setStyle(Styles.DK_GREEN));
+            tooltip.accept(Component.translatable("buildinggadgets2.tooltips.mode", Component.translatable(mode.i18n())).setStyle(Styles.AQUA));
+            tooltip.accept(Component.translatable("buildinggadgets2.tooltips.range", GadgetNBT.getToolRange(stack)).setStyle(Styles.LT_PURPLE));
+            tooltip.accept(Component.translatable("buildinggadgets2.tooltips.blockstate", GadgetNBT.getGadgetBlockState(stack).getBlock().getName()).setStyle(Styles.DK_GREEN));
         }
     }
 
     @Override
-    InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
+    InteractionResult onAction(ItemActionContext context) {
         var gadget = context.stack();
 
         BlockState setState = GadgetNBT.getGadgetBlockState(gadget);
-        if (setState.isAir()) return InteractionResultHolder.pass(gadget);
+        if (setState.isAir()) return InteractionResult.PASS;
 
         var mode = GadgetNBT.getMode(gadget);
         ArrayList<StatePos> buildList = mode.collect(context.hitResult().getDirection(), context.player(), getHitPos(context), setState);
@@ -81,21 +80,21 @@ public class GadgetExchanger extends BaseGadget {
         UUID buildUUID = BuildingUtils.exchange(context.level(), context.player(), buildList, getHitPos(context), gadget, true, true);
         GadgetUtils.addToUndoList(context.level(), gadget, new ArrayList<>(), buildUUID);
         GadgetNBT.clearAnchorPos(gadget);
-        return InteractionResultHolder.success(gadget);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
     }
 
     /**
      * Selects the block assuming you're actually looking at one
      */
     @Override
-    InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
+    InteractionResult onShiftAction(ItemActionContext context) {
         BlockState blockState = context.level().getBlockState(context.pos());
         if (!GadgetUtils.isValidBlockState(blockState, context.level(), context.pos()) || blockState.getBlock() instanceof RenderBlock) {
-            context.player().displayClientMessage(Component.translatable("buildinggadgets2.messages.invalidblock"), true);
+            context.player().sendOverlayMessage(Component.translatable("buildinggadgets2.messages.invalidblock"));
             return super.onShiftAction(context);
         }
         if (GadgetUtils.setBlockState(context.stack(), blockState))
-            return InteractionResultHolder.success(context.stack());
+            return InteractionResult.SUCCESS.heldItemTransformedTo(context.stack());
 
         return super.onShiftAction(context);
     }
@@ -118,7 +117,7 @@ public class GadgetExchanger extends BaseGadget {
             if (pos.state.isAir()) continue; //Since we store air now
             if (!pos.state.canSurvive(level, pos.pos)) continue;
             if (!player.isCreative() && !hasEnoughEnergy(gadget)) {
-                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.outofpower"), true);
+                player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.outofpower"));
                 break; //Break out if we're out of power
             }
             if (!player.isCreative())
@@ -138,16 +137,6 @@ public class GadgetExchanger extends BaseGadget {
     /**
      * For Silk Touch - The tag that allows silk touch ALSO allows fortune, so I have to deny fortune after adding the tag....SUPER FUN!
      */
-    @Override
-    public boolean isEnchantable(ItemStack p_41456_) {
-        return true;
-    }
-
-    @Override
-    public int getEnchantmentValue() {
-        return 3;
-    }
-
     @Override
     public boolean isPrimaryItemFor(ItemStack stack, Holder<Enchantment> enchantment) {
         return super.isPrimaryItemFor(stack, enchantment) && canAcceptEnchantments(enchantment);

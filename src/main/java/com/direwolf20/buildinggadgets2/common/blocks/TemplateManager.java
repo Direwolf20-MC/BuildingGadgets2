@@ -18,17 +18,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.Nullable;
 
 public class TemplateManager extends Block implements EntityBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public TemplateManager() {
-        super(Properties.of().strength(2f));
+    public TemplateManager(Properties properties) {
+        super(properties);
         registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.SOUTH));
     }
 
@@ -36,23 +35,6 @@ public class TemplateManager extends Block implements EntityBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(FACING);
-    }
-
-    @Override
-    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (newState.getBlock() != this) {
-            BlockEntity blockEntity = worldIn.getBlockEntity(pos);
-            if (blockEntity != null && blockEntity instanceof TemplateManagerBE) {
-                var cap = worldIn.getCapability(Capabilities.ItemHandler.BLOCK, pos, state, blockEntity, null);
-                if (cap != null) {
-                    for (int i = 0; i < cap.getSlots(); ++i) {
-                        Containers.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), cap.getStackInSlot(i));
-                    }
-                }
-            }
-
-        }
-        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Nullable
@@ -69,7 +51,7 @@ public class TemplateManager extends Block implements EntityBlock {
 
     @Override
     public InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult hit) {
-        if (level.isClientSide)
+        if (level.isClientSide())
             return InteractionResult.SUCCESS;
 
         BlockEntity te = level.getBlockEntity(blockPos);

@@ -1,21 +1,35 @@
 package com.direwolf20.buildinggadgets2.datagen;
 
-import com.direwolf20.buildinggadgets2.BuildingGadgets2;
 import com.direwolf20.buildinggadgets2.setup.Registration;
-import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.resources.Identifier;
 
+public final class BG2BlockStates {
 
-public class BG2BlockStates extends BlockStateProvider {
-    public BG2BlockStates(PackOutput output, ExistingFileHelper helper) {
-        super(output, BuildingGadgets2.MODID, helper);
+    private final BlockModelGenerators blockModels;
+
+    public BG2BlockStates(BlockModelGenerators blockModels) {
+        this.blockModels = blockModels;
     }
 
-    @Override
-    protected void registerStatesAndModels() {
-        //models().cubeAll(ForgeRegistries.BLOCKS.getKey(Registration.RenderBlock.get()).getPath(), blockTexture(Registration.RenderBlock.get())).renderType("cutout");
-        simpleBlock(Registration.RenderBlock.get(), models().cubeAll(Registration.RenderBlock.getId().getPath(), blockTexture(Registration.RenderBlock.get())).renderType("cutout"));
-        //simpleBlock(Registration.LaserNode.get(), models().getExistingFile(modLoc("block/laser_node")));
+    public void run() {
+        // render_block: single cube_all. Its render-type (cutout) is controlled by the
+        // block entity renderer at runtime, not by the blockstate JSON.
+        blockModels.createTrivialCube(Registration.RenderBlock.get());
+
+        // template_manager: horizontally-facing orientable cube with per-face textures
+        // (side/front/top/bottom). Mirrors vanilla's furnace blockstate layout.
+        Identifier templateManagerModel = ModelTemplates.CUBE_ORIENTABLE_TOP_BOTTOM.create(
+                Registration.TemplateManager.get(),
+                TextureMapping.orientableCube(Registration.TemplateManager.get()),
+                blockModels.modelOutput);
+        MultiVariant templateManagerVariant = BlockModelGenerators.plainVariant(templateManagerModel);
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(Registration.TemplateManager.get(), templateManagerVariant)
+                        .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
     }
 }

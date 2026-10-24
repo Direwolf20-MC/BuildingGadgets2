@@ -4,17 +4,28 @@ import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets2.common.items.GadgetCutPaste;
 import com.direwolf20.buildinggadgets2.setup.Registration;
+import com.mojang.serialization.Codec;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
-import javax.annotation.Nonnull;
+public class TemplateManagerHandler extends ItemStacksResourceHandler {
+    public static final String STACKS_KEY = "stacks";
+    public static final Codec<NonNullList<ItemStack>> STACKS_CODEC =
+            ItemStack.OPTIONAL_CODEC.listOf().xmap(
+                    list -> NonNullList.of(ItemStack.EMPTY, list.toArray(ItemStack[]::new)),
+                    list -> list);
 
-public class TemplateManagerHandler extends ItemStackHandler {
-    TemplateManagerBE blockEntity;
+    private final TemplateManagerBE blockEntity;
 
     public TemplateManagerHandler(int size) {
         super(size);
+        this.blockEntity = null;
     }
 
     public TemplateManagerHandler(int size, TemplateManagerBE blockEntity) {
@@ -23,28 +34,32 @@ public class TemplateManagerHandler extends ItemStackHandler {
     }
 
     @Override
-    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        if (slot == 0)
-            return (stack.getItem() instanceof GadgetCopyPaste || stack.getItem() instanceof GadgetCutPaste);
-        if (slot == 1)
-            return stack.is(Items.PAPER) || stack.is(Registration.Template.get()) || stack.is(Registration.Redprint.get());
+    public boolean isValid(int index, ItemResource resource) {
+        if (resource.isEmpty()) return false;
+        Item item = resource.getItem();
+        if (index == 0)
+            return item instanceof GadgetCopyPaste || item instanceof GadgetCutPaste;
+        if (index == 1)
+            return item == Items.PAPER || item == Registration.Template.get() || item == Registration.Redprint.get();
         return false;
     }
 
     @Override
-    protected void onContentsChanged(int slot) {
+    protected int getCapacity(int index, ItemResource resource) {
+        return 1;
+    }
+
+    @Override
+    protected void onContentsChanged(int index, ItemStack previousContents) {
         if (blockEntity != null)
             blockEntity.setChanged();
     }
 
-    @Nonnull
-    @Override
-    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-        return super.insertItem(slot, stack, simulate);
+    public void writeToOutput(ValueOutput output) {
+        output.store(STACKS_KEY, STACKS_CODEC, copyToList());
     }
 
-    @Override
-    public int getSlotLimit(int slot) {
-        return 1;
+    public void readFromInput(ValueInput input) {
+        input.read(STACKS_KEY, STACKS_CODEC).ifPresent(this::setStacks);
     }
 }

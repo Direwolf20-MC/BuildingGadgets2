@@ -1,6 +1,6 @@
 package com.direwolf20.buildinggadgets2.util.datatypes;
 
-import com.direwolf20.buildinggadgets2.datagen.BG2BlockTags;
+import com.direwolf20.buildinggadgets2.util.BG2Tags;
 import com.direwolf20.buildinggadgets2.util.VecHelpers;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
@@ -31,15 +31,15 @@ public class TemplateJsonRepresentation {
 
     public static ArrayList<StatePos> deserialize(CompoundTag nbt, BlockPos startPos, BlockPos endPos) {
         ArrayList<StatePos> statePosList = new ArrayList<>();
-        ListTag posList = nbt.getList("pos", Tag.TAG_LONG);
-        ListTag stateList = nbt.getList("data", Tag.TAG_COMPOUND);
+        ListTag posList = nbt.getListOrEmpty("pos");
+        ListTag stateList = nbt.getListOrEmpty("data");
         HashMap<BlockPos, BlockState> tempMap = new HashMap<>();
 
         for (Tag inbt : posList) {
             LongTag longNBT = (LongTag) inbt;
-            BlockPos pos = posFromLong(longNBT.getAsLong());
-            int stateID = readStateId(longNBT.getAsLong());
-            BlockState blockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), stateList.getCompound(stateID).getCompound("state"));
+            BlockPos pos = posFromLong(longNBT.longValue());
+            int stateID = readStateId(longNBT.longValue());
+            BlockState blockState = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, stateList.getCompoundOrEmpty(stateID).getCompoundOrEmpty("state"));
             tempMap.put(pos, blockState);
         }
 
@@ -51,7 +51,7 @@ public class TemplateJsonRepresentation {
                 return;
             }
 
-            if (blockState.is(BG2BlockTags.BG2DENY)) {
+            if (blockState.is(BG2Tags.BG2DENY)) {
                 statePosList.add(new StatePos(Blocks.AIR.defaultBlockState(), pos));
                 return;
             }

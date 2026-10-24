@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "buildinggadgets2:block/template_manager",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "buildinggadgets2:block/template_manager"
+    },
+    "facing=south": {
+      "model": "buildinggadgets2:block/template_manager",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "buildinggadgets2:block/template_manager",
+      "y": 270
+    }
+  }
+}

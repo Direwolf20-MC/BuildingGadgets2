@@ -6,6 +6,7 @@ import com.direwolf20.buildinggadgets2.common.items.BaseGadget;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,10 +22,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class KeyBindings {
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyBindings.class);
     private static final KeyConflictContextGadget CONFLICT_CONTEXT_GADGET = new KeyConflictContextGadget();
+
+    public static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(
+            Identifier.fromNamespaceAndPath(BuildingGadgets2.MODID, "main"));
 
     private static final List<KeyMapping> keyMappings = new ArrayList<>();
 
@@ -34,7 +38,7 @@ public class KeyBindings {
     public static KeyMapping range = createBinding("range", GLFW.GLFW_KEY_R);
 
     private static KeyMapping createBinding(String name, int key) {
-        KeyMapping keyBinding = new KeyMapping(getKey(name), CONFLICT_CONTEXT_GADGET, InputConstants.Type.KEYSYM.getOrCreate(key), getKey("category"));
+        KeyMapping keyBinding = new KeyMapping(getKey(name), CONFLICT_CONTEXT_GADGET, InputConstants.Type.KEYSYM.getOrCreate(key), CATEGORY);
         keyMappings.add(keyBinding);
         return keyBinding;
     }

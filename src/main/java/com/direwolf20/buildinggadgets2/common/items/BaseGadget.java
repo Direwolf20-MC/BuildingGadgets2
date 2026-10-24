@@ -11,33 +11,32 @@ import com.direwolf20.buildinggadgets2.util.modes.BaseMode;
 import com.google.common.collect.ImmutableSortedSet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+
 import net.neoforged.neoforge.capabilities.Capabilities;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public abstract class BaseGadget extends Item {
 
-    public BaseGadget() {
-        super(new Properties()
-                .stacksTo(1));
+    public BaseGadget(Properties properties) {
+        super(properties);
     }
 
     /**
@@ -55,63 +54,62 @@ public abstract class BaseGadget extends Item {
 
     @Override
     public boolean isBarVisible(ItemStack stack) {
-        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        var energy = stack.getCapability(Capabilities.Energy.ITEM, null);
         if (energy == null) {
             return false;
         }
 
-        return (energy.getEnergyStored() < energy.getMaxEnergyStored());
+        return (energy.getAmountAsInt() < energy.getCapacityAsInt());
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        var energy = stack.getCapability(Capabilities.Energy.ITEM, null);
         if (energy == null) {
             return 0;
         }
 
-        return Math.min(13 * energy.getEnergyStored() / energy.getMaxEnergyStored(), 13);
+        return Math.min(13 * energy.getAmountAsInt() / energy.getCapacityAsInt(), 13);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        var energy = stack.getCapability(Capabilities.Energy.ITEM, null);
         if (energy == null) {
             return super.getBarColor(stack);
         }
 
-        return Mth.hsvToRgb(Math.max(0.0F, (float) energy.getEnergyStored() / (float) energy.getMaxEnergyStored()) / 3.0F, 1.0F, 1.0F);
+        return Mth.hsvToRgb(Math.max(0.0F, (float) energy.getAmountAsInt() / (float) energy.getCapacityAsInt()) / 3.0F, 1.0F, 1.0F);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
         }
 
-        boolean sneakPressed = Screen.hasShiftDown();
+        boolean sneakPressed = Minecraft.getInstance().hasShiftDown();
 
         if (!sneakPressed) {
-            tooltip.add(Component.translatable("buildinggadgets2.tooltips.holdshift",
+            tooltip.accept(Component.translatable("buildinggadgets2.tooltips.holdshift",
                             "shift")
                     .withStyle(ChatFormatting.GRAY));
         } else {
             GlobalPos boundTo = GadgetNBT.getBoundPos(stack);
             if (boundTo != null) {
-                tooltip.add(Component.translatable("buildinggadgets2.tooltips.boundto", boundTo.dimension().location().getPath(), "[" + boundTo.pos().toShortString() + "]").setStyle(Styles.GOLD));
+                tooltip.accept(Component.translatable("buildinggadgets2.tooltips.boundto", boundTo.dimension().identifier().getPath(), "[" + boundTo.pos().toShortString() + "]").setStyle(Styles.GOLD));
             }
         }
 
-        var energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+        var energy = stack.getCapability(Capabilities.Energy.ITEM, null);
         if (energy != null) {
             MutableComponent energyText = !sneakPressed
-                    ? Component.translatable("buildinggadgets2.tooltips.energy", MagicHelpers.tidyValue(energy.getEnergyStored()), MagicHelpers.tidyValue(energy.getMaxEnergyStored()))
-                    : Component.translatable("buildinggadgets2.tooltips.energy", String.format("%,d", energy.getEnergyStored()), String.format("%,d", energy.getMaxEnergyStored()));
+                    ? Component.translatable("buildinggadgets2.tooltips.energy", MagicHelpers.tidyValue(energy.getAmountAsInt()), MagicHelpers.tidyValue(energy.getCapacityAsInt()))
+                    : Component.translatable("buildinggadgets2.tooltips.energy", String.format("%,d", energy.getAmountAsInt()), String.format("%,d", energy.getCapacityAsInt()));
 
-            tooltip.add(energyText.withStyle(ChatFormatting.GREEN));
+            tooltip.accept(energyText.withStyle(ChatFormatting.GREEN));
         }
     }
 
@@ -119,24 +117,24 @@ public abstract class BaseGadget extends Item {
      * Implementation level of for the onAction & onShiftAction methods below.
      */
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack gadget = player.getItemInHand(hand);
 
         if (level.isClientSide()) //No client
-            return InteractionResultHolder.success(gadget);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
 
         BlockHitResult lookingAt = VectorHelper.getLookingAt(player, gadget);
         if (level.getBlockState(lookingAt.getBlockPos()).isAir() && GadgetNBT.getAnchorPos(gadget).equals(GadgetNBT.nullPos))
-            return InteractionResultHolder.success(gadget);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
         ItemActionContext context = new ItemActionContext(lookingAt.getBlockPos(), lookingAt, player, level, hand, gadget);
 
         if (player.isShiftKeyDown()) {
             if (GadgetNBT.getSetting(gadget, GadgetNBT.ToggleableSettings.BIND.getName())) {
                 if (bindToInventory(level, player, gadget, lookingAt)) {
                     GadgetNBT.toggleSetting(gadget, GadgetNBT.ToggleableSettings.BIND.getName()); //Turn off bind
-                    return InteractionResultHolder.success(gadget);
+                    return InteractionResult.SUCCESS.heldItemTransformedTo(gadget);
                 } else {
-                    return InteractionResultHolder.fail(gadget);
+                    return InteractionResult.FAIL;
                 }
             }
             return this.onShiftAction(context);
@@ -145,31 +143,31 @@ public abstract class BaseGadget extends Item {
         return this.onAction(context);
     }
 
-    InteractionResultHolder<ItemStack> onAction(ItemActionContext context) {
-        return InteractionResultHolder.pass(context.stack());
+    InteractionResult onAction(ItemActionContext context) {
+        return InteractionResult.PASS;
     }
 
-    InteractionResultHolder<ItemStack> onShiftAction(ItemActionContext context) {
-        return InteractionResultHolder.pass(context.stack());
+    InteractionResult onShiftAction(ItemActionContext context) {
+        return InteractionResult.PASS;
     }
 
     public boolean bindToInventory(Level level, Player player, ItemStack gadget, BlockHitResult lookingAt) {
         BlockEntity blockEntity = level.getBlockEntity(lookingAt.getBlockPos());
         if (blockEntity != null) {
-            var itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, lookingAt.getBlockPos(), lookingAt.getDirection());
+            var itemHandler = level.getCapability(Capabilities.Item.BLOCK, lookingAt.getBlockPos(), lookingAt.getDirection());
             if (itemHandler != null) {
                 GadgetNBT.setBoundPos(gadget, new GlobalPos(level.dimension(), lookingAt.getBlockPos()));
                 GadgetNBT.setToolValue(gadget, lookingAt.getDirection().ordinal(), GadgetNBT.IntSettings.BIND_DIRECTION.getName());
-                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindsuccess", lookingAt.getBlockPos().toShortString()), true);
+                player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.bindsuccess", lookingAt.getBlockPos().toShortString()));
                 return true;
             }
         }
         GlobalPos existingBind = GadgetNBT.getBoundPos(gadget);
         if (existingBind == null)
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindfailed"), true);
+            player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.bindfailed"));
         else {
             GadgetNBT.clearBoundPos(gadget);
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.bindremoved"), true);
+            player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.bindremoved"));
             return true;
         }
         return false;
@@ -181,7 +179,7 @@ public abstract class BaseGadget extends Item {
      * @param stack the gadget
      * @return the selected mode's id
      */
-    public ResourceLocation rotateModes(ItemStack stack) {
+    public Identifier rotateModes(ItemStack stack) {
         ImmutableSortedSet<BaseMode> modesForGadget = GadgetModes.INSTANCE.getModesForGadget(this.gadgetTarget());
         var arrayOfModes = new ArrayList<>(modesForGadget); // This is required to work with index's
         var currentMode = GadgetNBT.getMode(stack);
@@ -224,7 +222,7 @@ public abstract class BaseGadget extends Item {
         ArrayList<StatePos> undoList = bg2Data.peekUndoList(undoUUID);
         for (StatePos statePos : undoList) {
             if (!level.isLoaded(statePos.pos)) {
-                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.undofailedunloaded", statePos.pos.toShortString()), true);
+                player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.undofailedunloaded", statePos.pos.toShortString()));
                 return false;
             }
         }

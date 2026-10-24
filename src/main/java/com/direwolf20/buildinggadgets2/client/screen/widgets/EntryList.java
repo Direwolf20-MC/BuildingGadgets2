@@ -1,10 +1,10 @@
 package com.direwolf20.buildinggadgets2.client.screen.widgets;
 
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.ObjectSelectionList.Entry;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.Mth;
 
 public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
@@ -13,108 +13,64 @@ public class EntryList<E extends Entry<E>> extends ObjectSelectionList<E> {
 
     public EntryList(int left, int top, int width, int height, int slotHeight) {
         super(Minecraft.getInstance(), width, height, top, slotHeight);
-        // Set left x and right x, somehow MCP gave it a weird name
         this.setX(left);
-        double guiScaleFactor = Minecraft.getInstance().getWindow().getGuiScale();
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        if (children().isEmpty()) return;
-        //This Scissor stuff is what keeps the item list in the dark area, without it it bleeds into the white area while scrolling (try it)
-        guiGraphics.enableScissor(getX(), getY(), getX() + width, getY() + height);
-        try {
-            renderParts(guiGraphics, mouseX, mouseY, partialTicks);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        guiGraphics.disableScissor();
-    }
+    protected void extractScrollbar(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        if (!scrollable()) return;
 
-    // Copied and modified from AbstractLists#render(int, int, float)
-    private void renderParts(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        Tesselator tessellator = Tesselator.getInstance();
+        int left = this.scrollBarX();
+        int right = left + SCROLL_BAR_WIDTH;
+        int top = this.getY();
+        int bottom = this.getBottom();
 
+        int scrollerHeight = this.scrollerHeight();
+        scrollerHeight = Mth.clamp(scrollerHeight, 32, bottom - top - 8);
+        int scrollerTop = this.scrollBarY();
 
-        renderContentBackground(guiGraphics);
-
-        int k = getRowLeft();
-        int l = getY() + 4 - (int) getScrollAmount();
-
-        //Don't ask my why this has to go first, but it does!
-        int j1 = getMaxScroll();
-        //This section renders the scroll bar. If we renderItems() first the scrollbar is always black - no idea why
-        if (j1 > 0) {
-            BufferBuilder bufferbuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            int k1 = (int) ((float) ((getBottom() - getY()) * (getBottom() - getY())) / (float) getMaxPosition());
-            k1 = Mth.clamp(k1, 32, getBottom() - getY() - 8);
-            int l1 = (int) getScrollAmount() * (getBottom() - getY() - k1) / j1 + getY();
-            if (l1 < getY()) {
-                l1 = getY();
-            }
-            int x1 = getScrollbarPosition();
-            int x2 = x1 + 6;
-
-            bufferbuilder.addVertex(x1, getBottom(), 0.0F).setColor(0, 0, 0, 255);
-            bufferbuilder.addVertex(x2, getBottom(), 0.0F).setColor(0, 0, 0, 255);
-            bufferbuilder.addVertex(x2, getY(), 0.0F).setColor(0, 0, 0, 255);
-            bufferbuilder.addVertex(x1, getY(), 0.0F).setColor(0, 0, 0, 255);
-
-            bufferbuilder.addVertex(x1, (l1 + k1), 0.0F).setColor(128, 128, 128, 255);
-            bufferbuilder.addVertex(x2, (l1 + k1), 0.0F).setColor(128, 128, 128, 255);
-            bufferbuilder.addVertex(x2, l1, 0.0F).setColor(128, 128, 128, 255);
-            bufferbuilder.addVertex(x1, l1, 0.0F).setColor(128, 128, 128, 255);
-
-            bufferbuilder.addVertex(x1, (l1 + k1 - 1), 0.0F).setColor(192, 192, 192, 255);
-            bufferbuilder.addVertex((x2 - 1), (l1 + k1 - 1), 0.0F).setColor(192, 192, 192, 255);
-            bufferbuilder.addVertex((x2 - 1), l1, 0.0F).setColor(192, 192, 192, 255);
-            bufferbuilder.addVertex(x1, l1, 0.0F).setColor(192, 192, 192, 255);
-            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        }
-        renderListItems(guiGraphics, k, l, partialTicks);
-
-    }
-
-    protected void renderContentBackground(GuiGraphics guiGraphics) {
-        guiGraphics.fillGradient(getX(), getY(), getRight(), getBottom(), 0xC0101010, 0xD0101010);
+        graphics.fill(left, top, right, bottom, 0xFF000000);
+        graphics.fill(left, scrollerTop, right, scrollerTop + scrollerHeight, 0xFF808080);
+        graphics.fill(left, scrollerTop, right - 1, scrollerTop + scrollerHeight - 1, 0xFFC0C0C0);
     }
 
     @Override
-    protected void renderSelection(GuiGraphics p_283589_, int p_240142_, int p_240143_, int p_240144_, int p_240145_, int p_240146_) {
-        int i = this.getX() + 3;
-        int j = this.getX() + (this.width + p_240143_) / 2;
-        p_283589_.fill(i, p_240142_ - 2, j, p_240142_ + p_240144_ + 2, p_240145_);
-        p_283589_.fill(i + 1, p_240142_ - 1, j - 1, p_240142_ + p_240144_ + 1, p_240146_);
+    protected void extractListBackground(GuiGraphicsExtractor graphics) {
+        graphics.fillGradient(getX(), getY(), getRight(), getBottom(), 0xC0101010, 0xD0101010);
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
+    protected void extractSelection(GuiGraphicsExtractor graphics, E entry, int outlineColor) {
+        int top = entry.getY();
+        int bottom = top + entry.getHeight();
+        int left = this.getX() + 3;
+        int right = this.getX() + (this.width + this.getRowWidth()) / 2;
+        graphics.fill(left, top - 2, right, bottom + 2, outlineColor);
+        graphics.fill(left + 1, top - 1, right - 1, bottom + 1, 0xFF000000);
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         setDragging(true);
-        super.mouseClicked(x, y, button);
-        return isMouseOver(x, y);
+        super.mouseClicked(event, doubleClick);
+        return isMouseOver(event.x(), event.y());
     }
 
     @Override
-    public boolean mouseReleased(double x, double y, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         setDragging(false);
-        return super.mouseReleased(x, y, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
-        if (super.mouseDragged(x, y, button, dx, dy))
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (super.mouseDragged(event, dx, dy))
             return true;
 
-        // Dragging elements in panel
-        if (isMouseOver(x, y)) {
-            setScrollAmount(getScrollAmount() - dy);
+        if (isMouseOver(event.x(), event.y())) {
+            setScrollAmount(scrollAmount() - dy);
         }
         return true;
-    }
-
-    // Copied from AbstractList#getMaxScroll because it is private
-    public final int getMaxScroll() {
-        return Math.max(0, this.getMaxPosition() - (this.getBottom() - this.getY() - 4));
     }
 
     @Override

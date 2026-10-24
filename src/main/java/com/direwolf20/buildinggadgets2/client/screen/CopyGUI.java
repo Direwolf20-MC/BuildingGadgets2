@@ -3,14 +3,16 @@ package com.direwolf20.buildinggadgets2.client.screen;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.GuiIncrementer;
 import com.direwolf20.buildinggadgets2.common.network.data.CopyCoordsPayload;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +66,7 @@ public class CopyGUI extends Screen {
             }));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.close"), (button) -> onClose()));
             add(new CenteredButton(y + 20, 50, Component.translatable("buildinggadgets2.screen.clear"), (button) -> {
-                PacketDistributor.sendToServer(new CopyCoordsPayload(GadgetNBT.nullPos, GadgetNBT.nullPos));
+                ClientPacketDistributor.sendToServer(new CopyCoordsPayload(GadgetNBT.nullPos, GadgetNBT.nullPos));
 
                 onClose();
             }));
@@ -81,8 +83,8 @@ public class CopyGUI extends Screen {
         buttons.forEach(this::addRenderableWidget);
     }
 
-    private void drawFieldLabel(GuiGraphics guiGraphics, Component name, int x, int y) {
-        guiGraphics.drawString(font, name, this.x + x, this.y + y, 0xFFFFFF);
+    private void drawFieldLabel(GuiGraphicsExtractor guiGraphics, Component name, int x, int y) {
+        guiGraphics.text(font, name, this.x + x, this.y + y, 0xFFFFFFFF);
     }
 
     private void onChange(int value) {
@@ -100,8 +102,7 @@ public class CopyGUI extends Screen {
             startY.setValue(0, false);
             startZ.setValue(0, false);
         }
-        //System.out.println("Firing Packet!");
-        PacketDistributor.sendToServer(new CopyCoordsPayload(startPos, endPos));
+        ClientPacketDistributor.sendToServer(new CopyCoordsPayload(startPos, endPos));
     }
 
     private void coordsModeSwitch() {
@@ -132,9 +133,9 @@ public class CopyGUI extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
         drawFieldLabel(guiGraphics, Component.translatable("buildinggadgets2.screen.start").append(" X"), -175, -36);
         drawFieldLabel(guiGraphics, Component.literal("Y"), -45, -36);
         drawFieldLabel(guiGraphics, Component.literal("Z"), 55, -36);
@@ -142,19 +143,19 @@ public class CopyGUI extends Screen {
         drawFieldLabel(guiGraphics, Component.literal("Y"), -45, -11);
         drawFieldLabel(guiGraphics, Component.literal("Z"), 55, -11);
 
-        guiGraphics.drawCenteredString(font, Component.translatable("buildinggadgets2.screen.copyheading"), this.x, this.y - 80, 0xFFFFFF);
-        guiGraphics.drawCenteredString(font, Component.translatable("buildinggadgets2.screen.copysubheading"), this.x, this.y - 68, 0xFFFFFF);
+        guiGraphics.centeredText(font, Component.translatable("buildinggadgets2.screen.copyheading"), this.x, this.y - 80, 0xFFFFFFFF);
+        guiGraphics.centeredText(font, Component.translatable("buildinggadgets2.screen.copysubheading"), this.x, this.y - 68, 0xFFFFFFFF);
     }
 
     @Override
-    public boolean keyPressed(int mouseX, int mouseY, int __unused) {
-        fields.forEach(button -> button.keyPressed(mouseX, mouseY, __unused));
-        return super.keyPressed(mouseX, mouseY, __unused);
+    public boolean keyPressed(KeyEvent event) {
+        fields.forEach(field -> field.keyPressed(event));
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean charTyped(char charTyped, int __unused) {
-        fields.forEach(button -> button.charTyped(charTyped, __unused));
+    public boolean charTyped(CharacterEvent event) {
+        fields.forEach(field -> field.charTyped(event));
         return false;
     }
 
@@ -169,6 +170,12 @@ public class CopyGUI extends Screen {
                     .pos(0, y)
                     .size(width, 20)
             );
+        }
+
+        @Override
+        protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            this.extractDefaultSprite(graphics);
+            this.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
         }
 
         static void centerButtonList(List<AbstractButton> buttons, int startX) {

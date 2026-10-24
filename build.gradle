@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.165'
+    id 'net.neoforged.gradle.userdev' version '7.1.21'
 }
 
 version = "${mod_version}"
@@ -12,41 +12,37 @@ group = mod_group_id
 repositories {
     mavenLocal()
 
-    maven { //Patchouli && JEI
+    // Third-party mod repositories — disabled while porting to 26.1.
+    // Re-enable alongside the matching dependencies block below.
+    //
+    maven { //JEI
         url 'https://maven.blamejared.com'
         content {
-            includeGroup "vazkii.patchouli"
             includeGroup "mezz.jei"
         }
     }
-
-    maven { // mek
-        url = 'https://modmaven.dev/'
-        content {
-            includeGroup "mekanism"
-            includeGroup "appeng"
-        }
-    }
-
-    maven { //Curios-New
-        name = "OctoStudios"
-        url = uri("https://maven.octo-studios.com/releases")
-        content {
-            includeGroup "top.theillusivec4.curios"
-        }
-    }
-
-    maven { url = "https://www.cursemaven.com" } // curse mods
+    //
+    //maven { // mek
+    //    url = 'https://modmaven.dev/'
+    //    content {
+    //        includeGroup "mekanism"
+    //        includeGroup "appeng"
+    //    }
+    //}
+    //
+    // Curios 15.x for NeoForge 26.1 isn't on the OctoStudios maven yet —
+    // pull from CurseForge via CurseMaven instead.
+    maven { url = "https://www.cursemaven.com" }
 }
 
 base {
     archivesName = mod_id
 }
 
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+// NeoForge 26.1 requires Java 25.
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
         vendor.set(JvmVendorSpec.JETBRAINS)
     }
 }
@@ -59,44 +55,33 @@ minecraft {
 //minecraft.accessTransformers.entry public net.minecraft.client.Minecraft textureManager # textureManager
 
 // Default run configurations.
-// These can be tweaked, removed, or duplicated as needed.
+// NeoGradle 7.1: keep configureEach minimal (just modSource). Per-run settings
+// live in the individual run blocks because touching `run.project.javaToolchains`
+// inside configureEach forces eager realization, which breaks name-based run-type
+// lookup. The JBR / DCEVM hot-reload wiring is dropped during the port and can
+// be restored once the base build is green.
 runs {
-    // applies to all the run configs below
-    configureEach { net.neoforged.gradle.dsl.common.runs.run.Run run ->
-        // Recommended logging data for a userdev environment
-        // The markers can be added/remove as needed separated by commas.
-        // "SCAN": For mods scan.
-        // "REGISTRIES": For firing of registry events.
-        // "REGISTRYDUMP": For getting the contents of all registries.
-        systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-        // Recommended logging level for the console
-        // You can set various levels here.
-        // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-        systemProperty 'forge.logging.console.level', 'debug'
-
+    configureEach {
         modSource project.sourceSets.main
-
-        //if the selected toolchain is a JBR, enable DCEVM
-        if (run.project.javaToolchains.launcherFor(java.toolchain).map { it.metadata.vendor }.getOrElse("").contains("JetBrains")) {
-            run.jvmArgument("-XX:+AllowEnhancedClassRedefinition")
-        }
     }
 
     client {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
         // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
         arguments.addAll '--username', 'Direwolf20'
     }
 
     client2 {
-        // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+        runType 'client'
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
-        runType('client')
         arguments.addAll '--username', 'Direwolf21'
     }
 
     server {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
         //programArgument '--nogui'
     }
@@ -105,20 +90,37 @@ runs {
     // By default, the server will crash when no gametests are provided.
     // The gametest system is also enabled by default for other run configs under the /test command.
     gameTestServer {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
     }
 
-    data {
-        // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
-        // workingDirectory project.file('run-data')
+    // Datagen was split in 26.1: clientData emits client-side assets
+    // (blockstates, models, atlases), serverData emits server-side data
+    // (recipes, loot tables, tags). Each one references the OTHER's output
+    // directory as --existing so they can see each other's generated files.
+    clientData {
+        workingDirectory project.file('run-data')
+        arguments.addAll '--mod', project.mod_id, '--all',
+                '--output', file('src/generated-client/resources/').getAbsolutePath(),
+                '--existing', file('src/main/resources/').getAbsolutePath(),
+                '--existing', file('src/generated-data/resources/').getAbsolutePath()
+    }
 
-        // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-        arguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    serverData {
+        workingDirectory project.file('run-data')
+        arguments.addAll '--mod', project.mod_id, '--all',
+                '--output', file('src/generated-data/resources/').getAbsolutePath(),
+                '--existing', file('src/main/resources/').getAbsolutePath(),
+                '--existing', file('src/generated-client/resources/').getAbsolutePath()
     }
 }
 
-// Include resources generated by data generators.
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+// Include resources generated by both datagen runs.
+sourceSets.main.resources {
+    srcDir 'src/generated-client/resources'
+    srcDir 'src/generated-data/resources'
+}
 
 
 dependencies {
@@ -130,23 +132,25 @@ dependencies {
     // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
     implementation "net.neoforged:neoforge:${neo_version}"
 
-    //AE2
-    compileOnly "appeng:appliedenergistics2:${ae2_version}:api"
-    runtimeOnly "appeng:appliedenergistics2:${ae2_version}"
-
-    //Curios
-    implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
-    //compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
-
-    // Example mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
+    // Third-party mod integrations — disabled while porting to 26.1.
+    // Re-enable one at a time after the base mod compiles against vanilla NeoForge.
+    //
+    ////AE2
+    //compileOnly "appeng:appliedenergistics2:${ae2_version}:api"
+    //runtimeOnly "appeng:appliedenergistics2:${ae2_version}"
+    //
+    // Curios — sourced from CurseForge (CurseMaven). project id 309927.
+    // Bump file id in gradle.properties (curios_file_id) when updating.
+    implementation "curse.maven:curios-309927:${curios_file_id}"
+    //
+    // JEI — API at compile time, full mod at runtime
     compileOnly "mezz.jei:jei-${jei_mc_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${jei_mc_version}-neoforge-api:${jei_version}"
     runtimeOnly "mezz.jei:jei-${jei_mc_version}-neoforge:${jei_version}"
-
-    //Patchouli
-    compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}:api"
-    runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
+    //
+    ////Patchouli
+    //compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}:api"
+    //runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
 
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository

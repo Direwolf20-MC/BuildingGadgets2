@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "buildinggadgets2:block/render_block"
+    }
+  }
+}

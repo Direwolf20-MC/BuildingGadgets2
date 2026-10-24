@@ -34,7 +34,7 @@ public class PacketAnchor {
             // If the anchor is already set, clear it
             if (!GadgetNBT.getAnchorPos(gadgetStack).equals(GadgetNBT.nullPos)) {
                 GadgetNBT.clearAnchorPos(gadgetStack);
-                player.displayClientMessage(Component.translatable("buildinggadgets2.messages.anchorcleared"), true);
+                player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.anchorcleared"));
                 return;
             }
 
@@ -53,7 +53,7 @@ public class PacketAnchor {
                 buildList.forEach(e -> blockPosList.add(e.pos));
                 GadgetNBT.setAnchorList(gadgetStack, blockPosList);
             }
-            player.displayClientMessage(Component.translatable("buildinggadgets2.messages.anchorset").append(lookingAtPos.toShortString()), true);
+            player.sendOverlayMessage(Component.translatable("buildinggadgets2.messages.anchorset").append(lookingAtPos.toShortString()));
         });
     }
 }

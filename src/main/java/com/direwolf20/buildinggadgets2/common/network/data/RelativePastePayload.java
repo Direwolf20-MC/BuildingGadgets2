@@ -5,12 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record RelativePastePayload(
         BlockPos relativePos
 ) implements CustomPacketPayload {
-    public static final Type<RelativePastePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "relative_paste_payload"));
+    public static final Type<RelativePastePayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(BuildingGadgets2.MODID, "relative_paste_payload"));
 
     @Override
     public Type<RelativePastePayload> type() {

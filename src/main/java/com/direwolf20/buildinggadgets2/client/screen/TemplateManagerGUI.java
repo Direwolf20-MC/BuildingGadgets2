@@ -6,9 +6,7 @@
 package com.direwolf20.buildinggadgets2.client.screen;
 
 import com.direwolf20.buildinggadgets2.BuildingGadgets2;
-import com.direwolf20.buildinggadgets2.client.renderer.MyRenderMethods;
-import com.direwolf20.buildinggadgets2.client.renderer.OurRenderTypes;
-import com.direwolf20.buildinggadgets2.client.renderer.VBORenderer;
+import com.direwolf20.buildinggadgets2.client.renderer.GuiTemplatePreview;
 import com.direwolf20.buildinggadgets2.client.screen.widgets.ScrollingMaterialList;
 import com.direwolf20.buildinggadgets2.common.blockentities.TemplateManagerBE;
 import com.direwolf20.buildinggadgets2.common.containers.TemplateManagerContainer;
@@ -20,50 +18,34 @@ import com.direwolf20.buildinggadgets2.common.network.data.SendPastePayload;
 import com.direwolf20.buildinggadgets2.common.network.data.UpdateTemplateManagerPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
-import com.direwolf20.buildinggadgets2.util.FakeRenderingWorld;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.Template;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.gui.widget.ExtendedButton;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.lwjgl.opengl.GL11;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.joml.Matrix3x2f;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.direwolf20.buildinggadgets2.client.renderer.VBORenderer.isModelRender;
 
 public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerContainer> {
-    private static final ResourceLocation background = ResourceLocation.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/template_manager.png");
+    private static final Identifier background = Identifier.fromNamespaceAndPath(BuildingGadgets2.MODID, "textures/gui/template_manager.png");
 
     private final Rect2i panel = new Rect2i((8 - 20), 12, 136, 80);
     private boolean panelClicked;
@@ -88,14 +70,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     private ScrollingMaterialList scrollingList;
     private boolean showMaterialList = false;
 
-    private static final Map<RenderType, VertexBuffer> vertexBuffers = RenderType.chunkBufferLayers().stream().collect(Collectors.toMap((renderType) -> renderType, (type) -> new VertexBuffer(VertexBuffer.Usage.STATIC)));
-
     public TemplateManagerGUI(TemplateManagerContainer container, Inventory playerInventory, Component title) {
         super(container, playerInventory, Component.literal(""));
 
         this.container = container;
         this.be = container.getTe();
-
     }
 
     @Override
@@ -105,9 +84,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         updateNameField();
 
         int x = (leftPos - 20) + 180;
-        buttonSave = new ExtendedButton(x, topPos + 15, 60, 15, Component.translatable("buildinggadgets2.buttons.save"), (button) -> {
-            onSave();
-        });
+        buttonSave = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.save"), b -> onSave()).pos(x, topPos + 15).size(60, 15).build());
         buttonLoad = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.load"), b -> onLoad()).pos(x, topPos + 32).size(60, 15).build());
         buttonCopy = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.copy"), b -> onCopy()).pos(x, topPos + 50).size(60, 15).build());
         buttonPaste = addRenderableWidget(Button.builder(Component.translatable("buildinggadgets2.buttons.paste"), b -> onPaste()).pos(x, topPos + 67).size(60, 15).build());
@@ -115,7 +92,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
 
         this.renderSlot = 1;
 
-        addRenderableWidget(buttonSave);
         this.nameField.setMaxLength(50);
         this.nameField.setVisible(true);
         addRenderableWidget(nameField);
@@ -124,18 +100,53 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         updateAsNeeded();
         if (showMaterialList) {
             if (!renderables.contains(scrollingList))
                 this.addRenderableWidget(scrollingList);
         } else {
             this.removeWidget(scrollingList);
-            guiGraphics.flush(); //Calling this forces tooltips to be drawn since they are batched, tooltips render in the panel
-            this.renderPanel(guiGraphics);
+            submit3DPreview(graphics);
         }
+    }
+
+    /**
+     * Fill the preview rect with an opaque black backdrop, then queue a {@link GuiTemplatePreview.State}
+     * onto the PiP pipeline. Vanilla's {@code GuiRenderer} will spin up / reuse a
+     * {@link GuiTemplatePreview} (registered in {@code ClientSetup#registerPictureInPictureRenderers}),
+     * give it a private render target sized to the panel rect × guiScale, run
+     * {@link GuiTemplatePreview#renderToTexture} (which bakes the retained GPU mesh on cache miss
+     * then issues our manual RenderPass against the pre-uploaded vertex buffers), and blit the
+     * result into this rectangle with the current scissor applied.
+     */
+    private void submit3DPreview(GuiGraphicsExtractor graphics) {
+        int x0 = leftPos + panel.getX();
+        int y0 = topPos + panel.getY();
+        int x1 = x0 + panel.getWidth();
+        int y1 = y0 + panel.getHeight();
+
+        // Opaque backdrop behind the preview. PictureInPictureRenderer clears the PiP texture to
+        // the transparent color before renderToTexture runs; without this fill the GUI background
+        // bleeds through when the rotated preview's bounding box doesn't fill the panel.
+        graphics.fill(x0, y0, x1, y1, 0xFF202020);
+
+        if (statePosCache == null || statePosCache.isEmpty()) return;
+
+        int guiScale = (int) Minecraft.getInstance().getWindow().getGuiScale();
+        if (guiScale < 1) guiScale = 1;
+        ScreenRectangle scissor = graphics.peekScissorStack();
+
+        GuiTemplatePreview.State state = new GuiTemplatePreview.State(
+                x0, y0, x1, y1,
+                new Matrix3x2f(graphics.pose()),
+                scissor,
+                guiScale,
+                rotX, rotY, zoom, panX, panY,
+                copyPasteUUIDCache,
+                statePosCache);
+        graphics.submitPictureInPictureRenderState(state);
     }
 
     public void updateNameField() {
@@ -149,6 +160,7 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     public void updateAsNeeded() {
+        if (scrollingList == null) return; // init() hasn't finished the first time extractRenderState fires
         ItemStack gadgetStack = container.getSlot(0).getItem();
         ItemStack templateStack = container.getSlot(1).getItem();
         boolean updatePanel = false;
@@ -174,7 +186,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         ItemStack gadget = container.getSlot(renderSlot).getItem();
         UUID gadgetUUID = GadgetNBT.getUUID(gadget);
         if (gadget.isEmpty() || !(gadget.getItem() instanceof GadgetCopyPaste || gadget.getItem() instanceof TemplateItem || gadget.getItem() instanceof Redprint || gadget.getItem() instanceof GadgetCutPaste)) {
-            //vertexBuffers = null; //Clear vertex buffers when player removes item from the slot we're rendering
             copyPasteUUIDCache = UUID.randomUUID(); //Randomize the cached UUID so it rebuilds for next time
             resetViewport();
             scrollingList.setTemplateItem(gadget);
@@ -189,164 +200,25 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         //If we get here, the copy paste we have stored here differs from whats in the client AND the client is up to date, so rebuild!
         copyPasteUUIDCache = BG2ClientUUID; //Cache the new copyPasteUUID for next cycle
         statePosCache = BG2DataClient.getLookupFromUUID(gadgetUUID);
-        VBORenderer.generateRender(getMinecraft().level, BlockPos.ZERO, gadget, 1f, statePosCache, vertexBuffers);
+        // GuiTemplatePreview's renderToTexture rebuilds its retained-GPU-mesh cache on identity
+        // mismatch against the statePosCache reference we hand it, so no explicit bake step here.
         scrollingList.setTemplateItem(gadget);
         return true; //Need a render update!
     }
 
-    private void renderPanel(GuiGraphics guiGraphics) {
-        double scale = getMinecraft().getWindow().getGuiScale();
-        ItemStack gadget = container.getSlot(renderSlot).getItem();
-        if (gadget.isEmpty()) return;
-        ArrayList<StatePos> statePosCache = BG2DataClient.getLookupFromUUID(GadgetNBT.getUUID(gadget));
-        if (statePosCache == null || statePosCache.isEmpty()) return;
-
-        BlockPos startPos = statePosCache.get(0).pos;
-        BlockPos endPos = statePosCache.get(statePosCache.size() - 1).pos;
-
-        float lengthX = Math.abs(startPos.getX() - endPos.getX());
-        float lengthY = Math.abs(startPos.getY() - endPos.getY());
-        float lengthZ = Math.abs(startPos.getZ() - endPos.getZ());
-
-        final float maxW = 6 * 16;
-        final float maxH = 11 * 16;
-
-        float overW = Math.max(lengthX * 16 - maxW, lengthZ * 16 - maxW);
-        float overH = lengthY * 16 - maxH;
-
-        float sc = 1;
-        float zoomScale = 1;
-
-        if (overW > 0 && overW >= overH) {
-            sc = maxW / (overW + maxW);
-            zoomScale = overW / 40;
-        } else if (overH > 0 && overH >= overW) {
-            sc = maxH / (overH + maxH);
-            zoomScale = overH / 40;
-        }
-
-        int x1 = (int) Math.round((leftPos + panel.getX()) * scale);
-        int y1 = (int) Math.round(getMinecraft().getWindow().getHeight() - (topPos + panel.getY() + panel.getHeight()) * scale);
-        int x2 = (int) Math.round(panel.getWidth() * scale);
-        int y2 = (int) Math.round(panel.getHeight() * scale);
-
-
-        RenderSystem.viewport(x1, y1, x2, y2); //The viewport is like a mini world where things get drawn
-        RenderSystem.backupProjectionMatrix();
-
-        float fov = 60.0F;  // or whatever field of view you want
-        float aspectRatio = (float) width / height;  // width and height of your GUI or the "viewport" you want to use
-        float near = 0.1F;
-        float far = 1000.0F;
-
-        Matrix4f projectionMatrix = new Matrix4f();
-        projectionMatrix.setPerspective((float) Math.toRadians(fov), aspectRatio, near, far);
-        RenderSystem.setProjectionMatrix(projectionMatrix, VertexSorting.ORTHOGRAPHIC_Z); //This is needed to switch to 3d rendering instead of 2d for the screen
-
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.setIdentity();
-        poseStack.translate(-lengthZ / 2 + panX, -lengthY / 2 - panY, -lengthZ + zoom); //Move the objects in the world being drawn inside the viewport around
-        poseStack.mulPose(new Quaternionf().setAngleAxis(rotX / 180 * (float) Math.PI, 1, 0, 0)); //Rotate
-        poseStack.mulPose(new Quaternionf().setAngleAxis(rotY / 180 * (float) Math.PI, 0, 1, 0)); //Rotate
-        RenderSystem.applyModelViewMatrix();
-        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false); //Clear the depth buffer so it can draw where it is
-
-        RenderSystem.runAsFancy(() -> {
-            drawRenderScreen(poseStack, Minecraft.getInstance().player, statePosCache); //Draw VBO
-        });
-
-        poseStack.popPose(); //This should reset the view properly, but doesn't, hence the guiGraphics.flush() call before this method
-
-        RenderSystem.applyModelViewMatrix();
-        RenderSystem.viewport(0, 0, getMinecraft().getWindow().getWidth(), getMinecraft().getWindow().getHeight());
-        RenderSystem.restoreProjectionMatrix();
-    }
-
-    public void drawRenderScreen(PoseStack matrix, Player player, ArrayList<StatePos> statePosCache) {
-        if (container.getSlot(1).getItem().isEmpty()) {
-            return;
-        }
-
-        MultiBufferSource.BufferSource buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-
-        //Draw the renders in the specified order
-        ArrayList<RenderType> drawSet = new ArrayList<>();
-        drawSet.add(RenderType.solid());
-        drawSet.add(RenderType.cutout());
-        drawSet.add(RenderType.cutoutMipped());
-        drawSet.add(RenderType.translucent());
-        drawSet.add(RenderType.tripwire());
-        try {
-            for (RenderType renderType : drawSet) {
-                RenderType drawRenderType;
-                if (renderType.equals(RenderType.cutout()))
-                    drawRenderType = OurRenderTypes.RenderBlock;
-                else
-                    drawRenderType = RenderType.translucent();
-                VertexBuffer vertexBuffer = vertexBuffers.get(renderType);
-                if (vertexBuffer.getFormat() == null)
-                    continue; //IDE says this is never null, but if we remove this check we crash because its null so....
-                drawRenderType.setupRenderState();
-                vertexBuffer.bind();
-                vertexBuffer.drawWithShader(matrix.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-                VertexBuffer.unbind();
-                drawRenderType.clearRenderState();
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-
-        //if (true) return; //Remove this will render Tiles (Like chests) but remove tooltips - can't figure out how to fix tooltips!
-
-        matrix.pushPose();
-        matrix.setIdentity();
-        MyRenderMethods.MultiplyAlphaRenderTypeBuffer multiplyAlphaRenderTypeBuffer = new MyRenderMethods.MultiplyAlphaRenderTypeBuffer(buffersource, 1f);
-        //If any of the blocks in the render didn't have a model (like chests) we draw them here. This renders AND draws them, so more expensive than caching, but I don't think we have a choice
-        FakeRenderingWorld fakeRenderingWorld = new FakeRenderingWorld(player.level(), statePosCache, BlockPos.ZERO);
-        for (StatePos pos : statePosCache.stream().filter(pos -> !isModelRender(pos.state)).toList()) {
-            if (pos.state.isAir()) continue;
-            matrix.pushPose();
-            matrix.translate(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ());
-            BlockEntityRenderDispatcher blockEntityRenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher();
-            BlockEntity blockEntity = fakeRenderingWorld.getBlockEntity(pos.pos);
-            if (blockEntity != null) {
-                var renderer = blockEntityRenderer.getRenderer(blockEntity);
-                try {
-                    renderer.render(blockEntity, 0, matrix, multiplyAlphaRenderTypeBuffer, 15728640, OverlayTexture.NO_OVERLAY);
-                } catch (Exception e) {
-                    //No Op
-                }
-            } else {
-                try {
-                    MyRenderMethods.renderBETransparent(fakeRenderingWorld.getBlockState(pos.pos), matrix, buffersource, 15728640, 655360, 0.5f);
-                } catch (Exception e) {
-                    //No Op
-                }
-            }
-            matrix.popPose();
-        }
-        matrix.popPose();
-
-        buffersource.endLastBatch(); //Needed to draw the tiles at this point in the render pipeline or whatever - only for screens
-    }
-
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
-        //renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
 
-        guiGraphics.blit(background, leftPos - 20, topPos - 12, 0, 0, imageWidth, imageHeight + 25);
-        guiGraphics.blit(background, (leftPos - 20) + imageWidth, topPos + 8, imageWidth + 3, 30, 71, imageHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, background, leftPos - 20, topPos - 12, 0, 0, imageWidth, imageHeight + 25, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, background, (leftPos - 20) + imageWidth, topPos + 8, imageWidth + 3, 30, 71, imageHeight, 256, 256);
 
-        if (!buttonCopy.isHovered() && !buttonPaste.isHovered()) {
+        if (buttonCopy != null && buttonPaste != null && buttonLoad != null && !buttonCopy.isHovered() && !buttonPaste.isHovered()) {
             if (buttonLoad.isHovered())
-                guiGraphics.blit(background, (leftPos + imageWidth) - 44, topPos + 38, imageWidth, 0, 17, 24);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, background, (leftPos + imageWidth) - 44, topPos + 38, imageWidth, 0, 17, 24, 256, 256);
             else
-                guiGraphics.blit(background, (leftPos + imageWidth) - 44, topPos + 38, imageWidth + 17, 0, 16, 24);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, background, (leftPos + imageWidth) - 44, topPos + 38, imageWidth + 17, 0, 16, 24, 256, 256);
         }
-
-        this.nameField.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     private void resetViewport() {
@@ -360,7 +232,10 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int mouseButton = event.button();
         if (panel.contains((int) mouseX - leftPos, (int) mouseY - topPos)) {
             if (showMaterialList)
                 this.setFocused(scrollingList);
@@ -376,11 +251,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             this.scrollingList.setSelected(null);
         }
 
-        return super.mouseClicked(mouseX, mouseY, mouseButton);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int state) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         panelClicked = false;
         initRotX = rotX;
         initRotY = rotY;
@@ -388,36 +263,49 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         initPanY = panY;
         initZoom = zoom;
 
-        return super.mouseReleased(mouseX, mouseY, state);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if (showMaterialList)
-            return this.getFocused() != null && this.isDragging() && button == 0 ? this.getFocused().mouseDragged(x, y, button, dx, dy) : false;
-        return super.mouseDragged(x, y, button, dx, dy);
+            return this.getFocused() != null && this.isDragging() && event.button() == 0 && this.getFocused().mouseDragged(event, dx, dy);
+        return super.mouseDragged(event, dx, dy);
     }
 
     @Override
-    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
-        if (p_keyPressed_1_ == 256) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.key() == 256) {
             this.onClose();
             return true;
         }
 
-        return this.nameField.isFocused() ? this.nameField.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_) : super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
+        return this.nameField.isFocused() ? this.nameField.keyPressed(event) : super.keyPressed(event);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractContents(graphics, mouseX, mouseY, partialTicks);
+
+        // Post-slot overlay. In 1.21.1 this used PoseStack.translate(0, 0, 1000) to draw above
+        // the slots; in 26.1, pose() is a Matrix3x2fStack (2D only), so we use nextStratum() to
+        // push onto a higher GUI render stratum that is drawn on top of everything above.
+        if (buttonSave != null && buttonLoad != null && buttonPaste != null
+                && (buttonSave.isHovered() || buttonLoad.isHovered() || buttonPaste.isHovered())) {
+            graphics.nextStratum();
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(leftPos, topPos);
+            drawSlotOverlay(graphics, buttonLoad.isHovered() ? container.getSlot(0) : container.getSlot(1));
+            graphics.pose().popMatrix();
+        }
+    }
+
+    @Override
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (panelClicked) {
             if (clickButton == 0) {
-                float prevRotX = rotX;
-                float prevRotY = rotY;
                 rotX = initRotX - ((int) getMinecraft().mouseHandler.ypos() - clickY);
                 rotY = initRotY + ((int) getMinecraft().mouseHandler.xpos() - clickX);
-                //momentumX = rotX - prevRotX;
-                //momentumY = rotY - prevRotY;
             } else if (clickButton == 1) {
                 panX = initPanX + ((int) getMinecraft().mouseHandler.xpos() - clickX) / 8f;
                 panY = initPanY + ((int) getMinecraft().mouseHandler.ypos() - clickY) / 8f;
@@ -433,19 +321,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         momentumY *= momentumDampening;
 
         if (!nameField.isFocused() && nameField.getValue().isEmpty())
-            guiGraphics.drawString(font, Component.translatable("buildinggadgets2.screen.templateplaceholder"), nameField.getX() - leftPos + 4, (nameField.getY() + 2) - topPos, -10197916);
-
-        if (buttonSave.isHovered() || buttonLoad.isHovered() || buttonPaste.isHovered())
-            drawSlotOverlay(guiGraphics, buttonLoad.isHovered() ? container.getSlot(0) : container.getSlot(1));
-
-
+            graphics.text(font, Component.translatable("buildinggadgets2.screen.templateplaceholder"), nameField.getX() - leftPos + 4, (nameField.getY() + 2) - topPos, 0xFF636363);
     }
 
-    private void drawSlotOverlay(GuiGraphics guiGraphics, Slot slot) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 1000);
-        guiGraphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, -1660903937);
-        guiGraphics.pose().popPose();
+    private void drawSlotOverlay(GuiGraphicsExtractor graphics, Slot slot) {
+        graphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x9C00FFFF);
     }
 
     @Override
@@ -479,11 +359,11 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     }
 
     private void onSave() {
-        PacketDistributor.sendToServer(new UpdateTemplateManagerPayload(be.getBlockPos(), 0, nameField.getValue()));
+        ClientPacketDistributor.sendToServer(new UpdateTemplateManagerPayload(be.getBlockPos(), 0, nameField.getValue()));
     }
 
     private void onLoad() {
-        PacketDistributor.sendToServer(new UpdateTemplateManagerPayload(be.getBlockPos(), 1, nameField.getValue()));
+        ClientPacketDistributor.sendToServer(new UpdateTemplateManagerPayload(be.getBlockPos(), 1, nameField.getValue()));
     }
 
     private Template getTemplate() {
@@ -516,10 +396,10 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         try {
             Template template = new Template(CBString);
             if (template.statePosArrayList == null || template.statePosArrayList.equals("")) return;
-            CompoundTag deserializedNBT = TagParser.parseTag(template.statePosArrayList);
+            CompoundTag deserializedNBT = TagParser.parseCompoundFully(template.statePosArrayList);
             statePosArrayList = BG2Data.statePosListFromNBTMapArray(deserializedNBT);
         } catch (Exception e) {
-            getMinecraft().player.displayClientMessage(Component.translatable("buildinggadgets2.screen.invalidjson"), true);
+            getMinecraft().gui.setOverlayMessage(Component.translatable("buildinggadgets2.screen.invalidjson"), false);
             // Handle the exception if the string isn't a valid NBT
             return;
         }
@@ -527,23 +407,6 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
             return;
         CompoundTag serverTag = BG2Data.statePosListToNBTMapArray(statePosArrayList);
         UUID copyUUID = UUID.randomUUID();
-        PacketDistributor.sendToServer(new SendPastePayload(copyUUID, serverTag));
-    }
-
-    //TODO WIP
-    private void onReplace(BlockState targetState) {
-        if (!showMaterialList || this.scrollingList.getSelected() == null)
-            return;
-
-        //doReplace(this.scrollingList.getSelected().getStack(), targetState);
-        //System.out.println(this.scrollingList.getSelected().getItemName());
-    }
-
-    private void doReplace(BlockState sourceState, BlockState targetState) {
-        Template template = getTemplate();
-        if (template.statePosArrayList.isEmpty()) return;
-
-        template.replaceBlocks(sourceState, targetState);
-
+        ClientPacketDistributor.sendToServer(new SendPastePayload(copyUUID, serverTag));
     }
 }

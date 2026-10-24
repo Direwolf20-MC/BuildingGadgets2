@@ -7,19 +7,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class Redprint extends Item {
 
-    public Redprint() {
-        super(new Properties()
-                .stacksTo(1));
+    public Redprint(Properties properties) {
+        super(properties);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, display, tooltip, flagIn);
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             return;
@@ -28,7 +28,7 @@ public class Redprint extends Item {
         String templateName = GadgetNBT.getTemplateName(stack);
 
         if (!templateName.isEmpty())
-            tooltip.add(Component.translatable("buildinggadgets2.templatename", templateName).withStyle(ChatFormatting.RED));
+            tooltip.accept(Component.translatable("buildinggadgets2.templatename", templateName).withStyle(ChatFormatting.RED));
 
     }
 }
