@@ -176,7 +176,7 @@ idea {
 publishMods {
     def token = providers.environmentVariable("CURSE_TOKEN");
     dryRun = !token.isPresent()
-    changelog = createChangelog()
+    changelog = providers.provider { createChangelog() }
     version = project.version
     type = STABLE
 
