@@ -18,6 +18,7 @@ import com.direwolf20.buildinggadgets2.common.network.data.SendPastePayload;
 import com.direwolf20.buildinggadgets2.common.network.data.UpdateTemplateManagerPayload;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2Data;
 import com.direwolf20.buildinggadgets2.common.worlddata.BG2DataClient;
+import com.direwolf20.buildinggadgets2.setup.BG2DataComponents;
 import com.direwolf20.buildinggadgets2.util.GadgetNBT;
 import com.direwolf20.buildinggadgets2.util.datatypes.StatePos;
 import com.direwolf20.buildinggadgets2.util.datatypes.Template;
@@ -59,9 +60,12 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
     private Button buttonSave, buttonLoad, buttonCopy, buttonPaste, buttonToggleViewport;
 
     private int renderSlot = 0;
-    public static UUID gadgetUUID = UUID.randomUUID(); //Cached version of whatevers in slot 0
-    public static UUID templateUUID = UUID.randomUUID(); //Cached version of whatevers in slot 1
-    public static UUID copyPasteUUIDCache = UUID.randomUUID(); //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
+
+    private static final UUID EMPTY_UUID = new UUID(0, 0);
+
+    public static UUID gadgetUUID = EMPTY_UUID; //Cached version of whatevers in slot 0
+    public static UUID templateUUID = EMPTY_UUID; //Cached version of whatevers in slot 1
+    public static UUID copyPasteUUIDCache = EMPTY_UUID; //A unique ID of the copy/paste, which we'll use to determine if we need to request an update from the server Its initialized as random to avoid having to null check it
     private static ArrayList<StatePos> statePosCache;
 
     private final TemplateManagerBE be;
@@ -165,8 +169,17 @@ public class TemplateManagerGUI extends AbstractContainerScreen<TemplateManagerC
         ItemStack templateStack = container.getSlot(1).getItem();
         boolean updatePanel = false;
 
-        UUID gadgetStackUUID = GadgetNBT.getUUID(gadgetStack);
-        UUID templateStackUUID = GadgetNBT.getUUID(templateStack);
+        // getUUID has a side-effect of creating the new uuid if one does not exist, but the client can't
+        // create one as this has to happen on the server. In this case, we use null.
+        UUID gadgetStackUUID = EMPTY_UUID;
+        if (gadgetStack.has(BG2DataComponents.GADGET_UUID)) {
+            gadgetStackUUID = GadgetNBT.getUUID(gadgetStack);
+        }
+
+        UUID templateStackUUID = EMPTY_UUID;
+        if (templateStack.has(BG2DataComponents.GADGET_UUID)) {
+            templateStackUUID = GadgetNBT.getUUID(templateStack);
+        }
 
         if (!gadgetStackUUID.equals(gadgetUUID)) {
             gadgetUUID = gadgetStackUUID;
