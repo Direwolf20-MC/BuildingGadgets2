@@ -1,0 +1,21 @@
+{
+  "name": "Взаимодействие с жидкостями",
+  "sortnum": 1,
+  "category": "buildinggadgets2:mechanics",
+  "icon": "buildinggadgets2:textures/book/icons/raytrace_fluid.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Функция «Взаимодействие с жидкостями» позволяет гаджетам работать с жидкостями. Когда она включена, обменные гаджеты могут заменять жидкости, а строительные — строить поверх них. $(br2)Если функция выключена, гаджеты будут игнорировать жидкости и строить на блоках, находящихся за ними.$(br2)Смотрите главу $(l:buildinggadgets2:mech_fluid_handling)Взаимодействие с жидкостями$(/l) для получения подробной информации."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Взаимодействие с жидкостями",
+      "images": [
+        "buildinggadgets2:textures/book/images/raytracefluids.png"
+      ],
+      "border": true,
+      "text": "Взаимодействие с жидкостями в действии!"
+    }
+  ]
+}

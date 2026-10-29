@@ -1,0 +1,37 @@
+{
+  "name": "Поверхность",
+  "sortnum": 1,
+  "category": "buildinggadgets2:modes",
+  "icon": "buildinggadgets2:textures/book/mode/surface.png",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Режим «Поверхность» расширяет плоскость блоков, на которую вы смотрите. В качестве примера посмотрите на изображения справа.$(br2)«Размытый режим» позволяет гаджету выбирать любые типы блоков или же строго те блоки, которые идентичны целевому."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Поверхность и Размытый режим",
+      "images": [
+        "buildinggadgets2:textures/book/images/surface5.png",
+        "buildinggadgets2:textures/book/images/surface1.png",
+        "buildinggadgets2:textures/book/images/surface2.png"
+      ],
+      "border": true,
+      "text": "Переключите изображения выше, чтобы увидеть разные варианты"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Этот режим также доступен и для обменного гаджета, где «Размытый режим» работает точно так же. $(br2)Кроме того, функция «Связанная область» заставит гаджет заменять только те блоки, которые соединены с блоком, на который вы смотрите. Наглядный пример показан на изображениях справа."
+    },
+    {
+      "type": "patchouli:image",
+      "title": "Поверхность и Связанная область",
+      "images": [
+        "buildinggadgets2:textures/book/images/surface3.png",
+        "buildinggadgets2:textures/book/images/surface4.png"
+      ],
+      "border": true,
+      "text": "Переключите изображения выше, чтобы увидеть разные варианты"
+    }
+  ]
+}

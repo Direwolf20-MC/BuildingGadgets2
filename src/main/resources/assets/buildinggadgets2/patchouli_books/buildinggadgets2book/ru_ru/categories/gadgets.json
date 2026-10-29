@@ -1,0 +1,6 @@
+{
+  "name": "Гаджеты",
+  "description": "Гаджеты!",
+  "icon": "buildinggadgets2:gadget_building{energy:500000}",
+  "sortnum": 0
+}
