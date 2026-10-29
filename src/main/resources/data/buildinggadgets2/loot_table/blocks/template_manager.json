@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "buildinggadgets2:template_manager"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "buildinggadgets2:blocks/template_manager"
+}

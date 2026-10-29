@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "buildinggadgets2",
+  "key": {
+    "e": "#c:gems/emerald",
+    "i": "#c:ingots/iron",
+    "l": "#c:gems/lapis",
+    "r": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "iri",
+    "ere",
+    "ili"
+  ],
+  "result": {
+    "id": "buildinggadgets2:gadget_copy_paste"
+  }
+}
