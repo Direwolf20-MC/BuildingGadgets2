@@ -1,5 +1,10 @@
 # Changelog
 
+## `26.1.2.2`
+
+### Fixed
+* Added back tags + recipes accidentally removed in the last update...
+
 ## `26.1.2.1`
 
 ### Fixed
