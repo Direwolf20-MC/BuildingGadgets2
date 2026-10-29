@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "buildinggadgets2",
+  "key": {
+    "i": "#c:ingots/iron",
+    "l": "#c:gems/lapis",
+    "p": "minecraft:paper",
+    "r": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "iri",
+    "prp",
+    "ili"
+  ],
+  "result": {
+    "id": "buildinggadgets2:template_manager"
+  }
+}

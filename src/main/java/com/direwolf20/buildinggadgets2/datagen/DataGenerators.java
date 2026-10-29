@@ -24,12 +24,7 @@ public class DataGenerators {
 
         generator.addProvider(true, new BG2ModelProvider(packOutput));
         generator.addProvider(true, new BG2LanguageProvider(packOutput, "en_us"));
-    }
 
-    @SubscribeEvent
-    public static void gatherServerData(GatherDataEvent.Server event) {
-        DataGenerator generator = event.getGenerator();
-        PackOutput packOutput = generator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(true, new BG2Recipes.Runner(packOutput, lookupProvider));
