@@ -1,5 +1,10 @@
 # Changelog
 
+## `26.1.2.3`
+
+### Fixed
+* Properly fixed the data-gen for recipes and tags.
+
 ## `26.1.2.2`
 
 ### Fixed
