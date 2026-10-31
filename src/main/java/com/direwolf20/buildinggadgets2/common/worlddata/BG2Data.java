@@ -11,10 +11,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -22,12 +22,15 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class BG2Data extends SavedData {
     private static final String NAME = "buildinggadgets2";
+    // Bound the packed int buffer to 64 MiB; this does not raise gadget limits.
+    static final int MAX_PACKED_CELLS = 16_777_216;
 
     private static final Codec<StatePos> STATEPOS_CODEC = CompoundTag.CODEC.xmap(StatePos::new, StatePos::getTag);
     private static final Codec<TagPos> TAGPOS_CODEC = CompoundTag.CODEC.xmap(TagPos::new, TagPos::getTag);
@@ -179,26 +182,63 @@ public class BG2Data extends SavedData {
     public static CompoundTag statePosListToNBTMapArray(ArrayList<StatePos> list) {
         CompoundTag tag = new CompoundTag();
         if (list == null || list.isEmpty()) return tag;
-        ArrayList<BlockState> blockStateMap = StatePos.getBlockStateMap(list);
-        ListTag blockStateMapList = StatePos.getBlockStateNBT(blockStateMap);
-        int[] blocklist = new int[list.size()];
-        final int[] counter = {0};
-        BlockPos start = list.get(0).pos;
-        BlockPos end = list.get(list.size() - 1).pos;
-        AABB aabb = VecHelpers.aabbFromBlockPos(start, end);
-
-        Map<BlockPos, BlockState> blockStateByPos = list.stream()
-                .collect(Collectors.toMap(e -> e.pos, e -> e.state));
-
-        BlockPos.betweenClosedStream(aabb).map(BlockPos::immutable).forEach(pos -> {
-            BlockState blockState = blockStateByPos.get(pos);
-            blocklist[counter[0]++] = blockStateMap.indexOf(blockState);
-        });
+        ArrayList<StatePos> snapshot = new ArrayList<>(list);
+        BlockPos start = Objects.requireNonNull(snapshot.getFirst().pos).immutable();
+        BlockPos end = Objects.requireNonNull(snapshot.getLast().pos).immutable();
+        BlockPos min = new BlockPos(Math.min(start.getX(), end.getX()), Math.min(start.getY(), end.getY()), Math.min(start.getZ(), end.getZ()));
+        BlockPos max = new BlockPos(Math.max(start.getX(), end.getX()), Math.max(start.getY(), end.getY()), Math.max(start.getZ(), end.getZ()));
+        for (StatePos entry : snapshot) {
+            Objects.requireNonNull(entry);
+            Objects.requireNonNull(entry.state);
+            Objects.requireNonNull(entry.pos);
+            min = new BlockPos(Math.min(min.getX(), entry.pos.getX()), Math.min(min.getY(), entry.pos.getY()), Math.min(min.getZ(), entry.pos.getZ()));
+            max = new BlockPos(Math.max(max.getX(), entry.pos.getX()), Math.max(max.getY(), entry.pos.getY()), Math.max(max.getZ(), entry.pos.getZ()));
+        }
+        int volume = checkedPackedVolume(min, max);
+        AABB originalBounds = VecHelpers.aabbFromBlockPos(start, end);
+        // Preserve normal endpoint orientation, but never silently drop outliers.
+        if (min.getX() < originalBounds.minX || min.getY() < originalBounds.minY || min.getZ() < originalBounds.minZ
+                || max.getX() > originalBounds.maxX || max.getY() > originalBounds.maxY || max.getZ() > originalBounds.maxZ) {
+            start = min;
+            end = max;
+        }
+        Map<BlockPos, BlockState> blockStateByPos = new HashMap<>();
+        LinkedHashMap<BlockState, Integer> paletteIndices = new LinkedHashMap<>();
+        for (StatePos entry : snapshot) {
+            // A coordinate represents one cell; the newest duplicate record wins.
+            blockStateByPos.put(entry.pos.immutable(), entry.state);
+            paletteIndices.computeIfAbsent(entry.state, ignored -> paletteIndices.size());
+        }
+        BlockState air = Blocks.AIR.defaultBlockState();
+        // Resizing alone is insufficient: indexOf(null) would encode -1 for gaps.
+        if (blockStateByPos.size() < volume) {
+            paletteIndices.computeIfAbsent(air, ignored -> paletteIndices.size());
+        }
+        int[] blocklist = new int[volume];
+        int cursor = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            blocklist[cursor++] = paletteIndices.get(blockStateByPos.getOrDefault(pos, air));
+        }
         tag.put("startpos", writeBlockPos(start));
         tag.put("endpos", writeBlockPos(end));
-        tag.put("blockstatemap", blockStateMapList);
+        tag.put("blockstatemap", StatePos.getBlockStateNBT(new ArrayList<>(paletteIndices.keySet())));
         tag.putIntArray("statelist", blocklist); //Todo - Short Array?
         return tag;
+    }
+
+    static int checkedPackedVolume(BlockPos min, BlockPos max) {
+        try {
+            long x = (long) max.getX() - min.getX() + 1;
+            long y = (long) max.getY() - min.getY() + 1;
+            long z = (long) max.getZ() - min.getZ() + 1;
+            long volume = Math.multiplyExact(Math.multiplyExact(x, y), z);
+            if (x <= 0 || y <= 0 || z <= 0 || volume > MAX_PACKED_CELLS) {
+                throw new IllegalArgumentException("Copy bounds exceed safe packed volume");
+            }
+            return Math.toIntExact(volume);
+        } catch (ArithmeticException e) {
+            throw new IllegalArgumentException("Copy bounds overflow packed volume", e);
+        }
     }
 
     /**
